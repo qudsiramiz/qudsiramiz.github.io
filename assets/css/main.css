@@ -1066,6 +1066,8 @@ input, select, textarea {
 		text-align: center;
 		text-decoration: none;
 		text-transform: uppercase;
+		overflow: hidden;
+  		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
 
@@ -1682,6 +1684,8 @@ ul.my-row {
   display: table;
   width: 100%;
   text-align: center;
+  text-size-adjust: small;
+  font-size: 28px;
 }
 
 ul.my-row > li {
