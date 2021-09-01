@@ -1678,7 +1678,15 @@ input, select, textarea {
 			}
 
 		}
+ul.my-row {
+  display: table;
+  width: 100%;
+  text-align: center;
+}
 
+ul.my-row > li {
+  display: table-cell;
+}
 /* Footer */
 
 	#footer {
