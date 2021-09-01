@@ -1727,3 +1727,30 @@ ul.my-row > li {
 		body.is-preload #footer {
 			opacity: 0;
 		}
+
+/* Added by Qudsi */
+.container-header{
+    line-height: 2.22;
+}
+#social_icons {
+    padding: .1em;
+    display: inline-block;
+	align-items: left;
+	align-content: left;
+}
+
+.topmenu li {
+     display:inline-block;
+     font-size: 1.2em;
+     text-align: right;
+}
+.topmenu.omega{
+     float:right;
+}
+ul{
+     margin: 0;
+}
+li>a
+{
+    font-size: 20px;
+}
