@@ -118,25 +118,21 @@
                         <ul class="my-row" style="text-align:left; text-size-adjust:auto;">
                             <li>
                                 <p>
-                                    <font-size="25em"><a href="#research-lopp">Publications</a>
+                                    <font size="12em"><a href="#research-lopp">Publications</a>
+                                        </font>
+                                </p>
+                                <p>
+                                    <font size="12em"><a href="#research-thesis">Thesis</a>
                                         </font>
                                 </p>
                             </li>
                             <li>
                                 <p>
-                                    <font-size="25em"><a href="#research-thesis">Thesis</a>
+                                    <font size="12em"><a href="#research-presentations">Presentations</a>
                                         </font>
                                 </p>
-                            </li>
-                            <li>
                                 <p>
-                                    <font-size="25em"><a href="#research-presentations">Presentations</a>
-                                        </font>
-                                </p>
-                            </li>
-                            <li>
-                                <p>
-                                    <font-size="25em"><a href="#research-posters">Posters</a>
+                                    <font size="12em"><a href="#research-posters">Posters</a>
                                         </font>
                                 </p>
                             </li>
@@ -456,8 +452,11 @@
                         <ul class="my-row" style="text-align:left; text-size-adjust:auto;">
                             <li>
                                 <p>
-                                    <font-size="25em"></font-size><a href="#curiosity-rtsw">Real-time Solar
-                                    Wind parameters</a>
+                                    <font-size="25em"></font-size><a
+                                    href="#curiosity-rtsw">Real-time Solar Wind parameters</a>
+                                    <br>
+                                    <font-size="25em"></font-size><a href="#curiosity-books">The
+                                    Book Section</a>
                                     </font>
                                 </p>
                             </li>
@@ -488,6 +487,83 @@
                         width="800" height="1000" allow="autoplay"></iframe>
 
                     </article>
+
+                    <article id="curiosity-books" style="display: none;">
+                        <h2 style="text-align:center;" class="button_02">The Book Section</h2>
+                        <p style="text-align:justify;">
+                            <span class="image main"><img src="images/library_images/sanderson_shelf.jpg" alt=""></span>
+                        </p>
+
+                        <nav>
+                            <ul class="my-row" style="text-align:left; text-size-adjust:large;">
+                                <li>
+                                    <p><font size="12em"><a href="#curiosity-books-shelf">Bookshelf</a></font></p>
+                                </li>
+                                <li>
+                                    <p><font size="12em"><a href="#curiosity-books-reviews">Reviews</a></font></p>
+                                </li>
+                                <!--li>
+                                    <p><font size="12em"><a href="#curiosity-books-">Tiny Tales</a></font></p>
+                                </li-->
+                            </ul>
+                        </nav>
+                    </article>
+                    <article id="curiosity-books-shelf" style="display: none;">
+                        <h2 style="text-align:center;" class="button_03">Bookshelf</h2>
+                        <p style="text-align:justify;">
+                            <span class="image main"><img
+                            src="images/library_images/bookshelf_1.jpg" alt=""></span>
+
+<script>
+    function includeHTML() {
+        var z, i, elmnt, file, xhttp;
+        /*loop through a collection of all HTML elements:*/
+        z = document.getElementsByTagName("*");
+        for (i = 0; i < z.length; i++) {
+            elmnt = z[i];
+            /*search for elements with a certain atrribute:*/
+            file = elmnt.getAttribute("include-html");
+            if (file) {
+                /*make an HTTP request using the attribute value as the file name:*/
+                xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function () {
+                    if (this.readyState == 4) {
+                        if (this.status == 200) { elmnt.innerHTML = this.responseText; }
+                        if (this.status == 404) { elmnt.innerHTML = "Page not found."; }
+                        /*remove the attribute, and call this function once more:*/
+                        elmnt.removeAttribute("include-html");
+                        includeHTML();
+                    }
+                }
+                xhttp.open("GET", file, true);
+                xhttp.send();
+                /*exit the function:*/
+                return;
+            }
+        }
+    };
+</script>
+    <div include-html="Bookshelf-2022-01-21.html"></div>
+
+    <script>
+        includeHTML("Bookshelf-2022-01-21.html");
+    </script>
+
+                            <!--head><link rel="import" href="Bookshelf-2022-01-21.html"></head-->
+                            
+                        </p>
+                    </article>
+
+
+                    <article id="curiosity-books-reviews" style="display: none;">
+                        <h2 style="text-align:center;" class="button_03">Random book reviews</h2>
+                        <p style="text-align:justify;">
+                            <!--span class="image main"><img
+                            src="images/library_images/bookshelf_1.jpg" alt=""></span-->
+                            Coming soon
+                        </p>
+                    </article>
+
 
                 <!-- Contact -->
                 <article id="contact">

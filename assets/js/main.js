@@ -399,6 +399,10 @@
 					});
 
 	// Added by Qudsi
+	$(function () {
+		$("#includedContent").load("Bookshelf-2022-01-21.html");
+	});
+
 	$("a.expansion-btn").click(function () {
 		classes = this.className;
 		var divNumber = classes.slice(-1);
