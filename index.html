@@ -477,6 +477,7 @@
                                 Real-time Solar Wind parameters
                             </h2>
                         </font>
+
                         <font size="4em">
                             <p style="text-align:justify;">
                                 27 Days solar wind parameters derived from DSCOVR dataset. Data is
@@ -485,11 +486,22 @@
                                 hourly averaged data for the entire period. Magnetic field is in GSM
                                 coordinate system.
                             </p>
-                            <br></br>
+                            <br>
                             <p style="text-align:justify;">
-                            Codes used to produce the figures are available on <a
-                            href="https://github.com/qudsiramiz/dxl_bu", target="_blank">GitHub</a>.
+                                Codes used to produce the figures are available on <a
+                                    href="https://github.com/qudsiramiz/qudsiramiz.github.io/tree/main/python" ,
+                                    target="_blank">GitHub</a>.
                             </p>
+
+                            <script language="Javascript">
+                                var time_string_utc = document.lastModified;
+                                var time_string_utc_epoch = Date.parse(time_string_utc);
+                                var time_utc = new Date();
+
+                                time_utc.setTime(time_string_utc_epoch);
+                                document.write("The video was last updated on: " + time_utc);
+                            </script>
+
                             <video width="800" height="1000" controls>
                                 <source src="./images/moving_pictures/DSCOVR_30days_hourly_averaged.mp4" type="video/mp4">
                             </video>
