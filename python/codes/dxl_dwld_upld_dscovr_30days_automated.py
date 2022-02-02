@@ -1,3 +1,6 @@
+#!/home/cephadrius/dlx_venv/bin/python
+# -*- coding: utf-8 -*-
+
 # Code to read a net cdf file
 import datetime
 import glob

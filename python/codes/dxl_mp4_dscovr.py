@@ -1,3 +1,6 @@
+#!/home/cephadrius/dlx_venv/bin/python
+# -*- coding: utf-8 -*-
+
 import datetime
 import glob as glob
 import time
