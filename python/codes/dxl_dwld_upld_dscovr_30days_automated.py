@@ -169,9 +169,9 @@ def plot_figures_dsco_30days(number_of_days=30):
     ticklabelsize = 20
     # cticklabelsize = 15
     # clabelsize = 15
-    ticklength = 6
-    tickwidth = 1.0
-    # mticklength = 4
+    ticklength = 12
+    tickwidth = 1.5
+    mticklength = 8
     # cticklength = 5
     # mcticklength = 4
     # labelrotation = 0
@@ -209,7 +209,13 @@ def plot_figures_dsco_30days(number_of_days=30):
             t_end = t_end + datetime.timedelta(days=0.25)
             continue
 
-        fig = plt.figure(num=None, figsize=(10, 15), dpi=200, facecolor='w', edgecolor='gray')
+        # Use the dark theme for the plot
+        plt.style.use('dark_background')
+
+        tick_color = 'w' # color of the tick lines
+        label_color = 'w' # color of the tick labels
+
+        fig = plt.figure(num=None, figsize=(10, 15), dpi=200, facecolor='k', edgecolor='gray')
         fig.subplots_adjust(left=0.01, right=0.95, top=0.95, bottom=0.01, wspace=0.02, hspace=0.)
         fig.suptitle(f'30 days DSCOVR Real Time Data', fontsize=24)
 
@@ -234,9 +240,9 @@ def plot_figures_dsco_30days(number_of_days=30):
 
         # Magnetic field plot (y-component)
         axs2 = fig.add_subplot(gs[1:2, 0])
-        im2a = axs2.plot(df_dscovr_hc.index, df_dscovr_hc.by_gsm, 'g-', alpha=0.3, lw=lw, ms=ms,
+        im2a = axs2.plot(df_dscovr_hc.index, df_dscovr_hc.by_gsm, 'c-', alpha=0.3, lw=lw, ms=ms,
                                                                                     label=r'$B_y$')
-        im2b = axs2.plot(df_dscovr.index, df_dscovr.by_gsm, 'g-', lw=lw, ms=ms, label=r'$B_y$')
+        im2b = axs2.plot(df_dscovr.index, df_dscovr.by_gsm, 'c-', lw=lw, ms=ms, label=r'$B_y$')
 
         if df_dscovr.bm.isnull().all():
             axs2.set_ylim([-1, 1])
@@ -249,9 +255,10 @@ def plot_figures_dsco_30days(number_of_days=30):
 
         # Magnetic field plot (z-component)
         axs3 = fig.add_subplot(gs[2:3, 0])
-        im3a = axs3.plot(df_dscovr_hc.index, df_dscovr_hc.bz_gsm, 'b-', alpha=0.3, lw=lw, ms=ms,
-                                                                                    label=r'$B_z$')
-        im3b = axs3.plot(df_dscovr.index, df_dscovr.bz_gsm, 'b-', lw=lw, ms=ms, label=r'$B_z$')
+        im3a = axs3.plot(df_dscovr_hc.index, df_dscovr_hc.bz_gsm, color='bisque', ls='-', alpha=0.3,
+                         lw=lw, ms=ms, label=r'$B_z$')
+        im3b = axs3.plot(df_dscovr.index, df_dscovr.bz_gsm, color='bisque', lw=lw, ms=ms,
+                         label=r'$B_z$')
 
         if df_dscovr.bm.isnull().all():
             axs3.set_ylim([-1, 1])
@@ -264,9 +271,9 @@ def plot_figures_dsco_30days(number_of_days=30):
 
         # Magnetic field plot (z-component)
         axs4 = fig.add_subplot(gs[3:4, 0])
-        im4a = axs4.plot(df_dscovr_hc.index, df_dscovr_hc.bm, 'k-', alpha=0.3, lw=lw, ms=ms,
+        im4a = axs4.plot(df_dscovr_hc.index, df_dscovr_hc.bm, 'w-', alpha=0.3, lw=lw, ms=ms,
                                                                             label=r'|$\vec{B}$|')
-        im4b = axs4.plot(df_dscovr.index, df_dscovr.bm, 'k-', lw=lw, ms=ms, label=r'$B_z$')
+        im4b = axs4.plot(df_dscovr.index, df_dscovr.bm, 'w-', lw=lw, ms=ms, label=r'$B_z$')
 
         if df_dscovr.bm.isnull().all():
             axs4.set_ylim([-1, 1])
@@ -274,14 +281,15 @@ def plot_figures_dsco_30days(number_of_days=30):
             axs4.set_ylim(0.8 * np.nanmin(df_dscovr_all.bm), 1.2 * np.nanmax(df_dscovr_all.bm))
 
         axs4.set_xlim(df_dscovr.index.min(), df_dscovr.index.max())
-        axs4.set_ylabel(r'B [nT]', fontsize=20 )
+        axs4.set_ylabel(r'B [nT]', fontsize=20, color=label_color)
 
         axs4.set_yscale('log')
 
         # Density plot
         axs5 = fig.add_subplot(gs[4:5, 0], sharex=axs1)
-        im5 = axs5.plot(df_dscovr.index, df_dscovr.np, 'r-', lw=lw, ms=ms, label=r'$n_p$')
-        axs5.plot(df_dscovr_hc.index, df_dscovr_hc.np, color='r', lw=1, alpha=alpha)
+        im5 = axs5.plot(df_dscovr.index, df_dscovr.np, color='fuchsia', ls='-', lw=lw, ms=ms,
+                        label=r'$n_p$')
+        axs5.plot(df_dscovr_hc.index, df_dscovr_hc.np, color='fuchsia', lw=1, alpha=alpha)
 
         if df_dscovr.np.isnull().all():
             axs5.set_ylim([0, 1])
@@ -292,8 +300,9 @@ def plot_figures_dsco_30days(number_of_days=30):
         axs5.set_ylabel(r'$n_{\rm p} [1/\rm{cm^{3}}]$', fontsize=ylabelsize)
 
         axs5a = axs5.twinx()
-        im5a = axs5a.plot(df_dscovr.index, df_dscovr.flux, 'g-', lw=lw, ms=ms, label=r'flux')
-        axs5a.plot(df_dscovr_hc.index, df_dscovr_hc.flux, color='g', lw=1, alpha=alpha)
+        im5a = axs5a.plot(df_dscovr.index, df_dscovr.flux, color='oldlace', ls='-', lw=lw, ms=ms,
+                          label=r'flux')
+        axs5a.plot(df_dscovr_hc.index, df_dscovr_hc.flux, color='oldlace', lw=1, alpha=alpha)
 
         if df_dscovr.flux.isnull().all():
             axs5a.set_ylim([0, 1])
@@ -306,8 +315,9 @@ def plot_figures_dsco_30days(number_of_days=30):
 
         # Speed plot
         axs6 = fig.add_subplot(gs[5:6, 0], sharex=axs1)
-        im6 = axs6.plot(df_dscovr.index, df_dscovr.vp, 'b-', lw=lw, ms=ms, label=r'$V_p$')
-        axs6.plot(df_dscovr_hc.index, df_dscovr_hc.vp, color='b', lw=1, alpha=alpha)
+        im6 = axs6.plot(df_dscovr.index, df_dscovr.vp, color='ivory', ls='-', lw=lw, ms=ms,
+                        label=r'$V_p$')
+        axs6.plot(df_dscovr_hc.index, df_dscovr_hc.vp, color='ivory', lw=1, alpha=alpha)
 
         if df_dscovr.vp.isnull().all():
             axs6.set_ylim([0, 1])
@@ -318,8 +328,9 @@ def plot_figures_dsco_30days(number_of_days=30):
 
         # Flux plot
         axs6a = axs6.twinx()
-        im6a = axs6a.plot(df_dscovr.index, df_dscovr.tp/1.e5, 'g-', lw=lw, ms=ms, label=r'flux')
-        axs6a.plot(df_dscovr_hc.index, df_dscovr_hc.tp, color='g', lw=1, alpha=alpha)
+        im6a = axs6a.plot(df_dscovr.index, df_dscovr.tp/1.e5, color='lime', ls='-', lw=lw, ms=ms,
+                          label=r'flux')
+        axs6a.plot(df_dscovr_hc.index, df_dscovr_hc.tp, color='lime', lw=1, alpha=alpha)
 
         if df_dscovr.tp.isnull().all():
             axs6a.set_ylim([0, 1])
@@ -337,6 +348,7 @@ def plot_figures_dsco_30days(number_of_days=30):
                          labelbottom=False, width=tickwidth, length=ticklength,
                          labelsize=ticklabelsize, labelrotation=0, colors='r')
         axs1.spines['left'].set_color('r')
+        axs1.spines['top'].set_color('w')
         axs1.spines['left'].set_linewidth(2)
         axs1.yaxis.label.set_color('r')
         axs1.yaxis.set_label_position("left")
@@ -344,75 +356,75 @@ def plot_figures_dsco_30days(number_of_days=30):
         axs2.tick_params(which='both', direction='in', left=True, labelleft=False, top=True,
                          labeltop=False, right=True, labelright=True, bottom=True,
                          labelbottom=False, width=tickwidth, length=ticklength,
-                         labelsize=ticklabelsize, labelrotation=0, colors='g')
-        axs2.spines['right'].set_color('g')
+                         labelsize=ticklabelsize, labelrotation=0, colors='c')
+        axs2.spines['right'].set_color('c')
         axs2.spines['right'].set_linewidth(2)
-        axs2.yaxis.label.set_color('g')
+        axs2.yaxis.label.set_color('c')
         axs2.yaxis.set_label_position("right")
 
         axs3.tick_params(which='both', direction='in', left=True, labelleft=True, top=True,
                          labeltop=False, right=True, labelright=False, bottom=True,
                          labelbottom=False, width=tickwidth, length=ticklength,
-                         labelsize=ticklabelsize, labelrotation=0, colors='b')
-        axs3.spines['left'].set_color('b')
+                         labelsize=ticklabelsize, labelrotation=0, colors='bisque')
+        axs3.spines['left'].set_color('bisque')
         axs3.spines['left'].set_linewidth(2)
-        axs3.yaxis.label.set_color('b')
+        axs3.yaxis.label.set_color('bisque')
         axs3.yaxis.set_label_position("left")
 
         axs4.tick_params(which='both', direction='in', left=True, labelleft=False, top=True,
                          labeltop=False, right=True, labelright=True, bottom=True,
                          labelbottom=False, width=tickwidth, length=ticklength,
-                         labelsize=ticklabelsize, labelrotation=0, colors='k')
-        axs4.spines['left'].set_color('k')
+                         labelsize=ticklabelsize, labelrotation=0, colors=tick_color)
+        axs4.spines['left'].set_color('w')
         axs4.spines['left'].set_linewidth(2)
-        axs4.yaxis.label.set_color('k')
+        axs4.yaxis.label.set_color(label_color)
         axs4.yaxis.set_label_position("right")
 
         axs5.tick_params(which='both', direction='in', left=False, labelleft=False, top=True,
                          labeltop=False, right=True, labelright=True, bottom=True,
                          labelbottom=False, width=tickwidth, length=ticklength,
-                         labelsize=ticklabelsize, labelrotation=0, colors='r')
-        axs5.spines['right'].set_color('r')
+                         labelsize=ticklabelsize, labelrotation=0, colors='fuchsia')
+        axs5.spines['right'].set_color('fuchsia')
         axs5.spines['right'].set_linewidth(2)
-        axs5.yaxis.label.set_color('r')
+        axs5.yaxis.label.set_color('fuchsia')
         axs5.yaxis.set_label_position("right")
 
         axs5a.tick_params(which='both', direction='in', left=True, labelleft=True, top=True,
                          labeltop=False, right=False, labelright=False, bottom=True,
                          labelbottom=False, width=tickwidth, length=ticklength,
-                         labelsize=ticklabelsize, labelrotation=0, colors='g')
-        axs5a.spines['left'].set_color('g')
+                         labelsize=ticklabelsize, labelrotation=0, colors='oldlace')
+        axs5a.spines['left'].set_color('oldlace')
         axs5a.spines['left'].set_linewidth(2)
-        axs5a.yaxis.label.set_color('g')
+        axs5a.yaxis.label.set_color('oldlace')
         axs5a.yaxis.set_label_position("left")
 
         axs6.tick_params(which='both', axis='y', direction='in', left=True, labelleft=True,
                          top=True, labeltop=False, right=False, labelright=False, bottom=True,
                          labelbottom=False, width=tickwidth, length=ticklength,
-                         labelsize=ticklabelsize, labelrotation=0, colors='b')
-        axs6.spines['left'].set_color('b')
+                         labelsize=ticklabelsize, labelrotation=0, colors='ivory')
+        axs6.spines['left'].set_color('ivory')
         axs6.spines['left'].set_linewidth(2)
-        axs6.yaxis.label.set_color('b')
+        axs6.yaxis.label.set_color('ivory')
         axs6.yaxis.set_label_position("left")
 
         axs6a.tick_params(which='both', axis='y', direction='in', left=False, labelleft=False,
                         top=True, labeltop=False, right=True, labelright=True, bottom=True,
                         labelbottom=True, width=tickwidth, length=ticklength,
-                        labelsize=ticklabelsize, labelrotation=0, colors='g')
-        axs6a.spines['right'].set_color('g')
+                        labelsize=ticklabelsize, labelrotation=0, colors='lime')
+        axs6a.spines['right'].set_color('lime')
         axs6a.spines['right'].set_linewidth(2)
-        axs6a.yaxis.label.set_color('g')
+        axs6a.yaxis.label.set_color('lime')
         axs6a.yaxis.set_label_position("right")
 
         axs6.tick_params(which='both', axis='x', direction='in', left=False, labelleft=False,
                         top=True, labeltop=False, right=False, labelright=False, bottom=True,
                         labelbottom=True, width=tickwidth, length=ticklength,
-                        labelsize=ticklabelsize, labelrotation=0, colors='k')
+                        labelsize=ticklabelsize, labelrotation=0, colors=tick_color)
         date_form = DateFormatter('%m-%d')
         #axs6.xaxis.label.set_color('k')
         axs6.set_xlabel(
         f'Date and Time starting on {int(df_dscovr.index.year[count])}-{str(int(df_dscovr.index.month[count])).zfill(2)}-{str(int(df_dscovr.index.day[count])).zfill(2)} (UTC) [MM-DD]',
-                fontsize=xlabelsize
+                fontsize=xlabelsize, color=label_color
             )
         axs6.xaxis.set_major_formatter(date_form)
 
