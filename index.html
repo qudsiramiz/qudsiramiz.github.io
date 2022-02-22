@@ -484,7 +484,7 @@
                                 downloaded from <a href="https://www.ngdc.noaa.gov/dscovr/data",
                                 target="_blank">NOAA</a> website and processed further to give an
                                 hourly averaged data for the entire period. Magnetic field is in GSM
-                                coordinate system. The video is updated everyday at 9:00 AM (EDT).
+                                coordinate system. The video is updated every 6 hours.
                             </p>
                             <br>
                             <p style="text-align:justify;">
@@ -493,24 +493,22 @@
                                     target="_blank">GitHub</a>.
                             </p>
 
-                            <br>
-
-                            <script language="Javascript">
-                                var time_string_utc = document.lastModified;
-                                var time_string_utc_epoch = Date.parse(time_string_utc);
-                                var time_utc = new Date();
-
-                                time_utc.setTime(time_string_utc_epoch);
-                                document.write("The video was last updated on: " + time_utc);
-                            </script>
-
-                            <video width="800" height="1000" controls>
-                                <source src="./images/moving_pictures/DSCOVR_30days_hourly_averaged.mp4" type="video/mp4">
-                            </video>
                             <iframe src="https://drive.google.com/file/d/18FPo1SCYTaF61cQsiMjGZxX04snrEMKu/preview" width="800"
                                 height="1000" allow="autoplay">
                             </iframe>
+                            <video width="800" height="1000" controls>
+                                <source src="./images/moving_pictures/DSCOVR_30days_hourly_averaged.mp4" type="video/mp4">
+                            </video>
                         </font>
+
+                        <br>
+                        <script language="Javascript">
+                            var time_string_utc = document.lastModified;
+                            var time_string_utc_epoch = Date.parse(time_string_utc);
+                            var time_utc = new Date();
+                            time_utc.setTime(time_string_utc_epoch);
+                            document.write("This page was last updated on: " + time_utc);
+                        </script>
                     </article>
 
                     <article id="curiosity-books" style="display: none;">
