@@ -604,12 +604,28 @@
 
                     <article id="curiosity-books-current" style="display: none;">
 
+                        <h2 style="text-align:center;" class="button_02">Recent Book Reads</h2>
+
                     <div include-html="reading_challenge_widget.html"></div>
                     <script>
                         includeHTML("reading_challenge_widget.html");
                     </script>
                         </p>
 
+                    <style type="text/css" media="screen">
+                      .gr_grid_container {
+                        /* customize grid container div here. eg: width: 500px; */
+                      }
+                  
+                      .gr_grid_book_container {
+                        /* customize book cover container div here */
+                        float: left;
+                        width: 98px;
+                        height: 160px;
+                        padding: 0px 0px;
+                        overflow: hidden;
+                      }
+                    </style>
                     <div include-html="recently_read_widget.html"></div>
                     <script>
                         includeHTML("recently_read_widget.html");
