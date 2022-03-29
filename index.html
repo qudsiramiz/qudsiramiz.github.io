@@ -580,11 +580,12 @@
                     </article>
 
                     <article id="curiosity-books-reviews" style="display: none;">
-                        <h2 style="text-align:center;" class="button_02">Random book reviews</h2>
-                        <p style="text-align:justify;">
-                            <!--span class="image main"><img
-                            src="images/library_images/bookshelf_1.jpg" alt=""></span-->
-                            Coming soon
+                        
+                    <div include-html="book_reviews_widget.html"></div>
+
+                    <script>
+                        includeHTML("book_reviews_widget.html");
+                    </script>
                         </p>
                     </article>
 
@@ -604,15 +605,14 @@
 
                     <article id="curiosity-books-current" style="display: none;">
 
-                        <h2 style="text-align:center;" class="button_02">Recent Book Reads</h2>
+                        <h2 style="text-align:center;" class="button_02">Reading Updates</h2>
 
                     <div include-html="reading_challenge_widget.html"></div>
                     <script>
                         includeHTML("reading_challenge_widget.html");
                     </script>
-                        </p>
 
-                    <style type="text/css" media="screen">
+                    <!--style type="text/css" media="screen">
                       .gr_grid_container {
                         /* customize grid container div here. eg: width: 500px; */
                       }
@@ -625,7 +625,8 @@
                         padding: 0px 0px;
                         overflow: hidden;
                       }
-                    </style>
+
+                    </style-->
                     <div include-html="recently_read_widget.html"></div>
                     <script>
                         includeHTML("recently_read_widget.html");
