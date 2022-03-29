@@ -40,7 +40,7 @@ def plot_figures_dsco_30days(number_of_days=30):
     time_end = time_now
 
     # Change the directory to the data directory
-    os.chdir("/media/cephadrius/endless/bu_research/dxl/data/dscovr_data/")
+    os.chdir("/mnt/cephadrius/bu_research/dxl/data/dscovr_data/")
 
     time_mag_data = time_start
 
@@ -98,9 +98,9 @@ def plot_figures_dsco_30days(number_of_days=30):
     os.chdir("/home/cephadrius/Desktop/git/qudsiramiz.github.io/python/codes")
 
     plas_file_list = np.sort(
-        glob.glob("/media/cephadrius/endless/bu_research/dxl/data/dscovr_data/oe_f1m_*.nc"))[-number_of_days:]
+        glob.glob("/mnt/cephadrius/bu_research/dxl/data/dscovr_data/oe_f1m_*.nc"))[-number_of_days:]
     mag_file_list = np.sort(
-        glob.glob("/media/cephadrius/endless/bu_research/dxl/data/dscovr_data/oe_m1m_*.nc"))[-number_of_days:]
+        glob.glob("/mnt/cephadrius/bu_research/dxl/data/dscovr_data/oe_m1m_*.nc"))[-number_of_days:]
 
     df_mag_list = [None] * len(mag_file_list)
     df_plas_list = [None] * len(plas_file_list)
@@ -200,7 +200,7 @@ def plot_figures_dsco_30days(number_of_days=30):
         t1 = datetime.datetime.utcfromtimestamp(t_start.timestamp()).strftime('%Y-%m-%d_%H-%M-%S')
         t2 = datetime.datetime.utcfromtimestamp(t_end.timestamp()).strftime('%Y-%m-%d_%H-%M-%S')
 
-        fig_name = f"/media/cephadrius/endless/bu_research/dxl/figures/historical/dscovr/30days/sw_dscovr_parameters_30days_{t1}_{t2}.png"
+        fig_name = f"/mnt/cephadrius/bu_research/dxl/figures/historical/dscovr/30days/sw_dscovr_parameters_30days_{t1}_{t2}.png"
         
         # Check if the figure already exists
         if os.path.isfile(fig_name):

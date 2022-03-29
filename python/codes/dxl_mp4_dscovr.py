@@ -100,7 +100,7 @@ def make_gifs(number_of_days=120):
 
     vid_type = "mp4"  # "gif" or "mp4"
     if vid_type == "gif":
-        gif_path = "/media/cephadrius/endless/bu_research/dxl/figures/gifs/"
+        gif_path = "/mnt/cephadrius/bu_research/dxl/figures/gifs/"
     elif vid_type == "mp4":
         gif_path = "/home/cephadrius/Desktop/git/qudsiramiz.github.io/images/moving_pictures/"
         print(f"Code execution started at (UTC):" +
@@ -108,7 +108,7 @@ def make_gifs(number_of_days=120):
 
     file_list_dict = {}
 
-    file_list_dict["file_list_30days"] = np.sort(glob.glob("/media/cephadrius/endless/bu_research/dxl/figures/historical/dscovr/30days/sw_dsco*.png"))[-number_of_days:]
+    file_list_dict["file_list_30days"] = np.sort(glob.glob("/mnt/cephadrius/bu_research/dxl/figures/historical/dscovr/30days/sw_dsco*.png"))[-number_of_days:]
 
     skip_rate_list = [1, 1, 1, 1]
     for i,key in enumerate(list(file_list_dict.keys())):
