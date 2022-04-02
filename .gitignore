@@ -27,5 +27,4 @@ hs_err_pid*
 *.pyc
 .*.swo
 .*.swp
-./.git/objects/cf/be16582b946d4994cb68ae0a6d99365a800b0b
-./images/moving_pictures/DSCOVR_30days_hourly_averaged.mp4
+
