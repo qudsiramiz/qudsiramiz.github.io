@@ -115,7 +115,7 @@ def make_gifs(number_of_days=120):
         #vid_name = f"{gif_path}{key}.{vid_type}"
         vid_name = f"{gif_path}DSCOVR_30days_hourly_averaged.mp4"
         try:
-            gif_maker(file_list_dict[key], vid_name, mode="I", skip_rate=skip_rate_list[i], vid_type=vid_type, fps=25, duration=0.05)
+            gif_maker(file_list_dict[key], vid_name, mode="I", skip_rate=skip_rate_list[i], vid_type=vid_type, fps=10, duration=0.05)
         except ValueError as e:
             print(e)
             pass
