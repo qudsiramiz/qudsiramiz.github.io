@@ -1,0 +1,1711 @@
+<!DOCTYPE HTML>
+<!--
+    Dimension by HTML5 UP html5up.net | @ajlkn Free for personal and commercial use under the CCA
+    3.0 license (html5up.net/license)
+-->
+<html>
+    <head>
+        <title>Qudsi</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+        <link rel="stylesheet" href="assets/css/main.css" />
+        <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+        <noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+    </head>
+
+    <head>
+        <style>
+            a:link {
+                color: cyan;
+                background-color: transparent;
+                text-decoration: none;
+            }
+
+            a:visited {
+                color: rgb(8, 245, 107);
+                background-color: transparent;
+                text-decoration: none;
+            }
+
+            a:hover {
+                color: rgb(216, 185, 250);
+                background-color: transparent;
+                text-decoration: underline;
+            }
+
+            a:active {
+                color: yellow;
+                background-color: transparent;
+                text-decoration: underline;
+            }
+        </style>
+    </head>
+
+    <body class="is-preload">
+
+        <!-- Wrapper -->
+        <div id="wrapper">
+
+            <!-- Header -->
+            <header id="header">
+                <div class="logo">
+                    <!--span class="icon fa-gem"></span-->
+                    <img class="img-circle" src="./images/intro_circle.png">
+                </div>
+                <div class="content">
+                    <div class="inner">
+                        <h1> Ramiz A. Qudsi </h1>
+                        <p>From caffeination to citation!</p>
+                        <p>A work under progress.</p>
+                    </div>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#about">About</a></li>
+                        <li><a href="#research">Research</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                        <li><a href="#blog">Blog</a></li>
+                        <li><a href="#curiosity">Curiosities</a></li>
+                        <!--li><a href="#elements">Elements</a></li-->
+                    </ul>
+                </nav>
+            </header>
+
+            <!-- Main -->
+            <div id="main">
+
+                <!-- About -->
+                <article id="about">
+                    <h2 class="major">About</h2>
+                    <span class="image main"><img src="images/intro_1.jpg" alt=""></span>
+                    <h3><a href="./documents/CV_Academia.pdf" target="_blank">Curriculum
+                    Vitae</a></h3>
+
+                    <font size="4em">
+                        <p style="text-align:justify;">Ramiz Qudsi graduated from <a
+                        href="http://web.physics.udel.edu/" target="_blank">University of
+                        Delaware</a>
+                         with a PhD.  degree in Physics in 2021 under the guidance of
+                         <a
+                         href="http://web.physics.udel.edu/about/directory/faculty/bennett-maruca"
+                         target="_blank">Dr. Bennett Maruca</a>. He is currently working as a
+                         Postdoctoral Associate at <a href="https://www.bu.edu/csp/"
+                         target="_blank">Center for Space Physics</a> in Boston University. His
+                         research area focusses on space plasmas where he has published multiple
+                         papers on the interplay between microkinetic processes and turbulence.
+                         Check his <a href="#research" target="_blank">Research</a> page for more
+                         details on his work and his peer reviewed published papers.</p>
+                        <br>
+                         <p style="text-align:justify;">He graduated from <a
+                         href="https://www.iist.ac.in/" target="_blank"> Indian Institute of Space
+                         Science and Technology</a> in 2012 with a B.Tech degree in Physical
+                         Sciences and specialization in Astronomy and Astrophysics. He then worked
+                         at
+                         <a href="https://www.nrsc.gov.in/" target="_blank">National Remote Sensing
+                         Center, Hyderabad</a> as Scientist 'C' for 3 years before leaving to pursue
+                         his PhD. in Physics from University of Delaware.
+                        </p>
+                        <br>
+                        <p style="text-align:justify;">When not busy sciencing, he loves to read and
+                        write. His favorite genre in literature is fantasy. J.  R. R. Tolkien, Neil
+                        Gaiman and Brandon Sanderson are his absolute favorite authors. He likes
+                        writing poems and tiny tales. You can read some of them on his <a
+                        href="#blog" target="_blank">Blog</a>. He is also an avid FC Barcelona and
+                        Indian cricket team fan.</p>
+                    </font>
+                </article>
+
+                <!-- Research -->
+                <article id="research">
+                    <h2 class="major">Research</h2>
+                    <span class="image main"><img src="images/equations.png" alt="" /></span>
+                    <nav>
+                        <ul class="my-row" style="text-align:center; text-size-adjust:auto;">
+                            <li>
+                                <p>
+                                    <font size="12em">
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <a href="#research-lopp">Publications</a>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <a href="#research-thesis">Thesis</a>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <a href="#research-presentations">Presentations</a>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <a href="#research-posters">Posters</a>
+                                    </font>
+                                </p>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    <font size="4em">
+                        <p style="text-align:justify;">Ramiz is currently doing research as a
+                        Postdoctoral Associate at Boston University with <a
+                        href="https://www.bu.edu/csp/profiles/brian-walsh/" target="_blank">Dr.
+                        Brian Walsh</a>. Main focus of his work is studying magnetic reconnections
+                        in Earth's magnetopause where he is working on refining predictions of
+                        reconnection X-lines in the Earth's magnetosphere using data from
+                        Magnetospheric Multiscale (MMS) Mission.</p>
+                        <br>
+                        <p style="text-align:justify;">He is also involved in retrograde collisional
+                        analysis in solar wind, where he studies how the VDF of protons and heavier
+                        ions change because of collision as they travel from the Sun to 1 au.</p>
+                        <br>
+                        <p style="text-align:justify;">Ramiz is also working on development of a
+                        sophisticated machine learning algorithm which will help in full 3-D
+                        reconstruction of interplanetary magnetic field using observation from 4 or
+                        more spacecraft in solar wind. The algorithm will work for an arbitrary
+                        number of spacecraft in a random orientation. Another machine learning
+                        project he is involved in attempts to find large-scale average trends in
+                        plasma parameters across the Heliosphere using data from 12-15
+                        spacecraft.</p>
+                        </font>
+
+                    <!--List of published papers in journals-->
+                    </article>
+                    <article id="research-lopp" style="display: none;">
+                        <!--h2 class="major">List of published papers</h2-->
+                        <h2 style="text-align:center;" class="button_01"><a
+                        href="documents/list_of_papers.pdf" target="_blank">List of Published
+                        papers</a></h2>
+                        <ul class="icons" style="text-align:center;">
+                            <li>
+                                <a itemprop="sameAs"
+                                href="https://ui.adsabs.harvard.edu/search/fq=%7B!type%3Daqp%20v%3D%24fq_author%7D&fq_author=(author_facet_hier%3A%221%2FQudsi%2C%20R%2FQudsi%2C%20R%20%20A%22%20OR%20author_facet_hier%3A%221%2FQudsi%2C%20R%2FQudsi%2C%20R%22%20OR%20author_facet_hier%3A%221%2FQudsi%2C%20R%2FQudsi%2C%20Ramiz%20A%22%20OR%20author_facet_hier%3A%221%2FQudsi%2C%20R%2FQudsi%2C%20Ramiz%20Ahmad%22)&q=Ramiz%20Qudsi&sort=date%20desc%2C%20bibcode%20desc&p_=0"
+                                target="_blank">
+                                    <i class="ai ai-ads ai-3x"></i>
+                                </a>
+                            </li>
+                        <h3 style="text-align:center;" class="button_01"><a
+                        href="https://ui.adsabs.harvard.edu/search/fq=%7B!type%3Daqp%20v%3D%24fq_author%7D&fq_author=(author_facet_hier%3A%221%2FQudsi%2C%20R%2FQudsi%2C%20R%20%20A%22%20OR%20author_facet_hier%3A%221%2FQudsi%2C%20R%2FQudsi%2C%20R%22%20OR%20author_facet_hier%3A%221%2FQudsi%2C%20R%2FQudsi%2C%20Ramiz%20A%22%20OR%20author_facet_hier%3A%221%2FQudsi%2C%20R%2FQudsi%2C%20Ramiz%20Ahmad%22)&q=Ramiz%20Qudsi&sort=date%20desc%2C%20bibcode%20desc&p_=0"
+                        target="_blank">ADS Link</a></h3>
+                        <!--span class="image main"><img alt=""
+                        src="./fbb_files/pic02.jpg"></span-->
+                        <p style="text-align:left;"><a href="documents/papers/Maruca2021.pdf"
+                        target="_blank">Maruca B. et al. (2021)</a>, “MagneToRE: Mapping the 3-D
+                        Magnetic Structure of the Solar Wind Using a Large Constellation of
+                        Nanosatellites,”Frontiers in Astronomy and Space Sciences,
+                            <a
+                            href="https://www.frontiersin.org/articles/10.3389/fspas.2021.665885/abstract"
+                            target="_blank">doi:10.3389/fspas.2021.665885</a>
+                        </p>
+                        <p style="text-align:left;"><a href="documents/papers/Chasapis2021.pdf"
+                        target="_blank">Chasapis, A. et al. (2021)</a>, “On the validity of the
+                        Taylor Hypothesis in the inner heliosphere as observed by the Parker Solar
+                        Probe,”accepted by The Astrophysical Journal
+                        </p>
+
+                        <p style="text-align:left;"><a href="documents/papers/Qudsi2020.pdf"
+                        target="_blank">Qudsi, R. A. et al. (2020)</a>, “Observations of Heating
+                        along Intermittent Structures in the Inner Heliosphere from PSP Data,” The
+                        Astrophysical Journal Supplement Series, 246, 46, <a
+                        href="https://doi.org/10.3847%2F1538-4365%2Fab5c19"
+                        target="_blank">doi:10.3847/1538-4365/ab5c19</a>
+                        </p>
+
+                        <p style="text-align:left;"><a href="documents/papers/Qudsi2020a.pdf"
+                        target="_blank">Qudsi, R. A. et al. (2020a)</a>, “Intermittency and Ion
+                        Temperature–Anisotropy Instabilities: Simulation and Magnetosheath
+                        Observation,”The Astrophysical Journal, 895, 895, 83, <a
+                        href="{https://doi.org/10.3847%2F1538-4357%2Fab89ad"
+                        target="_blank">doi:10.3847/1538-4357/ab89ad</a>
+                        </p>
+
+                        <p style="text-align:left;"><a href="documents/papers/Parashar2020.pdf"
+                        target="_blank">Parashar, T. N. et al. (2020)</a>, “Measures of
+                        Scale-dependent Alfv´enicity in the First PSP Solar Encounter,” The
+                        Astrophysical Journal Supplement Series, 246, 58, <a
+                        href="https://doi.org/10.3847/1538-4365/ab64e6"
+                        target="_blank">doi:10.3847/1538-4365/ab64e6</a>
+                        </p>
+
+                        <p style="text-align:left;"><a href="documents/papers/Huang2020.pdf"
+                        target="_blank">Huang, J. et al. (2020)</a>, “Proton Temperature Anisotropy
+                        Variations in Inner Heliosphere Estimated with the First Parker Solar Probe
+                        Observations,” 246, 70, <a href="https://doi.org/10.3847/1538-4365/ab74e0"
+                        target="_blank">doi:10.3847/1538-4365/ab74e0</a>
+                        </p>
+
+                        <p style="text-align:left;"><a href="documents/papers/Bandyopadhyay2020.pdf"
+                        target="_blank">Bandyopadhyay, R. et al. (2020)</a>, “Observations of
+                        Energetic-particle Population Enhancements along Intermittent Structures
+                        near the Sun from the Parker Solar Probe,” The Astrophysical Journal
+                        Supplement Series, 246, 61, <a
+                        href="http://doi.org/10.3847/1538-4365/ab6220"
+                        target="_blank">doi:10.3847/1538-4365/ab6220</a>
+                        </p>
+
+                        <p style="text-align:left;"><a
+                        href="documents/papers/Bandyopadhyay2020a.pdf"
+                        target="_blank">Bandyopadhyay, R. et al. (2020a)</a>, “Enhanced Energy
+                        Transfer Rate in Solar Wind Turbulence Observed near the Sun from Parker
+                        Solar Probe,”The Astrophysical Journal Supplement Series, 246, 48, <a
+                        href="http://doi.org/10.3847/1538-4365/ab5dae"
+                        target="_blank">doi:10.3847/1538-4365/ab5dae</a>
+                        </p>
+
+                        <p style="text-align:left;"><a href="documents/papers/Chhiber2020.pdf"
+                        target="_blank">Chhiber, R. et al., (2020)</a>, “Clustering of Intermittent
+                        Magnetic and Flow Structures near Parker Solar Probe’s First Perihelion—A
+                        Partial-variance-ofincrements Analysis,” The Astrophysical Journal
+                        Supplement Series, 246, 31, <a
+                        href="http://doi.org/10.3847/1538-4365/ab53d2"
+                        target="_blank">doi:10.3847/1538-4365/ab53d2</a>
+                        </p>
+
+                        <p style="text-align:left;"><a href="documents/papers/Gary2020.pdf"
+                        target="_blank">Gary, S. P. et al. (2020)</a>, “Particle-in-cell Simulations
+                        of Decaying Plasma Turbulence: Linear Instabilities versus Nonlinear
+                        Processes in 3D and 2.5D Approximations,”The Astrophysical Journal, 901,
+                        160,
+                            <a href="http://doi.org/10.3847/1538-4357/abb2ac"
+                            target="_blank">doi:10.3847/1538-4357/abb2ac</a>
+                        </p>
+                    </article>
+
+                    <!--Thesis-->
+                    </article>
+                    <article id="research-thesis" style="display: none;">
+                        <!--h2 class="major">List of published papers</h2-->
+                        <h2 style="text-align:center;" class="button_01"><a
+                        href="documents/thesis/udthesis_v3.pdf" target="_blank">Thesis</a></h2>
+                        </br>
+                        <h3 style="text-align:center;" class="button_01">On the Interplay Between
+                        Microkinetics </br>and Turbulence in Space Plasmas</h3>
+                        </br>
+                        <h4 style="text-align:center;" class="button_01">Abstract</h4>
+                        <font size="4em">
+                            <p style="text-align:left;">Space plasmas in the inner heliosphere exist
+                            in a weakly collisional and turbulent state. Though energy transfer from
+                            large scales to smaller scales by turbulent cascade is widely accepted
+                            as an important feature of space plasmas, details of its exact
+                            dissipation process are lacking. Features arising because of turbulence,
+                            such as intermittency and temperature anisotropy, play important roles
+                            in the dynamics of space plasmas. Microkinetic linear instabilities
+                            induced by temperature anisotropy have been shown to change the
+                            statistical characteristics of plasma in a significant way.</p>
+                            <br>
+                            <p style="text-align:left;">Since the two processes, turbulence cascade
+                            and microkinetic instabilities, occur in the same physical and phase
+                            space, there is an interplay at work. In this study we investigated this
+                            interplay and the subsequent competition arising between the two, linear
+                            and nonlinear, processes.  We found an explicit connection between
+                            intermittency and linear instability growth rates. We also showed
+                            localization of temperature enhancement regions along the intermittent
+                            structures, which in turn can trigger linear instabilities.
+                            Investigation of the two processes shed light on why linear theory works
+                            as well as it does, and shows the complicated nature of their
+                            interplay.</p>
+                            <br>
+                            <p style="text-align:left;">Information related to the exact spatial
+                            structure of the interplanetary magnetic field is vital to our
+                            understanding of the type of turbulence active in the space plasmas and
+                            the mechanism of turbulence cascade. This will help us discern the
+                            interplay between the two processes. We thus also report on a proof of
+                            concept study of magnetic field topology reconstruction using Gaussian
+                            Processes in machine learning.</p>
+                            <!--span class="image main"><img alt=""
+                            src="./fbb_files/pic02.jpg"></span-->
+                            <p style="text-align:center;"><a href="documents/thesis/udthesis_v3.pdf"
+                            target="_blank">Read Full Thesis</a>
+                            </p>
+                        </font>
+                    </article>
+
+                    <!--Presentations-->
+                    </article>
+                    <article id="research-presentations" style="display: none;">
+                        <!--h2 class="major">List of published papers</h2-->
+                        <h2 style="text-align:center;" class="button_01">Presentations</h2>
+                        </br>
+                        <h3 style="text-align:center;" class="button_01">Year</h3>
+                        <button class="collapsible" title="2022">2022</button>
+                        <div class="collapsible_content">
+                            <br>
+                            <p style="text-align:left"><a
+                            href="./documents/presentations/presentations/2022/mms-swt_2022-01-18.pdf"
+                            target="_blank">MMS-SWT:</a> Turbulence and Proton-microinstability
+                            Time Scales: Simulations and Observations</p>
+                        </div>
+                        <button class="collapsible" title="2021">2021</button>
+                        <div class="collapsible_content">
+                            <br>
+                            <p style="text-align:left"><a
+                            href="./documents/presentations/presentations/2021/magnetore.pdf"
+                            target="_blank">MagneToRE:</a> Gaussian Process Regression for Magnetic
+                            Field Reconstruction</p>
+                            <p style="text-align:left"><a
+                            href="./documents/presentations/presentations/2021/thesis.pdf"
+                            target="_blank">Thesis:</a> On the Interplay Between Microkinetics and
+                            Turbulence in Space Plasmas</p>
+                        </div>
+                        <button class="collapsible" title="2020">2020</button>
+                        <div class="collapsible_content">
+                            <br>
+                            <p style="text-align:left"><a
+                            href="./documents/presentations/presentations/2020/t_enhancement.pdf"
+                            target="_blank">PSP:</a> Temperature enhancements coincident with
+                            intermittent structures.</p>
+                            <p style="text-align:left"><a
+                            href="./documents/presentations/presentations/2020/slides-icpsa2020.html"
+                            target="_blank">ICPSA-2019:</a> Magnetic Field Topology Reconstruction
+                            Using Gaussian Process Regression in	Machine Learning</p>
+                        </div>
+                        <button class="collapsible" title="2019">2019</button>
+                        <div class="collapsible_content">
+                            <br>
+                            <p style="text-align:left"><a
+                            href="./documents/presentations/presentations/2019/Arcetri_presentation.pdf"
+                            target="_blank">intermittency:</a> Intermittent distribution of ion
+                            temperature-anisotropy microinstabilities in the terrestrial
+                            magnetosheath</p>
+                            <p style="text-align:left"><a
+                            href="./documents/presentations/presentations/2019/ucla_presentation.pdf"
+                            target="_blank">UCLSA-2019:</a> A Statistical Comparison Between Proton
+                            Microinstabilities and Nonlinear Effects in Space Plasmas</p>
+                        </div>
+                    </article>
+
+                    <!--Posters-->
+                    </article>
+                    <article id="research-posters" style="display: none;">
+                        <!--h2 class="major">List of published papers</h2-->
+                        <h2 style="text-align:center;" class="button_01">Posters</h2>
+                        </br>
+                        <h3 style="text-align:center;" class="button_01">Year</h3>
+                        <button class="collapsible" title="2021" style="padding:1em;">2021</button>
+                        <div class="collapsible_content">
+                            <br>
+                            <p style="text-align:left"><a
+                                href="https://agu2021fallmeeting-agu.ipostersessions.com/Default.aspx?s=5F-C6-D6-0A-49-82-60-E1-17-AD-EF-9F-2D-A5-74-2A"
+                                target="_blank">AGU-2021:</a>
+                                <a
+                                href="./documents/presentations/posters/2021/Interplay_Poster_AGU_2021_Qudsi.pdf"
+                                target="_blank">Interplay Between Linear and Nonlinear Processes in
+                                Simulation and Space Plasmas</a>
+                            </p>
+                            <p style="text-align:left"><a
+                                href="https://agu2021fallmeeting-agu.ipostersessions.com/Default.aspx?s=0F-7D-FD-9B-6B-66-07-73-82-C7-63-4D-DF-11-7A-41"
+                                target="_blank">AGU-2021:</a>
+                                <a
+                                href="./documents/presentations/posters/2021/ML_Poster_AGU_2021_Qudsi.pdf"
+                                target="_blank">Algorithm Development for Magnetic Field  Topology 
+                                Reconstruction in a 3-D Simulation Box Using Machine Learning</a>
+                             </p>
+                        </div>
+                        <button class="collapsible" title="2020">2020</button>
+                        <div class="collapsible_content">
+                            <br>
+                            <p style="text-align:left">
+                                AGU-2020:
+                                <a
+                                href="./documents/presentations/posters/2020/Poster_AGU_2020_Qudsi.pdf"
+                                target="_blank"> Magnetic Field Topology Reconstruction
+                                Using Gaussian Processes Regression in Machine Learning</a>
+                            </p>
+                        </div>
+                        <button class="collapsible" title="2019">2019</button>
+                        <div class="collapsible_content">
+                            <br>
+                            <p style="text-align:left">
+                                AGU-2019:
+                                <a
+                                href="./documents/presentations/posters/2019/Poster_AGU_2019_Qudsi.pdf"
+                                target="_blank"> Intermittent Heating in the Inner
+                                Heliosphere: PSP Observations</a>
+                            </p>
+                            <p style="text-align:left">ICPSA-2019:
+                                <a
+                                href="./documents/presentations/posters/2019/Poster_ICPSA_2019_Qudsi.pdf"
+                                target="_blank"> A Statistical Comparison Between Proton
+                                Microinstabilities and Nonlinear Effects in Space Plasmas</a>
+                            </p>
+                            <p style="text-align:left">
+                                SHINE-2019:
+                                <a
+                                href="./documents/presentations/posters/2019/Poster_Shine_2019_Qudsi.pdf"
+                                target="_blank"> Intermittent Distribution of
+                                Micro-instabilities in Space Plasmas</a>
+                            </p>
+                        </div>
+
+                        <button class="collapsible" title="2018">2018</button>
+                        <div class="collapsible_content">
+                            <br>
+                            <p style="text-align:left">
+                                AGU-2018:
+                                <a
+                                href="./documents/presentations/posters/2018/Poster_AGU_2018_Qudsi.pdf"
+                                target="_blank"> Observational Signatures of Fluctuating
+                                Moments Associated with Ion-Cyclotron Waves in the Solar Wind</a>
+                            </p>
+                        </div>
+                    </article>
+                    <!--p style="text-align:left;"><a href="documents/papers/udthesis_v3.pdf"
+                    target="_blank">PhD.  Thesis</a>, "On the Interplay Between Microkinetics and
+                    Turbulence in Space Plasmas" </p-->
+                    <!--p style="text-align:left;"><a href="documents/papers/" target="_blank"></a>,
+                    </p-->
+                    <!--iframe src="documents/list_of_papers.pdf" width="100%" height="500px">
+                    </iframe-->
+                    <!--object data="documents/list_of_papers.pdf" type="application/pdf"
+                    width="100%" height="1000px"></object-->
+
+                <!--Curiosity -->
+                <article id="curiosity">
+                    <h2 class="major">Curiosities</h2>
+                    <nav>
+                        <ul class="my-row" style="text-align:left; text-size-adjust:auto;">
+                            <li>
+                                <font size="6em">
+                                <p>
+                                    <a href="#curiosity-rtsw">Real-time Solar Wind parameters</a>
+                                </p>
+                                <p>
+                                    <a href="#curiosity-books">The Book Section</a>
+                                </p>
+                                </font>
+                            </li>
+                        </ul>
+                    </nav>
+                </article>
+
+                    <article id="curiosity-rtsw" style="display: none;">
+                        <font size="5em">
+                            <h2 style="text-align:center;" class="button_01">
+                                Real-time Solar Wind parameters
+                            </h2>
+                        </font>
+
+                        <font size="4em">
+                            <p style="text-align:justify;">
+                                27 Days solar wind parameters derived from DSCOVR dataset. Data is
+                                downloaded from <a href="https://www.ngdc.noaa.gov/dscovr/data",
+                                target="_blank">NOAA</a> website and processed further to give an
+                                hourly averaged data for the entire period. Magnetic field is in GSM
+                                coordinate system. The video is updated every 6 hours.
+                            </p>
+                            <br>
+                            <p style="text-align:justify;">
+                                Codes used to produce the figures are available on <a
+                                    href="https://github.com/qudsiramiz/qudsiramiz.github.io/tree/main/python" ,
+                                    target="_blank">GitHub</a>.
+                            </p>
+
+                            <iframe src="https://drive.google.com/file/d/18FPo1SCYTaF61cQsiMjGZxX04snrEMKu/preview" width="800"
+                                height="1000" allow="autoplay">
+                            </iframe>
+                            <video width="800" height="1000" controls>
+                                <source src="./images/moving_pictures/DSCOVR_30days_hourly_averaged.mp4" type="video/mp4">
+                            </video>
+                        </font>
+
+                        <br>
+                        <script language="Javascript">
+                            var time_string_utc = document.lastModified;
+                            var time_string_utc_epoch = Date.parse(time_string_utc);
+                            var time_utc = new Date();
+                            time_utc.setTime(time_string_utc_epoch);
+                            document.write("This page was last updated on: " + time_utc);
+                        </script>
+                    </article>
+
+                    <article id="curiosity-books" style="display: none;">
+                        <h2 style="text-align:center;" class="button_02">The Book Section</h2>
+                        <p style="text-align:justify;">
+                            <span class="image main"><img
+                            src="images/library_images/sanderson_shelf.jpg" alt=""></span>
+                        </p>
+
+                        <nav>
+                            <ul class="my-row" style="text-align:center; text-size-adjust:large;">
+                                <li>
+                                    <p><font size="12em"><a
+                                    href="#curiosity-books-shelf">Bookshelf</a></font>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <font size="12em"><a
+                                    href="#curiosity-books-reviews">Reviews</a></font></p>
+                                    <p><font size="12em"><a
+                                    href="#curiosity-books-gallery">Gallery</a></font></p>
+                                    <p><font size="12em"><a
+                                    href="#curiosity-books-current">Currently Reading</a></font></p>
+                                </li>
+                            </ul>
+                        </nav>
+                    </article>
+
+                    <article id="curiosity-books-shelf" style="display: none;">
+                        <h2 style="text-align:center;" class="button_01">Bookshelf</h2>
+                        <p style="text-align:justify;">
+                            <span class="image main"><img
+                            src="images/library_images/bookshelf_1.jpg" alt=""></span>
+
+                    <!---Script to be able to include the html file in the website-->
+                    <script>
+                        function includeHTML() {
+                            var z, i, elmnt, file, xhttp;
+                            /*loop through a collection of all HTML elements:*/
+                            z = document.getElementsByTagName("*");
+                            for (i = 0; i < z.length; i++) {
+                                elmnt = z[i];
+                                /*search for elements with a certain atrribute:*/
+                                file = elmnt.getAttribute("include-html");
+                                if (file) {
+                                    /*make an HTTP request using the attribute value as the file name:*/
+                                    xhttp = new XMLHttpRequest();
+                                    xhttp.onreadystatechange = function () {
+                                        if (this.readyState == 4) {
+                                            if (this.status == 200) { elmnt.innerHTML = this.responseText; }
+                                            if (this.status == 404) { elmnt.innerHTML = "Page not found."; }
+                                            /*remove the attribute, and call this function once more:*/
+                                            elmnt.removeAttribute("include-html");
+                                            includeHTML();
+                                        }
+                                    }
+                                    xhttp.open("GET", file, true);
+                                    xhttp.send();
+                                    /*exit the function:*/
+                                    return;
+                                }
+                            }
+                        };
+                    </script>
+                    <div include-html="Bookshelf-2022-01-21.html"></div>
+
+                    <script>
+                        includeHTML("Bookshelf-2022-01-21.html");
+                    </script>
+                        </p>
+                    </article>
+
+                    <article id="curiosity-books-reviews" style="display: none;">
+                        <h2 style="text-align:center;" class="button_02">Random book reviews</h2>
+                        <p style="text-align:justify;">
+                            <!--span class="image main"><img
+                            src="images/library_images/bookshelf_1.jpg" alt=""></span-->
+                            Coming soon
+                        </p>
+                    </article>
+
+                    <article id="curiosity-books-gallery" style="display: none;">
+                        <h2 style="text-align:center;" class="button_03">Random pictures of my books</h2>
+                        <p style="text-align:center;"><font size="6em">
+                            <span class="image main"><img
+                            src="images/library_images/sandman_collection.jpg" alt="">The Sandman Collection</span>
+                            <span class="image main"><img src="images/library_images/2_shelf.jpg"
+                            alt="">The Pricey Shelf</span>
+                            <span class="image main"><img
+                            src="images/library_images/sanderson_shelf.jpg" alt="">Cosmere Hardcover</span>
+                            </font>
+                        </p>
+                    </article>
+
+
+
+
+
+
+
+                    <article id="curiosity-books-current" style="display: none;">
+
+
+<div id="gr_challenge_11636" style="border: 2px solid #EBE8D5; border-radius:10px; padding: 0px 7px 0px 7px; max-width:500px; min-height: 160px">
+  <div id="gr_challenge_progress_body_11636" style="font-size: 12px; font-family: georgia,serif;line-height: 18px">
+    <h3 style="margin: 4px 0 10px; font-weight: normal; text-align: center">
+      <a style="text-decoration: none; font-family:georgia,serif;font-style:italic; font-size: 1.1em" rel="nofollow" href="https://www.goodreads.com/challenges/11636-2022-reading-challenge">2022 Reading Challenge</a>
+    </h3>
+        <div class="challengePic">
+          <a rel="nofollow" href="https://www.goodreads.com/challenges/11636-2022-reading-challenge"><img alt="2022 Reading Challenge" style="float:left; margin-right: 10px; border: 0 none" src="https://images.gr-assets.com/challenges/1636444409p2/11636.jpg" /></a>
+        </div>
+      <div>
+        <a rel="nofollow" href="https://www.goodreads.com/user/show/9858514-ramiz-qudsi">Ramiz</a> has
+             read 15 books toward
+             his goal of
+             52 books.
+      </div>
+      <div style="width: 100px; margin: 4px 5px 5px 0; float: left; border: 1px solid #382110; height: 8px; overflow: hidden; background-color: #FFF">
+        <div style="width: 28%; background-color: #D7D2C4; float: left"><span style="visibility:hidden">hide</span></div>
+      </div>
+      <div style="font-family: arial, verdana, helvetica, sans-serif;font-size:90%">
+        <a rel="nofollow" href="https://www.goodreads.com/user_challenges/32418996">15 of 52 (28%)</a>
+      </div>
+        <div style="text-align: right;">
+          <a style="text-decoration: none; font-size: 10px;" rel="nofollow" href="https://www.goodreads.com/user_challenges/32418996">view books</a>
+        </div>
+  </div>
+	<script src="https://www.goodreads.com/user_challenges/widget/9858514-ramiz-qudsi?challenge_id=11636&v=2"></script>
+</div>
+
+
+
+
+
+      <style type="text/css" media="screen">
+        .gr_grid_container {
+          /* customize grid container div here. eg: width: 500px; */
+        }
+
+        .gr_grid_book_container {
+          /* customize book cover container div here */
+          float: left;
+          width: 98px;
+          height: 160px;
+          padding: 0px 0px;
+          overflow: hidden;
+        }
+      </style>
+      <div id="gr_grid_widget_1647467136">
+        <!-- Show static html as a placeholder in case js is not enabled - javascript include will override this if things work -->
+            <h2>
+      <a style="text-decoration: none;" rel="nofollow" href="https://www.goodreads.com/review/list/9858514-ramiz-qudsi?shelf=read&utm_medium=api&utm_source=grid_widget">Recently Read</a>
+    </h2>
+  <div class="gr_grid_container">
+    <div class="gr_grid_book_container"><a title="Carpe Jugulum (Discworld #23; Witches #6)" rel="nofollow" href="https://www.goodreads.com/book/show/34541.Carpe_Jugulum"><img alt="Carpe Jugulum" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1388895900l/34541._SX98_.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a title="The Last Continent (Discworld, #22; Rincewind #6)" rel="nofollow" href="https://www.goodreads.com/book/show/47994.The_Last_Continent"><img alt="The Last Continent" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1332672492l/47994._SX98_.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a title="Jingo (Discworld, #21; City Watch, #4)" rel="nofollow" href="https://www.goodreads.com/book/show/47990.Jingo"><img alt="Jingo" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1327921813l/47990._SX98_.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a title="Hogfather (Discworld, #20; Death, #4)" rel="nofollow" href="https://www.goodreads.com/book/show/34532.Hogfather"><img alt="Hogfather" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1416342611l/34532._SX98_.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a title="The Kite Runner" rel="nofollow" href="https://www.goodreads.com/book/show/77203.The_Kite_Runner"><img alt="The Kite Runner" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1579036753l/77203._SY160_.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a title="Lady of the Lake (The Witcher, #5)" rel="nofollow" href="https://www.goodreads.com/book/show/31933977-lady-of-the-lake"><img alt="Lady of the Lake" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1481521908l/31933977._SX98_.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a title="The Tower of the Swallow (The Witcher, #4)" rel="nofollow" href="https://www.goodreads.com/book/show/18247597-the-tower-of-the-swallow"><img alt="The Tower of the Swallow" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1457652195l/18247597._SX98_.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a title="Baptism of Fire (The Witcher, #3)" rel="nofollow" href="https://www.goodreads.com/book/show/18656031-baptism-of-fire"><img alt="Baptism of Fire" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1443279182l/18656031._SX98_.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a title="The Time of Contempt (The Witcher, #2)" rel="nofollow" href="https://www.goodreads.com/book/show/14781491-the-time-of-contempt"><img alt="The Time of Contempt" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1443278961l/14781491._SX98_.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a title="Blood of Elves (The Witcher, #1)" rel="nofollow" href="https://www.goodreads.com/book/show/6043781-blood-of-elves"><img alt="Blood of Elves" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1589998653l/6043781._SX98_.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a title="Sword of Destiny (The Witcher, #0.7)" rel="nofollow" href="https://www.goodreads.com/book/show/25454056-sword-of-destiny"><img alt="Sword of Destiny" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1433369883l/25454056._SX98_.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a title="Season of Storms (The Witcher, #0.6)" rel="nofollow" href="https://www.goodreads.com/book/show/36099978-season-of-storms"><img alt="Season of Storms" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1514124650l/36099978._SX98_.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a title="Habibi" rel="nofollow" href="https://www.goodreads.com/book/show/10138607-habibi"><img alt="Habibi" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1327899014l/10138607._SX98_.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a title="Feet of Clay (Discworld, #19; City Watch, #3)" rel="nofollow" href="https://www.goodreads.com/book/show/34527.Feet_of_Clay"><img alt="Feet of Clay" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1320490628l/34527._SX98_.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a title="The Last Wish (The Witcher, #0.5)" rel="nofollow" href="https://www.goodreads.com/book/show/40603587-the-last-wish"><img alt="The Last Wish" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1529591917l/40603587._SX98_.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a title="Interesting Times (Discworld, #17; Rincewind #5)" rel="nofollow" href="https://www.goodreads.com/book/show/884288.Interesting_Times"><img alt="Interesting Times" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1430881376l/884288._SX98_.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a title="Maskerade (Discworld, #18; Witches #5)" rel="nofollow" href="https://www.goodreads.com/book/show/78876.Maskerade"><img alt="Maskerade" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1170961678l/78876._SX98_.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a title="God Emperor of Dune (Dune Chronicles, #4)" rel="nofollow" href="https://www.goodreads.com/book/show/44439415-god-emperor-of-dune"><img alt="God Emperor of Dune" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1564025916l/44439415._SY160_.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a title="The Facts in the Case of the Departure of Miss Finch" rel="nofollow" href="https://www.goodreads.com/book/show/26067691-the-facts-in-the-case-of-the-departure-of-miss-finch"><img alt="The Facts in the Case of the Departure of Miss Finch" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1505950646l/26067691._SX98_.jpg" /></a></div>
+    <div class="gr_grid_book_container"><a title="Children of Dune (Dune Chronicles, #3)" rel="nofollow" href="https://www.goodreads.com/book/show/44492286-children-of-dune"><img alt="Children of Dune" border="0" src="https://i.gr-assets.com/images/S/compressed.photo.goodreads.com/books/1564783201l/44492286._SY160_.jpg" /></a></div>
+    <br style="clear: both"/><br/><a class="gr_grid_branding" style="font-size: .9em; color: #382110; text-decoration: none; float: right; clear: both" rel="nofollow" href="https://www.goodreads.com/user/show/9858514-ramiz-qudsi">Ramiz Qudsi's favorite books »</a>
+  <noscript><br/>Share <a rel="nofollow" href="/">book reviews</a> and ratings with Ramiz, and even join a <a rel="nofollow" href="/group">book club</a> on Goodreads.</noscript>
+  </div>
+
+      </div>
+      <script src="https://www.goodreads.com/review/grid_widget/9858514.Recently%20Read?cover_size=medium&hide_link=&hide_title=&num_books=20&order=d&shelf=read&sort=date_added&widget_id=1647467136" type="text/javascript" charset="utf-8"></script>
+
+                    </article>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    
+                <!-- Contact -->
+                <article id="contact">
+                    <h2 class="major">Contact</h2>
+                    <form method="POST" action="https://formspree.io/f/mjvjjgow">
+                        <div class="fields">
+                            <div class="field half">
+                                <label for="name">Name</label>
+                                <input type="text" name="name" id="name" value="" placeholder="Jane Doe" />
+                            </div>
+                            <div class="field half">
+                                <label for="email">Email</label>
+                                <input type="email" name="email" id="email" value=""
+                                placeholder="jane@untitled.tld" />
+                            </div>
+                            <div class="field half">
+                                <input type="checkbox" id="copy" name="copy">
+                                <label for="copy">Email me a copy</label>
+                            </div>
+                            <div class="field half">
+                                <input type="checkbox" id="human" name="human" unchecked>
+                                <label for="human">Not a robot</label>
+                            </div>
+                            <div class="field">
+                                <label for="message">Message</label>
+                                <textarea name="message" id="message" placeholder="Enter your message" rows="6"></textarea>
+                            </div>
+                        </div>
+                        <ul class="actions">
+                            <li><input type="submit" value="Send Message" class="primary" /></li>
+                            <li><input type="reset" value="Reset" /></li>
+                        </ul>
+                    </form>
+
+                    <div class="container-header">
+                        <div class="grid_5" id="social_icons">
+                            <a style="align-items: left;" itemprop="sameAs" href="https://github.com/qudsiramiz"
+                            target="_blank" rel="noopener"><i class="fab fa-github fa-2x"></i></a>
+                            <a itemprop="sameAs"
+                            href="https://scholar.google.com/citations?user=e4Jw-N4AAAAJ&hl=en"
+                            target="_blank" rel="noopener">
+                                <i class="ai ai-google-scholar ai-2x"></i></a>
+                            <a itemprop="sameAs" href="http://orcid.org/0000-0001-8358-0482"
+                            target="_blank" rel="noopener">
+                                <i class="ai ai-orcid ai-2x"></i></a>
+                            <a itemprop="sameAs"
+                            href="https://www.goodreads.com/user/show/9858514-ramiz-qudsi"
+                            target="_blank" rel="noopener">
+                                <i class="fab fa-goodreads fa-2x"></i></a>
+                            <a itemprop="sameAs" href="http://twitter.com/ramiz_qudsi"
+                            target="_blank" rel="noopener">
+                                <i class="fab fa-twitter fa-2x"></i></a>
+                        </div>
+
+                        <nav class="topmenu omega">
+                            <ul>
+                                <li>
+                                    <address>
+                                        emails: <a href="mailto:qudsira@bu.edu">science</a>
+                                              | <a href="mailto:qudsiramiz@gmail.com">blog</a>
+                                    </address>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <!--ul class="icons" style="text-align:left;">
+                        <li>
+                            <a itemprop="sameAs" href="https://github.com/qudsiramiz"
+                            target="_blank" rel="noopener">
+                                <i class="fab fa-github fa-2x"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a itemprop="sameAs"
+                            href="https://scholar.google.com/citations?user=e4Jw-N4AAAAJ&hl=en"
+                            target="_blank" rel="noopener">
+                                <i class="ai ai-google-scholar ai-2x"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a itemprop="sameAs" href="http://orcid.org/0000-0001-8358-0482"
+                            target="_blank" rel="noopener">
+                                <i class="ai ai-orcid ai-2x"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a itemprop="sameAs"
+                            href="https://www.goodreads.com/user/show/9858514-ramiz-qudsi"
+                            target="_blank" rel="noopener">
+                                <i class="fab fa-goodreads fa-2x"></i>
+                            </a>
+                        </li>
+                        <li>
+                            <a itemprop="sameAs" href="http://twitter.com/ramiz_qudsi"
+                            target="_blank" rel="noopener">
+                                <i class="fab fa-twitter fa-2x"></i>
+                            </a>
+                        </li>
+                    </ul>
+
+                    <ul class="content" style="text-align:right; text-size-adjust:large;">
+                        <li>
+                            <address>
+                                emails: <a href="mailto:ahmadr@udel.edu">science</a>
+                                   |   <a href="mailto:qudsiramiz@gmail.com">blog</a>
+                            </address>
+                        </li>
+                    </ul-->
+                </article>
+
+                <!-- Blog -->
+                <article id="blog" style="display: none;" class="">
+                    <h2 class="major">Inconsequential Ephemerals</h2>
+                    <span class="image main"><img src="images/blog_header.jpg" alt="" /></span>
+
+                    <p style="text-align:justify;">
+                        <font size="4em">
+                            In my free time, once a year or less, I am
+                            engulfed by a desire to pen down my thoughts either in paragraphs of a poorly
+                            written prose or in random stanzas of a poem.  This section here is a collection
+                            of such thoughts and feelings as I might have experienced over last two decades
+                            or so.
+                        </font>
+                    </p>
+
+                    <!--Script for collapsible boxes-->
+                    <style>
+                        .collapsible {
+                            background-color: #222;
+                            color: black;
+                            cursor: pointer;
+                            padding: 18px;
+                            width: 65%;
+                            border: none;
+                            text-align: center;
+                            vertical-align: middle;
+                            outline: none;
+                            font-size: 18px;
+                            margin-top: 10px;
+                            margin-bottom: 10px;
+                        }
+
+                        .active,
+                        .collapsible:hover {
+                            background-color: #555;
+                            text-align: center;
+                            margin-top: auto;
+                            margin-bottom: auto;
+                        }
+
+                        .collapsible_content {
+                            padding: 0 18px;
+                            max-height: 0;
+                            overflow: hidden;
+                            transition: max-height 1s ease-out;
+                            background-color: #000000;
+                            text-align: center;
+                        }
+                    </style>
+
+                    <nav>
+                        <ul class="my-row" style="text-align:center; text-size-adjust:large;">
+                            <li>
+                                <p>
+                                    <font size="12em">
+                                        <a href="#blog-poems">Poems</a>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <a href="#blog-prose">Prose</a>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <a href="#blog-tales">Tiny Tales</a>
+                                    </font>
+                                </p>
+                            </li>
+                        </ul>
+                    </nav>
+
+                <!--Poems -->
+                </article>
+                <article id="blog-poems" style="display: none;">
+                    <h2 class="major">Poems</h2>
+
+                    <div class="container">
+                        <div class="normal-div" id="div-1">
+                            <font size="5em">
+                                <a class="expansion-btn exp-1">Beyond</a>
+                            </font>
+                            <br></br>
+                            <font size="4em">
+                                <p>
+                                    When the sun has set, and the sky ablaze with fiery stars<br>
+                                    When the earth has cooled, and the zephyr blows at lazy pace
+                                <br><br>
+                                    When the mortals have slept, and the darkness whispers silently<br>
+                                    When the Endless roam Earth, and people dream his infinite realm
+                                <br><br>
+                                    When the demons descend, and the angels flutter wings to fly<br>
+                                    When the morality blurs, and the ecstasy of passionate hearts peak
+                                <br><br>
+                                    Shrouded in life, and propelled by impetus of immortal love<br>
+                                    I shall meet you, beyond the scorching gaze of the universe!
+                                </p>
+                            </font>
+                        </div>
+
+                        <div class="normal-div" id="div-2">
+                            <font size="5em">
+                                <a class="expansion-btn exp-2">Death of a Universe</a>
+                            </font>
+                            <br><br>
+                            <font size="4em">
+                                <p>
+                                    In an ever expanding universe<br>
+                                    We move closer defying darkness<br>
+                                    Violating Hubble's sacred law<br>
+                                    As we gravitate towards the center
+                                    <br></br>
+                                    Amidst the confluence of our<br>
+                                    Own twisted, convoluted emotions<br>
+                                    Rupture the fabric or space and time<br> 
+                                    Conceive our own ephemeral continuum
+                                    <br></br>
+                                    We embrace, we annihilate the other<br>
+                                    In a brilliant burst of infinite energy<br>
+                                    The dimensions ignite, forces crumble
+                                    <br><br>
+                                    And the cosmos burns in brilliance<br>
+                                    Of a billion ablazed supernovae
+                                </p>
+                            </font>
+                        </div>
+                        <div class="normal-div" id="div-3">
+                            <font size="5em">
+                                <a class="expansion-btn exp-3"><span>Colorless</span></a>
+                            </font>
+                                <br><br>
+                                Far edge of a long night<br>
+                                Sky attuned to lunar theme
+                                <br><br>
+                                Angels string the cloud<br>
+                                A million colors erupt out
+                                <br><br>
+                                Coupled to memories in past<br>
+                                An iota of saudade in present
+                                <br><br>
+                                Dawn draws near, unabated<br>
+                                I beg moon for another ray
+                                <br><br>
+                                Sun's callous rays spill over<br>
+                                Realm turns white, colorless!
+                            </font>
+                        </div>
+
+                        <div class="normal-div" id="div-4">
+                            <font size="5em">
+                                <a class="expansion-btn exp-4">Symphonic Consilience</a>
+                            </font>
+                            <font size="4em">
+                                <br></br>
+                                Unbounded passion fills the void of space<br>
+                                A saudade past suffocates in the embrace
+                                <br></br>
+                                Nightmares transmute into delicate dream<br>
+                                Moonless night turns into a lunar theme
+                                <br></br>
+                                Erratic turbulent breaths gently alleviated<br>
+                                Eventuality of myriad of touches, uninhibited
+                                <br></br>
+                                Emotional anarchy oft calmly triumphed<br>
+                                In anon her brilliance had my soul seduced
+                                <br></br>
+                                Routing a reluctant mind's perennial resilience<br>
+                                The two hearts beat in symphonic consilience
+                            </font>
+                        </div>
+
+                        <div class="normal-div" id="div-6">
+                            <font size="5em">
+                                <a class="expansion-btn exp-6">Taabeer</a>
+                            </font>
+                            <font size="4em"></font>
+                                <br></br>
+                                میں حسرتیں بیان کرتا رہا<br />وه لطیفہ سمجھ محظوظ ہوتے رہے<br></br>
+                                <br>شب-فراق پھر آی بغلگہیر ہونے</br>
+                                خوشنود صبح کی امید میں شب سے لپٹا رہا<br></br>
+                                انکے دل پی سرد لہری سی تار تھی<br />جسم آفتاب کی تپش میں جھلستا رہا<br></br>
+                                خواب اور خیالات کا ایک اندراج<br />تعبیر کی تلاش میں احمد بھٹکتا
+                                رہا<br></br>
+                            </font>
+                        </div>
+
+                        <div class="normal-div" id="div-7">
+                            <a class="expansion-btn exp-7">Laali</a>
+                            <br></br>
+                            <p>रात गए जब अन्धकार में<br></br>
+                            सारा संसार सो जाता, और<br></br>
+                            मन में निराशा जगह बनाती<br></br>
+                            भोर हुए, आस दिलाने को<br></br>
+                            आती क्षितिज की पहली लाली</p>
+                            <br></br>
+                            <p>सांझ हुए अन्धकार में<br></br>
+                            घर का रस्ता भूल कर<br></br>
+                            इधर-उधर जब भटके पंक्षी<br></br>
+                            राह दिखलाने को उसको<br></br>
+                            आती चंदा की कोमल लाली</p>
+                            <br></br>
+                            <p>जाड़े की कठोर कम्पन्न से<br></br>
+                            जब अंग-अंग ठिठुरता<br></br>
+                            ऊर्जा संजो कर अपने भीएतर<br></br>
+                            ह्रदय वेग को मद्धम करने<br></br>
+                            आती आदित्य की चंचल लाली</p>
+                            <br></br>
+                            <p>आहुति दे बलवान जब गिर पड़ते<br></br>
+                            घायल हो उस पावन भूमि पर<br></br>
+                            युध्य की धुल मंडराती सिर पर<br></br>
+                            बलिदानी की शोभा बढ़ाने को<br></br>
+                            आती शत्रु की लहू की लाली</p>
+                        </div>
+                    </div>
+
+                    <!--span class="image main"><img alt="" src="./fbb_files/pic02.jpg"></span-->
+                    <!--button class="collapsible">Beyond</button>
+                    <div class="collapsible_content">
+                        <br></br>
+                        <p>When the sun has set, and the sky ablaze with fiery stars<br /> When the
+                        earth has cooled, and the zephyr blows at lazy pace</p>
+                        <p> When the mortals have slept, and the darkness whispers silently<br />
+                        When the Endless roam Earth, and people dream his infinite realm</p>
+                        <p>When the demons descend, and the angels flutter wings to fly<br /> When
+                        the morality blurs, and the ecstasy of passionate hearts peak</p>
+                        <p>Shrouded in life, and propelled by impetus of immortal love<br />I shall
+                        meet you, beyond the scorching gaze of the universe!</p>
+                    </div>
+
+                    <button class="collapsible">Death of a Universe</button>
+                    <div class="collapsible_content">
+                        <br></br>
+                        <p>In an ever expanding universe<br /> We move closer defying darkness<br />
+                        Violating Hubble's sacred law<br /> As we gravitate towards the center
+                        </p>
+                        <p>Amidst the confluence of our<br /> Own twisted, convoluted emotions<br />
+                        Rupture the fabric or space and time<br /> Conceive our own ephemeral
+                        continuum</p>
+                        <p>We embrace, we annihilate the other<br /> In a brilliant burst of
+                        infinite energy<br /> The dimensions ignite, forces crumble</p>
+                        <p>And the cosmos burns in brilliance<br /> Of a billion ablazed
+                        supernovae</p>
+                    </div>
+
+                    <button class="collapsible">Colorless</button>
+                    <div class="collapsible_content">
+                        <br></br>
+                        <p>Far edge of a long night<br>
+                        Sky attuned to lunar theme</p>
+
+                        <p>Angels string the cloud<br>
+                        A million colors erupt out</p>
+
+                        <p>Coupled to memories in past<br>
+                        An iota of saudade in present</p>
+
+                        <p>Dawn draws near, unabated<br>
+                        I beg moon for another ray</p>
+                        
+                        <p>Sun's callous rays spill over<br>
+                        <p>Realm turns white, colorless!</p>
+                    </div-->
+                </article>
+
+                <!--Prose -->
+                </article>
+                <article id="blog-prose" style="display: none;">
+                    <h2 class="major">Prose</h2>
+                    <!--span class="image main"><img alt="" src="./fbb_files/pic02.jpg"></span-->
+
+                    <div class="normal-div" id="div-5">
+                        <font size="5em">
+                            <a class="expansion-btn exp-5">Musings of an inconsequential life form
+                            over an ephemeral life!</a>
+                        </font>
+                        <br></br>
+                        <font size="4em">
+                            <p style="text-align:justify">
+                                With time every bond we share decays and every
+                                relation we form undergoes corrosion. Love fizzles away from our memory and
+                                as a direct consequence a melancholy feeling reigns over heart, momentarily.
+                                Though moments passes by imperceptibly the memories remain, some time
+                                despite our most vehement protest. Every beautiful memory associated with a
+                                broken bond or a corroded relation retains with it a quanta of emotion, more
+                                often than not, pain.
+                            </p>
+                            <br></br>
+                            <p style="text-align:justify">
+                                Ironically a relation at times is most stable
+                                during genesis, when its instability would not have mattered to you anyways.
+                                Once the process completes the expectations rise and renders it unstable. In
+                                due time it breaks apart and leaves you shattered and your life in
+                                turmoil.
+                            </p>
+                            <br></br>
+                            <p style="text-align:justify">
+                                An ephemeral life, the existence of which and its
+                                fading in the oblivion were merely one of the another uncountable and
+                                inconsequential inevitability of the Universe. Something which perturbs the
+                                grand equation of cosmos so infinitesimally that the Universe remains
+                                eternally oblivious to its existence or lack thereof.
+                            </p>
+                            <p style="text-align:justify">
+                                And you realize that the life you have lived so
+                                far, with all its chaos and peace, agony and bliss and insignificance and
+                                grandeur is not only ephemeral, it is inconsequential!
+                            </p>
+                        </font>
+                    </div>
+
+                    <div class="normal-div" id="div-8">
+                        <font size="5em">
+                            <a class="expansion-btn exp-8">یکسانیت</a>
+                        </font>
+                        <br></br>
+                        <font size="4em">
+                        <div align="right"><span dir="rtl"><span
+                                    style="font-family: 'Times';">کچھ&nbsp;ایسی&nbsp;مقام&nbsp;پے&nbsp;ہے&nbsp;زندگی،&nbsp;ہر&nbsp;کچھ&nbsp;تھم&nbsp;سی&nbsp;گئی&nbsp;ہے</span></span>
+                        </div>
+                        <div align="right"><span dir="rtl"><span
+                                    style="font-family: 'Times';">ہر&nbsp;موڈ&nbsp;میں&nbsp;یکسانیت&nbsp;ہے،&nbsp;ہر&nbsp;پہلو&nbsp;مانو&nbsp;ایک&nbsp;جیسی&nbsp;ہے</span></span>
+                        </div>
+                        <div align="right"><span dir="rtl"><span
+                                    style="font-family: 'Times';">اور&nbsp;ہر&nbsp;لمحہ&nbsp;اگلے&nbsp;پل&nbsp;خود&nbsp;کو&nbsp;دہراتی&nbsp;ہوئی&nbsp;محسوس&nbsp;ہوتی&nbsp;ہے</span></span>
+                        </div>
+                        <div align="right"><span dir="rtl"><span
+                                    style="font-family: 'Times';">&nbsp;</span></span></div>
+                        <div align="right"><span dir="rtl"><span
+                                    style="font-family: 'Times';">بیزاری&nbsp;بھی&nbsp;اب&nbsp;بیزار&nbsp;ہونے&nbsp;لگی،&nbsp;تنہائی&nbsp;بھی&nbsp;آج&nbsp;کل&nbsp;تنہا&nbsp;ہے</span></span>
+                        </div>
+                        <div align="right"><span dir="rtl"><span
+                                    style="font-family: 'Times';">وقت&nbsp;نے&nbsp;اپنی&nbsp;رفتار&nbsp;کھو&nbsp;دی،&nbsp;ذہن&nbsp;بھی&nbsp;بیگانہ&nbsp;ہوا&nbsp;جا&nbsp;رہا&nbsp;ہے</span></span>
+                        </div>
+                        <div align="right"><span dir="rtl"><span
+                                    style="font-family: 'Times';">آنکھیں&nbsp;کسی&nbsp;کی&nbsp;آس&nbsp;میں&nbsp;رہتی&nbsp;ہیں،&nbsp;اور&nbsp;دل&nbsp;بےانتہا&nbsp;بیچیں&nbsp;ہے</span></span>
+                        </div>
+                        <div align="right"><span dir="rtl"><span
+                                    style="font-family: 'Times';">&nbsp;</span></span></div>
+                        <div align="right"><span dir="rtl"><span
+                                    style="font-family: 'Times';">جگر&nbsp;مچل&nbsp;اٹھتا&nbsp;ہے،&nbsp;دھڑکنو&nbsp;پے&nbsp;قابو&nbsp;پانا&nbsp;ناممکن&nbsp;ہے</span></span>
+                        </div>
+                        <div align="right"><span dir="rtl"><span
+                                    style="font-family: 'Times';">آوارہ&nbsp;بوند&nbsp;باغی&nbsp;ہو&nbsp;گئے&nbsp;ہیں،&nbsp;سمبھالنا&nbsp;دشوار&nbsp;ہے</span></span>
+                        </div>
+                        <div align="right"><span dir="rtl"><span
+                                    style="font-family: 'Times';">کبھی&nbsp;اس&nbsp;نینا&nbsp;سے،&nbsp;کبھی&nbsp;اس&nbsp;نینن&nbsp;سے&nbsp;سے،چھلک&nbsp;پڑتے&nbsp;ہیں</span></span>
+                        </div>
+                        <div align="right">
+                            <div><span dir="rtl"><span
+                                        style="font-family: 'Times';">&nbsp;</span></span></div>
+                        </div>
+                        <div align="right">
+                            <div><span dir="rtl"><span
+                                        style="font-family: 'Times';">اجب&nbsp;ماجرا&nbsp;ہے، ہر
+                                        سمت&nbsp;ہر&nbsp;طرف،&nbsp;زندگی&nbsp;کچھ&nbsp;اداس&nbsp;سی&nbsp;ہو&nbsp;رہی&nbsp;ہے</span></span>
+                            </div>
+                        </div>
+                        <div align="right"><span dir="rtl"><span
+                                    style="font-family: 'Times';">دل&nbsp;بھی&nbsp;کچھ&nbsp;غمگین&nbsp;ہے،&nbsp;لب&nbsp;بےبس&nbsp;ہیں،&nbsp;زباں&nbsp;تھکی&nbsp;تھکی&nbsp;سی&nbsp;ہے</span></span>
+                        </div>
+                        <div align="right"><span dir="rtl"><span
+                                    style="font-family: 'Times';">کچھ&nbsp;ایسا&nbsp;ماحول&nbsp;ہے،&nbsp;اب&nbsp;تو&nbsp;اپنے&nbsp;سانسوں&nbsp;کی&nbsp;سرگوشی&nbsp;بھی&nbsp;گستاخ&nbsp;لگتی&nbsp;ہے</span></span>
+                        </div>
+                        <div><span style="font-family: 'Times';">&nbsp;</span></div>
+                        <div><span style="font-family: 'Times';">&nbsp;</span></div>
+                        </font>
+                    </div>
+
+                        <div class="normal-div" id="div-9">
+                            <font size="5em">
+                                <a class="expansion-btn exp-9">The Silent Deity</a>
+                            </font>
+                            <br></br>
+                            <font size="4em">
+                                <p style="text-decoration: underline; text-align:left;">
+                                    0630 Hrs
+                                </p>
+                                <p style="text-decoration: underline; text-align:left;">
+                                    08/12/2016
+                                </p>
+                                <p>Silence is the language of God, (all else is poor translation)</p>
+                                <p style="text-align: right;">                                                 
+                                          Rumi</p>
+                                <p style="text-align:justify">
+                                    A cryptic silence, unlike any mankind can decipher. So they have
+                                    struggled over the ages to make sense out of it. Created a
+                                    million different versions.  Fought battles for millennia and
+                                    still wage uncountable wars for supremacy and dominance.
+                                    Innumerable heads beheaded for assumed heresy. Infinite souls
+                                    lost in search of a finite myth. Passion caged for the fear of
+                                    eternal damnation. Every innovation termed apostasy, every
+                                    expression as act of dissent and nonconformity rewarded with
+                                    execution. All these atrocities of followers and disciples of
+                                    one version or another spread over centuries and yet the God
+                                    spoke in but one language. An eternal silence. An indecipherable
+                                    enigma for humanity. And so the barbarousness of believers
+                                    continue, unchecked, unparalleled and inevitable!
+                                </p>
+                                <p style="text-align:justify">
+                                    That my dear man is my problem with a silent deity. For his
+                                    existence or the lack of it matters not.
+                                </p>
+                                <p> </p>
+                                <p style="text-decoration: underline; text-align:right;"">
+                                     0643 Hrs
+                                </p>
+                                <p style="text-decoration: underline; text-align:right;">
+                                    08/12/2016
+                                </p>
+                            </font>
+                        </div>
+                    <!--button class="collapsible" title="Musings of an inconsequential life form over
+                    an ephemeral life!"> Musings of an inconsequential life form over an ephemeral
+                    life!</button>
+                    <div class="collapsible_content">
+                        <br></br>
+
+                        <p style="text-align:left">With time every bond we share decays and every
+                        relation we form undergoes corrosion. Love fizzles away from our memory and
+                        as a direct consequence a melancholy feeling reigns over heart, momentarily.
+                        Though moments passes by imperceptibly the memories remain, some time
+                        despite our most vehement protest. Every beautiful memory associated with a
+                        broken bond or a corroded relation retains with it a quanta of emotion, more
+                        often than not, pain.</p>
+                        <p style="text-align:left">Ironically a relation at times is most stable
+                        during genesis, when its instability would not have mattered to you anyways.
+                        Once the process completes the expectations rise and renders it unstable. In
+                        due time it breaks apart and leaves you shattered and your life in
+                        turmoil.</p>
+                        <p style="text-align:left">An ephemeral life, the existence of which and its
+                        fading in the oblivion were merely one of the another uncountable and
+                        inconsequential inevitability of the Universe. Something which perturbs the
+                        grand equation of cosmos so infinitesimally that the Universe remains
+                        eternally oblivious to its existence or lack thereof.</p>
+                        <p style="text-align:left">And you realize that the life you have lived so
+                        far, with all its chaos and peace, agony and bliss and insignificance and
+                        grandeur is not only ephemeral, it is inconsequential!</p>
+                    </div-->
+
+                    <!--button class="collapsible">Title here</button>
+                    <div class="collapsible_content">
+                        <br></br>
+                        <p></p>
+                    </div-->
+                </article>
+
+                <!--Tale -->
+                </article>
+                <article id="blog-tales" style="display: none;">
+                    <h2 class="major">Tiny Tales</h2>
+                    <!--span class="image main"><img alt="" src="./fbb_files/pic02.jpg"></span-->
+                    <button class="collapsible">Tiny Tales - Collection 1</button>
+                    <div class="collapsible_content">
+                        <div>
+                            <p>1</p><p style="text-align:left">She was broken by the beliefs of a
+                            ridiculous society, and his heart by her submission to that force.</p>
+                        </div>
+                        <div>
+                            <hr />
+                            <p>2</p>
+                            <p style="text-align:left">And then he watched his princess become a
+                            Queen. He was still a Prince.
+                            </p>
+                        </div>
+                        <hr />
+                        <div>3</div>
+                        <div><p style="text-align:left">She read somewhere, "If your love is true,
+                        let it be free. It will come back to you".</p></div>
+                        <div><p style="text-align:left">Decades later she realized her love was
+                        true, the proverb wasn't.</div>
+                        <hr />
+                        <div>4</div>
+                        <div><p style="text-align:left">As the dessert arrived they discussed the
+                        sweetest thing each of them have ever tasted.</p></div>
+                        <div><p style="text-align:left">When his turn came he thought about her for
+                        a moment, smiled and said, "A pair of lips".</p></div>
+                        <hr />
+                        <div>5</div>
+                        <div><p style="text-align:left">That day they all showered her with
+                        ridiculously expensive gifts. And yet nothing could compensate for her
+                        loss.</p></div>
+                        <div><p style="text-align:left">Dreams don't have a price tag.</p></div>
+                        <hr />
+                        <div>6</div>
+                        <div><p style="text-align:left">A billionaire physicist, he looked at the
+                        final equation he has just written proving the relation between time and
+                        space, one very similar to Einstein's equation explaining mass and energy
+                        conversion. If only he could convert all the space he has into a moment with
+                        her. "sigh"</p></div>
+                        <hr />
+                        <div>7</div>
+                        <div><p style="text-align:left">"What can I give to the man who has
+                        everything?" she thought hard and long.
+                        </p></div>
+                        <div><p style="text-align:left">While saying good bye she kissed him once
+                        and gave him a memory which will last forever (perhaps, she
+                        thought.)</p></div>
+                        <hr />
+                        <div>8</div>
+                        <div><p style="text-align:left">As he adjusted his tie he remembered his
+                        obsession with her, her smile and the musical laughter and the pretty eyes
+                        just like he had for the last five years.</p></div>
+                        <div><p style="text-align:left">A second later he opened the door responding
+                        to the knock. She had a divine smile too.</p></div>
+                        <hr />
+                        <div>9</div>
+                        <div><p style="text-align:left">A few days back he didn't have a second to
+                        spare. Today as he lay dying from the wounds of a lost battle, he had
+                        nothing but time. With a tinge of sadness he realized "sometimes an instant
+                        is forever, sometimes eternity is not long enough". All he wished was
+                        infinite instances for an eternity.
+                        </p></div>
+                        <hr />
+                        <div>10</div>
+                        <div><p style="text-align:left">"Hey, nice bookmark".<br />Startled by the
+                        interruption he looked up to see two pretty lips curved in a smile still
+                        vibrating from inertia.<br />"Thanks", he said with a straight face and went
+                        back to his book.<br />Another potential love died uninitiated.</p></div>
+                        <hr />
+                        <div> </div>
+                    </div>
+                    <button class="collapsible" >Tiny Tales - Collection 2</button>
+                    <div class="collapsible_content">
+                        <br /><div>13<br /><p style="text-align:left">As he unpacked the last box
+                        and put the things in places he realized though his body arrived here a
+                        month back, the soul was yet to.
+                        </p></div>
+                        <hr />
+                        <div>15<br /><p style="text-align:left">"Sup? By the way, I am in love."<br
+                        />"Congrats. Who is he?" He replied, half hoping it was a joke half hoping
+                        it was him.<br />Her reply broke his heart just a little, for the n th time,
+                        and terrified him. He knew, just like his this wasn't a story, it was a
+                        tragedy in making.</p></div>
+                        <hr />
+                        <div>16<br /><p style="text-align:left">"I hope he loves you more than me"
+                        he said with a saddened smile.<br />"Didn't you say you love me infinitely?
+                        What could be more than infinity itself?" She said almost in an accusing
+                        tone.<br />"You know how some infinities are smaller than others? I hope my
+                        infinity was smaller one.<br />She disconnected the call and cried her heart
+                        out. That was her last conversation with him.</p></div>
+                        <div>
+                            <hr />
+                            <div>18<br /><p style="text-align:left">His was a soul trapped between
+                            two hearts. He couldn't let go of the one he had lost and knew he could
+                            never possibly win the other one he has fallen for.</p></div>
+                            <div>
+                                <hr />
+                                <div>19<br /><p style="text-align:left">He loved her a lot, she
+                                loved him back with almost equal intensity. And yet none of them
+                                were in love. That was how beautiful/sad their story was.</p></div>
+                            </div>
+                            <div>
+                                <div><hr /></div>
+                                <div>23<br /><p style="text-align:left">He thought distance would do
+                                the trick and hence moved as far from her as possible, to the other
+                                hemisphere of the world.<br />To his great dismay and relief he
+                                realized, unlike gravity memories and love do not follow the inverse
+                                square law.
+                                </p></div>
+                                <hr />
+                            </div>
+                            <div>
+                                <div>24<br /><p style="text-align:left">He wished to be her first
+                                love. She desired to be his last.</p><p style="text-align:left">In a
+                                way neither happy nor desired, both their wishes were
+                                granted.</p></div>
+                                <div>
+                                    <hr />
+                                    <div>26<br /><p style="text-align:left">Drunk, he lit another
+                                    cigarette. Barely able to hold, he let it slid out of his
+                                    fingers.<br />Next day the fire fighters tugged out his churned
+                                    body from the debris. He had a smile playing on his burnt
+                                    face.<br />"At least he died happy", thought the
+                                    fireman.</p></div>
+                                    <hr />
+                                </div>
+                                <div>
+                                    <div>27</div>
+                                    <div>
+                                        <p style="text-align:left">2012: He signed up for NASA's
+                                        mission to Mars.</p>
+                                        <p style="text-align:left">2035: He stepped out of the Hab
+                                        to -130 degrees outside and looked at the stars.<br />His
+                                        sole consolation was, 225 million kilometers away no matter
+                                        where she was she would be looking at the same
+                                        constellations.</p>
+                                    </div>
+                                    <hr />
+                                </div>
+                                <div>29<br /><p style="text-align:left">He asked her the permission
+                                to kiss her.<br />She said, "No!" with a smile on her lips.<br />60
+                                years later when he saw her, he asked the same question.<br />Taking
+                                her silence for yes, he kissed her cold forehead and spread the pall
+                                over her face.</p></div>
+                                <div>
+                                    <hr />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                    <!--Script to collapse each poem separately-->
+                    <script>
+                        var coll = document.getElementsByClassName("collapsible");
+                        var i;
+
+                        for (i = 0; i < coll.length; i++) {
+                            coll[i].addEventListener("click", function () {
+                                this.classList.toggle("active");
+                                var content = this.nextElementSibling;
+                                if (content.style.maxHeight) {
+                                    content.style.maxHeight = null;
+                                } else {
+                                    content.style.maxHeight = content.scrollHeight + "px";
+                                }
+                            });
+                        }
+                    </script>
+                </article>
+
+                <!-- Elements -->
+                <article id="elements">
+                    <h2 class="major">Elements</h2>
+
+                    <section>
+                        <h3 class="major">Text</h3>
+                        <p>This is <b>bold</b> and this is <strong>strong</strong>. This is
+                        <i>italic</i> and this is <em>emphasized</em>.  This is
+                        <sup>superscript</sup> text and this is <sub>subscript</sub>
+                        text.  This is <u>underlined</u> and this is code: <code>for (;;) { ...
+                        }</code>. Finally, <a href="#">this is a link</a>.</p>
+                        <hr />
+                        <h2>Heading Level 2</h2>
+                        <h3>Heading Level 3</h3>
+                        <h4>Heading Level 4</h4>
+                        <h5>Heading Level 5</h5>
+                        <h6>Heading Level 6</h6>
+                        <hr />
+                        <h4>Blockquote</h4>
+                        <blockquote>Fringilla nisl. Donec accumsan interdum nisi, quis tincidunt
+                        felis sagittis eget tempus euismod. Vestibulum ante ipsum primis in faucibus
+                        vestibulum. Blandit adipiscing eu felis iaculis volutpat ac adipiscing
+                        accumsan faucibus. Vestibulum ante ipsum primis in faucibus lorem ipsum
+                        dolor sit amet nullam adipiscing eu felis.</blockquote>
+                        <h4>Preformatted</h4>
+                        <pre><code>i = 0;
+
+                        while (!deck.isInOrder()) {print 'Iteration ' + i; deck.shuffle(); i++;}
+
+                        print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
+                    </section>
+
+                    <section>
+                        <h3 class="major">Lists</h3>
+
+                        <h4>Unordered</h4>
+                        <ul>
+                            <li>Dolor pulvinar etiam.</li>
+                            <li>Sagittis adipiscing.</li>
+                            <li>Felis enim feugiat.</li>
+                        </ul>
+
+                        <h4>Alternate</h4>
+                        <ul class="alt">
+                            <li>Dolor pulvinar etiam.</li>
+                            <li>Sagittis adipiscing.</li>
+                            <li>Felis enim feugiat.</li>
+                        </ul>
+
+                        <h4>Ordered</h4>
+                        <ol>
+                            <li>Dolor pulvinar etiam.</li>
+                            <li>Etiam vel felis viverra.</li>
+                            <li>Felis enim feugiat.</li>
+                            <li>Dolor pulvinar etiam.</li>
+                            <li>Etiam vel felis lorem.</li>
+                            <li>Felis enim et feugiat.</li>
+                        </ol>
+                        <h4 style="text-align:left;">Icons</h4>
+                        <ul class="icons">
+                            <li><a href="#" class="icon brands fa-twitter"><span
+                            class="label">Twitter</span></a></li>
+                            <li><a href="#" class="icon brands fa-facebook-f"><span
+                            class="label">Facebook</span></a></li>
+                            <li><a href="#" class="icon brands fa-instagram"><span
+                            class="label">Instagram</span></a></li>
+                            <li><a href="#" class="icon brands fa-github"><span
+                            class="label">GitHub</span></a></li>
+                        </ul>
+
+                        <h4>Actions</h4>
+                        <ul class="actions">
+                            <li><a href="#" class="button primary">Default</a></li>
+                            <li><a href="#" class="button">Default</a></li>
+                        </ul>
+                        <ul class="actions stacked">
+                            <li><a href="#" class="button primary">Default</a></li>
+                            <li><a href="#" class="button">Default</a></li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3 class="major">Table</h3>
+                        <h4>Default</h4>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th>Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Item One</td>
+                                        <td>Ante turpis integer aliquet porttitor.</td>
+                                        <td>29.99</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Item Two</td>
+                                        <td>Vis ac commodo adipiscing arcu aliquet.</td>
+                                        <td>19.99</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Item Three</td>
+                                        <td> Morbi faucibus arcu accumsan lorem.</td>
+                                        <td>29.99</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Item Four</td>
+                                        <td>Vitae integer tempus condimentum.</td>
+                                        <td>19.99</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Item Five</td>
+                                        <td>Ante turpis integer aliquet porttitor.</td>
+                                        <td>29.99</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2"></td>
+                                        <td>100.00</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <h4>Alternate</h4>
+                        <div class="table-wrapper">
+                            <table class="alt">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Description</th>
+                                        <th>Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Item One</td>
+                                        <td>Ante turpis integer aliquet porttitor.</td>
+                                        <td>29.99</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Item Two</td>
+                                        <td>Vis ac commodo adipiscing arcu aliquet.</td>
+                                        <td>19.99</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Item Three</td>
+                                        <td> Morbi faucibus arcu accumsan lorem.</td>
+                                        <td>29.99</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Item Four</td>
+                                        <td>Vitae integer tempus condimentum.</td>
+                                        <td>19.99</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Item Five</td>
+                                        <td>Ante turpis integer aliquet porttitor.</td>
+                                        <td>29.99</td>
+                                    </tr>
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="2"></td>
+                                        <td>100.00</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3 class="major">Buttons</h3>
+                        <ul class="actions">
+                            <li><a href="#" class="button primary">Primary</a></li>
+                            <li><a href="#" class="button">Default</a></li>
+                        </ul>
+                        <ul class="actions">
+                            <li><a href="#" class="button">Default</a></li>
+                            <li><a href="#" class="button small">Small</a></li>
+                        </ul>
+                        <ul class="actions">
+                            <li><a href="#" class="button primary icon solid
+                            fa-download">Icon</a></li>
+                            <li><a href="#" class="button icon solid fa-download">Icon</a></li>
+                        </ul>
+                        <ul class="actions">
+                            <li><span class="button primary disabled">Disabled</span></li>
+                            <li><span class="button disabled">Disabled</span></li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h3 class="major">Form</h3>
+                        <form method="post" action="#">
+                            <div class="fields">
+                                <div class="field half">
+                                    <label for="demo-name">Name</label>
+                                    <input type="text" name="demo-name" id="demo-name" value=""
+                                    placeholder="Jane Doe" />
+                                </div>
+                                <div class="field half">
+                                    <label for="demo-email">Email</label>
+                                    <input type="email" name="demo-email" id="demo-email" value=""
+                                    placeholder="jane@untitled.tld" />
+                                </div>
+                                <div class="field">
+                                    <label for="demo-category">Category</label>
+                                    <select name="demo-category" id="demo-category">
+                                        <option value="">-</option>
+                                        <option value="1">Manufacturing</option>
+                                        <option value="1">Shipping</option>
+                                        <option value="1">Administration</option>
+                                        <option value="1">Human Resources</option>
+                                    </select>
+                                </div>
+                                <div class="field half">
+                                    <input type="radio" id="demo-priority-low" name="demo-priority"
+                                    checked>
+                                    <label for="demo-priority-low">Low</label>
+                                </div>
+                                <div class="field half">
+                                    <input type="radio" id="demo-priority-high"
+                                    name="demo-priority">
+                                    <label for="demo-priority-high">High</label>
+                                </div>
+                                <div class="field half">
+                                    <input type="checkbox" id="demo-copy" name="demo-copy">
+                                    <label for="demo-copy">Email me a copy</label>
+                                </div>
+                                <div class="field half">
+                                    <input type="checkbox" id="demo-human" name="demo-human"
+                                    checked>
+                                    <label for="demo-human">Not a robot</label>
+                                </div>
+                                <div class="field">
+                                    <label for="demo-message">Message</label>
+                                    <textarea name="demo-message" id="demo-message"
+                                    placeholder="Enter your message" rows="6"></textarea>
+                                </div>
+                            </div>
+                            <ul class="actions">
+                                <li><input type="submit" value="Send Message" class="primary"
+                                /></li>
+                                <li><input type="reset" value="Reset" /></li>
+                            </ul>
+                        </form>
+                    </section>
+                </article>
+
+            </div>
+
+            <!-- Footer -->
+            <footer id="footer">
+                <p class="copyright">&copy; Ramiz Qudsi: <a href="https://github.com/qudsiramiz"
+                target="_blank">GitHub</a>.</p>
+            </footer>
+            <!--footer id="footer">
+                <p class="copyright">&copy; Ramiz Qudsi: <a href="https://github.com/qudsiramiz/qudsiramiz.github.io/blob/main/images/dxl_figures/sw_ace.png"
+                        target="_blank">DXL Figure</a>.</p>
+            </footer-->
+
+        </div>
+
+        <!-- BG -->
+        <div id="bg"></div>
+
+        <!-- Scripts -->
+            <script src="assets/js/jquery.min.js"></script>
+            <script src="assets/js/browser.min.js"></script>
+            <script src="assets/js/breakpoints.min.js"></script>
+            <script src="assets/js/util.js"></script>
+            <script src="assets/js/main.js"></script>
+
+    </body>
+</html>
