@@ -66,6 +66,14 @@ test = ["invoke", "pytest", "pytest-cov", "fsspec"]
 tifffile = ["tifffile"]
 
 [[package]]
+name = "imageio-ffmpeg"
+version = "0.4.7"
+description = "FFMPEG wrapper for Python"
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[[package]]
 name = "kiwisolver"
 version = "1.4.4"
 description = "A fast implementation of the Cassowary constraint solver"
@@ -229,7 +237,7 @@ python-versions = ">=3.7"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8, <3.11"
-content-hash = "fe40e5ddefde5552ed525d131d0f5826ae9a1c329f16171366e3ef179d7e2282"
+content-hash = "94b82cda15f3e904f163c7c7a97c9fe4a1803733761bead5d26a79a8f161cd21"
 
 [metadata.files]
 cycler = [
@@ -242,6 +250,7 @@ geopack = [
     {file = "geopack-1.0.9.tar.gz", hash = "sha256:dbcc15dc875be0fffad43efaa0a66d370368db8b4b5d90cfbcc783461fd3336d"},
 ]
 imageio = []
+imageio-ffmpeg = []
 kiwisolver = []
 matplotlib = [
     {file = "matplotlib-3.5.2-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:03bbb3f5f78836855e127b5dab228d99551ad0642918ccbf3067fcd52ac7ac5e"},

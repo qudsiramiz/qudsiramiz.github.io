@@ -28,3 +28,5 @@ hs_err_pid*
 .*.swo
 .*.swp
 
+# Ignore the moving pictures folder
+moving_pictures/
