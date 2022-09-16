@@ -1,5 +1,4 @@
-#!/home/cephadrius/.cache/pypoetry/virtualenvs/rt-sw-ts-h2bRw1kE-py3.8/bin/python
-
+#!/home/cephadrius/dlx_venv/bin/python
 # -*- coding: utf-8 -*-
 
 import datetime

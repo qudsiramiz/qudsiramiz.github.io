@@ -5,13 +5,9 @@
 import datetime
 import glob
 import os
-import sched
 import time
 import re
 
-from matplotlib import colors
-
-import geopack.geopack as gp
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -24,7 +20,7 @@ def plot_figures_dsco_30days(number_of_days=30):
     Download and plot the data from DSCOVR for the last 30 days starting from the present time.
     """
 
-    print(f"Code execution for DSCOVR 30 days data started at at (UTC):" +
+    print("Code execution for DSCOVR 30 days data started at at (UTC):" +
           f"{datetime.datetime.utcfromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')}")
 
     # Set the font style to Times New Roman
@@ -82,17 +78,18 @@ def plot_figures_dsco_30days(number_of_days=30):
             os.system(f"""wget -q -r -np -nc -nH -nd -A {plas_file_name} {url}""")
             time_plasma_data += 60 * 60 * 24
         else:
-            print(f"Plasma data for {year}-{str(month).zfill(2)}-{str(day).zfill(2)} already exists")
+            print(f"Plasma data for {year}-{str(month).zfill(2)}-{str(day).zfill(2)} already exists"
+                  )
             time_plasma_data += 60 * 60 * 24
 
     print("Downloading complete\n")
 
     # Unzip the files and delete the zipped files
     print("Unzipping the files\n")
-    try :
+    try:
         os.system("gunzip oe_*.gz")
         print("Unzipping complete\n")
-    except:
+    except Exception:
         print("No files to unzip\n")
 
     os.chdir("/home/cephadrius/Desktop/git/qudsiramiz.github.io/python/codes")
@@ -123,12 +120,16 @@ def plot_figures_dsco_30days(number_of_days=30):
         plas_data_vp = plas_data.variables['proton_speed'][:].byteswap().newbyteorder()
         plas_data_tp = plas_data.variables['proton_temperature'][:].byteswap().newbyteorder()
 
-        mag_data_time_utc = np.array([datetime.datetime.utcfromtimestamp(t/1.e3)
-                                                                            for t in mag_data_time])
-        plas_data_time_utc = np.array([datetime.datetime.utcfromtimestamp(t/1.e3)
-                                                                           for t in plas_data_time])
+        mag_data_time_utc = np.array([datetime.datetime.utcfromtimestamp(t / 1.e3)
+                                      for t in mag_data_time])
+        plas_data_time_utc = np.array([datetime.datetime.utcfromtimestamp(t / 1.e3)
+                                       for t in plas_data_time])
 
-        df_mag_list[count] = pd.DataFrame({'bx_gsm': mag_data_bx_gsm, 'by_gsm': mag_data_by_gsm, 'bz_gsm': mag_data_bz_gsm, 'bt': mag_data_bt_gsm}, index=mag_data_time_utc)
+        df_mag_list[count] = pd.DataFrame({'bx_gsm': mag_data_bx_gsm,
+                                           'by_gsm': mag_data_by_gsm,
+                                           'bz_gsm': mag_data_bz_gsm,
+                                           'bt': mag_data_bt_gsm},
+                                          index=mag_data_time_utc)
         df_plas_list[count] = pd.DataFrame({'np': plas_data_np, 'vp': plas_data_vp,
                                             'tp': plas_data_tp}, index=plas_data_time_utc)
 
@@ -149,7 +150,8 @@ def plot_figures_dsco_30days(number_of_days=30):
     df_dscovr_hc['flux'] = df_dscovr_hc.np * df_dscovr_hc.vp * 1e-3
 
     # Save the magnitude of magnetic field data to the dataframe
-    df_dscovr_hc['bm'] = np.sqrt(df_dscovr_hc.bx_gsm**2 + df_dscovr_hc.by_gsm**2 + df_dscovr_hc.bz_gsm**2)
+    df_dscovr_hc['bm'] = np.sqrt(df_dscovr_hc.bx_gsm**2 + df_dscovr_hc.by_gsm**2 +
+                                 df_dscovr_hc.bz_gsm**2)
 
     # Compute the IMF clock angle and save it to dataframe
     df_dscovr_hc['theta_c'] = np.arctan2(df_dscovr_hc.by_gsm, df_dscovr_hc.bz_gsm)
@@ -165,24 +167,24 @@ def plot_figures_dsco_30days(number_of_days=30):
     # cmap = plt.cm.viridis
     # pad = 0.02
     # clabelpad = 10
-    labelsize = 22
+    # labelsize = 22
     ticklabelsize = 20
     # cticklabelsize = 15
     # clabelsize = 15
     ticklength = 12
     tickwidth = 1.5
-    mticklength = 8
+    # mticklength = 8
     # cticklength = 5
     # mcticklength = 4
     # labelrotation = 0
     xlabelsize = 20
     ylabelsize = 20
     alpha = 0.3
-    bar_color = 'k'
+    # bar_color = 'k'
 
     ms = 2
     lw = 2
-    ncols = 2
+    # ncols = 2
 
     try:
         plt.close('all')
@@ -190,18 +192,19 @@ def plot_figures_dsco_30days(number_of_days=30):
         pass
 
     t_start = df_dscovr.index.min()
-    t_end = df_dscovr.index.min() + datetime.timedelta(minutes=1440*30)
+    t_end = df_dscovr.index.min() + datetime.timedelta(minutes=1440 * 30)
 
     while t_end <= df_dscovr_hc.index[-1]:
 
-        #df_dscovr = df_dscovr_hc[(df_dscovr_hc.index >= t_start) & (df_dscovr_hc.index <= t_end)]
+        # df_dscovr = df_dscovr_hc[(df_dscovr_hc.index >= t_start) & (df_dscovr_hc.index <= t_end)]
         df_dscovr = df_dscovr_all.loc[t_start:t_end]
 
         t1 = datetime.datetime.utcfromtimestamp(t_start.timestamp()).strftime('%Y-%m-%d_%H-%M-%S')
         t2 = datetime.datetime.utcfromtimestamp(t_end.timestamp()).strftime('%Y-%m-%d_%H-%M-%S')
 
-        fig_name = f"/mnt/cephadrius/bu_research/dxl/figures/historical/dscovr/30days/sw_dscovr_parameters_30days_{t1}_{t2}.png"
-        
+        fig_name = f"/mnt/cephadrius/bu_research/dxl/figures/historical/dscovr/30days/"\
+                   f" sw_dscovr_parameters_30days_{t1}_{t2}.png"
+
         # Check if the figure already exists
         if os.path.isfile(fig_name):
             print(f"Figure {fig_name[-71:]} already exists. Skipping...")
@@ -212,22 +215,22 @@ def plot_figures_dsco_30days(number_of_days=30):
         # Use the dark theme for the plot
         plt.style.use('dark_background')
 
-        tick_color = 'w' # color of the tick lines
-        label_color = 'w' # color of the tick labels
+        tick_color = 'w'  # color of the tick lines
+        label_color = 'w'  # color of the tick labels
 
         fig = plt.figure(num=None, figsize=(10, 15), dpi=200, facecolor='k', edgecolor='gray')
         fig.subplots_adjust(left=0.01, right=0.95, top=0.95, bottom=0.01, wspace=0.02, hspace=0.)
-        fig.suptitle(f'30 days DSCOVR Real Time Data', fontsize=24)
+        fig.suptitle('30 days DSCOVR Real Time Data', fontsize=24)
 
         # Magnetic field plot (x-component)
         gs = fig.add_gridspec(7, 1)
         axs1 = fig.add_subplot(gs[0:1, 0])
-        im1a = axs1.plot(df_dscovr_hc.index, df_dscovr_hc.bx_gsm, 'r-', alpha=0.3, lw=lw, ms=ms,
-                                                                                    label=r'$B_x$')
-        im1b = axs1.plot(df_dscovr.index, df_dscovr.bx_gsm, 'r-', lw=lw, ms=ms, label=r'$B_x$')
+        _ = axs1.plot(df_dscovr_hc.index, df_dscovr_hc.bx_gsm, 'r-', alpha=0.3, lw=lw, ms=ms,
+                      label=r'$B_x$')
+        _ = axs1.plot(df_dscovr.index, df_dscovr.bx_gsm, 'r-', lw=lw, ms=ms, label=r'$B_x$')
 
-        #im1d = axs1.plot(df_dscovr.index, df_dscovr.bm, 'k-.', lw=lw, ms=ms, label=r'$|\vec{B}|$')
-        #im1e = axs1.plot(df_dscovr.index, -df_dscovr.bm, 'k-.', lw=lw, ms=ms)
+        # im1d = axs1.plot(df_dscovr.index, df_dscovr.bm, 'k-.', lw=lw, ms=ms, label=r'$|\vec{B}|$')
+        # im1e = axs1.plot(df_dscovr.index, -df_dscovr.bm, 'k-.', lw=lw, ms=ms)
 
         if df_dscovr.bm.isnull().all():
             axs1.set_ylim([-1, 1])
@@ -236,13 +239,13 @@ def plot_figures_dsco_30days(number_of_days=30):
                           1.1 * np.nanmax(df_dscovr_all.bx_gsm))
 
         axs1.set_xlim(df_dscovr.index.min(), df_dscovr.index.max())
-        axs1.set_ylabel(r'$B_{\rm x}$ (GSM) [nT]', fontsize=20 )
+        axs1.set_ylabel(r'$B_{\rm x}$ (GSM) [nT]', fontsize=20)
 
         # Magnetic field plot (y-component)
         axs2 = fig.add_subplot(gs[1:2, 0])
-        im2a = axs2.plot(df_dscovr_hc.index, df_dscovr_hc.by_gsm, 'c-', alpha=0.3, lw=lw, ms=ms,
-                                                                                    label=r'$B_y$')
-        im2b = axs2.plot(df_dscovr.index, df_dscovr.by_gsm, 'c-', lw=lw, ms=ms, label=r'$B_y$')
+        _ = axs2.plot(df_dscovr_hc.index, df_dscovr_hc.by_gsm, 'c-', alpha=0.3, lw=lw, ms=ms,
+                      label=r'$B_y$')
+        _ = axs2.plot(df_dscovr.index, df_dscovr.by_gsm, 'c-', lw=lw, ms=ms, label=r'$B_y$')
 
         if df_dscovr.bm.isnull().all():
             axs2.set_ylim([-1, 1])
@@ -251,14 +254,14 @@ def plot_figures_dsco_30days(number_of_days=30):
                           1.1 * np.nanmax(df_dscovr_all.by_gsm))
 
         axs2.set_xlim(df_dscovr.index.min(), df_dscovr.index.max())
-        axs2.set_ylabel(r'$B_{\rm y}$ (GSM) [nT]', fontsize=20 )
+        axs2.set_ylabel(r'$B_{\rm y}$ (GSM) [nT]', fontsize=20)
 
         # Magnetic field plot (z-component)
         axs3 = fig.add_subplot(gs[2:3, 0])
-        im3a = axs3.plot(df_dscovr_hc.index, df_dscovr_hc.bz_gsm, color='bisque', ls='-', alpha=0.3,
-                         lw=lw, ms=ms, label=r'$B_z$')
-        im3b = axs3.plot(df_dscovr.index, df_dscovr.bz_gsm, color='bisque', lw=lw, ms=ms,
-                         label=r'$B_z$')
+        _ = axs3.plot(df_dscovr_hc.index, df_dscovr_hc.bz_gsm, color='bisque', ls='-', alpha=0.3,
+                      lw=lw, ms=ms, label=r'$B_z$')
+        _ = axs3.plot(df_dscovr.index, df_dscovr.bz_gsm, color='bisque', lw=lw, ms=ms,
+                      label=r'$B_z$')
 
         if df_dscovr.bm.isnull().all():
             axs3.set_ylim([-1, 1])
@@ -267,13 +270,13 @@ def plot_figures_dsco_30days(number_of_days=30):
                           1.1 * np.nanmax(df_dscovr_all.bz_gsm))
 
         axs3.set_xlim(df_dscovr.index.min(), df_dscovr.index.max())
-        axs3.set_ylabel(r'$B_{\rm z}$ (GSM) [nT]', fontsize=20 )
+        axs3.set_ylabel(r'$B_{\rm z}$ (GSM) [nT]', fontsize=20)
 
         # Magnetic field plot (z-component)
         axs4 = fig.add_subplot(gs[3:4, 0])
-        im4a = axs4.plot(df_dscovr_hc.index, df_dscovr_hc.bm, 'w-', alpha=0.3, lw=lw, ms=ms,
-                                                                            label=r'|$\vec{B}$|')
-        im4b = axs4.plot(df_dscovr.index, df_dscovr.bm, 'w-', lw=lw, ms=ms, label=r'$B_z$')
+        _ = axs4.plot(df_dscovr_hc.index, df_dscovr_hc.bm, 'w-', alpha=0.3, lw=lw, ms=ms,
+                      label=r'|$\vec{B}$|')
+        _ = axs4.plot(df_dscovr.index, df_dscovr.bm, 'w-', lw=lw, ms=ms, label=r'$B_z$')
 
         if df_dscovr.bm.isnull().all():
             axs4.set_ylim([-1, 1])
@@ -287,8 +290,8 @@ def plot_figures_dsco_30days(number_of_days=30):
 
         # Density plot
         axs5 = fig.add_subplot(gs[4:5, 0], sharex=axs1)
-        im5 = axs5.plot(df_dscovr.index, df_dscovr.np, color='fuchsia', ls='-', lw=lw, ms=ms,
-                        label=r'$n_p$')
+        _ = axs5.plot(df_dscovr.index, df_dscovr.np, color='fuchsia', ls='-', lw=lw, ms=ms,
+                      label=r'$n_p$')
         axs5.plot(df_dscovr_hc.index, df_dscovr_hc.np, color='fuchsia', lw=1, alpha=alpha)
 
         if df_dscovr.np.isnull().all():
@@ -300,8 +303,8 @@ def plot_figures_dsco_30days(number_of_days=30):
         axs5.set_ylabel(r'$n_{\rm p} [1/\rm{cm^{3}}]$', fontsize=ylabelsize)
 
         axs5a = axs5.twinx()
-        im5a = axs5a.plot(df_dscovr.index, df_dscovr.flux, color='oldlace', ls='-', lw=lw, ms=ms,
-                          label=r'flux')
+        _ = axs5a.plot(df_dscovr.index, df_dscovr.flux, color='oldlace', ls='-', lw=lw, ms=ms,
+                       label=r'flux')
         axs5a.plot(df_dscovr_hc.index, df_dscovr_hc.flux, color='oldlace', lw=1, alpha=alpha)
 
         if df_dscovr.flux.isnull().all():
@@ -310,13 +313,12 @@ def plot_figures_dsco_30days(number_of_days=30):
             axs5a.set_ylim(np.nanmin([0.9 * np.nanmin(df_dscovr_all.flux), 2.4]),
                            np.nanmax([1.1 * np.nanmax(df_dscovr_all.flux), 3.3]))
 
-
         axs5a.set_ylabel(r'~~~~Flux\\ $10^8 [\rm{1/(sec\, cm^2)}]$', fontsize=ylabelsize)
         axs5a.set_yscale('log')
         # Speed plot
         axs6 = fig.add_subplot(gs[5:6, 0], sharex=axs1)
-        im6 = axs6.plot(df_dscovr.index, df_dscovr.vp, color='ivory', ls='-', lw=lw, ms=ms,
-                        label=r'$V_p$')
+        _ = axs6.plot(df_dscovr.index, df_dscovr.vp, color='ivory', ls='-', lw=lw, ms=ms,
+                      label=r'$V_p$')
         axs6.plot(df_dscovr_hc.index, df_dscovr_hc.vp, color='ivory', lw=1, alpha=alpha)
 
         if df_dscovr.vp.isnull().all():
@@ -328,15 +330,15 @@ def plot_figures_dsco_30days(number_of_days=30):
 
         # Flux plot
         axs6a = axs6.twinx()
-        im6a = axs6a.plot(df_dscovr.index, df_dscovr.tp/1.e5, color='lime', ls='-', lw=lw, ms=ms,
-                          label=r'flux')
+        _ = axs6a.plot(df_dscovr.index, df_dscovr.tp / 1.e5, color='lime', ls='-', lw=lw, ms=ms,
+                       label=r'flux')
         axs6a.plot(df_dscovr_hc.index, df_dscovr_hc.tp, color='lime', lw=1, alpha=alpha)
 
         if df_dscovr.tp.isnull().all():
             axs6a.set_ylim([0, 1])
         else:
-            axs6a.set_ylim(0.9 * np.nanmin(df_dscovr_all.tp)/1.e5,
-                           1.1 * np.nanmax(df_dscovr_all.tp)/1.e5)
+            axs6a.set_ylim(0.9 * np.nanmin(df_dscovr_all.tp) / 1.e5,
+                           1.1 * np.nanmax(df_dscovr_all.tp) / 1.e5)
 
         axs6a.set_yscale('log')
 
@@ -390,9 +392,9 @@ def plot_figures_dsco_30days(number_of_days=30):
         axs5.yaxis.set_label_position("right")
 
         axs5a.tick_params(which='both', direction='in', left=True, labelleft=True, top=True,
-                         labeltop=False, right=False, labelright=False, bottom=True,
-                         labelbottom=False, width=tickwidth, length=ticklength,
-                         labelsize=ticklabelsize, labelrotation=0, colors='oldlace')
+                          labeltop=False, right=False, labelright=False, bottom=True,
+                          labelbottom=False, width=tickwidth, length=ticklength,
+                          labelsize=ticklabelsize, labelrotation=0, colors='oldlace')
         axs5a.spines['left'].set_color('oldlace')
         axs5a.spines['left'].set_linewidth(2)
         axs5a.yaxis.label.set_color('oldlace')
@@ -408,27 +410,29 @@ def plot_figures_dsco_30days(number_of_days=30):
         axs6.yaxis.set_label_position("left")
 
         axs6a.tick_params(which='both', axis='y', direction='in', left=False, labelleft=False,
-                        top=True, labeltop=False, right=True, labelright=True, bottom=True,
-                        labelbottom=True, width=tickwidth, length=ticklength,
-                        labelsize=ticklabelsize, labelrotation=0, colors='lime')
+                          top=True, labeltop=False, right=True, labelright=True, bottom=True,
+                          labelbottom=True, width=tickwidth, length=ticklength,
+                          labelsize=ticklabelsize, labelrotation=0, colors='lime')
         axs6a.spines['right'].set_color('lime')
         axs6a.spines['right'].set_linewidth(2)
         axs6a.yaxis.label.set_color('lime')
         axs6a.yaxis.set_label_position("right")
 
         axs6.tick_params(which='both', axis='x', direction='in', left=False, labelleft=False,
-                        top=True, labeltop=False, right=False, labelright=False, bottom=True,
-                        labelbottom=True, width=tickwidth, length=ticklength,
-                        labelsize=ticklabelsize, labelrotation=0, colors=tick_color)
+                         top=True, labeltop=False, right=False, labelright=False, bottom=True,
+                         labelbottom=True, width=tickwidth, length=ticklength,
+                         labelsize=ticklabelsize, labelrotation=0, colors=tick_color)
         date_form = DateFormatter('%m-%d')
-        #axs6.xaxis.label.set_color('k')
+        # axs6.xaxis.label.set_color('k')
         axs6.set_xlabel(
-        f'Date and Time starting on {int(df_dscovr.index.year[count])}-{str(int(df_dscovr.index.month[count])).zfill(2)}-{str(int(df_dscovr.index.day[count])).zfill(2)} (UTC) [MM-DD]',
-                fontsize=xlabelsize, color=label_color
-            )
+            f'Date and Time starting on {int(df_dscovr.index.year[count])}- \
+            {str(int(df_dscovr.index.month[count])).zfill(2)}- \
+            {str(int(df_dscovr.index.day[count])).zfill(2)} (UTC) [MM-DD]',
+            fontsize=xlabelsize, color=label_color
+        )
         axs6.xaxis.set_major_formatter(date_form)
 
-        figure_time = f"{datetime.datetime.utcfromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')}"
+        _ = f"{datetime.datetime.utcfromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')}"
 
         plt.savefig(fig_name, bbox_inches='tight', pad_inches=0.05, format='png', dpi=300)
         plt.close("all")
