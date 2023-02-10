@@ -218,7 +218,7 @@ def plot_figures_dsco_30days(number_of_days=30):
         tick_color = 'w'  # color of the tick lines
         label_color = 'w'  # color of the tick labels
 
-        fig = plt.figure(num=None, figsize=(10, 15), dpi=200, facecolor='k', edgecolor='gray')
+        fig = plt.figure(num=None, figsize=(34.56, 9.84), dpi=100, facecolor='k', edgecolor='gray')
         fig.subplots_adjust(left=0.01, right=0.95, top=0.95, bottom=0.01, wspace=0.02, hspace=0.)
         fig.suptitle('30 days DSCOVR Real Time Data', fontsize=24)
 
@@ -434,7 +434,7 @@ def plot_figures_dsco_30days(number_of_days=30):
 
         _ = f"{datetime.datetime.utcfromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')}"
 
-        plt.savefig(fig_name, bbox_inches='tight', pad_inches=0.05, format='png', dpi=300)
+        plt.savefig(fig_name, bbox_inches='tight', pad_inches=0.05, format='png', dpi=100)
         plt.close("all")
         print(f"Figure saved for DSCOVR 30 days starting from {t_start} to {t_end}\n")
 
