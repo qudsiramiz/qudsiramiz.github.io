@@ -110,7 +110,7 @@ def make_gifs(number_of_days=120):
 
     file_list_dict["file_list_30days"] = np.sort(glob.glob("/mnt/cephadrius/bu_research/dxl/" +
                                                            "figures/historical/dscovr/30days/" +
-                                                           "sw_dsco*.png"))[-number_of_days:]
+                                                           "*.png"))[-number_of_days:]
 
     skip_rate_list = [1, 1, 1, 1]
     for i, key in enumerate(list(file_list_dict.keys())):
