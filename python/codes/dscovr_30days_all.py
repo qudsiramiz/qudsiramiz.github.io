@@ -15,6 +15,7 @@ time_code_start = time.time()
 number_of_days = 365
 sw_rt_ts_dwld.plot_figures_dsco_30days(number_of_days=number_of_days)
 sw_rt_ts_mp4.make_gifs(number_of_days=number_of_days)
+
 # plt.close("all")
 # Copy the gif file to google drive
 # os.system("cp /home/cephadrius/Desktop/git/qudsiramiz.github.io/images/moving_pictures/*" +
