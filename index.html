@@ -96,7 +96,7 @@
                         xhttp.onreadystatechange = function () {
                             if (this.readyState == 4) {
                                 if (this.status == 200) { elmnt.innerHTML = this.responseText; }
-                                if (this.status == 404) { elmnt.innerHTML = "Page not found."; }
+                                if (this.status == 404) { elmnt.innerHTML = "Page Null."; }
                                 /*remove the attribute, and call this function once more:*/
                                 elmnt.removeAttribute("include-html");
                                 includeHTML();
@@ -151,11 +151,10 @@
 
                     <p style="text-align:justify;">When not busy sciencing, he loves to read and
                         write. His favorite genre in literature is fantasy. J. R. R. Tolkien, Neil
-                        Gaiman and Brandon Sanderson are his absolute favorite authors. He likes
-                        writing poems and tiny tales. You can read some of them on his <a
-                            href="#blog" target="_blank">Blog</a>. He is also an avid FC Barcelona
-                        and
-                        Indian cricket team fan.</p>
+                        Gaiman, G. N. U. Pratchett and Brandon Sanderson are his absolute favorite 
+                        authors. He likes writing poems and tiny tales. You can read some of them 
+                        on his <a href="#blog" target="_blank">Blog</a>. He is also an avid FC 
+                        Barcelona and Indian cricket team fan.</p>
                 </font>
             </article>
 
@@ -708,10 +707,10 @@
                       }
 
                     </style-->
-            <div include-html="other_html_files/recently_read_widget.html"></div>
-            <script>
+            <!--div include-html="other_html_files/recently_read_widget.html"></div-->
+            <!--script>
                 includeHTML("other_html_files/recently_read_widget.html");
-            </script>
+            </script-->
             </p>
             </article>
 

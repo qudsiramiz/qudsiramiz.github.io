@@ -98,9 +98,9 @@ def make_gifs(number_of_days=120):
     """
     number_of_days = number_of_days * 4 - 30
 
-    vid_type = "mp4"  # "gif" or "mp4"
+    vid_type = "gif"  # "gif" or "mp4"
     if vid_type == "gif":
-        gif_path = "/mnt/cephadrius/bu_research/dxl/figures/gifs/"
+        gif_path = "/home/cephadrius/Desktop/git/qudsiramiz.github.io/images/moving_pictures/"
     elif vid_type == "mp4":
         gif_path = "/home/cephadrius/Desktop/git/qudsiramiz.github.io/images/moving_pictures/"
         print("Code execution started at (UTC):" +
@@ -115,9 +115,9 @@ def make_gifs(number_of_days=120):
     skip_rate_list = [1, 1, 1, 1]
     for i, key in enumerate(list(file_list_dict.keys())):
         # vid_name = f"{gif_path}{key}.{vid_type}"
-        vid_name = f"{gif_path}DSCOVR_30days_hourly_averaged.mp4"
+        vid_name = f"{gif_path}DSCOVR_30days_hourly_averaged.{vid_type}"
         try:
-            gif_maker(file_list_dict[key], vid_name, mode="I", skip_rate=skip_rate_list[i],
+            gif_maker(file_list_dict[key], vid_name, vid_type=vid_type, mode="I", skip_rate=skip_rate_list[i],
                       vid_type=vid_type, fps=10, duration=0.05)
         except ValueError as e:
             print(e)
