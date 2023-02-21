@@ -11,9 +11,8 @@
   adsurl           = {https://ui.adsabs.harvard.edu/abs/2022ApJ...941...12D},
   doi              = {10.3847/1538-4357/ac9791},
   eid              = {12},
-  file             = {:papers/DeWeese2022.pdf:PDF},
   keywords         = {Space plasmas, Solar wind, Planetary magnetospheres, 1544, 1534, 997},
-  modificationdate = {2023-02-21T12:48:02},
+  modificationdate = {2023-02-14T17:46:46},
 }
 
 @Article{Bandyopadhyay2022,
@@ -29,8 +28,7 @@
   adsurl           = {https://ui.adsabs.harvard.edu/abs/2022PhPl...29j2107B},
   doi              = {10.1063/5.0098625},
   eid              = {102107},
-  file             = {:papers/Bandyopadhyay2022.pdf:PDF},
-  modificationdate = {2023-02-21T12:48:06},
+  modificationdate = {2023-02-14T17:46:53},
 }
 
 @Article{Sioulas2022,
@@ -48,9 +46,8 @@
   doi              = {10.3847/1538-4357/ac7aa2},
   eid              = {143},
   eprint           = {2206.00871},
-  file             = {:papers/Sioulas2022.pdf:PDF},
   keywords         = {Solar wind, Interplanetary turbulence, Magnetohydrodynamics, Space plasmas, Plasma astrophysics, Solar physics, 1534, 830, 1964, 1544, 1261, 1476, Astrophysics - Solar and Stellar Astrophysics, Physics - Plasma Physics, Physics - Space Physics},
-  modificationdate = {2023-02-21T12:47:38},
+  modificationdate = {2023-02-14T17:45:47},
   primaryclass     = {astro-ph.SR},
 }
 
@@ -69,9 +66,8 @@
   doi              = {10.3847/1538-4357/ac4fc1},
   eid              = {140},
   eprint           = {2201.10067},
-  file             = {:papers/Sioulas2022a.pdf:PDF},
   keywords         = {Solar wind, Space plasmas, Plasma astrophysics, 1534, 1544, 1261, Astrophysics - Solar and Stellar Astrophysics, Physics - Plasma Physics, Physics - Space Physics},
-  modificationdate = {2023-02-21T12:47:43},
+  modificationdate = {2023-02-14T17:45:50},
   primaryclass     = {astro-ph.SR},
 }
 
@@ -88,9 +84,8 @@
   adsurl           = {https://ui.adsabs.harvard.edu/abs/2021JGRA..12629438L},
   doi              = {10.1029/2021JA029438},
   eid              = {e29438},
-  file             = {:papers/Lentz2021.pdf:PDF},
   keywords         = {Mars, turbulence, temperature anisotropy, intermittency, MAVEN, solar wind},
-  modificationdate = {2023-02-21T12:47:54},
+  modificationdate = {2023-02-14T17:46:56},
 }
 
 @Article{Maruca2021,
@@ -105,9 +100,8 @@
   adsurl           = {https://ui.adsabs.harvard.edu/abs/2021FrASS...8..108M},
   doi              = {10.3389/fspas.2021.665885},
   eid              = {108},
-  file             = {:papers/Maruca2021.pdf:PDF},
   keywords         = {Turbulence, Space plasma, Solar wind, interplanetary magnetic field, magnetometer, Nanosatellite, Cubesat},
-  modificationdate = {2023-02-21T12:47:52},
+  modificationdate = {2023-02-14T17:46:51},
 }
 
 @Article{Gary2020,
@@ -123,9 +117,8 @@
   adsurl           = {https://ui.adsabs.harvard.edu/abs/2020ApJ...901..160G},
   doi              = {10.3847/1538-4357/abb2ac},
   eid              = {160},
-  file             = {:papers/Gary2020.pdf:PDF},
   keywords         = {Interplanetary turbulence, Solar wind, 830, 1534},
-  modificationdate = {2023-02-21T12:47:59},
+  modificationdate = {2023-02-14T17:46:49},
 }
 
 @Article{Qudsi2020a,
@@ -143,9 +136,8 @@
   doi              = {10.3847/1538-4357/ab89ad},
   eid              = {83},
   eprint           = {2004.06164},
-  file             = {:papers/Qudsi2020a.pdf:PDF},
   keywords         = {Space plasmas, Magnetohydrodynamical simulations, 1544, 1966, Physics - Space Physics},
-  modificationdate = {2023-02-21T12:47:46},
+  modificationdate = {2023-02-14T17:46:21},
   primaryclass     = {physics.space-ph},
 }
 
@@ -164,9 +156,8 @@
   doi              = {10.3847/1538-4365/ab74e0},
   eid              = {70},
   eprint           = {1912.03871},
-  file             = {:papers/Huang2020.pdf:PDF},
   keywords         = {Solar wind, Solar coronal heating, Space plasmas, 1534, 1989, 1544, Physics - Space Physics, Physics - Plasma Physics},
-  modificationdate = {2023-02-21T12:47:56},
+  modificationdate = {2023-02-14T17:46:30},
   primaryclass     = {physics.space-ph},
 }
 
@@ -185,9 +176,8 @@
   doi              = {10.3847/1538-4365/ab6220},
   eid              = {61},
   eprint           = {1912.03424},
-  file             = {:papers/Bandyopadhyay2020a.pdf:PDF},
   keywords         = {Solar energetic particles, Interplanetary turbulence, Interplanetary physics, Interplanetary magnetic fields, Solar wind, Slow solar wind, 1491, 830, 827, 824, 1534, 1873, Physics - Space Physics, Astrophysics - Solar and Stellar Astrophysics, Physics - Plasma Physics},
-  modificationdate = {2023-02-21T12:48:08},
+  modificationdate = {2023-02-14T17:46:35},
   primaryclass     = {physics.space-ph},
 }
 
@@ -204,9 +194,8 @@
   adsurl           = {https://ui.adsabs.harvard.edu/abs/2020ApJS..246...58P},
   doi              = {10.3847/1538-4365/ab64e6},
   eid              = {58},
-  file             = {:papers/Parashar2020.pdf:PDF},
   keywords         = {Heliosphere, Solar wind, Space plasmas, 711, 1534, 1544},
-  modificationdate = {2023-02-21T12:47:50},
+  modificationdate = {2023-02-14T17:46:43},
 }
 
 @Article{Bandyopadhyay2020b,
@@ -224,9 +213,8 @@
   doi              = {10.3847/1538-4365/ab5dae},
   eid              = {48},
   eprint           = {1912.02959},
-  file             = {:papers/Bandyopadhyay2020b.pdf:PDF},
   keywords         = {Interplanetary shocks, Solar wind, Magnetohydrodynamics, 829, 1534, 1964, Physics - Space Physics, Astrophysics - Solar and Stellar Astrophysics, Physics - Plasma Physics},
-  modificationdate = {2023-02-21T12:48:10},
+  modificationdate = {2023-02-14T17:46:37},
   primaryclass     = {physics.space-ph},
 }
 
@@ -245,9 +233,8 @@
   doi              = {10.3847/1538-4365/ab5c19},
   eid              = {46},
   eprint           = {1912.05483},
-  file             = {:papers/Qudsi2020b.pdf:PDF},
   keywords         = {Solar wind, Heliosphere, Solar coronal heating, 1534, 711, 1989, Physics - Space Physics, Physics - Plasma Physics},
-  modificationdate = {2023-02-21T12:47:48},
+  modificationdate = {2023-02-14T17:46:27},
   primaryclass     = {physics.space-ph},
 }
 
@@ -266,9 +253,8 @@
   doi              = {10.3847/1538-4365/ab53d2},
   eid              = {31},
   eprint           = {1912.03608},
-  file             = {:papers/Chhiber2020.pdf:PDF},
   keywords         = {Interplanetary turbulence, Solar wind, Interplanetary discontinuities, Solar corona, Magnetohydrodynamics, 830, 1534, 820, 1483, 1964, Physics - Space Physics, Astrophysics - Solar and Stellar Astrophysics},
-  modificationdate = {2023-02-21T12:48:03},
+  modificationdate = {2023-02-14T17:46:32},
   primaryclass     = {physics.space-ph},
 }
 
