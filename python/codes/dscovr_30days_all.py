@@ -1,5 +1,3 @@
-#!/home/cephadrius/.cache/pypoetry/virtualenvs/rt-sw-ts-h2bRw1kE-py3.8/bin/python
-# -*- coding: utf-8 -*-
 
 import importlib
 import os
