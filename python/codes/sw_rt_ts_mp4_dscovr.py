@@ -1,5 +1,4 @@
 #!/home/cephadrius/.cache/pypoetry/virtualenvs/rt-sw-ts-h2bRw1kE-py3.8/bin/python
-
 # -*- coding: utf-8 -*-
 
 import datetime
@@ -84,34 +83,32 @@ def gif_maker(file_list, vid_name, mode="I", skip_rate=10, vid_type="mp4", durat
     print(f"{vid_name} is created\n")
 
 
-def make_gifs(number_of_days=120):
+def make_gifs(number_of_files=120, vid_type="mp4", image_path="../images/", gif_path="../videos/"):
     """
     Make gifs for the last n days. Default is 120 days, averaged over the last 30 days.
 
     Parameters
     ----------
-    number_of_days : int, optional
-        Number of days to be considered for plotting the gif. The default is 120.
+    number_of_files : int, optional
+        Number of files to be considered for plotting the gif. The default is 120.
+    vid_type : str, optional
+        Type of the video. The default is "mp4". Other option is "gif".
+    image_path : str, optional
+        Path of the location of images. The default is "../images/".
+    gif_path : str, optional
+        Path to save the gif. The default is "../videos/".
 
     Returns
     -------
         None.
     """
-    number_of_days = number_of_days * 4 - 30
 
-    vid_type = "gif"  # "gif" or "mp4"
-    if vid_type == "gif":
-        gif_path = "/home/cephadrius/Desktop/git/qudsiramiz.github.io/images/moving_pictures/"
-    elif vid_type == "mp4":
-        gif_path = "/home/cephadrius/Desktop/git/qudsiramiz.github.io/images/moving_pictures/"
-        print("Code execution started at (UTC):" +
-              f"{datetime.datetime.utcfromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')}\n")
+    print("Code execution started at (UTC):" +
+          f"{datetime.datetime.utcfromtimestamp(time.time()).strftime('%Y-%m-%d %H:%M:%S')}\n")
 
     file_list_dict = {}
 
-    file_list_dict["file_list_30days"] = np.sort(glob.glob("/mnt/cephadrius/bu_research/dxl/" +
-                                                           "figures/historical/dscovr/30days/" +
-                                                           "*.png"))[-number_of_days:]
+    file_list_dict["file_list_30days"] = np.sort(glob.glob(f"{image_path}*.png"))[-number_of_files:]
 
     skip_rate_list = [1, 1, 1, 1]
     for i, key in enumerate(list(file_list_dict.keys())):
