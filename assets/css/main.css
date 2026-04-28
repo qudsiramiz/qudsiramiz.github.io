@@ -1808,3 +1808,47 @@ a.expansion-btn{
   font-weight:bold;
   cursor:pointer;
 }
+
+/* Custom Enhancements */
+a:link {
+    color: cyan;
+    background-color: transparent;
+    text-decoration: none;
+}
+
+a:visited {
+    color: rgb(8, 245, 107);
+    background-color: transparent;
+    text-decoration: none;
+}
+
+a:hover {
+    color: rgb(216, 185, 250);
+    background-color: transparent;
+    text-decoration: underline;
+}
+
+a:active {
+    color: yellow;
+    background-color: transparent;
+    text-decoration: underline;
+}
+
+body {
+    font-family: "Times New Roman";
+    font-size: 1em;
+}
+
+/* Typography Utility Classes */
+.text-4em { font-size: 1.25rem; }
+.text-5em { font-size: 1.5rem; }
+.text-6em { font-size: 1.75rem; }
+.text-6-5em { font-size: 1.875rem; }
+.text-12em { font-size: 2.5rem; }
+
+/* Responsive iframe */
+.responsive-iframe-container {
+    width: 100%;
+    height: 80vh;
+    border: none;
+}
