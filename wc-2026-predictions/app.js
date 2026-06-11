@@ -185,6 +185,7 @@ let globalKoTeams = {};
 
 // Initialize Dashboard
 document.addEventListener("DOMContentLoaded", async () => {
+  console.log("Dashboard Mode:", config.isLocal ? "LOCAL/EDITOR" : "ONLINE/STATIC");
   await loadInitialState();
   initTabs();
   initUserDropdown();
@@ -226,18 +227,33 @@ async function loadInitialState() {
     const response = await fetch(config.dataPath);
     if (response.ok) {
       dataJson = await response.json();
+      console.log("Loaded data.json successfully");
     }
   } catch (e) {
-    console.log("data.json not found, using local storage or defaults.");
+    console.log("data.json not found or fetch failed.");
   }
 
-  if (!config.isLocal && dataJson) {
-    state = dataJson;
-  } else {
-    loadStateFromLocalStorage();
-    // If local storage is empty but data.json exists, use data.json
-    if (dataJson && (!state.userScores || Object.keys(state.userScores["Default User"] || {}).length === 0)) {
+  const hasLocalData = loadStateFromLocalStorage();
+
+  // Logic: 
+  // 1. If Online: Prefer data.json (if exists), otherwise local storage.
+  // 2. If Local: Prefer local storage (if exists), otherwise data.json.
+  
+  if (!config.isLocal) {
+    if (dataJson) {
       state = dataJson;
+      console.log("Online mode: Using data.json as source of truth.");
+    } else {
+      console.log("Online mode: No data.json found, using local storage.");
+    }
+  } else {
+    if (hasLocalData) {
+      console.log("Local mode: Using existing browser local storage.");
+    } else if (dataJson) {
+      state = dataJson;
+      console.log("Local mode: Local storage empty, falling back to data.json.");
+    } else {
+      console.log("Local mode: No local storage or data.json found, using defaults.");
     }
   }
 
@@ -305,21 +321,12 @@ function loadStateFromLocalStorage() {
       } else {
         state = parsedState;
       }
-
-      if (!state.users) state.users = ["Default User"];
-      if (!state.currentUser) state.currentUser = "Default User";
-      if (!state.userScores) state.userScores = { "Default User": {} };
-      if (!state.userScores[state.currentUser]) state.userScores[state.currentUser] = {};
-      
-      if (!state.viewMode) state.viewMode = "groups";
-      if (!state.activeGroupTab) state.activeGroupTab = "GroupA";
+      return true;
     } catch (e) {
       console.error("Failed to load local storage state", e);
     }
   }
-  
-  // Reference current user's scores
-  state.scores = state.userScores[state.currentUser];
+  return false;
 }
 
 // Save state to local storage
