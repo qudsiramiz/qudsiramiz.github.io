@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Cup 2026 Prediction Dashboard</title>
+  <!-- Google Fonts: Inter and Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  <!-- Icons -->
+  <link rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+  <!-- Dashboard App Container -->
+  <div class="app-container">
+
+    <!-- Top Header -->
+    <header class="app-header">
+      <div class="header-logo-section">
+        <img src="logos_white.pdf" alt="" class="header-logo-img"
+          onerror="this.src='logos_dark.pdf'; this.onerror=null;">
+        <div class="header-titles">
+          <h1>WORLD CUP 2026</h1>
+          <h2>Interactive Prediction Dashboard</h2>
+        </div>
+      </div>
+
+      <!-- Stats Summary Widget -->
+      <div class="stats-widget">
+        <div class="stat-card points">
+          <span class="stat-label"><i class="fa-solid fa-trophy"></i> Total Points</span>
+          <span class="stat-val" id="total-points">0.00</span>
+        </div>
+        <div class="stat-card accuracy">
+          <span class="stat-label"><i class="fa-solid fa-bullseye"></i> Accuracy</span>
+          <span class="stat-val" id="prediction-accuracy">0%</span>
+        </div>
+        <div class="stat-card progress">
+          <span class="stat-label"><i class="fa-solid fa-chart-line"></i> Completed</span>
+          <span class="stat-val" id="predicted-count">0 / 104</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Navigation Tab Bar -->
+    <nav class="tab-nav">
+      <button class="nav-btn active" data-tab="groups-tab"><i class="fa-solid fa-list-check"></i>
+        Group Stage</button>
+      <button class="nav-btn" data-tab="bracket-tab"><i class="fa-solid fa-diagram-project"></i>
+        Knockout Bracket</button>
+      <button class="nav-btn" data-tab="stats-tab"><i class="fa-solid fa-chart-pie"></i> Detailed
+        Stats & Rules</button>
+      <button class="nav-btn" data-tab="leaderboard-tab"><i class="fa-solid fa-medal"></i> Leaderboard</button>
+
+      <div class="user-selector" style="margin-left: auto; margin-right: 15px; display: flex; align-items: center; gap: 8px;">
+        <label for="user-dropdown" style="color: white; font-size: 0.9rem;"><i class="fa-solid fa-user"></i></label>
+        <select id="user-dropdown" class="user-dropdown" style="padding: 6px 10px; border-radius: 4px; border: none; font-family: 'Inter', sans-serif; cursor: pointer; outline: none; background: #fff; color: #333;">
+          <!-- Options populated by app.js -->
+        </select>
+        <button id="edit-user-btn" class="action-btn secondary" title="Rename User" style="padding: 6px 10px; min-width: auto;"><i class="fa-solid fa-pen"></i></button>
+        <button id="delete-user-btn" class="action-btn danger" title="Delete User" style="padding: 6px 10px; min-width: auto;"><i class="fa-solid fa-trash"></i></button>
+      </div>
+
+      <div class="nav-actions">
+        <button class="action-btn secondary" id="export-csv-btn" title="Export CSV"><i
+            class="fa-solid fa-file-csv"></i> Export CSV</button>
+        <button class="action-btn secondary" id="export-btn" title="Export Predictions JSON"><i
+            class="fa-solid fa-file-export"></i> Export JSON</button>
+        <button class="action-btn secondary" id="import-btn" title="Import Predictions"><i
+            class="fa-solid fa-file-import"></i> Import</button>
+        <input type="file" id="import-file-input" style="display: none;" accept=".json">
+        <button class="action-btn randomize" id="randomize-btn" title="Randomize All Scores"><i
+            class="fa-solid fa-dice"></i> Randomize</button>
+        <button class="action-btn danger" id="reset-btn" title="Reset All Scores"><i
+            class="fa-solid fa-rotate-left"></i> Reset</button>
+      </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+      <!-- TAB 1: GROUP STAGE -->
+      <section class="tab-pane active" id="groups-tab">
+        <div class="groups-layout-header">
+          <div class="header-text-side">
+            <h3>Group Stage Matches</h3>
+            <p class="section-help">Enter your <strong>Predictions</strong> (left inputs) and the
+              <strong>Actual Results</strong> (right inputs).</p>
+          </div>
+
+          <div class="view-toggle-container">
+            <span class="toggle-label"><i class="fa-solid fa-eye"></i> View Mode:</span>
+            <div class="toggle-buttons">
+              <button class="toggle-btn active" id="btn-view-groups"><i
+                  class="fa-solid fa-grip"></i> All Groups</button>
+              <button class="toggle-btn" id="btn-view-single"><i
+                  class="fa-solid fa-square-poll-horizontal"></i> Single Group</button>
+              <button class="toggle-btn" id="btn-view-seq"><i class="fa-solid fa-list-ol"></i> By
+                Match Number</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="groups-grid" id="groups-container">
+          <!-- Dynamic group cards or sequential match list will be injected here via JS -->
+        </div>
+      </section>
+
+      <!-- TAB 2: KNOCKOUT BRACKET -->
+      <section class="tab-pane" id="bracket-tab">
+        <div class="bracket-layout-header">
+          <h3>Knockout Stage Progression</h3>
+          <p class="section-help">The Round of 32 teams are automatically calculated from your Group
+            predictions! Win predictions will promote teams to the next round automatically.</p>
+        </div>
+
+        <div class="bracket-viewport">
+          <div class="bracket-container" id="bracket-container">
+
+            <!-- Round of 32 Left -->
+            <div class="bracket-round r32-left">
+              <h4>Round of 32 (Left)</h4>
+              <div class="match-list" id="r32-left-list"></div>
+            </div>
+
+            <!-- Round of 16 Left -->
+            <div class="bracket-round r16-left">
+              <h4>Round of 16 (Left)</h4>
+              <div class="match-list" id="r16-left-list"></div>
+            </div>
+
+            <!-- Quarter Finals Left -->
+            <div class="bracket-round qf-left">
+              <h4>Quarter-Final (Left)</h4>
+              <div class="match-list" id="qf-left-list"></div>
+            </div>
+
+            <!-- Semi Finals Left -->
+            <div class="bracket-round sf-left">
+              <h4>Semi-Final (Left)</h4>
+              <div class="match-list" id="sf-left-list"></div>
+            </div>
+
+            <!-- Center Stage (Finals & Trophy) -->
+            <div class="bracket-round center-finals">
+              <div class="trophy-display">
+                <i class="fa-solid fa-trophy-large"></i>
+                <div class="trophy-title">FINALS</div>
+              </div>
+
+              <div class="match-list" id="finals-list">
+                <!-- Final and 3rd Place match cards -->
+              </div>
+            </div>
+
+            <!-- Semi Finals Right -->
+            <div class="bracket-round sf-right">
+              <h4>Semi-Final (Right)</h4>
+              <div class="match-list" id="sf-right-list"></div>
+            </div>
+
+            <!-- Quarter Finals Right -->
+            <div class="bracket-round qf-right">
+              <h4>Quarter-Final (Right)</h4>
+              <div class="match-list" id="qf-right-list"></div>
+            </div>
+
+            <!-- Round of 16 Right -->
+            <div class="bracket-round r16-right">
+              <h4>Round of 16 (Right)</h4>
+              <div class="match-list" id="r16-right-list"></div>
+            </div>
+
+            <!-- Round of 32 Right -->
+            <div class="bracket-round r32-right">
+              <h4>Round of 32 (Right)</h4>
+              <div class="match-list" id="r32-right-list"></div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: DETAILED STATS & RULES -->
+      <section class="tab-pane" id="stats-tab">
+        <div class="stats-layout">
+          <!-- Rules Card -->
+          <div class="card rules-card">
+            <h3>Scoring Rules</h3>
+            <ul class="rules-list">
+              <li>
+                <div class="rule-score rule-5">5 pts</div>
+                <div class="rule-desc"><strong>Perfect Prediction:</strong> Correct winner and exact
+                  scoreline.</div>
+              </li>
+              <li>
+                <div class="rule-score rule-3">3 pts</div>
+                <div class="rule-desc"><strong>Correct Winner + Semi-Exact Score:</strong> Correct
+                  winner, and at least one team's goals were predicted correctly (e.g. predicted
+                  2-0, actual 2-1).</div>
+              </li>
+              <li>
+                <div class="rule-score rule-2">2 pts</div>
+                <div class="rule-desc"><strong>Correct Winner only:</strong> Correct winner, but
+                  both team scores were wrong.</div>
+              </li>
+              <li>
+                <div class="rule-score rule-1">1 pt</div>
+                <div class="rule-desc"><strong>Consolation Score:</strong> Incorrect winner, but one
+                  of the team's scores was correct (e.g. predicted 2-3, actual 2-1).</div>
+              </li>
+              <li>
+                <div class="rule-score rule-draw">Var</div>
+                <div class="rule-desc"><strong>Draw Formula:</strong> Predicted draw & actual draw
+                  (but wrong scoreline). Awarded <strong>$4 / D$ points</strong>, where $D$ is the
+                  absolute difference in total goals. (e.g. predicted 3-3, actual 0-0 gives 4/6 =
+                  0.67 pts).</div>
+              </li>
+              <li>
+                <div class="rule-score rule-0">0 pts</div>
+                <div class="rule-desc"><strong>Completely Wrong:</strong> Incorrect winner and
+                  completely incorrect scoreline.</div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Points Breakdown Analysis Card -->
+          <div class="card analysis-card">
+            <h3>Prediction Performance Analysis</h3>
+            <div class="breakdown-grid">
+              <div class="breakdown-item">
+                <span class="breakdown-label">Perfect Scores (5 pts)</span>
+                <span class="breakdown-count" id="count-rule1">0</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-label">Winner + 1 Score (3 pts)</span>
+                <span class="breakdown-count" id="count-rule3">0</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-label">Winner Only (2 pts)</span>
+                <span class="breakdown-count" id="count-rule2">0</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-label">Draw Formula Wins (Var)</span>
+                <span class="breakdown-count" id="count-rule6">0</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-label">Consolation Scores (1 pt)</span>
+                <span class="breakdown-count" id="count-rule4">0</span>
+              </div>
+              <div class="breakdown-item">
+                <span class="breakdown-label">Incorrect Predictions (0 pts)</span>
+                <span class="breakdown-count" id="count-rule5">0</span>
+              </div>
+            </div>
+            <div class="total-summary-card">
+              <h4>Overall Performance Metrics</h4>
+              <div class="metric-row">
+                <span>Total Possible Points:</span>
+                <span>520</span>
+              </div>
+              <div class="metric-row">
+                <span>Your Average Points Per Match:</span>
+                <span id="avg-points">0.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    <!-- TAB 4: LEADERBOARD -->
+      <section class="tab-pane" id="leaderboard-tab">
+        <div class="stats-layout">
+          <div class="card analysis-card" style="width: 100%; max-width: 900px; margin: 0 auto;">
+            <h3>Global Leaderboard</h3>
+            <p class="section-help" style="margin-bottom: 20px;">Ranking of all users based on Total Points.</p>
+            <table class="standings-table leaderboard-table" style="width: 100%;">
+              <thead>
+                <tr>
+                  <th style="width: 60px; text-align: center;">Rank</th>
+                  <th>User Name</th>
+                  <th class="num" style="width: 100px;">Total Points</th>
+                  <th class="num" style="width: 100px;">Accuracy</th>
+                  <th class="num" style="width: 100px;">Completed</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-body">
+                <!-- Populated by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>&copy; 2026 World Cup Prediction Dashboard | Matches parsed dynamically from LaTeX
+        Schedule.</p>
+    </footer>
+
+    <!-- Country Details Modal -->
+    <div class="modal-overlay" id="country-modal">
+      <div class="modal-card">
+        <header class="modal-header">
+          <div class="modal-title-sec">
+            <img src="" alt="" id="modal-country-flag" class="modal-country-flag">
+            <h3 id="modal-country-name">Country Name</h3>
+          </div>
+          <button class="modal-close-btn" id="modal-close-btn">&times;</button>
+        </header>
+        <div class="modal-body">
+          <!-- Stats summary -->
+          <div class="modal-stats-row">
+            <div class="modal-stat">
+              <span class="m-label">Predicted Record</span>
+              <span class="m-val" id="modal-pred-record">0W - 0D - 0L</span>
+            </div>
+            <div class="modal-stat">
+              <span class="m-label">Points Earned</span>
+              <span class="m-val" id="modal-country-points">0.00</span>
+            </div>
+          </div>
+          
+          <!-- Matches List -->
+          <h4>Matches & Predictions</h4>
+          <div class="modal-matches-list" id="modal-matches-container">
+            <!-- Dynamically populated matches -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JavaScript Files -->
+  <script src="app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,720 @@
+{
+  "groups": {
+    "GroupA": [
+      {
+        "id": "M1",
+        "team1": "Mexico",
+        "team2": "South Africa",
+        "info": "M1, 13h, 11 June | UTC 19h"
+      },
+      {
+        "id": "M2",
+        "team1": "South Korea",
+        "team2": "Czech Rep.",
+        "info": "M2, 20h, 11 June | UTC 02h, 12 June"
+      },
+      {
+        "id": "M25",
+        "team1": "Czech Rep.",
+        "team2": "South Africa",
+        "info": "M25, 12h, 18 June | UTC 16h"
+      },
+      {
+        "id": "M28",
+        "team1": "Mexico",
+        "team2": "South Korea",
+        "info": "M28, 19h, 18 June | UTC 01h, 19 June"
+      },
+      {
+        "id": "M53",
+        "team1": "Czech Rep.",
+        "team2": "Mexico",
+        "info": "M53, 19h, 24 June | UTC 01h, 25 June"
+      },
+      {
+        "id": "M54",
+        "team1": "South Africa",
+        "team2": "South Korea",
+        "info": "M54, 19h, 24 June | UTC 01h, 25 June"
+      }
+    ],
+    "GroupB": [
+      {
+        "id": "M3",
+        "team1": "Canada",
+        "team2": "Bosnia-Herz.",
+        "info": "M3, 15h, 12 June | UTC 19h"
+      },
+      {
+        "id": "M8",
+        "team1": "Qatar",
+        "team2": "Switzerland",
+        "info": "M8, 12h, 13 June | UTC 19h"
+      },
+      {
+        "id": "M26",
+        "team1": "Switzerland",
+        "team2": "Bosnia-Herz.",
+        "info": "M26, 12h, 18 June | UTC 19h"
+      },
+      {
+        "id": "M27",
+        "team1": "Canada",
+        "team2": "Qatar",
+        "info": "M27, 15h, 18 June | UTC 22h"
+      },
+      {
+        "id": "M51",
+        "team1": "Switzerland",
+        "team2": "Canada",
+        "info": "M51, 12h, 24 June | UTC 19h"
+      },
+      {
+        "id": "M52",
+        "team1": "Bosnia-Herz.",
+        "team2": "Qatar",
+        "info": "M52, 12h, 24 June | UTC 19h"
+      }
+    ],
+    "GroupC": [
+      {
+        "id": "M5",
+        "team1": "Haiti",
+        "team2": "Scotland",
+        "info": "M5, 21h, 13 June | UTC 01h, 14 June"
+      },
+      {
+        "id": "M7",
+        "team1": "Brazil",
+        "team2": "Morocco",
+        "info": "M7, 18h, 13 June | UTC 22h"
+      },
+      {
+        "id": "M29",
+        "team1": "Brazil",
+        "team2": "Haiti",
+        "info": "M29, 21h, 19 June | UTC 01h, 20 June"
+      },
+      {
+        "id": "M30",
+        "team1": "Scotland",
+        "team2": "Morocco",
+        "info": "M30, 18h, 19 June | UTC 22h"
+      },
+      {
+        "id": "M49",
+        "team1": "Scotland",
+        "team2": "Brazil",
+        "info": "M49, 18h, 24 June | UTC 22h"
+      },
+      {
+        "id": "M50",
+        "team1": "Morocco",
+        "team2": "Haiti",
+        "info": "M50, 18h, 24 June | UTC 22h"
+      }
+    ],
+    "GroupD": [
+      {
+        "id": "M4",
+        "team1": "United States",
+        "team2": "Paraguay",
+        "info": "M4, 18h, 12 June | UTC 01h, 13 June"
+      },
+      {
+        "id": "M6",
+        "team1": "Australia",
+        "team2": "T\u00fcrkiye",
+        "info": "M6, 21h, 13 June | UTC 04h, 14 June"
+      },
+      {
+        "id": "M31",
+        "team1": "T\u00fcrkiye",
+        "team2": "Paraguay",
+        "info": "M31, 21h, 19 June | UTC 04h, 20 June"
+      },
+      {
+        "id": "M32",
+        "team1": "United States",
+        "team2": "Australia",
+        "info": "M32, 12h, 19 June | UTC 19h"
+      },
+      {
+        "id": "M59",
+        "team1": "T\u00fcrkiye",
+        "team2": "United States",
+        "info": "M59, 19h, 25 June | UTC 02h, 26 June"
+      },
+      {
+        "id": "M60",
+        "team1": "Paraguay",
+        "team2": "Australia",
+        "info": "M60, 19h, 25 June | UTC 02h, 26 June"
+      }
+    ],
+    "GroupE": [
+      {
+        "id": "M9",
+        "team1": "Ivory Coast",
+        "team2": "Ecuador",
+        "info": "M9, 19h, 14 June | UTC 23h"
+      },
+      {
+        "id": "M10",
+        "team1": "Germany",
+        "team2": "Cura\u00e7ao",
+        "info": "M10, 12h, 14 June | UTC 17h"
+      },
+      {
+        "id": "M33",
+        "team1": "Germany",
+        "team2": "Ivory Coast",
+        "info": "M33, 16h, 20 June | UTC 20h"
+      },
+      {
+        "id": "M34",
+        "team1": "Ecuador",
+        "team2": "Cura\u00e7ao",
+        "info": "M34, 19h, 20 June | UTC 00h, 21 June"
+      },
+      {
+        "id": "M55",
+        "team1": "Cura\u00e7ao",
+        "team2": "Ivory Coast",
+        "info": "M55, 16h, 25 June | UTC 20h"
+      },
+      {
+        "id": "M56",
+        "team1": "Ecuador",
+        "team2": "Germany",
+        "info": "M56, 16h, 25 June | UTC 20h"
+      }
+    ],
+    "GroupF": [
+      {
+        "id": "M11",
+        "team1": "Netherlands",
+        "team2": "Japan",
+        "info": "M11, 15h, 14 June | UTC 20h"
+      },
+      {
+        "id": "M12",
+        "team1": "Sweden",
+        "team2": "Tunisia",
+        "info": "M12, 20h, 14 June | UTC 02h, 15 June"
+      },
+      {
+        "id": "M35",
+        "team1": "Netherlands",
+        "team2": "Sweden",
+        "info": "M35, 12h, 20 June | UTC 17h"
+      },
+      {
+        "id": "M36",
+        "team1": "Tunisia",
+        "team2": "Japan",
+        "info": "M36, 22h, 20 June | UTC 02h, 21 June"
+      },
+      {
+        "id": "M57",
+        "team1": "Japan",
+        "team2": "Sweden",
+        "info": "M57, 18h, 25 June | UTC 23h"
+      },
+      {
+        "id": "M58",
+        "team1": "Tunisia",
+        "team2": "Netherlands",
+        "info": "M58, 18h, 25 June | UTC 23h"
+      }
+    ],
+    "GroupG": [
+      {
+        "id": "M15",
+        "team1": "Iran",
+        "team2": "New Zealand",
+        "info": "M15, 18h, 15 June | UTC 01h, 16 June"
+      },
+      {
+        "id": "M16",
+        "team1": "Belgium",
+        "team2": "Egypt",
+        "info": "M16, 12h, 15 June | UTC 19h"
+      },
+      {
+        "id": "M39",
+        "team1": "Belgium",
+        "team2": "Iran",
+        "info": "M39, 12h, 21 June | UTC 19h"
+      },
+      {
+        "id": "M40",
+        "team1": "New Zealand",
+        "team2": "Egypt",
+        "info": "M40, 18h, 21 June | UTC 01h, 22 June"
+      },
+      {
+        "id": "M63",
+        "team1": "Egypt",
+        "team2": "Iran",
+        "info": "M63, 20h, 26 June | UTC 03h, 27 June"
+      },
+      {
+        "id": "M64",
+        "team1": "New Zealand",
+        "team2": "Belgium",
+        "info": "M64, 20h, 26 June | UTC 03h, 27 June"
+      }
+    ],
+    "GroupH": [
+      {
+        "id": "M13",
+        "team1": "Saudi Arabia",
+        "team2": "Uruguay",
+        "info": "M13, 18h, 15 June | UTC 22h"
+      },
+      {
+        "id": "M14",
+        "team1": "Spain",
+        "team2": "Cape Verde",
+        "info": "M14, 12h, 15 June | UTC 16h"
+      },
+      {
+        "id": "M37",
+        "team1": "Uruguay",
+        "team2": "Cape Verde",
+        "info": "M37, 18h, 21 June | UTC 22h"
+      },
+      {
+        "id": "M38",
+        "team1": "Spain",
+        "team2": "Saudi Arabia",
+        "info": "M38, 12h, 21 June | UTC 16h"
+      },
+      {
+        "id": "M65",
+        "team1": "Cape Verde",
+        "team2": "Saudi Arabia",
+        "info": "M65, 19h, 26 June | UTC 00h, 27 June"
+      },
+      {
+        "id": "M66",
+        "team1": "Uruguay",
+        "team2": "Spain",
+        "info": "M66, 18h, 26 June | UTC 00h, 27 June"
+      }
+    ],
+    "GroupI": [
+      {
+        "id": "M17",
+        "team1": "France",
+        "team2": "Senegal",
+        "info": "M17, 15h, 16 June | UTC 19h"
+      },
+      {
+        "id": "M18",
+        "team1": "Iraq",
+        "team2": "Norway",
+        "info": "M18, 18h, 16 June | UTC 22h"
+      },
+      {
+        "id": "M41",
+        "team1": "Norway",
+        "team2": "Senegal",
+        "info": "M41, 20h, 22 June | UTC 00h, 23 June"
+      },
+      {
+        "id": "M42",
+        "team1": "France",
+        "team2": "Iraq",
+        "info": "M42, 17h, 22 June | UTC 21h"
+      },
+      {
+        "id": "M61",
+        "team1": "Norway",
+        "team2": "France",
+        "info": "M61, 15h, 26 June | UTC 19h"
+      },
+      {
+        "id": "M62",
+        "team1": "Senegal",
+        "team2": "Iraq",
+        "info": "M62, 15h, 26 June | UTC 19h"
+      }
+    ],
+    "GroupJ": [
+      {
+        "id": "M19",
+        "team1": "Argentina",
+        "team2": "Algeria",
+        "info": "M19, 20h, 16 June | UTC 01h, 17 June"
+      },
+      {
+        "id": "M20",
+        "team1": "Austria",
+        "team2": "Jordan",
+        "info": "M20, 21h, 16 June | UTC 04h, 17 June"
+      },
+      {
+        "id": "M43",
+        "team1": "Argentina",
+        "team2": "Austria",
+        "info": "M43, 12h, 22 June | UTC 17h"
+      },
+      {
+        "id": "M44",
+        "team1": "Jordan",
+        "team2": "Algeria",
+        "info": "M44, 20h, 22 June | UTC 03h, 23 June"
+      },
+      {
+        "id": "M69",
+        "team1": "Algeria",
+        "team2": "Austria",
+        "info": "M69, 21h, 27 June | UTC 02h, 28 June"
+      },
+      {
+        "id": "M70",
+        "team1": "Jordan",
+        "team2": "Argentina",
+        "info": "M70, 21h, 27 June | UTC 02h, 28 June"
+      }
+    ],
+    "GroupK": [
+      {
+        "id": "M23",
+        "team1": "Portugal",
+        "team2": "DR Congo",
+        "info": "M23, 12h, 17 June | UTC 17h"
+      },
+      {
+        "id": "M24",
+        "team1": "Uzbekistan",
+        "team2": "Colombia",
+        "info": "M24, 20h, 17 June | UTC 02h, 18 June"
+      },
+      {
+        "id": "M47",
+        "team1": "Portugal",
+        "team2": "Uzbekistan",
+        "info": "M47, 12h, 23 June | UTC 17h"
+      },
+      {
+        "id": "M48",
+        "team1": "Colombia",
+        "team2": "DR Congo",
+        "info": "M48, 20h, 23 June | UTC 02h, 24 June"
+      },
+      {
+        "id": "M71",
+        "team1": "Colombia",
+        "team2": "Portugal",
+        "info": "M71, 19:30h, 27 June | UTC 23:30h"
+      },
+      {
+        "id": "M72",
+        "team1": "DR Congo",
+        "team2": "Uzbekistan",
+        "info": "M72, 19:30h, 27 June | UTC 23:30h"
+      }
+    ],
+    "GroupL": [
+      {
+        "id": "M21",
+        "team1": "Ghana",
+        "team2": "Panama",
+        "info": "M21, 19h, 17 June | UTC 23h"
+      },
+      {
+        "id": "M22",
+        "team1": "England",
+        "team2": "Croatia",
+        "info": "M22, 15h, 17 June | UTC 20h"
+      },
+      {
+        "id": "M45",
+        "team1": "England",
+        "team2": "Ghana",
+        "info": "M45, 16h, 23 June | UTC 20h"
+      },
+      {
+        "id": "M46",
+        "team1": "Panama",
+        "team2": "Croatia",
+        "info": "M46, 19h, 23 June | UTC 23h"
+      },
+      {
+        "id": "M67",
+        "team1": "Panama",
+        "team2": "England",
+        "info": "M67, 17h, 27 June | UTC 21h"
+      },
+      {
+        "id": "M68",
+        "team1": "Croatia",
+        "team2": "Ghana",
+        "info": "M68, 17h, 27 June | UTC 21h"
+      }
+    ]
+  },
+  "r32": [
+    {
+      "node_id": "R32_1",
+      "id": "M74",
+      "team1_placeholder": "1E",
+      "team2_placeholder": "3ABCDF",
+      "info": "M74, 18:30h, 29 June | UTC 22:30h"
+    },
+    {
+      "node_id": "R32_2",
+      "id": "M77",
+      "team1_placeholder": "1I",
+      "team2_placeholder": "3CDFGH",
+      "info": "M77, 17h, 30 June | UTC 21h"
+    },
+    {
+      "node_id": "R32_3",
+      "id": "M73",
+      "team1_placeholder": "2A",
+      "team2_placeholder": "2B",
+      "info": "M73, 12h, 28 June | UTC 19h"
+    },
+    {
+      "node_id": "R32_4",
+      "id": "M75",
+      "team1_placeholder": "1F",
+      "team2_placeholder": "2C",
+      "info": "M75, 19h, 29 June | UTC 01h, 30 June"
+    },
+    {
+      "node_id": "R32_5",
+      "id": "M83",
+      "team1_placeholder": "2K",
+      "team2_placeholder": "2L",
+      "info": "M83, 19h, 2 July | UTC 23h"
+    },
+    {
+      "node_id": "R32_6",
+      "id": "M84",
+      "team1_placeholder": "1H",
+      "team2_placeholder": "2J",
+      "info": "M84, 12h, 2 July | UTC 19h"
+    },
+    {
+      "node_id": "R32_7",
+      "id": "M81",
+      "team1_placeholder": "1D",
+      "team2_placeholder": "3BEFIJ",
+      "info": "M81, 17h, 1 July | UTC 00h, 2 July"
+    },
+    {
+      "node_id": "R32_8",
+      "id": "M82",
+      "team1_placeholder": "1G",
+      "team2_placeholder": "3AEHIJ",
+      "info": "M82, 13h, 1 July | UTC 20h"
+    },
+    {
+      "node_id": "R32_9",
+      "id": "M76",
+      "team1_placeholder": "1C",
+      "team2_placeholder": "2F",
+      "info": "M76, 12h, 29 June | UTC 18h"
+    },
+    {
+      "node_id": "R32_10",
+      "id": "M78",
+      "team1_placeholder": "2E",
+      "team2_placeholder": "2I",
+      "info": "M78, 12h, 30 June | UTC 17h"
+    },
+    {
+      "node_id": "R32_11",
+      "id": "M79",
+      "team1_placeholder": "1A",
+      "team2_placeholder": "3CEFHI",
+      "info": "M79, 19h, 30 June | UTC 01h, 1 July"
+    },
+    {
+      "node_id": "R32_12",
+      "id": "M80",
+      "team1_placeholder": "1L",
+      "team2_placeholder": "3EHIJK",
+      "info": "M80, 12h, 1 July | UTC 16h"
+    },
+    {
+      "node_id": "R32_13",
+      "id": "M86",
+      "team1_placeholder": "1J",
+      "team2_placeholder": "2H",
+      "info": "M86, 18h, 3 July | UTC 22h"
+    },
+    {
+      "node_id": "R32_14",
+      "id": "M88",
+      "team1_placeholder": "2D",
+      "team2_placeholder": "2G",
+      "info": "M88, 13h, 3 July | UTC 18h"
+    },
+    {
+      "node_id": "R32_15",
+      "id": "M85",
+      "team1_placeholder": "1B",
+      "team2_placeholder": "3EFGIJ",
+      "info": "M85, 20h, 2 July | UTC 03h, 3 July"
+    },
+    {
+      "node_id": "R32_16",
+      "id": "M87",
+      "team1_placeholder": "1K",
+      "team2_placeholder": "3DEIJL",
+      "info": "M87, 20:30h, 3 July | UTC 01:30h, 4 July"
+    }
+  ],
+  "knockouts": [
+    {
+      "node_id": "R16_1",
+      "id": "M89",
+      "info": "M89, 17h, 4 July | UTC 21h",
+      "depends_on": [
+        "R32_1",
+        "R32_2"
+      ]
+    },
+    {
+      "node_id": "R16_2",
+      "id": "M90",
+      "info": "M90, 12h, 4 July | UTC 17h",
+      "depends_on": [
+        "R32_3",
+        "R32_4"
+      ]
+    },
+    {
+      "node_id": "R16_3",
+      "id": "M93",
+      "info": "M93, 14h, 6 July | UTC 19h",
+      "depends_on": [
+        "R32_5",
+        "R32_6"
+      ]
+    },
+    {
+      "node_id": "R16_4",
+      "id": "M94",
+      "info": "M94, 17h, 6 July | UTC 00h, 7 July",
+      "depends_on": [
+        "R32_7",
+        "R32_8"
+      ]
+    },
+    {
+      "node_id": "QF_1",
+      "id": "Match 97",
+      "info": "Match 97, 9 July, 16h | UTC 20h",
+      "depends_on": [
+        "R16_1",
+        "R16_2"
+      ]
+    },
+    {
+      "node_id": "QF_2",
+      "id": "Match 98",
+      "info": "Match 98, 10 July, 12h | UTC 19h",
+      "depends_on": [
+        "R16_3",
+        "R16_4"
+      ]
+    },
+    {
+      "node_id": "SF_1",
+      "id": "Match 101",
+      "info": "Match 101, 14 July, 14h | UTC 19h",
+      "depends_on": [
+        "QF_1",
+        "QF_2"
+      ]
+    },
+    {
+      "node_id": "R16_5",
+      "id": "M91",
+      "info": "M91, 18h, 5 July | UTC 01h",
+      "depends_on": [
+        "R32_9",
+        "R32_10"
+      ]
+    },
+    {
+      "node_id": "R16_6",
+      "id": "M92",
+      "info": "M92, 18h, 5 July | UTC 01h",
+      "depends_on": [
+        "R32_11",
+        "R32_12"
+      ]
+    },
+    {
+      "node_id": "R16_7",
+      "id": "M95",
+      "info": "M95, 12h, 7 July | UTC 16h",
+      "depends_on": [
+        "R32_13",
+        "R32_14"
+      ]
+    },
+    {
+      "node_id": "R16_8",
+      "id": "M96",
+      "info": "M96, 13h, 7 July | UTC 20h",
+      "depends_on": [
+        "R32_15",
+        "R32_16"
+      ]
+    },
+    {
+      "node_id": "QF_3",
+      "id": "Match 99",
+      "info": "Match 99, 11 July, 17h | UTC 21h",
+      "depends_on": [
+        "R16_5",
+        "R16_6"
+      ]
+    },
+    {
+      "node_id": "QF_4",
+      "id": "Match 100",
+      "info": "Match 100, 11 July, 20h | UTC 01h, 12 July",
+      "depends_on": [
+        "R16_7",
+        "R16_8"
+      ]
+    },
+    {
+      "node_id": "SF_2",
+      "id": "Match 102",
+      "info": "Match 102, 15 July, 15h | UTC 19h",
+      "depends_on": [
+        "QF_3",
+        "QF_4"
+      ]
+    },
+    {
+      "node_id": "FINAL",
+      "id": "M104",
+      "info": "M104, 15h, 19 July | UTC 19h",
+      "depends_on": [
+        "SF_1",
+        "SF_2"
+      ]
+    },
+    {
+      "node_id": "THIRD",
+      "id": "M103",
+      "info": "M103, 15h, 18 July | UTC 19h",
+      "depends_on": [
+        "SF_1",
+        "SF_2"
+      ]
+    }
+  ]
+}
