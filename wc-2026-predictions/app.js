@@ -264,12 +264,22 @@ async function loadInitialState() {
 }
 
 function disableEditing() {
-  // Disable all number inputs for scores
+  // Disable all number inputs for scores and set colors
   const inputs = document.querySelectorAll('input[type="number"]');
   inputs.forEach(input => {
     input.disabled = true;
-    input.style.background = "#f0f0f0";
     input.style.cursor = "not-allowed";
+    
+    // Set colors based on whether it's a predicted or actual score
+    if (input.classList.contains("pred")) {
+      input.style.color = "#ef4444"; // Red for predictions
+      input.style.fontWeight = "bold";
+    } else if (input.classList.contains("act") || input.classList.contains("actual")) {
+      input.style.color = "#000000"; // Black for actual results
+      input.style.fontWeight = "bold";
+    }
+    
+    input.style.background = "#ffffff"; // White background for better contrast with black/red text
   });
 
   // Hide buttons that modify data
