@@ -164,6 +164,11 @@ const r32_thirdPlace_eligibility = {
   "R32_16": ["D", "E", "I", "J", "L"]
 };
 
+const config = {
+  isLocal: window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.protocol === "file:",
+  dataPath: "data.json"
+};
+
 // Global Predictions and Actual Results Store
 let state = {
   users: ["Default User"],
@@ -179,10 +184,16 @@ let state = {
 let globalKoTeams = {};
 
 // Initialize Dashboard
-document.addEventListener("DOMContentLoaded", () => {
-  loadStateFromLocalStorage();
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadInitialState();
   initTabs();
   initUserDropdown();
+  
+  if (!config.isLocal) {
+    disableEditing();
+  } else {
+    addLocalOnlyUI();
+  }
   
   // Set initial active state on view mode buttons
   const btnGroups = document.getElementById("btn-view-groups");
@@ -207,6 +218,75 @@ document.addEventListener("DOMContentLoaded", () => {
   updateScoresAndStandings();
   initActionHandlers();
 });
+
+// Load initial state from data.json (online) or local storage (desktop)
+async function loadInitialState() {
+  let dataJson = null;
+  try {
+    const response = await fetch(config.dataPath);
+    if (response.ok) {
+      dataJson = await response.json();
+    }
+  } catch (e) {
+    console.log("data.json not found, using local storage or defaults.");
+  }
+
+  if (!config.isLocal && dataJson) {
+    state = dataJson;
+  } else {
+    loadStateFromLocalStorage();
+    // If local storage is empty but data.json exists, use data.json
+    if (dataJson && (!state.userScores || Object.keys(state.userScores["Default User"] || {}).length === 0)) {
+      state = dataJson;
+    }
+  }
+
+  if (!state.users) state.users = ["Default User"];
+  if (!state.currentUser) state.currentUser = state.users[0];
+  if (!state.userScores) state.userScores = { [state.currentUser]: {} };
+  state.scores = state.userScores[state.currentUser];
+}
+
+function disableEditing() {
+  // Disable all number inputs for scores
+  const inputs = document.querySelectorAll('input[type="number"]');
+  inputs.forEach(input => {
+    input.disabled = true;
+    input.style.background = "#f0f0f0";
+    input.style.cursor = "not-allowed";
+  });
+
+  // Hide buttons that modify data
+  const toHide = ["reset-btn", "randomize-btn", "import-btn", "edit-user-btn", "delete-user-btn"];
+  toHide.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.style.display = "none";
+  });
+}
+
+function addLocalOnlyUI() {
+  const navActions = document.querySelector('.nav-actions');
+  if (navActions) {
+    const downloadBtn = document.createElement('button');
+    downloadBtn.className = "action-btn secondary";
+    downloadBtn.innerHTML = '<i class="fa-solid fa-file-arrow-down"></i> Download data.json';
+    downloadBtn.title = "Download current state as data.json to update the website";
+    downloadBtn.style.background = "#4a90e2";
+    downloadBtn.style.color = "white";
+    downloadBtn.onclick = () => {
+      const tempScores = state.scores;
+      delete state.scores;
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "data.json";
+      a.click();
+      state.scores = tempScores;
+    };
+    navActions.appendChild(downloadBtn);
+  }
+}
 
 // Load state from local storage
 function loadStateFromLocalStorage() {
@@ -244,6 +324,7 @@ function loadStateFromLocalStorage() {
 
 // Save state to local storage
 function saveStateToLocalStorage() {
+  if (!config.isLocal) return;
   const tempScores = state.scores;
   delete state.scores; // Avoid duplicating scores in local storage
   localStorage.setItem("worldcup_2026_state", JSON.stringify(state));
@@ -314,10 +395,13 @@ function populateUserDropdown() {
     if (u === state.currentUser) opt.selected = true;
     dropdown.appendChild(opt);
   });
-  const addOpt = document.createElement("option");
-  addOpt.value = "ADD_NEW";
-  addOpt.textContent = "+ Add New User";
-  dropdown.appendChild(addOpt);
+  
+  if (config.isLocal) {
+    const addOpt = document.createElement("option");
+    addOpt.value = "ADD_NEW";
+    addOpt.textContent = "+ Add New User";
+    dropdown.appendChild(addOpt);
+  }
 }
 
 function switchUser(userName) {
@@ -341,7 +425,9 @@ function switchUser(userName) {
   }
   
   state.scores = state.userScores[state.currentUser];
-  saveStateToLocalStorage();
+  if (config.isLocal) {
+    saveStateToLocalStorage();
+  }
   
   // Re-render
   renderGroupStage();
@@ -1122,6 +1208,10 @@ function updateScoresAndStandings() {
   document.getElementById("avg-points").textContent = predictedMatches > 0 ? (totalPoints / predictedMatches).toFixed(2) : "0.00";
   
   renderLeaderboard();
+  
+  if (!config.isLocal) {
+    disableEditing();
+  }
 }
 
 function calculateUserStats(scoresObj) {

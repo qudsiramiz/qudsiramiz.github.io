@@ -1,0 +1,9 @@
+{
+  "users": ["Default User"],
+  "currentUser": "Default User",
+  "userScores": {
+    "Default User": {}
+  },
+  "viewMode": "groups",
+  "activeGroupTab": "GroupA"
+}
