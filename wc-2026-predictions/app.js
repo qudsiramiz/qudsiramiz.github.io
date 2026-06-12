@@ -187,6 +187,23 @@ let globalKoTeams = {};
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("Dashboard Mode:", config.isLocal ? "LOCAL/EDITOR" : "ONLINE/STATIC");
   await loadInitialState();
+  
+  // Sync all actual scores to match the default user
+  const defaultScores = state.userScores[state.users[0]];
+  state.users.forEach(u => {
+    if (u === state.users[0]) return;
+    Object.keys(state.userScores[u]).forEach(key => {
+      if (key.endsWith("_actHome") || key.endsWith("_actAway")) {
+        delete state.userScores[u][key];
+      }
+    });
+    Object.keys(defaultScores).forEach(key => {
+      if (key.endsWith("_actHome") || key.endsWith("_actAway")) {
+        state.userScores[u][key] = defaultScores[key];
+      }
+    });
+  });
+  
   initTabs();
   initUserDropdown();
   
@@ -431,6 +448,12 @@ function switchUser(userName) {
     if (newName && newName.trim() !== "" && !state.users.includes(newName)) {
       state.users.push(newName);
       state.userScores[newName] = {};
+      const defaultScores = state.userScores[state.users[0]];
+      Object.keys(defaultScores).forEach(key => {
+        if (key.endsWith("_actHome") || key.endsWith("_actAway")) {
+          state.userScores[newName][key] = defaultScores[key];
+        }
+      });
       state.currentUser = newName;
     } else {
       // Revert or alert
@@ -929,10 +952,21 @@ function renderGroupStage() {
       const type = e.target.getAttribute("data-type");
       const val = e.target.value === "" ? "" : parseInt(e.target.value);
       
-      if (val === "" || isNaN(val)) {
-        delete state.scores[matchId + "_" + type];
+      if (type === "actHome" || type === "actAway") {
+        state.users.forEach(u => {
+          if (val === "" || isNaN(val)) {
+            delete state.userScores[u][matchId + "_" + type];
+          } else {
+            state.userScores[u][matchId + "_" + type] = val;
+          }
+        });
+        state.scores = state.userScores[state.currentUser];
       } else {
-        state.scores[matchId + "_" + type] = val;
+        if (val === "" || isNaN(val)) {
+          delete state.scores[matchId + "_" + type];
+        } else {
+          state.scores[matchId + "_" + type] = val;
+        }
       }
       
       saveStateToLocalStorage();
@@ -1256,6 +1290,24 @@ function updateScoresAndStandings() {
   
   renderLeaderboard();
   
+  // Disable actual score inputs for non-default users
+  if (config.isLocal) {
+    const isDefaultUser = state.currentUser === state.users[0];
+    document.querySelectorAll('.score-input.actual, .ko-score-input.actual').forEach(input => {
+      if (!isDefaultUser) {
+        input.disabled = true;
+        input.title = "Switch to " + state.users[0] + " to edit actual scores";
+        input.style.cursor = "not-allowed";
+        input.style.background = "rgba(16, 185, 129, 0.02)";
+      } else {
+        input.disabled = false;
+        input.title = "";
+        input.style.cursor = "text";
+        input.style.background = ""; // Restore default via CSS
+      }
+    });
+  }
+  
   if (!config.isLocal) {
     disableEditing();
   }
@@ -1390,10 +1442,21 @@ function renderKnockoutBracket() {
       const type = e.target.getAttribute("data-type");
       const val = e.target.value === "" ? "" : parseInt(e.target.value);
       
-      if (val === "" || isNaN(val)) {
-        delete state.scores[nodeId + "_" + type];
+      if (type === "actHome" || type === "actAway") {
+        state.users.forEach(u => {
+          if (val === "" || isNaN(val)) {
+            delete state.userScores[u][nodeId + "_" + type];
+          } else {
+            state.userScores[u][nodeId + "_" + type] = val;
+          }
+        });
+        state.scores = state.userScores[state.currentUser];
       } else {
-        state.scores[nodeId + "_" + type] = val;
+        if (val === "" || isNaN(val)) {
+          delete state.scores[nodeId + "_" + type];
+        } else {
+          state.scores[nodeId + "_" + type] = val;
+        }
       }
       
       saveStateToLocalStorage();
