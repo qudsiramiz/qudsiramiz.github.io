@@ -1385,8 +1385,8 @@ function renderPredictionsMatrix() {
 
   let headerHTML = `
     <tr>
-      <th style="width: 25%; text-align: left;">Date & Match</th>
-      <th style="width: 35%; text-align: left;">Teams</th>
+      <th style="min-width: 80px; text-align: left; white-space: nowrap;">Match</th>
+      <th style="width: 30%; text-align: left;">Teams</th>
       <th style="text-align: center; width: 10%;">Actual</th>
   `;
   usersToShow.forEach(u => {
@@ -1404,7 +1404,7 @@ function renderPredictionsMatrix() {
 
     let rowHTML = `
       <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-        <td style="color: var(--text-muted); font-size: 0.75rem;">${mInfo}</td>
+        <td style="color: var(--text-muted); font-size: 0.75rem; white-space: nowrap;">${mInfo}</td>
         <td><strong>${t1}</strong> <span style="color: var(--text-muted); font-size: 0.8rem;">vs</span> <strong>${t2}</strong></td>
         <td style="text-align: center; font-weight: bold; background: rgba(16, 185, 129, 0.05); border-left: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05);">${actualStr}</td>
     `;
@@ -1426,26 +1426,52 @@ function renderPredictionsMatrix() {
     return rowHTML;
   };
 
+  let allMatches = [];
+  
+  // Collect group matches
   Object.keys(initialMatchesData.groups).forEach(groupId => {
-    bodyHTML += `<tr><td colspan="${3 + usersToShow.length}" style="background: rgba(212, 175, 55, 0.1); color: var(--text-gold); font-weight: bold; font-size: 0.85rem; padding-top: 0.75rem;">${groupId.replace("Group", "Group ")}</td></tr>`;
     initialMatchesData.groups[groupId].forEach(m => {
-      bodyHTML += renderRow(m.id, m.info || m.id, m.team1, m.team2);
+      allMatches.push({
+        ...m,
+        isKo: false
+      });
     });
   });
-
-  bodyHTML += `<tr><td colspan="${3 + usersToShow.length}" style="background: rgba(212, 175, 55, 0.1); color: var(--text-gold); font-weight: bold; font-size: 0.85rem; padding-top: 0.75rem;">Knockout Stage</td></tr>`;
   
+  // Collect knockout matches
   const koMatches = [...(initialMatchesData.r32 || []), ...(initialMatchesData.knockouts || [])];
   koMatches.forEach(m => {
-    let t1 = "?", t2 = "?";
-    if (globalKoTeams && globalKoTeams[m.node_id]) {
-      t1 = globalKoTeams[m.node_id].team1;
-      t2 = globalKoTeams[m.node_id].team2;
+    allMatches.push({
+      ...m,
+      isKo: true
+    });
+  });
+  
+  // Sort by match number parsed from id (e.g. "M1", "Match 97")
+  allMatches.sort((a, b) => {
+    const numA = parseInt(a.id.replace(/[^\d]/g, '')) || 0;
+    const numB = parseInt(b.id.replace(/[^\d]/g, '')) || 0;
+    return numA - numB;
+  });
+  
+  // Render sorted list
+  allMatches.forEach(m => {
+    const matchNum = parseInt(m.id.replace(/[^\d]/g, '')) || m.id;
+    const displayStr = `Match ${matchNum}`;
+    
+    if (m.isKo) {
+      let t1 = "?", t2 = "?";
+      if (globalKoTeams && globalKoTeams[m.node_id]) {
+        t1 = globalKoTeams[m.node_id].team1;
+        t2 = globalKoTeams[m.node_id].team2;
+      } else {
+        t1 = m.team1 || m.source1 || m.team1_placeholder || "?";
+        t2 = m.team2 || m.source2 || m.team2_placeholder || "?";
+      }
+      bodyHTML += renderRow(m.node_id, displayStr, t1, t2);
     } else {
-      t1 = m.team1 || m.source1 || "?";
-      t2 = m.team2 || m.source2 || "?";
+      bodyHTML += renderRow(m.id, displayStr, m.team1, m.team2);
     }
-    bodyHTML += renderRow(m.node_id, m.info || m.node_id.replace("_", " "), t1, t2);
   });
 
   bodyElem.innerHTML = bodyHTML;
