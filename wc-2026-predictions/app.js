@@ -279,7 +279,11 @@ function disableEditing() {
       input.style.fontWeight = "bold";
     }
     
-    input.style.background = "#ffffff"; // White background for better contrast with black/red text
+    if (input.closest('.match-played')) {
+      input.style.background = "#dcfce7"; // Light green for played matches
+    } else {
+      input.style.background = "#ffffff"; // White background
+    }
   });
 
   // Hide buttons that modify data
