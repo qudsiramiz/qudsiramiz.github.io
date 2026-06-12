@@ -63,6 +63,7 @@
       <button class="nav-btn" data-tab="stats-tab"><i class="fa-solid fa-chart-pie"></i> Detailed
         Stats & Rules</button>
       <button class="nav-btn" data-tab="leaderboard-tab"><i class="fa-solid fa-medal"></i> Leaderboard</button>
+      <button class="nav-btn" data-tab="matrix-tab"><i class="fa-solid fa-table-cells"></i> Prediction Comparison</button>
 
       <div class="user-selector" style="margin-left: auto; margin-right: 15px; display: flex; align-items: center; gap: 8px;">
         <label for="user-dropdown" style="color: white; font-size: 0.9rem;"><i class="fa-solid fa-user"></i></label>
@@ -302,6 +303,24 @@
                 </tr>
               </thead>
               <tbody id="leaderboard-body">
+                <!-- Populated by app.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: PREDICTIONS MATRIX -->
+      <section class="tab-pane" id="matrix-tab">
+        <div class="stats-layout">
+          <div class="card analysis-card" style="width: 100%; max-width: 100%; margin: 0 auto;">
+            <h3>Prediction Comparison</h3>
+            <p class="section-help" style="margin-bottom: 20px;">A comprehensive view of all matches and predictions made by everyone.</p>
+            <table class="standings-table" style="width: 100%;">
+              <thead id="matrix-header">
+                <!-- Populated by app.js -->
+              </thead>
+              <tbody id="matrix-body">
                 <!-- Populated by app.js -->
               </tbody>
             </table>

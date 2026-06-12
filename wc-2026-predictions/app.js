@@ -275,6 +275,14 @@ async function loadInitialState() {
   }
 
   if (!state.users) state.users = ["Default User"];
+  if (state.userScores) {
+    Object.keys(state.userScores).forEach(u => {
+      if (!state.users.includes(u)) {
+        state.users.push(u);
+      }
+    });
+  }
+  
   if (!state.currentUser) state.currentUser = state.users[0];
   if (!state.userScores) state.userScores = { [state.currentUser]: {} };
   state.scores = state.userScores[state.currentUser];
@@ -1289,6 +1297,7 @@ function updateScoresAndStandings() {
   document.getElementById("avg-points").textContent = evaluatedMatches > 0 ? (totalPoints / evaluatedMatches).toFixed(2) : "0.00";
   
   renderLeaderboard();
+  renderPredictionsMatrix();
   
   // Disable actual score inputs for non-default users
   if (config.isLocal) {
@@ -1365,6 +1374,81 @@ function calculateUserStats(scoresObj) {
   const acc = evaluatedMatches > 0 ? Math.round((ruleCounts.rule1 + ruleCounts.rule3 + ruleCounts.rule2 + ruleCounts.rule6) / evaluatedMatches * 100) : 0;
   const avgGoalError = evaluatedMatches > 0 ? (totalGoalError / evaluatedMatches).toFixed(2) : "0.00";
   return { totalPoints, predictedMatches, acc, ruleCounts, avgGoalError };
+}
+
+function renderPredictionsMatrix() {
+  const headerElem = document.getElementById("matrix-header");
+  const bodyElem = document.getElementById("matrix-body");
+  if (!headerElem || !bodyElem) return;
+
+  const usersToShow = state.users.filter(u => u !== "Default User");
+
+  let headerHTML = `
+    <tr>
+      <th style="width: 25%; text-align: left;">Date & Match</th>
+      <th style="width: 35%; text-align: left;">Teams</th>
+      <th style="text-align: center; width: 10%;">Actual</th>
+  `;
+  usersToShow.forEach(u => {
+    headerHTML += `<th style="text-align: center; color: var(--text-gold);">${u}</th>`;
+  });
+  headerHTML += `</tr>`;
+  headerElem.innerHTML = headerHTML;
+
+  let bodyHTML = "";
+
+  const renderRow = (mId, mInfo, t1, t2) => {
+    const actHome = state.userScores[state.users[0]][mId + "_actHome"];
+    const actAway = state.userScores[state.users[0]][mId + "_actAway"];
+    const actualStr = (actHome !== undefined && actAway !== undefined) ? `<span style="color: #6ee7b7;">${actHome} - ${actAway}</span>` : "-";
+
+    let rowHTML = `
+      <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <td style="color: var(--text-muted); font-size: 0.75rem;">${mInfo}</td>
+        <td><strong>${t1}</strong> <span style="color: var(--text-muted); font-size: 0.8rem;">vs</span> <strong>${t2}</strong></td>
+        <td style="text-align: center; font-weight: bold; background: rgba(16, 185, 129, 0.05); border-left: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05);">${actualStr}</td>
+    `;
+
+    usersToShow.forEach(u => {
+      const pHome = state.userScores[u][mId + "_predHome"];
+      const pAway = state.userScores[u][mId + "_predAway"];
+      const predStr = (pHome !== undefined && pAway !== undefined) ? `${pHome} - ${pAway}` : "-";
+      
+      let ptsStr = "";
+      if (pHome !== undefined && pAway !== undefined && actHome !== undefined && actAway !== undefined) {
+        const pts = calculatePoints(pHome, pAway, actHome, actAway);
+        ptsStr = `<br><span style="font-size: 0.65rem; color: #9ca3af;">(${pts.toFixed(pts % 1 === 0 ? 0 : 2)}p)</span>`;
+      }
+      
+      rowHTML += `<td style="text-align: center;">${predStr}${ptsStr}</td>`;
+    });
+    rowHTML += `</tr>`;
+    return rowHTML;
+  };
+
+  Object.keys(initialMatchesData.groups).forEach(groupId => {
+    bodyHTML += `<tr><td colspan="${3 + usersToShow.length}" style="background: rgba(212, 175, 55, 0.1); color: var(--text-gold); font-weight: bold; font-size: 0.85rem; padding-top: 0.75rem;">${groupId.replace("Group", "Group ")}</td></tr>`;
+    initialMatchesData.groups[groupId].forEach(m => {
+      bodyHTML += renderRow(m.id, m.info || m.id, m.team1, m.team2);
+    });
+  });
+
+  bodyHTML += `<tr><td colspan="${3 + usersToShow.length}" style="background: rgba(212, 175, 55, 0.1); color: var(--text-gold); font-weight: bold; font-size: 0.85rem; padding-top: 0.75rem;">Knockout Stage</td></tr>`;
+  
+  const koMatches = [...(initialMatchesData.r32 || []), ...(initialMatchesData.knockouts || [])];
+  koMatches.forEach(m => {
+    let t1 = "?", t2 = "?";
+    if (globalKoTeams && globalKoTeams[m.node_id]) {
+      t1 = globalKoTeams[m.node_id].team1;
+      t2 = globalKoTeams[m.node_id].team2;
+    } else {
+      t1 = m.team1 || m.source1 || "?";
+      t2 = m.team2 || m.source2 || "?";
+    }
+    bodyHTML += renderRow(m.node_id, m.info || m.node_id.replace("_", " "), t1, t2);
+  });
+
+  bodyElem.innerHTML = bodyHTML;
 }
 
 function renderLeaderboard() {
