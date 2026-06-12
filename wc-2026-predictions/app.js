@@ -984,6 +984,7 @@ function updateScoresAndStandings() {
   let totalPoints = 0;
   let ruleCounts = { rule1: 0, rule2: 0, rule3: 0, rule4: 0, rule5: 0, rule6: 0 };
   let predictedMatches = 0;
+  let evaluatedMatches = 0;
   
   // 1. Update Group Match Points and Standing Tables
   Object.keys(initialMatchesData.groups).forEach(groupId => {
@@ -1017,6 +1018,7 @@ function updateScoresAndStandings() {
       const badge = document.getElementById(`points-${m.id}`);
       if (badge) {
         if (predHome !== undefined && predAway !== undefined && actHome !== undefined && actAway !== undefined) {
+          evaluatedMatches += 1;
           const pts = calculatePoints(predHome, predAway, actHome, actAway);
           totalPoints += pts;
           
@@ -1196,6 +1198,7 @@ function updateScoresAndStandings() {
     const badge = document.getElementById(`ko-points-${nodeId}`);
     if (badge) {
       if (predHome !== undefined && predAway !== undefined && actHome !== undefined && actAway !== undefined) {
+        evaluatedMatches += 1;
         const pts = calculatePoints(predHome, predAway, actHome, actAway);
         totalPoints += pts;
         
@@ -1212,7 +1215,7 @@ function updateScoresAndStandings() {
   // 4. Update Header Dashboard Widget
   document.getElementById("total-points").textContent = totalPoints.toFixed(totalPoints % 1 === 0 ? 0 : 2);
   document.getElementById("predicted-count").textContent = `${predictedMatches} / 104`;
-  const acc = predictedMatches > 0 ? Math.round((ruleCounts.rule1 + ruleCounts.rule3 + ruleCounts.rule2 + ruleCounts.rule6) / predictedMatches * 100) : 0;
+  const acc = evaluatedMatches > 0 ? Math.round((ruleCounts.rule1 + ruleCounts.rule3 + ruleCounts.rule2 + ruleCounts.rule6) / evaluatedMatches * 100) : 0;
   document.getElementById("prediction-accuracy").textContent = `${acc}%`;
   
   // 5. Update Tab 3 Stats Page counts
@@ -1222,7 +1225,7 @@ function updateScoresAndStandings() {
   document.getElementById("count-rule6").textContent = ruleCounts.rule6;
   document.getElementById("count-rule4").textContent = ruleCounts.rule4;
   document.getElementById("count-rule5").textContent = ruleCounts.rule5;
-  document.getElementById("avg-points").textContent = predictedMatches > 0 ? (totalPoints / predictedMatches).toFixed(2) : "0.00";
+  document.getElementById("avg-points").textContent = evaluatedMatches > 0 ? (totalPoints / evaluatedMatches).toFixed(2) : "0.00";
   
   renderLeaderboard();
   
@@ -1235,6 +1238,7 @@ function calculateUserStats(scoresObj) {
   let totalPoints = 0;
   let ruleCounts = { rule1: 0, rule2: 0, rule3: 0, rule4: 0, rule5: 0, rule6: 0 };
   let predictedMatches = 0;
+  let evaluatedMatches = 0;
   
   Object.keys(initialMatchesData.groups).forEach(groupId => {
     initialMatchesData.groups[groupId].forEach(m => {
@@ -1247,6 +1251,7 @@ function calculateUserStats(scoresObj) {
         predictedMatches += 1;
       }
       if (predHome !== undefined && predAway !== undefined && actHome !== undefined && actAway !== undefined) {
+        evaluatedMatches += 1;
         const pts = calculatePoints(predHome, predAway, actHome, actAway);
         totalPoints += pts;
         const rule = getRuleMatched(predHome, predAway, actHome, actAway);
@@ -1267,6 +1272,7 @@ function calculateUserStats(scoresObj) {
       predictedMatches += 1;
     }
     if (predHome !== undefined && predAway !== undefined && actHome !== undefined && actAway !== undefined) {
+      evaluatedMatches += 1;
       const pts = calculatePoints(predHome, predAway, actHome, actAway);
       totalPoints += pts;
       const rule = getRuleMatched(predHome, predAway, actHome, actAway);
@@ -1274,7 +1280,7 @@ function calculateUserStats(scoresObj) {
     }
   });
   
-  const acc = predictedMatches > 0 ? Math.round((ruleCounts.rule1 + ruleCounts.rule3 + ruleCounts.rule2 + ruleCounts.rule6) / predictedMatches * 100) : 0;
+  const acc = evaluatedMatches > 0 ? Math.round((ruleCounts.rule1 + ruleCounts.rule3 + ruleCounts.rule2 + ruleCounts.rule6) / evaluatedMatches * 100) : 0;
   return { totalPoints, predictedMatches, acc, ruleCounts };
 }
 
