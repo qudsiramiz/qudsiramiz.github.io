@@ -985,6 +985,7 @@ function updateScoresAndStandings() {
   let ruleCounts = { rule1: 0, rule2: 0, rule3: 0, rule4: 0, rule5: 0, rule6: 0 };
   let predictedMatches = 0;
   let evaluatedMatches = 0;
+  let totalGoalError = 0;
   
   // 1. Update Group Match Points and Standing Tables
   Object.keys(initialMatchesData.groups).forEach(groupId => {
@@ -1015,12 +1016,22 @@ function updateScoresAndStandings() {
       const actHome = state.scores[m.id + "_actHome"];
       const actAway = state.scores[m.id + "_actAway"];
       
+      const matchElem = document.querySelector(`.match-item[data-match-id="${m.id}"]`);
+      if (matchElem) {
+        if (actHome !== undefined && actAway !== undefined) {
+          matchElem.classList.add('match-played');
+        } else {
+          matchElem.classList.remove('match-played');
+        }
+      }
+      
       const badge = document.getElementById(`points-${m.id}`);
       if (badge) {
         if (predHome !== undefined && predAway !== undefined && actHome !== undefined && actAway !== undefined) {
           evaluatedMatches += 1;
           const pts = calculatePoints(predHome, predAway, actHome, actAway);
           totalPoints += pts;
+          totalGoalError += (Math.abs(predHome - actHome) + Math.abs(predAway - actAway));
           
           const rule = getRuleMatched(predHome, predAway, actHome, actAway);
           if (rule) ruleCounts[rule] += 1;
@@ -1191,6 +1202,15 @@ function updateScoresAndStandings() {
     const actHome = state.scores[nodeId + "_actHome"];
     const actAway = state.scores[nodeId + "_actAway"];
     
+    const koCard = document.getElementById(`ko-card-${nodeId}`);
+    if (koCard) {
+      if (actHome !== undefined && actAway !== undefined) {
+        koCard.classList.add('match-played');
+      } else {
+        koCard.classList.remove('match-played');
+      }
+    }
+    
     if (predHome !== undefined && predAway !== undefined) {
       predictedMatches += 1;
     }
@@ -1201,6 +1221,7 @@ function updateScoresAndStandings() {
         evaluatedMatches += 1;
         const pts = calculatePoints(predHome, predAway, actHome, actAway);
         totalPoints += pts;
+        totalGoalError += (Math.abs(predHome - actHome) + Math.abs(predAway - actAway));
         
         const rule = getRuleMatched(predHome, predAway, actHome, actAway);
         if (rule) ruleCounts[rule] += 1;
@@ -1217,6 +1238,8 @@ function updateScoresAndStandings() {
   document.getElementById("predicted-count").textContent = `${predictedMatches} / 104`;
   const acc = evaluatedMatches > 0 ? Math.round((ruleCounts.rule1 + ruleCounts.rule3 + ruleCounts.rule2 + ruleCounts.rule6) / evaluatedMatches * 100) : 0;
   document.getElementById("prediction-accuracy").textContent = `${acc}%`;
+  const errorElem = document.getElementById("avg-goal-error");
+  if (errorElem) errorElem.textContent = evaluatedMatches > 0 ? (totalGoalError / evaluatedMatches).toFixed(2) : "0.00";
   
   // 5. Update Tab 3 Stats Page counts
   document.getElementById("count-rule1").textContent = ruleCounts.rule1;
@@ -1239,6 +1262,7 @@ function calculateUserStats(scoresObj) {
   let ruleCounts = { rule1: 0, rule2: 0, rule3: 0, rule4: 0, rule5: 0, rule6: 0 };
   let predictedMatches = 0;
   let evaluatedMatches = 0;
+  let totalGoalError = 0;
   
   Object.keys(initialMatchesData.groups).forEach(groupId => {
     initialMatchesData.groups[groupId].forEach(m => {
@@ -1254,6 +1278,7 @@ function calculateUserStats(scoresObj) {
         evaluatedMatches += 1;
         const pts = calculatePoints(predHome, predAway, actHome, actAway);
         totalPoints += pts;
+        totalGoalError += (Math.abs(predHome - actHome) + Math.abs(predAway - actAway));
         const rule = getRuleMatched(predHome, predAway, actHome, actAway);
         if (rule) ruleCounts[rule] += 1;
       }
@@ -1275,13 +1300,15 @@ function calculateUserStats(scoresObj) {
       evaluatedMatches += 1;
       const pts = calculatePoints(predHome, predAway, actHome, actAway);
       totalPoints += pts;
+      totalGoalError += (Math.abs(predHome - actHome) + Math.abs(predAway - actAway));
       const rule = getRuleMatched(predHome, predAway, actHome, actAway);
       if (rule) ruleCounts[rule] += 1;
     }
   });
   
   const acc = evaluatedMatches > 0 ? Math.round((ruleCounts.rule1 + ruleCounts.rule3 + ruleCounts.rule2 + ruleCounts.rule6) / evaluatedMatches * 100) : 0;
-  return { totalPoints, predictedMatches, acc, ruleCounts };
+  const avgGoalError = evaluatedMatches > 0 ? (totalGoalError / evaluatedMatches).toFixed(2) : "0.00";
+  return { totalPoints, predictedMatches, acc, ruleCounts, avgGoalError };
 }
 
 function renderLeaderboard() {
@@ -1305,6 +1332,7 @@ function renderLeaderboard() {
       <td><strong>${u.name}</strong>${u.name === state.currentUser ? ' <span style="font-size: 0.8rem; color: #888;">(You)</span>' : ''}</td>
       <td class="num" style="font-weight: 700; color: #e9bc3f;">${u.totalPoints.toFixed(u.totalPoints % 1 === 0 ? 0 : 2)}</td>
       <td class="num">${u.acc}%</td>
+      <td class="num">${u.avgGoalError}</td>
       <td class="num">${u.predictedMatches} / 104</td>
     </tr>
   `).join("");

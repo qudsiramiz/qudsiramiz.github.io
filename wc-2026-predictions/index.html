@@ -43,6 +43,10 @@
           <span class="stat-label"><i class="fa-solid fa-bullseye"></i> Accuracy</span>
           <span class="stat-val" id="prediction-accuracy">0%</span>
         </div>
+        <div class="stat-card error" style="background: rgba(255,100,100,0.1); border-color: rgba(239, 68, 68, 0.3);">
+          <span class="stat-label"><i class="fa-solid fa-exclamation-triangle"></i> Avg Error</span>
+          <span class="stat-val" id="avg-goal-error" style="color: #fca5a5;">0.00</span>
+        </div>
         <div class="stat-card progress">
           <span class="stat-label"><i class="fa-solid fa-chart-line"></i> Completed</span>
           <span class="stat-val" id="predicted-count">0 / 104</span>
@@ -229,6 +233,10 @@
                 <div class="rule-desc"><strong>Completely Wrong:</strong> Incorrect winner and
                   completely incorrect scoreline.</div>
               </li>
+              <li style="margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed rgba(255,255,255,0.1);">
+                <div class="rule-score" style="background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.7rem;">Avg Err</div>
+                <div class="rule-desc"><strong>Average Goal Error:</strong> Measures how far off your predictions are in terms of goals. For each evaluated match, it takes the absolute difference between your predicted goals and the actual goals for both teams, and averages this over all completed matches. A lower value means your predictions are closer to the real scorelines.</div>
+              </li>
             </ul>
           </div>
 
@@ -289,6 +297,7 @@
                   <th>User Name</th>
                   <th class="num" style="width: 100px;">Total Points</th>
                   <th class="num" style="width: 100px;">Accuracy</th>
+                  <th class="num" style="width: 100px;">Avg Error</th>
                   <th class="num" style="width: 100px;">Completed</th>
                 </tr>
               </thead>
