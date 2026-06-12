@@ -16,6 +16,8 @@
   <!-- Icons -->
   <link rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Plotly JS -->
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
 </head>
 
 <body>
@@ -312,8 +314,8 @@
 
       <!-- TAB 5: PREDICTIONS MATRIX -->
       <section class="tab-pane" id="matrix-tab">
-        <div class="stats-layout">
-          <div class="card analysis-card" style="width: 100%; max-width: 100%; margin: 0 auto;">
+        <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+          <div class="card analysis-card" style="flex: 1; min-width: 500px; margin: 0;">
             <h3>Prediction Comparison</h3>
             <p class="section-help" style="margin-bottom: 20px;">A comprehensive view of all matches and predictions made by everyone.</p>
             <table class="standings-table" style="width: 100%;">
@@ -324,6 +326,10 @@
                 <!-- Populated by app.js -->
               </tbody>
             </table>
+          </div>
+          <div class="card analysis-card" style="flex: 1; min-width: 500px; margin: 0; position: sticky; top: 20px; align-self: flex-start;">
+            <h3>Cumulative Points Progression</h3>
+            <div id="plotly-graph" style="width: 100%; height: 600px;"></div>
           </div>
         </div>
       </section>

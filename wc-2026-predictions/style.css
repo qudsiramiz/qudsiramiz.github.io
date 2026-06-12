@@ -1423,3 +1423,9 @@ body {
   color: var(--gold) !important;
   text-decoration: underline;
 }
+
+/* Fix Plotly modebar floating outside container */
+.modebar-container {
+  top: 15px !important;
+  right: 15px !important;
+}

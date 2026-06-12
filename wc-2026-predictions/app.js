@@ -1382,49 +1382,30 @@ function renderPredictionsMatrix() {
   if (!headerElem || !bodyElem) return;
 
   const usersToShow = state.users.filter(u => u !== "Default User");
+  
+  const plotlyColors = ["#60a5fa", "#f87171", "#34d399", "#fbbf24", "#a78bfa", "#f472b6", "#2dd4bf", "#fb923c"];
+  const userColors = {};
+  usersToShow.forEach((u, i) => {
+    userColors[u] = plotlyColors[i % plotlyColors.length];
+    // Specific override for better visibility
+    if (u.toLowerCase() === "oneiros") {
+      userColors[u] = "#facc15"; // Bright yellow
+    }
+  });
 
   let headerHTML = `
-    <tr>
+    <tr style="position: sticky; top: 0; background-color: var(--bg-card); z-index: 10; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5);">
       <th style="min-width: 80px; text-align: left; white-space: nowrap;">Match</th>
       <th style="width: 30%; text-align: left;">Teams</th>
       <th style="text-align: center; width: 10%;">Actual</th>
   `;
   usersToShow.forEach(u => {
-    headerHTML += `<th style="text-align: center; color: var(--text-gold);">${u}</th>`;
+    headerHTML += `<th style="text-align: center; color: ${userColors[u]};">${u}</th>`;
   });
   headerHTML += `</tr>`;
   headerElem.innerHTML = headerHTML;
 
   let bodyHTML = "";
-
-  const renderRow = (mId, mInfo, t1, t2) => {
-    const actHome = state.userScores[state.users[0]][mId + "_actHome"];
-    const actAway = state.userScores[state.users[0]][mId + "_actAway"];
-    const actualStr = (actHome !== undefined && actAway !== undefined) ? `<span style="color: #6ee7b7;">${actHome} - ${actAway}</span>` : "-";
-
-    let rowHTML = `
-      <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-        <td style="color: var(--text-muted); font-size: 0.75rem; white-space: nowrap;">${mInfo}</td>
-        <td><strong>${t1}</strong> <span style="color: var(--text-muted); font-size: 0.8rem;">vs</span> <strong>${t2}</strong></td>
-        <td style="text-align: center; font-weight: bold; background: rgba(16, 185, 129, 0.05); border-left: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05);">${actualStr}</td>
-    `;
-
-    usersToShow.forEach(u => {
-      const pHome = state.userScores[u][mId + "_predHome"];
-      const pAway = state.userScores[u][mId + "_predAway"];
-      const predStr = (pHome !== undefined && pAway !== undefined) ? `${pHome} - ${pAway}` : "-";
-      
-      let ptsStr = "";
-      if (pHome !== undefined && pAway !== undefined && actHome !== undefined && actAway !== undefined) {
-        const pts = calculatePoints(pHome, pAway, actHome, actAway);
-        ptsStr = `<br><span style="font-size: 0.65rem; color: #9ca3af;">(${pts.toFixed(pts % 1 === 0 ? 0 : 2)}p)</span>`;
-      }
-      
-      rowHTML += `<td style="text-align: center;">${predStr}${ptsStr}</td>`;
-    });
-    rowHTML += `</tr>`;
-    return rowHTML;
-  };
 
   let allMatches = [];
   
@@ -1454,13 +1435,31 @@ function renderPredictionsMatrix() {
     return numA - numB;
   });
   
+  const plotlyData = usersToShow.map(u => {
+    return {
+      x: [],
+      y: [],
+      text: [],
+      mode: 'lines+markers',
+      name: u,
+      line: { color: userColors[u], width: 3 },
+      marker: { size: 6 },
+      hovertemplate: '%{text}<extra></extra>'
+    };
+  });
+  
+  const runningTotals = {};
+  usersToShow.forEach(u => runningTotals[u] = 0);
+
   // Render sorted list
   allMatches.forEach(m => {
     const matchNum = parseInt(m.id.replace(/[^\d]/g, '')) || m.id;
     const displayStr = `Match ${matchNum}`;
+    const mId = m.isKo ? m.node_id : m.id;
+    const mInfoOriginal = m.info || mId;
     
+    let t1 = "?", t2 = "?";
     if (m.isKo) {
-      let t1 = "?", t2 = "?";
       if (globalKoTeams && globalKoTeams[m.node_id]) {
         t1 = globalKoTeams[m.node_id].team1;
         t2 = globalKoTeams[m.node_id].team2;
@@ -1468,13 +1467,109 @@ function renderPredictionsMatrix() {
         t1 = m.team1 || m.source1 || m.team1_placeholder || "?";
         t2 = m.team2 || m.source2 || m.team2_placeholder || "?";
       }
-      bodyHTML += renderRow(m.node_id, displayStr, t1, t2);
     } else {
-      bodyHTML += renderRow(m.id, displayStr, m.team1, m.team2);
+      t1 = m.team1;
+      t2 = m.team2;
     }
+    
+    const actHome = state.userScores[state.users[0]][mId + "_actHome"];
+    const actAway = state.userScores[state.users[0]][mId + "_actAway"];
+    const actualStr = (actHome !== undefined && actAway !== undefined) ? `<span style="color: #6ee7b7;">${actHome} - ${actAway}</span>` : "-";
+    const actualHoverStr = (actHome !== undefined && actAway !== undefined) ? `${actHome} - ${actAway}` : "TBD";
+    const isPlayed = (actHome !== undefined && actAway !== undefined);
+
+    let rowHTML = `
+      <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+        <td style="color: var(--text-muted); font-size: 0.75rem; white-space: nowrap;">${displayStr}</td>
+        <td><strong>${t1}</strong> <span style="color: var(--text-muted); font-size: 0.8rem;">vs</span> <strong>${t2}</strong></td>
+        <td style="text-align: center; font-weight: bold; background: rgba(16, 185, 129, 0.05); border-left: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05);">${actualStr}</td>
+    `;
+
+    let fullHoverTxt = `<b>${displayStr}</b><br>${mInfoOriginal.split('|')[0].trim()}<br>${t1} vs ${t2}<br><b>Actual: ${actualHoverStr}</b>`;
+    
+    // First pass: compute points and build unified hover string
+    const matchUserData = [];
+    usersToShow.forEach((u, uIdx) => {
+      const pHome = state.userScores[u][mId + "_predHome"];
+      const pAway = state.userScores[u][mId + "_predAway"];
+      const predStr = (pHome !== undefined && pAway !== undefined) ? `${pHome} - ${pAway}` : "-";
+      
+      let pts = 0;
+      let ptsStr = "";
+      if (pHome !== undefined && pAway !== undefined && isPlayed) {
+        pts = calculatePoints(pHome, pAway, actHome, actAway);
+        ptsStr = `<br><span style="font-size: 0.65rem; color: #9ca3af;">(${pts.toFixed(pts % 1 === 0 ? 0 : 2)}p)</span>`;
+      }
+      
+      if (isPlayed) {
+        runningTotals[u] += pts;
+        fullHoverTxt += `<br><span style="color: ${userColors[u]};"><b>${u}</b>: Pred: ${predStr} | +${pts.toFixed(2)}p | Total: ${runningTotals[u].toFixed(2)}</span>`;
+      }
+      
+      matchUserData.push({ predStr, ptsStr });
+    });
+
+    // Second pass: apply to plotly traces and table
+    usersToShow.forEach((u, uIdx) => {
+      const d = matchUserData[uIdx];
+      
+      if (isPlayed) {
+        // Add a slight jitter to x-axis to prevent exact overlap
+        const jitter = (uIdx - (usersToShow.length - 1) / 2) * 0.15;
+        plotlyData[uIdx].x.push(matchNum + jitter);
+        plotlyData[uIdx].y.push(runningTotals[u]);
+        plotlyData[uIdx].text.push(fullHoverTxt);
+      }
+      
+      rowHTML += `<td style="text-align: center; color: ${userColors[u]};">${d.predStr}${d.ptsStr}</td>`;
+    });
+    rowHTML += `</tr>`;
+    bodyHTML += rowHTML;
   });
 
   bodyElem.innerHTML = bodyHTML;
+  
+  // Determine X-axis range with a buffer
+  let minMatch = Infinity;
+  let maxMatch = -Infinity;
+  plotlyData.forEach(trace => {
+    if (trace.x.length > 0) {
+      minMatch = Math.min(minMatch, ...trace.x);
+      maxMatch = Math.max(maxMatch, ...trace.x);
+    }
+  });
+  if (minMatch === Infinity) { minMatch = 1; maxMatch = 104; }
+  else { minMatch -= 2; maxMatch += 2; }
+
+  // Render Plotly Graph
+  const layout = {
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { color: '#e5e7eb', family: 'Inter, sans-serif' },
+    margin: { t: 50, r: 30, b: 50, l: 50 },
+    xaxis: { 
+      title: 'Match Number', 
+      gridcolor: 'rgba(255,255,255,0.1)',
+      zerolinecolor: 'rgba(255,255,255,0.2)',
+      range: [minMatch, maxMatch]
+    },
+    yaxis: { 
+      title: 'Cumulative Points', 
+      gridcolor: 'rgba(255,255,255,0.1)',
+      zerolinecolor: 'rgba(255,255,255,0.2)'
+    },
+    legend: { orientation: 'h', y: -0.2 },
+    hovermode: 'closest',
+    hoverlabel: {
+      bgcolor: '#1e1e1e',
+      font: { color: '#ffffff', family: 'Inter, sans-serif' },
+      bordercolor: 'rgba(255,255,255,0.2)'
+    }
+  };
+  
+  if (typeof Plotly !== 'undefined') {
+    Plotly.newPlot('plotly-graph', plotlyData, layout, {responsive: true, displayModeBar: true, displaylogo: false});
+  }
 }
 
 function renderLeaderboard() {
