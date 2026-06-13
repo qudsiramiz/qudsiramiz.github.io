@@ -171,10 +171,10 @@ const config = {
 
 // Global Predictions and Actual Results Store
 let state = {
-  users: ["Default User"],
-  currentUser: "Default User",
+  users: ["Actual Results"],
+  currentUser: "Actual Results",
   userScores: {
-    "Default User": {}
+    "Actual Results": {}
   },
   scores: {},
   viewMode: "groups",
@@ -253,28 +253,34 @@ async function loadInitialState() {
   const hasLocalData = loadStateFromLocalStorage();
 
   // Logic: 
-  // 1. If Online: Prefer data.json (if exists), otherwise local storage.
-  // 2. If Local: Prefer local storage (if exists), otherwise data.json.
+  // 1. If we have data.json, ALWAYS use it as the source of truth (especially since we can now save to it directly).
+  // 2. Otherwise, fall back to browser local storage.
   
-  if (!config.isLocal) {
-    if (dataJson) {
-      state = dataJson;
-      console.log("Online mode: Using data.json as source of truth.");
-    } else {
-      console.log("Online mode: No data.json found, using local storage.");
-    }
+  if (dataJson) {
+    state = dataJson;
+    console.log("Using data.json from disk/server as source of truth.");
+  } else if (hasLocalData) {
+    console.log("data.json not found, using existing browser local storage.");
   } else {
-    if (hasLocalData) {
-      console.log("Local mode: Using existing browser local storage.");
-    } else if (dataJson) {
-      state = dataJson;
-      console.log("Local mode: Local storage empty, falling back to data.json.");
-    } else {
-      console.log("Local mode: No local storage or data.json found, using defaults.");
-    }
+    console.log("No local storage or data.json found, using defaults.");
   }
 
-  if (!state.users) state.users = ["Default User"];
+  // Migrate "Default User" to "Actual Results" in loaded state
+  if (state.users) {
+    const idx = state.users.indexOf("Default User");
+    if (idx !== -1) {
+      state.users[idx] = "Actual Results";
+    }
+  }
+  if (state.currentUser === "Default User") {
+    state.currentUser = "Actual Results";
+  }
+  if (state.userScores && state.userScores["Default User"]) {
+    state.userScores["Actual Results"] = state.userScores["Default User"];
+    delete state.userScores["Default User"];
+  }
+
+  if (!state.users) state.users = ["Actual Results"];
   if (state.userScores) {
     Object.keys(state.userScores).forEach(u => {
       if (!state.users.includes(u)) {
@@ -286,6 +292,9 @@ async function loadInitialState() {
   if (!state.currentUser) state.currentUser = state.users[0];
   if (!state.userScores) state.userScores = { [state.currentUser]: {} };
   state.scores = state.userScores[state.currentUser];
+
+  // Set body class for actual results view
+  document.body.classList.toggle('user-actual-results', state.currentUser === 'Actual Results');
 }
 
 function disableEditing() {
@@ -340,6 +349,51 @@ function addLocalOnlyUI() {
       state.scores = tempScores;
     };
     navActions.appendChild(downloadBtn);
+
+    const updatePushBtn = document.createElement('button');
+    updatePushBtn.className = "action-btn primary";
+    updatePushBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Update & Push';
+    updatePushBtn.title = "Directly update data.json locally and push to GitHub";
+    updatePushBtn.style.background = "#2ecc71";
+    updatePushBtn.style.color = "white";
+    updatePushBtn.style.marginLeft = "10px";
+    updatePushBtn.onclick = async () => {
+      const originalText = updatePushBtn.innerHTML;
+      updatePushBtn.disabled = true;
+      updatePushBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Pushing...';
+      updatePushBtn.style.opacity = "0.7";
+
+      const tempScores = state.scores;
+      delete state.scores;
+
+      try {
+        const response = await fetch('http://localhost:3000/api/save-and-push', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(state, null, 2)
+        });
+
+        state.scores = tempScores;
+
+        const result = await response.json();
+        if (response.ok && result.success) {
+          alert('Success! ' + result.message);
+        } else {
+          alert('Error: ' + (result.error || 'Failed to save and push.'));
+        }
+      } catch (error) {
+        state.scores = tempScores;
+        console.error('Failed to communicate with helper server:', error);
+        alert('Failed to connect to the local helper server. Please make sure "node server.js" is running in your terminal!');
+      } finally {
+        updatePushBtn.disabled = false;
+        updatePushBtn.innerHTML = originalText;
+        updatePushBtn.style.opacity = "1";
+      }
+    };
+    navActions.appendChild(updatePushBtn);
   }
 }
 
@@ -352,10 +406,10 @@ function loadStateFromLocalStorage() {
       
       // Migration from old single-user state to multi-user state
       if (parsedState.scores && !parsedState.userScores) {
-        state.users = ["Default User"];
-        state.currentUser = "Default User";
+        state.users = ["Actual Results"];
+        state.currentUser = "Actual Results";
         state.userScores = {
-          "Default User": parsedState.scores
+          "Actual Results": parsedState.scores
         };
       } else {
         state = parsedState;
@@ -420,8 +474,8 @@ function initUserDropdown() {
         delete state.userScores[currentName];
         
         if (state.users.length === 0) {
-          state.users.push("Default User");
-          state.userScores["Default User"] = {};
+          state.users.push("Actual Results");
+          state.userScores["Actual Results"] = {};
         }
         
         switchUser(state.users[0]);
@@ -480,6 +534,9 @@ function switchUser(userName) {
   if (config.isLocal) {
     saveStateToLocalStorage();
   }
+
+  // Toggle body class for Actual Results view
+  document.body.classList.toggle('user-actual-results', state.currentUser === 'Actual Results');
   
   // Re-render
   renderGroupStage();
@@ -1381,15 +1438,45 @@ function renderPredictionsMatrix() {
   const bodyElem = document.getElementById("matrix-body");
   if (!headerElem || !bodyElem) return;
 
-  const usersToShow = state.users.filter(u => u !== "Default User");
+  const usersToShow = state.users.filter(u => u !== "Actual Results");
   
-  const plotlyColors = ["#60a5fa", "#f87171", "#34d399", "#fbbf24", "#a78bfa", "#f472b6", "#2dd4bf", "#fb923c"];
+  const distinctColors = [
+    "#60a5fa", // Blue
+    "#f87171", // Red
+    "#34d399", // Emerald
+    "#a78bfa", // Purple
+    "#fb923c", // Orange
+    "#f472b6", // Pink
+    "#2dd4bf", // Teal
+    "#facc15", // Yellow
+    "#bef264", // Lime
+    "#38bdf8", // Light Blue
+    "#fb7185", // Rose
+    "#d946ef"  // Fuchsia
+  ];
+  
   const userColors = {};
   usersToShow.forEach((u, i) => {
-    userColors[u] = plotlyColors[i % plotlyColors.length];
-    // Specific override for better visibility
+    // Specific override for oneiros to have yellow, but handled so it doesn't conflict
     if (u.toLowerCase() === "oneiros") {
       userColors[u] = "#facc15"; // Bright yellow
+    } else {
+      // Find the next available distinct color not already assigned
+      let colorAssigned = false;
+      for (let j = 0; j < distinctColors.length; j++) {
+        const candidateColor = distinctColors[(i + j) % distinctColors.length];
+        if (!Object.values(userColors).includes(candidateColor) && candidateColor !== "#facc15") {
+          userColors[u] = candidateColor;
+          colorAssigned = true;
+          break;
+        }
+      }
+      // Fallback if we run out of unique colors (more than 12 users)
+      if (!colorAssigned) {
+        // Generate a random bright color
+        const hue = (i * 137.508) % 360; 
+        userColors[u] = `hsl(${hue}, 80%, 60%)`;
+      }
     }
   });
 
@@ -2116,8 +2203,8 @@ function initActionHandlers() {
         const imported = JSON.parse(event.target.result);
         if (imported) {
           if (imported.userScores) {
-            state.users = imported.users || ["Default User"];
-            state.currentUser = imported.currentUser || "Default User";
+            state.users = imported.users || ["Actual Results"];
+            state.currentUser = imported.currentUser || "Actual Results";
             state.userScores = imported.userScores;
             state.scores = state.userScores[state.currentUser];
           } else {

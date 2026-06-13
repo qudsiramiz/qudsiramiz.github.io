@@ -1429,3 +1429,11 @@ body {
   top: 15px !important;
   right: 15px !important;
 }
+
+/* Hide predictions and points when viewing Actual Results user */
+body.user-actual-results .score-inputs-container .score-col:first-child,
+body.user-actual-results .ko-score-input.pred,
+body.user-actual-results .points-badge,
+body.user-actual-results .ko-points-badge {
+  display: none !important;
+}
