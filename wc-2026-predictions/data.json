@@ -570,7 +570,9 @@
       "M4_predHome": 4,
       "M5_predHome": 2,
       "M5_predAway": 1,
-      "M4_predAway": 1
+      "M4_predAway": 1,
+      "M6_predHome": 2,
+      "M6_predAway": 1
     }
   },
   "viewMode": "sequence",
