@@ -934,6 +934,64 @@ function addLocalOnlyUI() {
     };
     navActions.appendChild(downloadBtn);
 
+    const fetchScoresBtn = document.createElement('button');
+    fetchScoresBtn.className = "action-btn primary";
+    fetchScoresBtn.innerHTML = '<i class="fa-solid fa-download"></i> Fetch Live Scores';
+    fetchScoresBtn.title = "Fetch live scores from API-Football";
+    fetchScoresBtn.style.background = "#3b82f6";
+    fetchScoresBtn.style.color = "white";
+    fetchScoresBtn.style.marginLeft = "10px";
+    fetchScoresBtn.onclick = async () => {
+      await fetchLiveScores();
+    };
+    navActions.appendChild(fetchScoresBtn);
+
+    const autoFetchLabel = document.createElement('label');
+    autoFetchLabel.style.color = "white";
+    autoFetchLabel.style.marginLeft = "10px";
+    autoFetchLabel.style.fontSize = "0.8rem";
+    autoFetchLabel.style.display = "flex";
+    autoFetchLabel.style.alignItems = "center";
+    autoFetchLabel.style.gap = "5px";
+    autoFetchLabel.style.cursor = "pointer";
+    const autoFetchCheckbox = document.createElement('input');
+    autoFetchCheckbox.type = "checkbox";
+    autoFetchCheckbox.checked = localStorage.getItem('autoFetchEnabled') === 'true';
+    
+    // Auto Fetch Logic
+    let autoFetchInterval = null;
+    const startAutoFetch = () => {
+      if (autoFetchInterval) clearInterval(autoFetchInterval);
+      // Fetch every hour
+      autoFetchInterval = setInterval(async () => {
+        const updated = await fetchLiveScores(true); // true = silent mode
+        if (updated) {
+           updatePushBtn.click(); // auto push after successful fetch
+        }
+      }, 60 * 60 * 1000);
+    };
+    const stopAutoFetch = () => {
+      if (autoFetchInterval) clearInterval(autoFetchInterval);
+    };
+
+    autoFetchCheckbox.onchange = (e) => {
+      localStorage.setItem('autoFetchEnabled', e.target.checked);
+      if (e.target.checked) {
+        startAutoFetch();
+        alert("Auto-Fetch enabled. It will fetch scores and auto-push every hour.");
+      } else {
+        stopAutoFetch();
+        alert("Auto-Fetch disabled.");
+      }
+    };
+    autoFetchLabel.appendChild(autoFetchCheckbox);
+    autoFetchLabel.appendChild(document.createTextNode("Auto (1hr)"));
+    navActions.appendChild(autoFetchLabel);
+
+    if (autoFetchCheckbox.checked) {
+      startAutoFetch();
+    }
+
     const updatePushBtn = document.createElement('button');
     updatePushBtn.className = "action-btn primary";
     updatePushBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Update & Push';
