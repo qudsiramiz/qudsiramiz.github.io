@@ -30,3 +30,9 @@ hs_err_pid*
 
 # Ignore the moving pictures folder
 moving_pictures/
+
+# Ignore local prediction script and input files
+wc-2026-predictions/parse_anuj.py
+wc-2026-predictions/parse_anuj2.py
+wc-2026-predictions/anuj_predictions.csv
+
