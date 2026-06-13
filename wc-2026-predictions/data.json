@@ -7,7 +7,7 @@
     "Anuj",
     "Karthik"
   ],
-  "currentUser": "Karthik",
+  "currentUser": "Nithin",
   "userScores": {
     "Actual Results": {
       "M1_actHome": 2,
@@ -188,7 +188,7 @@
       "M7_predAway": 2,
       "M8_predHome": 1,
       "M8_predAway": 2,
-      "M6_predHome": 2,
+      "M6_predHome": 3,
       "M6_predAway": 1,
       "M5_predHome": 1,
       "M5_predAway": 2,
@@ -561,7 +561,7 @@
       "M5_predHome": 2,
       "M5_predAway": 1,
       "M4_predAway": 1,
-      "M6_predHome": 3,
+      "M6_predHome": 2,
       "M6_predAway": 1,
       "M1_actHome": 2,
       "M1_actAway": 0,
