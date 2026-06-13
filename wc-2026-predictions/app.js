@@ -3063,3 +3063,122 @@ function showCountryDetailsModal(country) {
   const modal = document.getElementById("country-modal");
   if (modal) modal.classList.add("active");
 }
+
+// --- API-Football Integration ---
+function normalizeTeamName(name) {
+  if (!name) return "";
+  const n = name.toLowerCase().trim();
+  const map = {
+    "united states": "usa",
+    "korea republic": "south korea",
+    "south korea": "south korea",
+    "czech republic": "czech rep.",
+    "czech rep": "czech rep.",
+    "iran": "ir iran",
+    "saudi arabia": "saudi arabia"
+  };
+  return map[n] || n;
+}
+
+async function fetchLiveScores(silent = false) {
+  let apiKey = localStorage.getItem('apiFootballKey');
+  if (!apiKey) {
+    if (silent) return false;
+    apiKey = prompt("Please enter your API-Football Key (from dashboard.api-football.com):");
+    if (!apiKey) return false;
+    localStorage.setItem('apiFootballKey', apiKey);
+  }
+
+  if (!silent) {
+    console.log("Fetching live scores from API-Football...");
+  }
+
+  try {
+    const res = await fetch("https://v3.football.api-sports.io/fixtures?league=1&season=2026", {
+      method: "GET",
+      headers: {
+        "x-apisports-key": apiKey
+      }
+    });
+    
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
+         localStorage.removeItem('apiFootballKey');
+         throw new Error("Invalid API Key. Please try again.");
+      }
+      throw new Error(`API returned status ${res.status}`);
+    }
+
+    const data = await res.json();
+    if (data.errors && Object.keys(data.errors).length > 0) {
+      throw new Error(JSON.stringify(data.errors));
+    }
+
+    if (data.response.length === 0) {
+       if (!silent) alert("API-Football returned 0 fixtures. Ensure the League ID and Season are correct.");
+       return false;
+    }
+
+    let updatedCount = 0;
+    
+    // Flatten our initialMatchesData
+    const allMatches = [];
+    Object.keys(initialMatchesData.groups).forEach(g => {
+       initialMatchesData.groups[g].forEach(m => allMatches.push(m));
+    });
+    if (initialMatchesData.r32) initialMatchesData.r32.forEach(m => allMatches.push(m));
+    if (initialMatchesData.knockouts) initialMatchesData.knockouts.forEach(m => allMatches.push(m));
+    
+    data.response.forEach(item => {
+      const fix = item.fixture;
+      if (fix.status.short === 'FT' || fix.status.short === 'AET' || fix.status.short === 'PEN') {
+        const hNameAPI = normalizeTeamName(item.teams.home.name);
+        const aNameAPI = normalizeTeamName(item.teams.away.name);
+        
+        let matchId = null;
+        for (const mData of allMatches) {
+          let dashboardHome = mData.team1;
+          let dashboardAway = mData.team2;
+          
+          if (dashboardHome.match(/^[1-3][A-L]$|^W[0-9]+$/)) {
+             dashboardHome = state.knockoutTeams[dashboardHome] || dashboardHome;
+          }
+          if (dashboardAway.match(/^[1-3][A-L]$|^W[0-9]+$/)) {
+             dashboardAway = state.knockoutTeams[dashboardAway] || dashboardAway;
+          }
+          
+          if (normalizeTeamName(dashboardHome) === hNameAPI && normalizeTeamName(dashboardAway) === aNameAPI) {
+            matchId = mData.id;
+            break;
+          }
+        }
+        
+        if (matchId) {
+           const goalsHome = item.goals.home;
+           const goalsAway = item.goals.away;
+           
+           if (state.userScores["Default User"][matchId + "_actHome"] !== goalsHome ||
+               state.userScores["Default User"][matchId + "_actAway"] !== goalsAway) {
+               
+               state.userScores["Default User"][matchId + "_actHome"] = goalsHome;
+               state.userScores["Default User"][matchId + "_actAway"] = goalsAway;
+               updatedCount++;
+           }
+        }
+      }
+    });
+    
+    if (updatedCount > 0) {
+       updateScoresAndStandings();
+       if (!silent) alert(`Successfully fetched and updated ${updatedCount} matches!`);
+       return true;
+    } else {
+       if (!silent) alert("No new finished matches found.");
+       return false;
+    }
+    
+  } catch (err) {
+    if (!silent) alert("Error fetching scores: " + err.message);
+    return false;
+  }
+}
