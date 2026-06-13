@@ -52,7 +52,7 @@ const server = http.createServer((req, res) => {
           console.log('Successfully wrote data.json locally. Starting Git push...');
 
           // Execute robust git check, commit, and push
-          const gitCmd = 'git add data.json && (git diff --quiet --cached data.json || (git commit -m "Update match results via local dashboard" && git push))';
+          const gitCmd = 'git add data.json && (git diff --quiet --cached data.json || git commit -m "Update match results via local dashboard") && git push origin main';
           
           exec(gitCmd, (gitErr, stdout, stderr) => {
             if (gitErr) {
