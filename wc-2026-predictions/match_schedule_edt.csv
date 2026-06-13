@@ -1,0 +1,105 @@
+Date,Time (EDT),Match Number,Team 1,Team 2
+2026-06-11,15:00,1,Mexico,South Africa
+2026-06-11,15:00,2,South Korea,Czechia
+2026-06-12,15:00,3,Canada,Bosnia & Herzegovina
+2026-06-12,21:00,4,USA,Paraguay
+2026-06-13,15:00,5,Qatar,Switzerland
+2026-06-13,18:00,6,Brazil,Morocco
+2026-06-13,21:00,7,Haiti,Scotland
+2026-06-14,00:00,8,Australia,Türkiye
+2026-06-14,13:00,9,Germany,Curaçao
+2026-06-14,16:00,10,Netherlands,Japan
+2026-06-14,19:00,11,Ivory Coast,Ecuador
+2026-06-14,22:00,12,Sweden,Tunisia
+2026-06-15,12:00,13,Spain,Cape Verde
+2026-06-15,15:00,14,Belgium,Egypt
+2026-06-15,18:00,15,Saudi Arabia,Uruguay
+2026-06-15,21:00,16,Iran,New Zealand
+2026-06-16,15:00,17,France,Senegal
+2026-06-16,18:00,18,Iraq,Norway
+2026-06-16,21:00,19,Argentina,Algeria
+2026-06-17,00:00,20,Austria,Jordan
+2026-06-17,13:00,21,Portugal,DR Congo
+2026-06-17,16:00,22,England,Croatia
+2026-06-17,19:00,23,Ghana,Panama
+2026-06-17,22:00,24,Uzbekistan,Colombia
+2026-06-18,12:00,25,Czechia,South Africa
+2026-06-18,15:00,26,Switzerland,Bosnia & Herzegovina
+2026-06-18,18:00,27,Canada,Qatar
+2026-06-18,21:00,28,Mexico,South Korea
+2026-06-19,15:00,29,USA,Australia
+2026-06-19,18:00,30,Scotland,Morocco
+2026-06-19,20:30,31,Brazil,Haiti
+2026-06-19,23:00,32,Türkiye,Paraguay
+2026-06-20,13:00,33,Netherlands,Sweden
+2026-06-20,16:00,34,Germany,Ivory Coast
+2026-06-20,20:00,35,Ecuador,Curaçao
+2026-06-21,00:00,36,Tunisia,Japan
+2026-06-21,12:00,37,Spain,Saudi Arabia
+2026-06-21,15:00,38,Belgium,Iran
+2026-06-21,18:00,39,Uruguay,Cape Verde
+2026-06-21,21:00,40,New Zealand,Egypt
+2026-06-22,13:00,41,Argentina,Austria
+2026-06-22,17:00,42,France,Iraq
+2026-06-22,20:00,43,Norway,Senegal
+2026-06-22,23:00,44,Jordan,Algeria
+2026-06-23,13:00,45,Portugal,Uzbekistan
+2026-06-23,16:00,46,England,Ghana
+2026-06-23,19:00,47,Panama,Croatia
+2026-06-23,22:00,48,Colombia,DR Congo
+2026-06-24,15:00,49,Switzerland,Canada
+2026-06-24,15:00,50,Bosnia & Herzegovina,Qatar
+2026-06-24,18:00,51,Scotland,Brazil
+2026-06-24,18:00,52,Morocco,Haiti
+2026-06-24,21:00,53,Czechia,Mexico
+2026-06-24,21:00,54,South Africa,South Korea
+2026-06-25,16:00,55,Curaçao,Ivory Coast
+2026-06-25,16:00,56,Ecuador,Germany
+2026-06-25,19:00,57,Japan,Sweden
+2026-06-25,19:00,58,Tunisia,Netherlands
+2026-06-25,22:00,59,Türkiye,USA
+2026-06-25,22:00,60,Paraguay,Australia
+2026-06-26,15:00,61,Norway,France
+2026-06-26,15:00,62,Senegal,Iraq
+2026-06-26,20:00,63,Cape Verde,Saudi Arabia
+2026-06-26,20:00,64,Uruguay,Spain
+2026-06-26,23:00,65,Egypt,Iran
+2026-06-26,23:00,66,New Zealand,Belgium
+2026-06-27,17:00,67,Panama,England
+2026-06-27,17:00,68,Croatia,Ghana
+2026-06-27,19:30,69,Colombia,Portugal
+2026-06-27,19:30,70,DR Congo,Uzbekistan
+2026-06-27,22:00,71,Algeria,Austria
+2026-06-27,22:00,72,Jordan,Argentina
+2026-06-28,15:00,73,TBD,TBD
+2026-06-29,13:00,74,TBD,TBD
+2026-06-29,16:00,75,TBD,TBD
+2026-06-29,21:00,76,TBD,TBD
+2026-06-30,13:00,77,TBD,TBD
+2026-06-30,17:00,78,TBD,TBD
+2026-06-30,21:00,79,TBD,TBD
+2026-07-01,12:00,80,TBD,TBD
+2026-07-01,16:00,81,TBD,TBD
+2026-07-01,20:00,82,TBD,TBD
+2026-07-02,15:00,83,TBD,TBD
+2026-07-02,19:00,84,TBD,TBD
+2026-07-02,21:00,85,TBD,TBD
+2026-07-03,14:00,86,TBD,TBD
+2026-07-03,18:00,87,TBD,TBD
+2026-07-03,21:30,88,TBD,TBD
+2026-07-04,13:00,89,TBD,TBD
+2026-07-04,17:00,90,TBD,TBD
+2026-07-05,16:00,91,TBD,TBD
+2026-07-05,20:00,92,TBD,TBD
+2026-07-06,15:00,93,TBD,TBD
+2026-07-06,20:00,94,TBD,TBD
+2026-07-06,12:00,95,TBD,TBD
+2026-07-07,16:00,96,TBD,TBD
+2026-07-09,16:00,97,TBD,TBD
+2026-07-10,15:00,98,TBD,TBD
+2026-07-11,17:00,99,TBD,TBD
+2026-07-11,21:00,100,TBD,TBD
+2026-07-14,15:00,101,TBD,TBD
+2026-07-15,15:00,102,TBD,TBD
+2026-07-18,15:00,103,TBD,TBD
+2026-07-19,15:00,104,TBD,TBD
