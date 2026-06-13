@@ -16,7 +16,7 @@
       "M3_actAway": 1,
       "M1_predHome": 2,
       "M4_actAway": 0,
-      "M4_actHome": 3
+      "M4_actHome": 4
     },
     "oneiros": {
       "M1_predHome": 2,
@@ -170,7 +170,7 @@
       "M3_actHome": 1,
       "M3_actAway": 1,
       "M4_actAway": 0,
-      "M4_actHome": 3
+      "M4_actHome": 4
     },
     "Nithin": {
       "M1_predHome": 2,
@@ -228,7 +228,7 @@
       "M3_actHome": 1,
       "M3_actAway": 1,
       "M4_actAway": 0,
-      "M4_actHome": 3
+      "M4_actHome": 4
     },
     "Abhi": {
       "M1_predHome": 2,
@@ -382,7 +382,7 @@
       "M3_actHome": 1,
       "M3_actAway": 1,
       "M4_actAway": 0,
-      "M4_actHome": 3
+      "M4_actHome": 4
     }
   },
   "viewMode": "sequence",
