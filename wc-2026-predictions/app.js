@@ -3081,41 +3081,22 @@ function normalizeTeamName(name) {
 }
 
 async function fetchLiveScores(silent = false) {
-  let apiKey = localStorage.getItem('apiFootballKey');
-  if (!apiKey) {
-    if (silent) return false;
-    apiKey = prompt("Please enter your API-Football Key (from dashboard.api-football.com):");
-    if (!apiKey) return false;
-    localStorage.setItem('apiFootballKey', apiKey);
-  }
-
   if (!silent) {
-    console.log("Fetching live scores from API-Football...");
+    console.log("Fetching live scores from ESPN API...");
   }
 
   try {
-    const res = await fetch("https://v3.football.api-sports.io/fixtures?league=1&season=2026", {
-      method: "GET",
-      headers: {
-        "x-apisports-key": apiKey
-      }
-    });
+    // Switch to ESPN API (100% Free, No Key Required)
+    const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard");
     
     if (!res.ok) {
-      if (res.status === 401 || res.status === 403) {
-         localStorage.removeItem('apiFootballKey');
-         throw new Error("Invalid API Key. Please try again.");
-      }
-      throw new Error(`API returned status ${res.status}`);
+      throw new Error(`ESPN API returned status ${res.status}`);
     }
 
     const data = await res.json();
-    if (data.errors && Object.keys(data.errors).length > 0) {
-      throw new Error(JSON.stringify(data.errors));
-    }
-
-    if (data.response.length === 0) {
-       if (!silent) alert("API-Football returned 0 fixtures. Ensure the League ID and Season are correct.");
+    
+    if (!data.events || data.events.length === 0) {
+       if (!silent) alert("ESPN API returned 0 fixtures for the current window.");
        return false;
     }
 
@@ -3129,11 +3110,29 @@ async function fetchLiveScores(silent = false) {
     if (initialMatchesData.r32) initialMatchesData.r32.forEach(m => allMatches.push(m));
     if (initialMatchesData.knockouts) initialMatchesData.knockouts.forEach(m => allMatches.push(m));
     
-    data.response.forEach(item => {
-      const fix = item.fixture;
-      if (fix.status.short === 'FT' || fix.status.short === 'AET' || fix.status.short === 'PEN') {
-        const hNameAPI = normalizeTeamName(item.teams.home.name);
-        const aNameAPI = normalizeTeamName(item.teams.away.name);
+    data.events.forEach(event => {
+      const comp = event.competitions[0];
+      const statusName = comp.status.type.name; // e.g., "STATUS_FINAL"
+      
+      // Look for matches that have started (live or finished)
+      if (statusName !== 'STATUS_SCHEDULED' && statusName !== 'STATUS_POSTPONED' && statusName !== 'STATUS_CANCELED') {
+        let homeTeam = null;
+        let awayTeam = null;
+        let homeScore = 0;
+        let awayScore = 0;
+
+        comp.competitors.forEach(team => {
+          if (team.homeAway === 'home') {
+            homeTeam = team.team.displayName;
+            homeScore = parseInt(team.score, 10) || 0;
+          } else {
+            awayTeam = team.team.displayName;
+            awayScore = parseInt(team.score, 10) || 0;
+          }
+        });
+
+        const hNameAPI = normalizeTeamName(homeTeam);
+        const aNameAPI = normalizeTeamName(awayTeam);
         
         let matchId = null;
         for (const mData of allMatches) {
@@ -3154,26 +3153,27 @@ async function fetchLiveScores(silent = false) {
         }
         
         if (matchId) {
-           const goalsHome = item.goals.home;
-           const goalsAway = item.goals.away;
-           
-           if (state.userScores["Default User"][matchId + "_actHome"] !== goalsHome ||
-               state.userScores["Default User"][matchId + "_actAway"] !== goalsAway) {
-               
-               state.userScores["Default User"][matchId + "_actHome"] = goalsHome;
-               state.userScores["Default User"][matchId + "_actAway"] = goalsAway;
-               updatedCount++;
-           }
+           let wasUpdated = false;
+           Object.keys(state.userScores).forEach(u => {
+             if (state.userScores[u][matchId + "_actHome"] !== homeScore ||
+                 state.userScores[u][matchId + "_actAway"] !== awayScore) {
+                 
+                 state.userScores[u][matchId + "_actHome"] = homeScore;
+                 state.userScores[u][matchId + "_actAway"] = awayScore;
+                 wasUpdated = true;
+             }
+           });
+           if (wasUpdated) updatedCount++;
         }
       }
     });
     
     if (updatedCount > 0) {
        updateScoresAndStandings();
-       if (!silent) alert(`Successfully fetched and updated ${updatedCount} matches!`);
+       if (!silent) alert(`Successfully fetched and updated ${updatedCount} matches from ESPN!`);
        return true;
     } else {
-       if (!silent) alert("No new finished matches found.");
+       if (!silent) alert("No new finished matches found on ESPN.");
        return false;
     }
     
