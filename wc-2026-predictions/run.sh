@@ -1,5 +1,17 @@
 #!/bin/bash
 
+# Auto-push all changes before starting
+echo "Pushing any recent changes to GitHub..."
+git add .
+if git diff --quiet --cached; then
+    echo "No new changes to push."
+else
+    git commit -m "Auto-commit before starting dashboard"
+    git push origin main
+    echo "Pushed changes successfully!"
+fi
+echo ""
+
 # Port of our local helper server
 PORT=3000
 
@@ -13,6 +25,16 @@ cleanup() {
     echo ""
     echo "Stopping helper server..."
     kill $SERVER_PID 2>/dev/null
+    
+    echo "Pushing any final changes to GitHub..."
+    git add .
+    if git diff --quiet --cached; then
+        echo "No final changes to push."
+    else
+        git commit -m "Auto-commit on dashboard shutdown"
+        git push origin main
+        echo "Final changes pushed successfully!"
+    fi
     exit
 }
 trap cleanup EXIT INT TERM
