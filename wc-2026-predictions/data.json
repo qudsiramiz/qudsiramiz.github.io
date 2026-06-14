@@ -7,7 +7,7 @@
     "Anuj",
     "Karthik"
   ],
-  "currentUser": "Actual Results",
+  "currentUser": "Karthik",
   "userScores": {
     "Actual Results": {
       "M1_actHome": 2,
@@ -596,7 +596,9 @@
       "M6_actAway": 1,
       "M6_actHome": 1,
       "M7_actHome": 0,
-      "M7_actAway": 1
+      "M7_actAway": 1,
+      "M8_predHome": 1,
+      "M8_predAway": 2
     }
   },
   "viewMode": "sequence",
