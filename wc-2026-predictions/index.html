@@ -59,7 +59,7 @@
 
     <!-- Navigation Tab Bar -->
     <nav class="tab-nav">
-      <button class="nav-btn active" data-tab="groups-tab"><i class="fa-solid fa-list-check"></i>
+      <button class="nav-btn" data-tab="groups-tab"><i class="fa-solid fa-list-check"></i>
         Group Stage</button>
       <button class="nav-btn" data-tab="bracket-tab"><i class="fa-solid fa-diagram-project"></i>
         Knockout Bracket</button>
@@ -67,7 +67,7 @@
         Stats & Rules</button>
       <button class="nav-btn" data-tab="leaderboard-tab"><i class="fa-solid fa-medal"></i>
         Leaderboard</button>
-      <button class="nav-btn" data-tab="matrix-tab"><i class="fa-solid fa-table-cells"></i>
+      <button class="nav-btn active" data-tab="matrix-tab"><i class="fa-solid fa-table-cells"></i>
         Prediction Comparison</button>
 
       <div class="user-selector"
@@ -103,7 +103,7 @@
     <main class="main-content">
 
       <!-- TAB 1: GROUP STAGE -->
-      <section class="tab-pane active" id="groups-tab">
+      <section class="tab-pane" id="groups-tab">
         <div class="groups-layout-header">
           <div class="header-text-side">
             <h3>Group Stage Matches</h3>
@@ -330,12 +330,17 @@
       </section>
 
       <!-- TAB 5: PREDICTIONS MATRIX -->
-      <section class="tab-pane" id="matrix-tab">
+      <section class="tab-pane active" id="matrix-tab">
         <div style="display: flex; flex-wrap: wrap; gap: 20px;">
-          <div class="card analysis-card" style="flex: 1; min-width: 500px; margin: 0;">
-            <h3>Prediction Comparison</h3>
-            <p class="section-help" style="margin-bottom: 20px;">A comprehensive view of all matches
-              and predictions made by everyone.</p>
+          <div class="card analysis-card" id="table-card" style="flex: 1; min-width: 500px; margin: 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+              <h3 style="margin: 0;">Prediction Comparison</h3>
+              <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer; color: #9ca3af; font-weight: normal; user-select: none;">
+                <input type="checkbox" id="simplified-view-chk" style="cursor: pointer; width: 15px; height: 15px;">
+                Simplified view (hide graphs)
+              </label>
+            </div>
+            <p class="section-help" style="margin-bottom: 20px;">A comprehensive view of all matches and predictions made by everyone.</p>
             <table class="standings-table" style="width: 100%;">
               <thead id="matrix-header">
                 <!-- Populated by app.js -->
@@ -345,10 +350,35 @@
               </tbody>
             </table>
           </div>
-          <div class="card analysis-card"
-            style="flex: 1; min-width: 500px; margin: 0; position: sticky; top: 20px; align-self: flex-start;">
-            <h3>Cumulative Points Progression</h3>
-            <div id="plotly-graph" style="width: 100%; height: 600px;"></div>
+          <div class="card analysis-card" id="graphs-card"
+            style="flex: 1; min-width: 500px; margin: 0; position: sticky; top: 20px; align-self: flex-start; max-height: calc(100vh - 100px); overflow-y: auto; padding-right: 12px; scrollbar-width: thin;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; flex-wrap: wrap; gap: 10px;">
+              <h3 style="margin: 0; color: #fff;"><i class="fa-solid fa-chart-simple" style="margin-right: 8px;"></i>Prediction Analytics</h3>
+              <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer; color: #9ca3af; font-weight: normal; user-select: none;">
+                <input type="checkbox" id="graph-only-chk" style="cursor: pointer; width: 15px; height: 15px;">
+                Graph only view (hide table)
+              </label>
+            </div>
+            
+            <div class="graph-container-item" style="margin-bottom: 40px;">
+              <h4 style="margin-top: 0; margin-bottom: 10px; color: #e5e7eb; font-size: 1rem; border-left: 3px solid #3b82f6; padding-left: 10px;">Cumulative Points Progression</h4>
+              <div id="plotly-graph" style="width: 100%; height: 600px;"></div>
+            </div>
+            
+            <div class="graph-container-item" style="margin-bottom: 40px;">
+              <h4 style="margin-top: 0; margin-bottom: 10px; color: #e5e7eb; font-size: 1rem; border-left: 3px solid #10b981; padding-left: 10px;">Prediction Style (Rule Breakdown)</h4>
+              <div id="plotly-graph-style" style="width: 100%; height: 300px;"></div>
+            </div>
+            
+            <div class="graph-container-item" style="margin-bottom: 40px;">
+              <h4 style="margin-top: 0; margin-bottom: 10px; color: #e5e7eb; font-size: 1rem; border-left: 3px solid #8b5cf6; padding-left: 10px;">Group-by-Group Performance</h4>
+              <div id="plotly-graph-groups" style="width: 100%; height: 300px;"></div>
+            </div>
+            
+            <div class="graph-container-item" style="margin-bottom: 10px;">
+              <h4 style="margin-top: 0; margin-bottom: 10px; color: #e5e7eb; font-size: 1rem; border-left: 3px solid #f59e0b; padding-left: 10px;">Accuracy vs. Avg Goal Error</h4>
+              <div id="plotly-graph-error" style="width: 100%; height: 300px;"></div>
+            </div>
           </div>
         </div>
       </section>

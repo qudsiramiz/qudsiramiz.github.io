@@ -2122,14 +2122,51 @@ function renderPredictionsMatrix() {
     }
   });
 
+  // Pre-calculate final totals and played matches count
+  const finalTotals = {};
+  usersToShow.forEach(u => finalTotals[u] = 0);
+  let playedCount = 0;
+
+  // Collect group and knockout matches to calculate totals
+  let allMatchesForTotals = [];
+  Object.keys(initialMatchesData.groups).forEach(groupId => {
+    initialMatchesData.groups[groupId].forEach(m => {
+      allMatchesForTotals.push({ ...m, isKo: false });
+    });
+  });
+  const koMatchesForTotals = [...(initialMatchesData.r32 || []), ...(initialMatchesData.knockouts || [])];
+  koMatchesForTotals.forEach(m => {
+    allMatchesForTotals.push({ ...m, isKo: true });
+  });
+
+  allMatchesForTotals.forEach(m => {
+    const mId = m.isKo ? m.node_id : m.id;
+    const actHome = state.userScores[state.users[0]][mId + "_actHome"];
+    const actAway = state.userScores[state.users[0]][mId + "_actAway"];
+    const isPlayed = (actHome !== undefined && actAway !== undefined);
+    if (isPlayed) {
+      playedCount++;
+      usersToShow.forEach(u => {
+        const pHome = state.userScores[u][mId + "_predHome"];
+        const pAway = state.userScores[u][mId + "_predAway"];
+        if (pHome !== undefined && pAway !== undefined) {
+          finalTotals[u] += calculatePoints(pHome, pAway, actHome, actAway);
+        }
+      });
+    }
+  });
+
+  const maxPossibleScore = playedCount * 5;
+
   let headerHTML = `
     <tr style="position: sticky; top: 0; background-color: var(--bg-card); z-index: 10; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5);">
       <th style="min-width: 80px; text-align: left; white-space: nowrap;">Match</th>
       <th style="width: 30%; text-align: left;">Teams</th>
-      <th style="text-align: center; width: 10%;">Actual</th>
+      <th style="text-align: center; width: 10%;">Actual<br><span style="font-size: 0.7rem; font-weight: normal; color: #9ca3af;">Max: ${maxPossibleScore}</span></th>
   `;
   usersToShow.forEach(u => {
-    headerHTML += `<th style="text-align: center; color: ${userColors[u]};">${u}</th>`;
+    const pts = finalTotals[u];
+    headerHTML += `<th style="text-align: center; color: ${userColors[u]};">${u}<br><span style="font-size: 0.7rem; font-weight: normal; color: #9ca3af;">${pts.toFixed(pts % 1 === 0 ? 0 : 2)} pts</span></th>`;
   });
   headerHTML += `</tr>`;
   headerElem.innerHTML = headerHTML;
@@ -2298,6 +2335,256 @@ function renderPredictionsMatrix() {
   
   if (typeof Plotly !== 'undefined') {
     Plotly.newPlot('plotly-graph', plotlyData, layout, {responsive: true, displayModeBar: true, displaylogo: false});
+  }
+
+  // Helper to convert hex colors to RGBA
+  const hexToRgbA = (hex, alpha) => {
+    let c;
+    if(/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)){
+      c= hex.substring(1).split('');
+      if(c.length== 3){
+        c= [c[0], c[0], c[1], c[1], c[2], c[2]];
+      }
+      c= '0x' + c.join('');
+      return 'rgba('+[(c>>16)&255, (c>>8)&255, c&255].join(',')+','+alpha+')';
+    }
+    return hex;
+  };
+
+  // 1. Prediction Style Breakdown (Grouped Bar Chart)
+  const styleData = usersToShow.map(u => {
+    const stats = calculateUserStats(state.userScores[u] || {});
+    const rc = stats.ruleCounts;
+    return {
+      x: ["Exact Score", "Correct Draw", "Winner + 1", "Winner Only", "Loser + 1", "Incorrect"],
+      y: [rc.rule1, rc.rule6, rc.rule3, rc.rule2, rc.rule4, rc.rule5],
+      name: u,
+      type: 'bar',
+      marker: { color: userColors[u] }
+    };
+  });
+
+  const styleLayout = {
+    barmode: 'group',
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { color: '#e5e7eb', family: 'Inter, sans-serif' },
+    margin: { t: 20, r: 20, b: 40, l: 40 },
+    xaxis: { 
+      gridcolor: 'rgba(255,255,255,0.1)',
+      zerolinecolor: 'rgba(255,255,255,0.2)'
+    },
+    yaxis: { 
+      title: 'Match Count',
+      gridcolor: 'rgba(255,255,255,0.1)',
+      zerolinecolor: 'rgba(255,255,255,0.2)'
+    },
+    legend: { orientation: 'h', y: -0.2 }
+  };
+
+  // 2. Group-by-Group Performance (Radar Chart)
+  const groupIds = ["GroupA", "GroupB", "GroupC", "GroupD", "GroupE", "GroupF", "GroupG", "GroupH", "GroupI", "GroupJ", "GroupK", "GroupL"];
+  const radarData = usersToShow.map(u => {
+    const rValues = groupIds.map(groupId => {
+      let ptsInGroup = 0;
+      initialMatchesData.groups[groupId].forEach(m => {
+        const actHome = state.userScores[state.users[0]][m.id + "_actHome"];
+        const actAway = state.userScores[state.users[0]][m.id + "_actAway"];
+        const pHome = state.userScores[u][m.id + "_predHome"];
+        const pAway = state.userScores[u][m.id + "_predAway"];
+        
+        if (actHome !== undefined && actAway !== undefined && pHome !== undefined && pAway !== undefined) {
+          ptsInGroup += calculatePoints(pHome, pAway, actHome, actAway);
+        }
+      });
+      return ptsInGroup;
+    });
+
+    const rClosed = [...rValues, rValues[0]];
+    const thetaClosed = [...groupIds.map(g => g.replace("Group", "Group ")), groupIds[0].replace("Group", "Group ")];
+
+    return {
+      type: 'scatterpolar',
+      r: rClosed,
+      theta: thetaClosed,
+      fill: 'toself',
+      fillcolor: hexToRgbA(userColors[u], 0.04),
+      name: u,
+      line: { color: userColors[u], width: 2 },
+      marker: { size: 4 }
+    };
+  });
+
+  const radarLayout = {
+    polar: {
+      radialaxis: {
+        visible: true,
+        gridcolor: 'rgba(255,255,255,0.1)',
+        linecolor: 'rgba(255,255,255,0.2)',
+        tickfont: { size: 9, color: '#9ca3af' },
+        bgcolor: 'rgba(0,0,0,0)'
+      },
+      angularaxis: {
+        gridcolor: 'rgba(255,255,255,0.1)',
+        linecolor: 'rgba(255,255,255,0.2)',
+        tickfont: { size: 10, color: '#e5e7eb' }
+      },
+      bgcolor: 'rgba(0,0,0,0)'
+    },
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { color: '#e5e7eb', family: 'Inter, sans-serif' },
+    margin: { t: 30, r: 30, b: 30, l: 30 },
+    showlegend: true,
+    legend: { orientation: 'h', y: -0.2 }
+  };
+
+  // 3. Scatter Plot for Accuracy vs Goal Error
+  const errors = usersToShow.map(u => parseFloat(calculateUserStats(state.userScores[u] || {}).avgGoalError));
+  const accuracies = usersToShow.map(u => calculateUserStats(state.userScores[u] || {}).acc);
+  const meanError = errors.reduce((a, b) => a + b, 0) / (errors.length || 1);
+  const meanAccuracy = accuracies.reduce((a, b) => a + b, 0) / (accuracies.length || 1);
+
+  const scatterData = usersToShow.map(u => {
+    const stats = calculateUserStats(state.userScores[u] || {});
+    return {
+      x: [parseFloat(stats.avgGoalError)],
+      y: [stats.acc],
+      mode: 'markers+text',
+      name: u,
+      text: [u],
+      textposition: 'top center',
+      marker: { 
+        color: userColors[u], 
+        size: 12,
+        line: { color: '#1e1e1e', width: 1.5 }
+      },
+      textfont: {
+        family: 'Inter, sans-serif',
+        color: '#e5e7eb',
+        size: 9
+      },
+      hovertemplate: `<b>${u}</b><br>Accuracy: ${stats.acc}%<br>Avg Goal Error: ${stats.avgGoalError}<extra></extra>`
+    };
+  });
+
+  const minErr = errors.length > 0 ? Math.min(...errors) - 0.2 : 0;
+  const maxErr = errors.length > 0 ? Math.max(...errors) + 0.2 : 4;
+  const minAcc = accuracies.length > 0 ? Math.min(...accuracies) - 5 : 0;
+  const maxAcc = accuracies.length > 0 ? Math.max(...accuracies) + 5 : 100;
+
+  const scatterLayout = {
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { color: '#e5e7eb', family: 'Inter, sans-serif' },
+    margin: { t: 20, r: 20, b: 45, l: 45 },
+    xaxis: { 
+      title: 'Average Goal Error (lower is better)', 
+      gridcolor: 'rgba(255,255,255,0.1)',
+      zerolinecolor: 'rgba(255,255,255,0.2)',
+      range: [minErr, maxErr]
+    },
+    yaxis: { 
+      title: 'Accuracy % (higher is better)', 
+      gridcolor: 'rgba(255,255,255,0.1)',
+      zerolinecolor: 'rgba(255,255,255,0.2)',
+      range: [minAcc, maxAcc]
+    },
+    shapes: [
+      {
+        type: 'line',
+        x0: meanError,
+        y0: minAcc,
+        x1: meanError,
+        y1: maxAcc,
+        line: {
+          color: 'rgba(255,255,255,0.25)',
+          width: 1.5,
+          dash: 'dashdot'
+        }
+      },
+      {
+        type: 'line',
+        x0: minErr,
+        y0: meanAccuracy,
+        x1: maxErr,
+        y1: meanAccuracy,
+        line: {
+          color: 'rgba(255,255,255,0.25)',
+          width: 1.5,
+          dash: 'dashdot'
+        }
+      }
+    ],
+    showlegend: false
+  };
+
+  if (typeof Plotly !== 'undefined') {
+    Plotly.newPlot('plotly-graph-style', styleData, styleLayout, {responsive: true, displayModeBar: true, displaylogo: false});
+    Plotly.newPlot('plotly-graph-groups', radarData, radarLayout, {responsive: true, displayModeBar: true, displaylogo: false});
+    Plotly.newPlot('plotly-graph-error', scatterData, scatterLayout, {responsive: true, displayModeBar: true, displaylogo: false});
+  }
+
+  // View Checkboxes Toggle
+  const chkSimple = document.getElementById("simplified-view-chk");
+  const chkGraphOnly = document.getElementById("graph-only-chk");
+  const graphsCard = document.getElementById("graphs-card");
+  const tableCard = document.getElementById("table-card");
+
+  if (chkSimple && chkGraphOnly && graphsCard && tableCard) {
+    const savedSimple = localStorage.getItem("matrix_simplified_view") === "true";
+    const savedGraphOnly = localStorage.getItem("matrix_graph_only_view") === "true";
+
+    chkSimple.checked = savedSimple;
+    chkGraphOnly.checked = savedGraphOnly;
+    
+    if (chkSimple.checked && chkGraphOnly.checked) {
+      chkGraphOnly.checked = false;
+    }
+
+    const updateVisibility = () => {
+      if (chkSimple.checked) {
+        graphsCard.style.display = "none";
+        tableCard.style.display = "block";
+        tableCard.style.flex = "1 1 100%";
+      } else if (chkGraphOnly.checked) {
+        tableCard.style.display = "none";
+        graphsCard.style.display = "block";
+        graphsCard.style.flex = "1 1 100%";
+        setTimeout(resizeGraphs, 50);
+      } else {
+        tableCard.style.display = "block";
+        graphsCard.style.display = "block";
+        tableCard.style.flex = "1";
+        graphsCard.style.flex = "1";
+        setTimeout(resizeGraphs, 50);
+      }
+    };
+
+    const resizeGraphs = () => {
+      ["plotly-graph", "plotly-graph-style", "plotly-graph-groups", "plotly-graph-error"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && typeof Plotly !== 'undefined') {
+          Plotly.Plots.resize(el);
+        }
+      });
+    };
+
+    chkSimple.onchange = () => {
+      if (chkSimple.checked) chkGraphOnly.checked = false;
+      localStorage.setItem("matrix_simplified_view", chkSimple.checked);
+      localStorage.setItem("matrix_graph_only_view", chkGraphOnly.checked);
+      updateVisibility();
+    };
+
+    chkGraphOnly.onchange = () => {
+      if (chkGraphOnly.checked) chkSimple.checked = false;
+      localStorage.setItem("matrix_simplified_view", chkSimple.checked);
+      localStorage.setItem("matrix_graph_only_view", chkGraphOnly.checked);
+      updateVisibility();
+    };
+
+    updateVisibility();
   }
 }
 
