@@ -62,7 +62,7 @@ body {
 
 /* Main Container */
 .app-container {
-  max-width: 1400px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 1.5rem;
   display: flex;
@@ -344,7 +344,7 @@ body {
 /* For sequence view mode we might force 1-column list of matches */
 .groups-grid.sequence-view {
   grid-template-columns: 1fr;
-  max-width: 1400px;
+  max-width: 100%;
   margin: 0 auto;
 }
 
