@@ -7,7 +7,7 @@
     "Anuj",
     "Karthik"
   ],
-  "currentUser": "Karthik",
+  "currentUser": "Actual Results",
   "userScores": {
     "Actual Results": {
       "M1_actHome": 2,
@@ -24,7 +24,9 @@
       "M6_actAway": 1,
       "M6_actHome": 1,
       "M7_actHome": 0,
-      "M7_actAway": 1
+      "M7_actAway": 1,
+      "M8_actHome": 1,
+      "M8_actAway": 0
     },
     "oneiros": {
       "M1_predHome": 2,
@@ -184,7 +186,9 @@
       "M6_actAway": 1,
       "M6_actHome": 1,
       "M7_actHome": 0,
-      "M7_actAway": 1
+      "M7_actAway": 1,
+      "M8_actHome": 1,
+      "M8_actAway": 0
     },
     "Nithin": {
       "M1_predHome": 2,
@@ -248,7 +252,9 @@
       "M6_actAway": 1,
       "M6_actHome": 1,
       "M7_actHome": 0,
-      "M7_actAway": 1
+      "M7_actAway": 1,
+      "M8_actHome": 1,
+      "M8_actAway": 0
     },
     "Abhi": {
       "M1_predHome": 2,
@@ -408,7 +414,9 @@
       "M6_actAway": 1,
       "M6_actHome": 1,
       "M7_actHome": 0,
-      "M7_actAway": 1
+      "M7_actAway": 1,
+      "M8_actHome": 1,
+      "M8_actAway": 0
     },
     "Anuj": {
       "M1_predHome": 2,
@@ -568,7 +576,9 @@
       "M6_actAway": 1,
       "M6_actHome": 1,
       "M7_actHome": 0,
-      "M7_actAway": 1
+      "M7_actAway": 1,
+      "M8_actHome": 1,
+      "M8_actAway": 0
     },
     "Karthik": {
       "M1_predHome": 2,
@@ -598,7 +608,9 @@
       "M7_actHome": 0,
       "M7_actAway": 1,
       "M8_predHome": 1,
-      "M8_predAway": 2
+      "M8_predAway": 2,
+      "M8_actHome": 1,
+      "M8_actAway": 0
     }
   },
   "viewMode": "sequence",
