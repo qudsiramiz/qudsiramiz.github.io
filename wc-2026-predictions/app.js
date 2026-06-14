@@ -2099,23 +2099,31 @@ function renderPredictionsMatrix() {
   
   const userColors = {};
   usersToShow.forEach((u, i) => {
-    // Specific override for oneiros to have yellow, but handled so it doesn't conflict
-    if (u.toLowerCase() === "oneiros") {
-      userColors[u] = "#facc15"; // Bright yellow
+    const lowerName = u.toLowerCase();
+    const presetColors = {
+      "oneiros": "#facc15", // Bright yellow
+      "nithin": "#f87171",  // Red
+      "abhi": "#34d399",    // Emerald
+      "anuj": "#a78bfa",    // Purple
+      "karthik": "#fb923c", // Orange
+      "tej": "#f472b6",     // Pink
+      "divyank": "#38bdf8"  // Light Blue
+    };
+
+    if (presetColors[lowerName]) {
+      userColors[u] = presetColors[lowerName];
     } else {
       // Find the next available distinct color not already assigned
       let colorAssigned = false;
       for (let j = 0; j < distinctColors.length; j++) {
         const candidateColor = distinctColors[(i + j) % distinctColors.length];
-        if (!Object.values(userColors).includes(candidateColor) && candidateColor !== "#facc15") {
+        if (!Object.values(userColors).includes(candidateColor)) {
           userColors[u] = candidateColor;
           colorAssigned = true;
           break;
         }
       }
-      // Fallback if we run out of unique colors (more than 12 users)
       if (!colorAssigned) {
-        // Generate a random bright color
         const hue = (i * 137.508) % 360; 
         userColors[u] = `hsl(${hue}, 80%, 60%)`;
       }
