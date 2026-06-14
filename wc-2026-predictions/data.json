@@ -9,7 +9,7 @@
     "Tej",
     "Divyank"
   ],
-  "currentUser": "Karthik",
+  "currentUser": "Actual Results",
   "userScores": {
     "Actual Results": {
       "M1_actHome": 2,
@@ -29,8 +29,10 @@
       "M7_actAway": 1,
       "M8_actAway": 0,
       "M8_actHome": 2,
-      "M9_actHome": 3,
-      "M9_actAway": 1
+      "M9_actHome": 7,
+      "M9_actAway": 1,
+      "M10_actHome": 1,
+      "M10_actAway": 0
     },
     "oneiros": {
       "M1_predHome": 2,
@@ -193,8 +195,10 @@
       "M7_actAway": 1,
       "M8_actAway": 0,
       "M8_actHome": 2,
-      "M9_actHome": 3,
-      "M9_actAway": 1
+      "M9_actHome": 7,
+      "M9_actAway": 1,
+      "M10_actHome": 1,
+      "M10_actAway": 0
     },
     "Nithin": {
       "M1_predHome": 2,
@@ -261,8 +265,10 @@
       "M7_actAway": 1,
       "M8_actAway": 0,
       "M8_actHome": 2,
-      "M9_actHome": 3,
-      "M9_actAway": 1
+      "M9_actHome": 7,
+      "M9_actAway": 1,
+      "M10_actHome": 1,
+      "M10_actAway": 0
     },
     "Abhi": {
       "M1_predHome": 2,
@@ -425,8 +431,10 @@
       "M7_actAway": 1,
       "M8_actAway": 0,
       "M8_actHome": 2,
-      "M9_actHome": 3,
-      "M9_actAway": 1
+      "M9_actHome": 7,
+      "M9_actAway": 1,
+      "M10_actHome": 1,
+      "M10_actAway": 0
     },
     "Anuj": {
       "M1_predHome": 2,
@@ -589,8 +597,10 @@
       "M7_actAway": 1,
       "M8_actAway": 0,
       "M8_actHome": 2,
-      "M9_actHome": 3,
-      "M9_actAway": 1
+      "M9_actHome": 7,
+      "M9_actAway": 1,
+      "M10_actHome": 1,
+      "M10_actAway": 0
     },
     "Karthik": {
       "M1_predHome": 2,
@@ -609,6 +619,12 @@
       "M8_predAway": 2,
       "M9_predHome": 3,
       "M9_predAway": 0,
+      "M11_predHome": 1,
+      "M11_predAway": 2,
+      "M10_predHome": 1,
+      "M10_predAway": 1,
+      "M12_predHome": 1,
+      "M12_predAway": 1,
       "M1_actHome": 2,
       "M1_actAway": 0,
       "M2_actHome": 2,
@@ -625,14 +641,10 @@
       "M7_actAway": 1,
       "M8_actAway": 0,
       "M8_actHome": 2,
-      "M9_actHome": 3,
+      "M9_actHome": 7,
       "M9_actAway": 1,
-      "M11_predHome": 1,
-      "M11_predAway": 2,
-      "M10_predHome": 1,
-      "M10_predAway": 1,
-      "M12_predHome": 1,
-      "M12_predAway": 1
+      "M10_actHome": 1,
+      "M10_actAway": 0
     },
     "Tej": {
       "M1_predHome": 2,
@@ -787,8 +799,10 @@
       "M7_actAway": 1,
       "M8_actAway": 0,
       "M8_actHome": 2,
-      "M9_actHome": 3,
-      "M9_actAway": 1
+      "M9_actHome": 7,
+      "M9_actAway": 1,
+      "M10_actHome": 1,
+      "M10_actAway": 0
     },
     "Divyank": {
       "M1_predHome": 2,
@@ -941,8 +955,10 @@
       "M7_actAway": 1,
       "M8_actAway": 0,
       "M8_actHome": 2,
-      "M9_actHome": 3,
-      "M9_actAway": 1
+      "M9_actHome": 7,
+      "M9_actAway": 1,
+      "M10_actHome": 1,
+      "M10_actAway": 0
     }
   },
   "viewMode": "sequence",
