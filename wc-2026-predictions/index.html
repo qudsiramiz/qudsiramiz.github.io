@@ -305,26 +305,32 @@
 
       <!-- TAB 4: LEADERBOARD -->
       <section class="tab-pane" id="leaderboard-tab">
-        <div class="stats-layout">
-          <div class="card analysis-card" style="width: 100%; max-width: 900px; margin: 0 auto;">
-            <h3>Global Leaderboard</h3>
-            <p class="section-help" style="margin-bottom: 20px;">Ranking of all users based on Total
-              Points.</p>
-            <table class="standings-table leaderboard-table" style="width: 100%;">
+        <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+          <div class="card analysis-card" style="flex: 1; min-width: 500px; margin: 0;">
+            <h3 style="margin-top: 0; color: #f6e093; margin-bottom: 20px;">Global Leaderboard</h3>
+            <p class="section-help" style="margin-bottom: 20px;">Ranking of all users based on Total Points.</p>
+            <table class="standings-table" style="width: 100%; margin-bottom: 0;">
               <thead>
                 <tr>
-                  <th style="width: 60px; text-align: center;">Rank</th>
+                  <th style="width: 50px;">Rank</th>
                   <th>User Name</th>
-                  <th class="num" style="width: 100px;">Total Points</th>
-                  <th class="num" style="width: 100px;">Accuracy</th>
-                  <th class="num" style="width: 100px;">Avg Error</th>
-                  <th class="num" style="width: 100px;">Completed</th>
+                  <th style="text-align: center;">Total Points</th>
+                  <th style="text-align: center;">Accuracy</th>
+                  <th style="text-align: center;">Avg Error</th>
+                  <th style="text-align: center;">Completed</th>
                 </tr>
               </thead>
               <tbody id="leaderboard-body">
                 <!-- Populated by app.js -->
               </tbody>
             </table>
+          </div>
+          
+          <div class="card analysis-card" style="flex: 1; min-width: 400px; margin: 0; display: flex; flex-direction: column;">
+            <h3 style="margin-top: 0; color: #f6e093; margin-bottom: 20px;">Top 3 Podium</h3>
+            <div id="podium-container" style="flex: 1; display: flex; align-items: flex-end; justify-content: center; gap: 15px; padding-top: 40px; min-height: 250px;">
+              <!-- Populated dynamically -->
+            </div>
           </div>
         </div>
       </section>

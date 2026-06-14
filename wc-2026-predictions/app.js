@@ -1324,7 +1324,7 @@ function renderGroupStage() {
   if (state.viewMode === "groups") {
     container.classList.remove("sequence-view", "single-view");
     
-    Object.keys(initialMatchesData.groups).forEach(groupId => {
+    Object.keys(initialMatchesData.groups).forEach((groupId, idx) => {
       const groupName = groupId.replace("Group", "Group ");
       const matches = initialMatchesData.groups[groupId];
       
@@ -1334,6 +1334,7 @@ function renderGroupStage() {
       const card = document.createElement("div");
       card.className = "group-card";
       card.id = `card-${groupId}`;
+      card.style.animationDelay = `${idx * 0.05}s`;
       
       let flagsHTML = teams.map(t => `<img src="${getFlagUrl(t)}" alt="${t}">`).join("");
       
@@ -2167,14 +2168,16 @@ function renderPredictionsMatrix() {
   const maxPossibleScore = playedCount * 5;
 
   let headerHTML = `
-    <tr style="position: sticky; top: 0; background-color: var(--bg-card); z-index: 10; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5);">
-      <th style="min-width: 80px; text-align: left; white-space: nowrap;">Match</th>
-      <th style="width: 30%; text-align: left;">Teams</th>
-      <th style="text-align: center; width: 10%;">Actual<br><span style="font-size: 0.7rem; font-weight: normal; color: #9ca3af;">Max: ${maxPossibleScore}</span></th>
+    <tr>
+      <th style="min-width: 80px; text-align: left; white-space: nowrap; position: sticky; top: 0; background-color: var(--bg-deep); z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">Match</th>
+      <th style="width: 30%; text-align: left; position: sticky; top: 0; background-color: var(--bg-deep); z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">Teams</th>
+      <th style="text-align: center; width: 10%; position: sticky; top: 0; background-color: var(--bg-deep); z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">Actual<br><span style="font-size: 0.7rem; font-weight: normal; color: #9ca3af;">Max: ${maxPossibleScore}</span></th>
   `;
   usersToShow.forEach(u => {
     const pts = finalTotals[u];
-    headerHTML += `<th style="text-align: center; color: ${userColors[u]};">${u}<br><span style="font-size: 0.7rem; font-weight: normal; color: #9ca3af;">${pts.toFixed(pts % 1 === 0 ? 0 : 2)} pts</span></th>`;
+    const isCurrentUser = (u === state.currentUser);
+    const highlightBg = isCurrentUser ? 'rgba(212, 175, 55, 0.15)' : 'var(--bg-deep)';
+    headerHTML += `<th style="text-align: center; color: ${userColors[u]}; position: sticky; top: 0; background-color: ${highlightBg}; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">${u}<br><span style="font-size: 0.7rem; font-weight: normal; color: #9ca3af;">${pts.toFixed(pts % 1 === 0 ? 0 : 2)} pts</span></th>`;
   });
   headerHTML += `</tr>`;
   headerElem.innerHTML = headerHTML;
@@ -2295,7 +2298,9 @@ function renderPredictionsMatrix() {
         plotlyData[uIdx].text.push(fullHoverTxt);
       }
       
-      rowHTML += `<td style="text-align: center; color: ${userColors[u]};">${d.predStr}${d.ptsStr}</td>`;
+      const isCurrentUser = (u === state.currentUser);
+      const bgStyle = isCurrentUser ? 'background-color: rgba(212, 175, 55, 0.05);' : '';
+      rowHTML += `<td style="text-align: center; color: ${userColors[u]}; ${bgStyle}">${d.predStr}${d.ptsStr}</td>`;
     });
     rowHTML += `</tr>`;
     bodyHTML += rowHTML;
@@ -2621,6 +2626,39 @@ function renderLeaderboard() {
       <td class="num">${u.predictedMatches} / 104</td>
     </tr>
   `).join("");
+  
+  const podiumContainer = document.getElementById("podium-container");
+  if (podiumContainer) {
+    const realUsers = userStats.filter(u => u.name !== "Actual Results");
+    if (realUsers.length >= 3) {
+      const top1 = realUsers[0];
+      const top2 = realUsers[1];
+      const top3 = realUsers[2];
+      
+      const formatPts = (pts) => pts.toFixed(pts % 1 === 0 ? 0 : 2);
+      
+      podiumContainer.innerHTML = `
+        <div style="display: flex; flex-direction: column; align-items: center; width: 30%; animation: fadeInGroup 0.5s ease backwards; animation-delay: 0.2s;">
+          <span style="font-size: 1.2rem; margin-bottom: 5px;">🥈</span>
+          <span style="color: ${userColors[top2.name] || '#fff'}; font-weight: bold; margin-bottom: 5px; text-align: center;">${top2.name}</span>
+          <span style="color: #e9bc3f; font-size: 0.9rem; margin-bottom: 10px;">${formatPts(top2.totalPoints)} pts</span>
+          <div style="width: 100%; height: 120px; background: linear-gradient(to top, rgba(14, 43, 92, 0.8), rgba(192, 192, 192, 0.6)); border-radius: 8px 8px 0 0; border: 1px solid silver; border-bottom: none; box-shadow: 0 0 15px rgba(192,192,192,0.2);"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; width: 35%; animation: fadeInGroup 0.5s ease backwards; animation-delay: 0.4s;">
+          <span style="font-size: 1.5rem; margin-bottom: 5px;">🥇</span>
+          <span style="color: ${userColors[top1.name] || '#fff'}; font-weight: bold; margin-bottom: 5px; text-align: center; font-size: 1.1rem;">${top1.name}</span>
+          <span style="color: #e9bc3f; font-weight: bold; margin-bottom: 10px;">${formatPts(top1.totalPoints)} pts</span>
+          <div style="width: 100%; height: 160px; background: linear-gradient(to top, rgba(14, 43, 92, 0.8), rgba(212, 175, 55, 0.8)); border-radius: 8px 8px 0 0; border: 1px solid var(--gold); border-bottom: none; box-shadow: 0 0 20px rgba(212,175,55,0.4);"></div>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: center; width: 30%; animation: fadeInGroup 0.5s ease backwards; animation-delay: 0.0s;">
+          <span style="font-size: 1.2rem; margin-bottom: 5px;">🥉</span>
+          <span style="color: ${userColors[top3.name] || '#fff'}; font-weight: bold; margin-bottom: 5px; text-align: center;">${top3.name}</span>
+          <span style="color: #e9bc3f; font-size: 0.9rem; margin-bottom: 10px;">${formatPts(top3.totalPoints)} pts</span>
+          <div style="width: 100%; height: 90px; background: linear-gradient(to top, rgba(14, 43, 92, 0.8), rgba(205, 127, 50, 0.6)); border-radius: 8px 8px 0 0; border: 1px solid #cd7f32; border-bottom: none; box-shadow: 0 0 15px rgba(205,127,50,0.2);"></div>
+        </div>
+      `;
+    }
+  }
 }
 
 // ---------------------- BRACKET DOM INJECTION ----------------------
