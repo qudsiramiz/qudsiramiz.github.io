@@ -2637,22 +2637,31 @@ function renderLeaderboard() {
       
       const formatPts = (pts) => pts.toFixed(pts % 1 === 0 ? 0 : 2);
       
+      const getUserColor = (u) => {
+        if (!u) return '#fff';
+        const presetColors = {
+          "oneiros": "#facc15", "nithin": "#f87171", "abhi": "#34d399",
+          "anuj": "#a78bfa", "karthik": "#fb923c", "tej": "#f472b6", "divyank": "#38bdf8"
+        };
+        return presetColors[u.toLowerCase()] || '#fff';
+      };
+      
       podiumContainer.innerHTML = `
         <div style="display: flex; flex-direction: column; align-items: center; width: 30%; animation: fadeInGroup 0.5s ease backwards; animation-delay: 0.2s;">
           <span style="font-size: 1.2rem; margin-bottom: 5px;">🥈</span>
-          <span style="color: ${userColors[top2.name] || '#fff'}; font-weight: bold; margin-bottom: 5px; text-align: center;">${top2.name}</span>
+          <span style="color: ${getUserColor(top2.name)}; font-weight: bold; margin-bottom: 5px; text-align: center;">${top2.name}</span>
           <span style="color: #e9bc3f; font-size: 0.9rem; margin-bottom: 10px;">${formatPts(top2.totalPoints)} pts</span>
           <div style="width: 100%; height: 120px; background: linear-gradient(to top, rgba(14, 43, 92, 0.8), rgba(192, 192, 192, 0.6)); border-radius: 8px 8px 0 0; border: 1px solid silver; border-bottom: none; box-shadow: 0 0 15px rgba(192,192,192,0.2);"></div>
         </div>
         <div style="display: flex; flex-direction: column; align-items: center; width: 35%; animation: fadeInGroup 0.5s ease backwards; animation-delay: 0.4s;">
           <span style="font-size: 1.5rem; margin-bottom: 5px;">🥇</span>
-          <span style="color: ${userColors[top1.name] || '#fff'}; font-weight: bold; margin-bottom: 5px; text-align: center; font-size: 1.1rem;">${top1.name}</span>
+          <span style="color: ${getUserColor(top1.name)}; font-weight: bold; margin-bottom: 5px; text-align: center; font-size: 1.1rem;">${top1.name}</span>
           <span style="color: #e9bc3f; font-weight: bold; margin-bottom: 10px;">${formatPts(top1.totalPoints)} pts</span>
           <div style="width: 100%; height: 160px; background: linear-gradient(to top, rgba(14, 43, 92, 0.8), rgba(212, 175, 55, 0.8)); border-radius: 8px 8px 0 0; border: 1px solid var(--gold); border-bottom: none; box-shadow: 0 0 20px rgba(212,175,55,0.4);"></div>
         </div>
         <div style="display: flex; flex-direction: column; align-items: center; width: 30%; animation: fadeInGroup 0.5s ease backwards; animation-delay: 0.0s;">
           <span style="font-size: 1.2rem; margin-bottom: 5px;">🥉</span>
-          <span style="color: ${userColors[top3.name] || '#fff'}; font-weight: bold; margin-bottom: 5px; text-align: center;">${top3.name}</span>
+          <span style="color: ${getUserColor(top3.name)}; font-weight: bold; margin-bottom: 5px; text-align: center;">${top3.name}</span>
           <span style="color: #e9bc3f; font-size: 0.9rem; margin-bottom: 10px;">${formatPts(top3.totalPoints)} pts</span>
           <div style="width: 100%; height: 90px; background: linear-gradient(to top, rgba(14, 43, 92, 0.8), rgba(205, 127, 50, 0.6)); border-radius: 8px 8px 0 0; border: 1px solid #cd7f32; border-bottom: none; box-shadow: 0 0 15px rgba(205,127,50,0.2);"></div>
         </div>
