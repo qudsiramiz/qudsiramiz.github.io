@@ -1485,13 +1485,22 @@ body.user-actual-results .ko-points-badge {
 
 /* Zebra striping for matrix table rows */
 #matrix-body tr:nth-child(even) {
-  background: rgba(14, 43, 92, 0.08);
+  background: rgba(14, 43, 92, 0.2);
 }
 #matrix-body tr:nth-child(odd) {
-  background: rgba(0, 0, 0, 0.05);
+  background: transparent;
 }
 #matrix-body tr:hover {
   background: rgba(212, 175, 55, 0.06) !important;
+}
+
+/* Sticky thead for prediction matrix */
+#matrix-header th {
+  position: sticky;
+  top: 80px; /* below sticky nav bar */
+  background-color: var(--bg-deep);
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
 }
 
 /* Match day separator in sequence view */

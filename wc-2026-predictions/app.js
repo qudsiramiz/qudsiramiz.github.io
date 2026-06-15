@@ -2183,15 +2183,15 @@ function renderPredictionsMatrix() {
 
   let headerHTML = `
     <tr>
-      <th style="min-width: 80px; text-align: left; white-space: nowrap; position: sticky; top: 0; background-color: var(--bg-deep); z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">Match</th>
-      <th style="width: 30%; text-align: left; position: sticky; top: 0; background-color: var(--bg-deep); z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">Teams</th>
-      <th style="text-align: center; width: 10%; position: sticky; top: 0; background-color: var(--bg-deep); z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">Actual<br><span style="font-size: 0.7rem; font-weight: normal; color: #9ca3af;">Max: ${maxPossibleScore}</span></th>
+      <th style="min-width: 80px; text-align: left; white-space: nowrap;">Match</th>
+      <th style="width: 30%; text-align: left;">Teams</th>
+      <th style="text-align: center; width: 10%;">Actual<br><span style="font-size: 0.7rem; font-weight: normal; color: #9ca3af;">Max: ${maxPossibleScore}</span></th>
   `;
   usersToShow.forEach(u => {
     const pts = finalTotals[u];
     const isCurrentUser = (u === state.currentUser);
-    const highlightBg = isCurrentUser ? 'rgba(212, 175, 55, 0.15)' : 'var(--bg-deep)';
-    headerHTML += `<th style="text-align: center; color: ${userColors[u]}; position: sticky; top: 0; background-color: ${highlightBg}; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.5);">${u}<br><span style="font-size: 0.7rem; font-weight: normal; color: #9ca3af;">${pts.toFixed(pts % 1 === 0 ? 0 : 2)} pts</span></th>`;
+    const highlightBg = isCurrentUser ? 'background-color: rgba(212, 175, 55, 0.15);' : '';
+    headerHTML += `<th style="text-align: center; color: ${userColors[u]}; ${highlightBg}">${u}<br><span style="font-size: 0.7rem; font-weight: normal; color: #9ca3af;">${pts.toFixed(pts % 1 === 0 ? 0 : 2)} pts</span></th>`;
   });
   headerHTML += `</tr>`;
   headerElem.innerHTML = headerHTML;
@@ -2360,9 +2360,9 @@ function renderPredictionsMatrix() {
     hovermode: document.getElementById('toggle-spikeline') && !document.getElementById('toggle-spikeline').checked ? false : 'closest',
     hoverdistance: -1,
     hoverlabel: {
-      bgcolor: '#1e1e1e',
+      bgcolor: '#0b0125',
       font: { color: '#ffffff', family: 'Inter, sans-serif' },
-      bordercolor: 'rgba(255,255,255,0.2)'
+      bordercolor: 'rgba(212, 175, 55, 0.4)'
     }
   };
   
@@ -2412,7 +2412,12 @@ function renderPredictionsMatrix() {
       gridcolor: 'rgba(255,255,255,0.1)',
       zerolinecolor: 'rgba(255,255,255,0.2)'
     },
-    legend: { orientation: 'h', y: -0.2 }
+    legend: { orientation: 'h', y: -0.2 },
+    hoverlabel: {
+      bgcolor: '#0b0125',
+      font: { color: '#ffffff', family: 'Inter, sans-serif' },
+      bordercolor: 'rgba(212, 175, 55, 0.4)'
+    }
   };
 
   // 2. Group-by-Group Performance (Radar Chart)
@@ -2469,7 +2474,12 @@ function renderPredictionsMatrix() {
     font: { color: '#e5e7eb', family: 'Inter, sans-serif' },
     margin: { t: 30, r: 30, b: 30, l: 30 },
     showlegend: true,
-    legend: { orientation: 'h', y: -0.2 }
+    legend: { orientation: 'h', y: -0.2 },
+    hoverlabel: {
+      bgcolor: '#0b0125',
+      font: { color: '#ffffff', family: 'Inter, sans-serif' },
+      bordercolor: 'rgba(212, 175, 55, 0.4)'
+    }
   };
 
   // 3. Scatter Plot for Accuracy vs Goal Error
@@ -2549,7 +2559,12 @@ function renderPredictionsMatrix() {
         }
       }
     ],
-    showlegend: false
+    showlegend: false,
+    hoverlabel: {
+      bgcolor: '#0b0125',
+      font: { color: '#ffffff', family: 'Inter, sans-serif' },
+      bordercolor: 'rgba(212, 175, 55, 0.4)'
+    }
   };
 
   if (typeof Plotly !== 'undefined') {
