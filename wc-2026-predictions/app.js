@@ -1005,35 +1005,11 @@ function addLocalOnlyUI() {
       updatePushBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Pushing...';
       updatePushBtn.style.opacity = "0.7";
 
-      const tempScores = state.scores;
-      delete state.scores;
+      await pushToGithub(false);
 
-      try {
-        const response = await fetch('http://localhost:3000/api/save-and-push', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(state, null, 2)
-        });
-
-        state.scores = tempScores;
-
-        const result = await response.json();
-        if (response.ok && result.success) {
-          alert('Success! ' + result.message);
-        } else {
-          alert('Error: ' + (result.error || 'Failed to save and push.'));
-        }
-      } catch (error) {
-        state.scores = tempScores;
-        console.error('Failed to communicate with helper server:', error);
-        alert('Failed to connect to the local helper server. Please make sure "node server.js" is running in your terminal!');
-      } finally {
-        updatePushBtn.disabled = false;
-        updatePushBtn.innerHTML = originalText;
-        updatePushBtn.style.opacity = "1";
-      }
+      updatePushBtn.disabled = false;
+      updatePushBtn.innerHTML = originalText;
+      updatePushBtn.style.opacity = "1";
     };
     navActions.appendChild(updatePushBtn);
   }
@@ -1071,6 +1047,33 @@ function saveStateToLocalStorage() {
   delete state.scores; // Avoid duplicating scores in local storage
   localStorage.setItem("worldcup_2026_state", JSON.stringify(state));
   state.scores = tempScores; // Restore reference
+}
+
+// Push to GitHub helper
+async function pushToGithub(silent = false) {
+  const tempScores = state.scores;
+  delete state.scores;
+  try {
+    const response = await fetch('http://localhost:3000/api/save-and-push', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(state, null, 2)
+    });
+    state.scores = tempScores;
+    const result = await response.json();
+    if (response.ok && result.success) {
+      if (!silent) alert('Success! ' + result.message);
+      return true;
+    } else {
+      if (!silent) alert('Error: ' + (result.error || 'Failed to save and push.'));
+      return false;
+    }
+  } catch (error) {
+    state.scores = tempScores;
+    console.error('Failed to communicate with helper server:', error);
+    if (!silent) alert('Failed to connect to the local helper server. Please make sure "node server.js" is running in your terminal!');
+    return false;
+  }
 }
 
 // User Dropdown Logic
@@ -3581,6 +3584,7 @@ async function fetchLiveScores(silent = false) {
     if (updatedCount > 0) {
        updateScoresAndStandings();
        if (!silent) alert(`Successfully fetched and updated ${updatedCount} matches from ESPN!`);
+       await pushToGithub(silent); // <--- Added Auto Push
        return true;
     } else {
        if (!silent) alert("No new finished matches found on ESPN.");
