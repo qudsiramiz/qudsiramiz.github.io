@@ -2342,7 +2342,12 @@ function renderPredictionsMatrix() {
       title: 'Match Number', 
       gridcolor: 'rgba(255,255,255,0.1)',
       zerolinecolor: 'rgba(255,255,255,0.2)',
-      range: [minMatch, maxMatch]
+      range: [minMatch, maxMatch],
+      showspikes: document.getElementById('toggle-spikeline') ? document.getElementById('toggle-spikeline').checked : true,
+      spikemode: 'across',
+      spikedash: 'dash',
+      spikecolor: '#ffffff',
+      spikethickness: 1
     },
     yaxis: { 
       title: 'Cumulative Points', 
@@ -2350,7 +2355,8 @@ function renderPredictionsMatrix() {
       zerolinecolor: 'rgba(255,255,255,0.2)'
     },
     legend: { orientation: 'h', y: -0.2 },
-    hovermode: 'closest',
+    hovermode: document.getElementById('toggle-spikeline') && !document.getElementById('toggle-spikeline').checked ? false : 'closest',
+    hoverdistance: -1,
     hoverlabel: {
       bgcolor: '#1e1e1e',
       font: { color: '#ffffff', family: 'Inter, sans-serif' },
@@ -3417,6 +3423,21 @@ function showCountryDetailsModal(country) {
   const modal = document.getElementById("country-modal");
   if (modal) modal.classList.add("active");
 }
+
+// --- Plotly Spikeline Toggle ---
+document.addEventListener('DOMContentLoaded', () => {
+  const toggle = document.getElementById('toggle-spikeline');
+  if (toggle) {
+    toggle.addEventListener('change', (e) => {
+      if (typeof Plotly !== 'undefined') {
+        Plotly.relayout('plotly-graph', { 
+          'xaxis.showspikes': e.target.checked,
+          'hovermode': e.target.checked ? 'closest' : false
+        });
+      }
+    });
+  }
+});
 
 // --- API-Football Integration ---
 function normalizeTeamName(name) {
