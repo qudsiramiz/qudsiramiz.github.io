@@ -173,6 +173,16 @@ body {
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-bottom: 1.5rem;
+  position: sticky;
+  top: 0;
+  z-index: 99;
+  background: rgba(11, 1, 37, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .nav-btn {
@@ -350,7 +360,7 @@ body {
 
 .sequence-layout-container {
   display: grid;
-  grid-template-columns: 290px 1fr 290px;
+  grid-template-columns: 1fr 1.5fr 1fr;
   gap: 1.5rem;
   align-items: start;
 }
@@ -1442,4 +1452,71 @@ body.user-actual-results .ko-score-input.pred,
 body.user-actual-results .points-badge,
 body.user-actual-results .ko-points-badge {
   display: none !important;
+}
+
+/* Back to Top Button */
+.back-to-top-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 200;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid var(--gold);
+  background: rgba(11, 1, 37, 0.9);
+  color: var(--gold);
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+  backdrop-filter: blur(8px);
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-to-top-btn:hover {
+  background: var(--gold);
+  color: var(--bg-deep);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5);
+}
+
+/* Zebra striping for matrix table rows */
+#matrix-body tr:nth-child(even) {
+  background: rgba(14, 43, 92, 0.08);
+}
+#matrix-body tr:nth-child(odd) {
+  background: rgba(0, 0, 0, 0.05);
+}
+#matrix-body tr:hover {
+  background: rgba(212, 175, 55, 0.06) !important;
+}
+
+/* Match day separator in sequence view */
+.match-day-separator {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  margin: 0.5rem 0;
+}
+
+.match-day-separator::before,
+.match-day-separator::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(212, 175, 55, 0.4), transparent);
+}
+
+.match-day-separator span {
+  font-family: var(--font-header);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-gold);
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }

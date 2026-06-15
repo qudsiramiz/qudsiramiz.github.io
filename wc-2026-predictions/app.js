@@ -1589,58 +1589,70 @@ function renderGroupStage() {
               <h4>Group Stage Matches (Chronological Sequence)</h4>
             </div>
             <div class="matches-list">
-              ${allMatches.map(m => {
-                const groupLetter = m.groupId.replace("Group", "");
-                return `
-                  <div class="match-item" data-match-id="${m.id}">
-                    <div class="match-meta">
-                      <span class="match-id-badge">${m.id}</span>
-                      <span class="match-group-badge">Group ${groupLetter}</span>
-                      <span>${m.info}</span>
-                    </div>
-                    <div class="match-content-row">
-                      <div class="team-display home">
-                        <span class="team-name">${m.team1}</span>
-                        <img src="${getFlagUrl(m.team1)}" alt="">
+              ${(() => {
+                let lastDate = "";
+                return allMatches.map(m => {
+                  const groupLetter = m.groupId.replace("Group", "");
+                  // Extract date from info string like "M1, 15:00, 11 June | UTC 19:00"
+                  const dateMatch = m.info ? m.info.match(/(\d{1,2}\s+\w+)/) : null;
+                  const matchDate = dateMatch ? dateMatch[1].trim() : "";
+                  let separator = "";
+                  if (matchDate && matchDate !== lastDate) {
+                    lastDate = matchDate;
+                    separator = `<div class="match-day-separator"><span>📅 ${matchDate}</span></div>`;
+                  }
+                  return `
+                    ${separator}
+                    <div class="match-item" data-match-id="${m.id}">
+                      <div class="match-meta">
+                        <span class="match-id-badge">${m.id}</span>
+                        <span class="match-group-badge">Group ${groupLetter}</span>
+                        <span>${m.info}</span>
                       </div>
-                      
-                      <div class="score-inputs-container">
-                        <div class="score-col">
-                          <span>Pred</span>
-                          <div class="score-box-pair">
-                            <input type="number" min="0" placeholder="-" 
-                              class="score-input pred pred-home" data-match-id="${m.id}" data-type="predHome"
-                              value="${state.scores[m.id + '_predHome'] !== undefined ? state.scores[m.id + '_predHome'] : ''}">
-                            <span class="score-divider">-</span>
-                            <input type="number" min="0" placeholder="-" 
-                              class="score-input pred pred-away" data-match-id="${m.id}" data-type="predAway"
-                              value="${state.scores[m.id + '_predAway'] !== undefined ? state.scores[m.id + '_predAway'] : ''}">
+                      <div class="match-content-row">
+                        <div class="team-display home">
+                          <span class="team-name">${m.team1}</span>
+                          <img src="${getFlagUrl(m.team1)}" alt="">
+                        </div>
+                        
+                        <div class="score-inputs-container">
+                          <div class="score-col">
+                            <span>Pred</span>
+                            <div class="score-box-pair">
+                              <input type="number" min="0" placeholder="-" 
+                                class="score-input pred pred-home" data-match-id="${m.id}" data-type="predHome"
+                                value="${state.scores[m.id + '_predHome'] !== undefined ? state.scores[m.id + '_predHome'] : ''}">
+                              <span class="score-divider">-</span>
+                              <input type="number" min="0" placeholder="-" 
+                                class="score-input pred pred-away" data-match-id="${m.id}" data-type="predAway"
+                                value="${state.scores[m.id + '_predAway'] !== undefined ? state.scores[m.id + '_predAway'] : ''}">
+                            </div>
+                          </div>
+                          <div class="score-col">
+                            <span>Act</span>
+                            <div class="score-box-pair">
+                              <input type="number" min="0" placeholder="-" 
+                                class="score-input actual act-home" data-match-id="${m.id}" data-type="actHome"
+                                value="${state.scores[m.id + '_actHome'] !== undefined ? state.scores[m.id + '_actHome'] : ''}">
+                              <span class="score-divider">-</span>
+                              <input type="number" min="0" placeholder="-" 
+                                class="score-input actual act-away" data-match-id="${m.id}" data-type="actAway"
+                                value="${state.scores[m.id + '_actAway'] !== undefined ? state.scores[m.id + '_actAway'] : ''}">
+                            </div>
                           </div>
                         </div>
-                        <div class="score-col">
-                          <span>Act</span>
-                          <div class="score-box-pair">
-                            <input type="number" min="0" placeholder="-" 
-                              class="score-input actual act-home" data-match-id="${m.id}" data-type="actHome"
-                              value="${state.scores[m.id + '_actHome'] !== undefined ? state.scores[m.id + '_actHome'] : ''}">
-                            <span class="score-divider">-</span>
-                            <input type="number" min="0" placeholder="-" 
-                              class="score-input actual act-away" data-match-id="${m.id}" data-type="actAway"
-                              value="${state.scores[m.id + '_actAway'] !== undefined ? state.scores[m.id + '_actAway'] : ''}">
-                          </div>
+                        
+                        <div class="team-display away">
+                          <img src="${getFlagUrl(m.team2)}" alt="">
+                          <span class="team-name">${m.team2}</span>
                         </div>
+                        
+                        <div class="points-badge" id="points-${m.id}">-</div>
                       </div>
-                      
-                      <div class="team-display away">
-                        <img src="${getFlagUrl(m.team2)}" alt="">
-                        <span class="team-name">${m.team2}</span>
-                      </div>
-                      
-                      <div class="points-badge" id="points-${m.id}">-</div>
                     </div>
-                  </div>
-                `;
-              }).join("")}
+                  `;
+                }).join("");
+              })()}
             </div>
           </div>
         </div>
@@ -3524,3 +3536,21 @@ async function fetchLiveScores(silent = false) {
     return false;
   }
 }
+
+// ---------------------- BACK TO TOP BUTTON ----------------------
+(function() {
+  const btn = document.getElementById("back-to-top-btn");
+  if (!btn) return;
+  
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 400) {
+      btn.style.display = "flex";
+    } else {
+      btn.style.display = "none";
+    }
+  });
+  
+  btn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+})();
