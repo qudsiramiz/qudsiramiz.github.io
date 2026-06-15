@@ -112,15 +112,22 @@
             </p>
           </div>
 
-          <div class="view-toggle-container">
-            <span class="toggle-label"><i class="fa-solid fa-eye"></i> View Mode:</span>
-            <div class="toggle-buttons">
-              <button class="toggle-btn active" id="btn-view-groups"><i
-                  class="fa-solid fa-grip"></i> All Groups</button>
-              <button class="toggle-btn" id="btn-view-single"><i
-                  class="fa-solid fa-square-poll-horizontal"></i> Single Group</button>
-              <button class="toggle-btn" id="btn-view-seq"><i class="fa-solid fa-list-ol"></i> By
-                Match Number</button>
+          <div class="view-toggle-container" style="display: flex; align-items: center; gap: 15px;">
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <span class="toggle-label"><i class="fa-solid fa-table-list"></i> Standings:</span>
+              <select id="standings-type-select" style="background: #1e293b; border: 1px solid #3b82f6; color: white; padding: 4px 8px; border-radius: 4px; font-family: Inter, sans-serif; cursor: pointer; font-size: 0.85rem;">
+                <option value="pred">Predicted</option>
+                <option value="act" selected>Actual (Live)</option>
+              </select>
+            </div>
+            <div style="width: 1px; height: 20px; background: rgba(255,255,255,0.2);"></div>
+            <div style="display: flex; align-items: center; gap: 5px;">
+              <span class="toggle-label"><i class="fa-solid fa-eye"></i> View Mode:</span>
+              <div class="toggle-buttons">
+                <button class="toggle-btn active" id="btn-view-groups"><i class="fa-solid fa-grip"></i> All Groups</button>
+                <button class="toggle-btn" id="btn-view-single"><i class="fa-solid fa-square-poll-horizontal"></i> Single Group</button>
+                <button class="toggle-btn" id="btn-view-seq"><i class="fa-solid fa-list-ol"></i> By Match Number</button>
+              </div>
             </div>
           </div>
         </div>

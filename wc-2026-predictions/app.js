@@ -1749,8 +1749,10 @@ function updateScoresAndStandings() {
   Object.keys(initialMatchesData.groups).forEach(groupId => {
     const matches = initialMatchesData.groups[groupId];
     
-    // Standings calculation for predictions
-    const predStandings = calculateGroupStandings(groupId, matches, "act");
+    // Standings calculation
+    const stTypeElem = document.getElementById("standings-type-select");
+    const stType = stTypeElem ? stTypeElem.value : "act";
+    const predStandings = calculateGroupStandings(groupId, matches, stType);
     // Update Standings table in DOM
     const standingsBody = document.querySelector(`#standings-${groupId} tbody`);
     if (standingsBody) {
@@ -3424,7 +3426,7 @@ function showCountryDetailsModal(country) {
   if (modal) modal.classList.add("active");
 }
 
-// --- Plotly Spikeline Toggle ---
+// --- UI Event Listeners ---
 document.addEventListener('DOMContentLoaded', () => {
   const toggle = document.getElementById('toggle-spikeline');
   if (toggle) {
@@ -3435,6 +3437,13 @@ document.addEventListener('DOMContentLoaded', () => {
           'hovermode': e.target.checked ? 'closest' : false
         });
       }
+    });
+  }
+
+  const stSelect = document.getElementById('standings-type-select');
+  if (stSelect) {
+    stSelect.addEventListener('change', () => {
+      updateScoresAndStandings();
     });
   }
 });
