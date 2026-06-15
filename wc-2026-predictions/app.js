@@ -3538,7 +3538,18 @@ async function fetchLiveScores(silent = false) {
                  wasUpdated = true;
              }
            });
-           if (wasUpdated) updatedCount++;
+           
+           if (wasUpdated) {
+             updatedCount++;
+             if (state.scores) {
+               state.scores[matchId + "_actHome"] = homeScore;
+               state.scores[matchId + "_actAway"] = awayScore;
+             }
+             const domHome = document.querySelector(`input.act-home[data-match-id="${matchId}"]`);
+             const domAway = document.querySelector(`input.act-away[data-match-id="${matchId}"]`);
+             if (domHome) domHome.value = homeScore;
+             if (domAway) domAway.value = awayScore;
+           }
         }
       }
     });
