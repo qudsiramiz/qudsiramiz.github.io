@@ -1750,7 +1750,7 @@ function updateScoresAndStandings() {
     const matches = initialMatchesData.groups[groupId];
     
     // Standings calculation for predictions
-    const predStandings = calculateGroupStandings(groupId, matches, "pred");
+    const predStandings = calculateGroupStandings(groupId, matches, "act");
     // Update Standings table in DOM
     const standingsBody = document.querySelector(`#standings-${groupId} tbody`);
     if (standingsBody) {
