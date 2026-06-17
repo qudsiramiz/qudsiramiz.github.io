@@ -51,8 +51,13 @@ const server = http.createServer((req, res) => {
 
           console.log('Successfully wrote data.json locally. Starting Git push...');
 
-          // Execute robust git check, commit, and push
-          const gitCmd = 'git add data.json && (git diff --quiet --cached data.json || git commit -m "Update match results via local dashboard") && git push origin main';
+          // Only push when data.json actually changed.
+          const gitCmd = `git add data.json
+if git diff --quiet --cached -- data.json; then
+  printf '{"success":true,"message":"Saved data.json locally. No Git changes to push."}'
+else
+  git commit -m "Update match results via local dashboard" && git push origin main
+fi`;
           
           exec(gitCmd, (gitErr, stdout, stderr) => {
             if (gitErr) {
@@ -63,6 +68,13 @@ const server = http.createServer((req, res) => {
                 error: 'Wrote data.json locally, but Git operations failed.', 
                 details: stderr || gitErr.message 
               }));
+              return;
+            }
+
+            const trimmedOutput = stdout.trim();
+            if (trimmedOutput.startsWith('{')) {
+              res.writeHead(200, { 'Content-Type': 'application/json' });
+              res.end(trimmedOutput);
               return;
             }
 
