@@ -48,7 +48,9 @@
       "M17_actHome": 3,
       "M17_actAway": 1,
       "M18_actHome": 1,
-      "M18_actAway": 4
+      "M18_actAway": 4,
+      "M19_actHome": 0,
+      "M19_actAway": 0
     },
     "oneiros": {
       "M1_predHome": 2,
@@ -230,7 +232,9 @@
       "M17_actHome": 3,
       "M17_actAway": 1,
       "M18_actHome": 1,
-      "M18_actAway": 4
+      "M18_actAway": 4,
+      "M19_actHome": 0,
+      "M19_actAway": 0
     },
     "Nithin": {
       "M1_predHome": 2,
@@ -316,7 +320,9 @@
       "M17_actHome": 3,
       "M17_actAway": 1,
       "M18_actHome": 1,
-      "M18_actAway": 4
+      "M18_actAway": 4,
+      "M19_actHome": 0,
+      "M19_actAway": 0
     },
     "Abhi": {
       "M1_predHome": 2,
@@ -498,7 +504,9 @@
       "M17_actHome": 3,
       "M17_actAway": 1,
       "M18_actHome": 1,
-      "M18_actAway": 4
+      "M18_actAway": 4,
+      "M19_actHome": 0,
+      "M19_actAway": 0
     },
     "Anuj": {
       "M1_predHome": 2,
@@ -680,7 +688,9 @@
       "M17_actHome": 3,
       "M17_actAway": 1,
       "M18_actHome": 1,
-      "M18_actAway": 4
+      "M18_actAway": 4,
+      "M19_actHome": 0,
+      "M19_actAway": 0
     },
     "Karthik": {
       "M1_predHome": 2,
@@ -748,7 +758,9 @@
       "M17_actHome": 3,
       "M17_actAway": 1,
       "M18_actHome": 1,
-      "M18_actAway": 4
+      "M18_actAway": 4,
+      "M19_actHome": 0,
+      "M19_actAway": 0
     },
     "Tej": {
       "M1_predHome": 2,
@@ -922,7 +934,9 @@
       "M17_actHome": 3,
       "M17_actAway": 1,
       "M18_actHome": 1,
-      "M18_actAway": 4
+      "M18_actAway": 4,
+      "M19_actHome": 0,
+      "M19_actAway": 0
     },
     "Divyank": {
       "M1_predHome": 2,
@@ -1096,7 +1110,9 @@
       "M17_actHome": 3,
       "M17_actAway": 1,
       "M18_actHome": 1,
-      "M18_actAway": 4
+      "M18_actAway": 4,
+      "M19_actHome": 0,
+      "M19_actAway": 0
     }
   },
   "viewMode": "sequence",
