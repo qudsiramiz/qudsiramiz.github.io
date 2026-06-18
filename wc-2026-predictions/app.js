@@ -3478,7 +3478,15 @@ function normalizeTeamName(name) {
     "czech republic": "czech rep.",
     "czech rep": "czech rep.",
     "iran": "ir iran",
-    "saudi arabia": "saudi arabia"
+    "saudi arabia": "saudi arabia",
+    "congo dr": "dr congo",
+    "dr congo": "dr congo",
+    "bosnia and herzegovina": "bosnia-herz.",
+    "bosnia-herz.": "bosnia-herz.",
+    "curacao": "curaçao",
+    "curaçao": "curaçao",
+    "turkey": "türkiye",
+    "türkiye": "türkiye"
   };
   return map[n] || n;
 }
@@ -3539,13 +3547,15 @@ async function fetchLiveScores(silent = false) {
         
         let matchId = null;
         for (const mData of allMatches) {
-          let dashboardHome = mData.team1;
-          let dashboardAway = mData.team2;
+          let dashboardHome = mData.team1 || mData.team1_placeholder || "";
+          let dashboardAway = mData.team2 || mData.team2_placeholder || "";
           
-          if (dashboardHome.match(/^[1-3][A-L]$|^W[0-9]+$/)) {
+          if (!dashboardHome || !dashboardAway) continue;
+          
+          if (typeof dashboardHome === 'string' && dashboardHome.match(/^[1-3][A-L]$|^W[0-9]+$/)) {
              dashboardHome = state.knockoutTeams[dashboardHome] || dashboardHome;
           }
-          if (dashboardAway.match(/^[1-3][A-L]$|^W[0-9]+$/)) {
+          if (typeof dashboardAway === 'string' && dashboardAway.match(/^[1-3][A-L]$|^W[0-9]+$/)) {
              dashboardAway = state.knockoutTeams[dashboardAway] || dashboardAway;
           }
           
