@@ -9,7 +9,7 @@
     "Tej",
     "Divyank"
   ],
-  "currentUser": "Karthik",
+  "currentUser": "Actual Results",
   "userScores": {
     "Actual Results": {
       "M1_actHome": 2,
@@ -59,7 +59,7 @@
       "M22_actAway": 2,
       "M23_actHome": 1,
       "M23_actAway": 0,
-      "M24_actHome": 0,
+      "M24_actHome": 1,
       "M24_actAway": 1
     },
     "oneiros": {
@@ -253,7 +253,7 @@
       "M22_actAway": 2,
       "M23_actHome": 1,
       "M23_actAway": 0,
-      "M24_actHome": 0,
+      "M24_actHome": 1,
       "M24_actAway": 1
     },
     "Nithin": {
@@ -351,7 +351,7 @@
       "M22_actAway": 2,
       "M23_actHome": 1,
       "M23_actAway": 0,
-      "M24_actHome": 0,
+      "M24_actHome": 1,
       "M24_actAway": 1
     },
     "Abhi": {
@@ -545,7 +545,7 @@
       "M22_actAway": 2,
       "M23_actHome": 1,
       "M23_actAway": 0,
-      "M24_actHome": 0,
+      "M24_actHome": 1,
       "M24_actAway": 1
     },
     "Anuj": {
@@ -739,7 +739,7 @@
       "M22_actAway": 2,
       "M23_actHome": 1,
       "M23_actAway": 0,
-      "M24_actHome": 0,
+      "M24_actHome": 1,
       "M24_actAway": 1
     },
     "Karthik": {
@@ -827,7 +827,7 @@
       "M22_actAway": 2,
       "M23_actHome": 1,
       "M23_actAway": 0,
-      "M24_actHome": 0,
+      "M24_actHome": 1,
       "M24_actAway": 1,
       "M21_predHome": 3,
       "M21_predAway": 0,
@@ -1021,7 +1021,7 @@
       "M22_actAway": 2,
       "M23_actHome": 1,
       "M23_actAway": 0,
-      "M24_actHome": 0,
+      "M24_actHome": 1,
       "M24_actAway": 1
     },
     "Divyank": {
@@ -1205,7 +1205,7 @@
       "M22_actAway": 2,
       "M23_actHome": 1,
       "M23_actAway": 0,
-      "M24_actHome": 0,
+      "M24_actHome": 1,
       "M24_actAway": 1
     }
   },
