@@ -988,7 +988,15 @@
       "M29_actHome": 2,
       "M29_actAway": 0,
       "M30_actHome": 0,
-      "M30_actAway": 1
+      "M30_actAway": 1,
+      "M29_predHome": 2,
+      "M29_predAway": 1,
+      "M30_predHome": 1,
+      "M30_predAway": 2,
+      "M31_predHome": 3,
+      "M31_predAway": 0,
+      "M32_predHome": 2,
+      "M32_predAway": 1
     },
     "Tej": {
       "M1_predHome": 2,
