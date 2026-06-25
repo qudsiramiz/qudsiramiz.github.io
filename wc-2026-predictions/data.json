@@ -1217,6 +1217,10 @@
       "M51_predAway": 2,
       "M52_predHome": 3,
       "M52_predAway": 0,
+      "M53_predHome": 1,
+      "M53_predAway": 1,
+      "M54_predHome": 0,
+      "M54_predAway": 2,
       "M1_actHome": 2,
       "M1_actAway": 0,
       "M2_actHome": 2,
@@ -1324,11 +1328,7 @@
       "M53_actHome": 0,
       "M53_actAway": 3,
       "M54_actHome": 1,
-      "M54_actAway": 0,
-      "M53_predHome": 1,
-      "M53_predAway": 1,
-      "M54_predHome": 0,
-      "M54_predAway": 2
+      "M54_actAway": 0
     },
     "Tej": {
       "M1_predHome": 2,
