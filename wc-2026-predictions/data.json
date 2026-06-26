@@ -120,7 +120,15 @@
       "M53_actHome": 0,
       "M53_actAway": 3,
       "M54_actHome": 1,
-      "M54_actAway": 0
+      "M54_actAway": 0,
+      "M55_actHome": 0,
+      "M55_actAway": 2,
+      "M56_actHome": 2,
+      "M56_actAway": 1,
+      "M57_actHome": 1,
+      "M57_actAway": 1,
+      "M58_actHome": 1,
+      "M58_actAway": 3
     },
     "oneiros": {
       "M1_predHome": 2,
@@ -374,7 +382,15 @@
       "M53_actHome": 0,
       "M53_actAway": 3,
       "M54_actHome": 1,
-      "M54_actAway": 0
+      "M54_actAway": 0,
+      "M55_actHome": 0,
+      "M55_actAway": 2,
+      "M56_actHome": 2,
+      "M56_actAway": 1,
+      "M57_actHome": 1,
+      "M57_actAway": 1,
+      "M58_actHome": 1,
+      "M58_actAway": 3
     },
     "Nithin": {
       "M1_predHome": 2,
@@ -604,7 +620,15 @@
       "M53_actHome": 0,
       "M53_actAway": 3,
       "M54_actHome": 1,
-      "M54_actAway": 0
+      "M54_actAway": 0,
+      "M55_actHome": 0,
+      "M55_actAway": 2,
+      "M56_actHome": 2,
+      "M56_actAway": 1,
+      "M57_actHome": 1,
+      "M57_actAway": 1,
+      "M58_actHome": 1,
+      "M58_actAway": 3
     },
     "Abhi": {
       "M1_predHome": 2,
@@ -858,7 +882,15 @@
       "M53_actHome": 0,
       "M53_actAway": 3,
       "M54_actHome": 1,
-      "M54_actAway": 0
+      "M54_actAway": 0,
+      "M55_actHome": 0,
+      "M55_actAway": 2,
+      "M56_actHome": 2,
+      "M56_actAway": 1,
+      "M57_actHome": 1,
+      "M57_actAway": 1,
+      "M58_actHome": 1,
+      "M58_actAway": 3
     },
     "Anuj": {
       "M1_predHome": 2,
@@ -1112,7 +1144,15 @@
       "M53_actHome": 0,
       "M53_actAway": 3,
       "M54_actHome": 1,
-      "M54_actAway": 0
+      "M54_actAway": 0,
+      "M55_actHome": 0,
+      "M55_actAway": 2,
+      "M56_actHome": 2,
+      "M56_actAway": 1,
+      "M57_actHome": 1,
+      "M57_actAway": 1,
+      "M58_actHome": 1,
+      "M58_actAway": 3
     },
     "Karthik": {
       "M1_predHome": 2,
@@ -1328,7 +1368,23 @@
       "M53_actHome": 0,
       "M53_actAway": 3,
       "M54_actHome": 1,
-      "M54_actAway": 0
+      "M54_actAway": 0,
+      "M55_actHome": 0,
+      "M55_actAway": 2,
+      "M56_actHome": 2,
+      "M56_actAway": 1,
+      "M57_actHome": 1,
+      "M57_actAway": 1,
+      "M58_actHome": 1,
+      "M58_actAway": 3,
+      "M55_predHome": 0,
+      "M55_predAway": 2,
+      "M56_predHome": 1,
+      "M56_predAway": 3,
+      "M57_predHome": 1,
+      "M57_predAway": 1,
+      "M58_predHome": 0,
+      "M58_predAway": 3
     },
     "Tej": {
       "M1_predHome": 2,
@@ -1574,7 +1630,15 @@
       "M53_actHome": 0,
       "M53_actAway": 3,
       "M54_actHome": 1,
-      "M54_actAway": 0
+      "M54_actAway": 0,
+      "M55_actHome": 0,
+      "M55_actAway": 2,
+      "M56_actHome": 2,
+      "M56_actAway": 1,
+      "M57_actHome": 1,
+      "M57_actAway": 1,
+      "M58_actHome": 1,
+      "M58_actAway": 3
     },
     "Divyank": {
       "M1_predHome": 2,
@@ -1818,7 +1882,15 @@
       "M53_actHome": 0,
       "M53_actAway": 3,
       "M54_actHome": 1,
-      "M54_actAway": 0
+      "M54_actAway": 0,
+      "M55_actHome": 0,
+      "M55_actAway": 2,
+      "M56_actHome": 2,
+      "M56_actAway": 1,
+      "M57_actHome": 1,
+      "M57_actAway": 1,
+      "M58_actHome": 1,
+      "M58_actAway": 3
     }
   },
   "viewMode": "sequence",
