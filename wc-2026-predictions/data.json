@@ -9,7 +9,7 @@
     "Tej",
     "Divyank"
   ],
-  "currentUser": "Karthik",
+  "currentUser": "Nithin",
   "userScores": {
     "Actual Results": {
       "M1_actHome": 2,
@@ -676,7 +676,29 @@
       "M59_actHome": 3,
       "M59_actAway": 2,
       "M60_actHome": 0,
-      "M60_actAway": 0
+      "M60_actAway": 0,
+      "M68_predHome": 2,
+      "M68_predAway": 1,
+      "M67_predHome": 1,
+      "M67_predAway": 2,
+      "M70_predHome": 2,
+      "M70_predAway": 0,
+      "M71_predHome": 2,
+      "M71_predAway": 1,
+      "M72_predHome": 0,
+      "M72_predAway": 3,
+      "M61_predHome": 1,
+      "M61_predAway": 2,
+      "M62_predHome": 3,
+      "M62_predAway": 0,
+      "M63_predHome": 2,
+      "M63_predAway": 1,
+      "M64_predHome": 1,
+      "M64_predAway": 3,
+      "M65_predHome": 2,
+      "M65_predAway": 0,
+      "M66_predHome": 0,
+      "M66_predAway": 2
     },
     "Abhi": {
       "M1_predHome": 2,
