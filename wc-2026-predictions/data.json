@@ -9,7 +9,7 @@
     "Tej",
     "Divyank"
   ],
-  "currentUser": "oneiros",
+  "currentUser": "Actual Results",
   "userScores": {
     "Actual Results": {
       "M1_actHome": 2,
@@ -159,7 +159,7 @@
       "M71_actAway": 3,
       "R32_3_actHome": 0,
       "R32_3_actAway": 1,
-      "R32_9_actHome": 1,
+      "R32_9_actHome": 2,
       "R32_9_actAway": 1,
       "R32_1_overrideTeam2": "Paraguay",
       "R32_2_overrideTeam2": "Sweden",
@@ -458,7 +458,7 @@
       "M71_actAway": 3,
       "R32_3_actHome": 0,
       "R32_3_actAway": 1,
-      "R32_9_actHome": 1,
+      "R32_9_actHome": 2,
       "R32_9_actAway": 1,
       "R32_3_predHome": 1,
       "R32_3_predAway": 2,
@@ -783,7 +783,7 @@
       "M71_actAway": 3,
       "R32_3_actHome": 0,
       "R32_3_actAway": 1,
-      "R32_9_actHome": 1,
+      "R32_9_actHome": 2,
       "R32_9_actAway": 1
     },
     "Abhi": {
@@ -1077,7 +1077,7 @@
       "M71_actAway": 3,
       "R32_3_actHome": 0,
       "R32_3_actAway": 1,
-      "R32_9_actHome": 1,
+      "R32_9_actHome": 2,
       "R32_9_actAway": 1
     },
     "Anuj": {
@@ -1371,7 +1371,7 @@
       "M71_actAway": 3,
       "R32_3_actHome": 0,
       "R32_3_actAway": 1,
-      "R32_9_actHome": 1,
+      "R32_9_actHome": 2,
       "R32_9_actAway": 1
     },
     "Karthik": {
@@ -1663,7 +1663,7 @@
       "M71_actAway": 3,
       "R32_3_actHome": 0,
       "R32_3_actAway": 1,
-      "R32_9_actHome": 1,
+      "R32_9_actHome": 2,
       "R32_9_actAway": 1
     },
     "Tej": {
@@ -1949,7 +1949,7 @@
       "M71_actAway": 3,
       "R32_3_actHome": 0,
       "R32_3_actAway": 1,
-      "R32_9_actHome": 1,
+      "R32_9_actHome": 2,
       "R32_9_actAway": 1
     },
     "Divyank": {
@@ -2233,8 +2233,12 @@
       "M71_actAway": 3,
       "R32_3_actHome": 0,
       "R32_3_actAway": 1,
-      "R32_9_actHome": 1,
-      "R32_9_actAway": 1
+      "R32_9_actHome": 2,
+      "R32_9_actAway": 1,
+      "R32_3_predHome": 0,
+      "R32_3_predAway": 2,
+      "R32_9_predHome": 3,
+      "R32_9_predAway": 0
     }
   },
   "viewMode": "sequence",
