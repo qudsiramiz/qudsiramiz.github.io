@@ -1,4 +1,13 @@
-// Embedded Matches Database (extracted from main.tex)
+
+  global.window = { location: { hostname: 'localhost', protocol: 'http:' } };
+  global.document = {
+    addEventListener: () => {},
+    querySelectorAll: () => [],
+    getElementById: () => null,
+    querySelector: () => null,
+  };
+  
+  // Embedded Matches Database (extracted from main.tex)
 const initialMatchesData = {
   "groups": {
     "GroupA": [
@@ -754,7 +763,7 @@ const config = {
 };
 
 // Global Predictions and Actual Results Store
-let state = {
+var state = {
   users: ["Actual Results"],
   currentUser: "Actual Results",
   userScores: {
@@ -765,7 +774,7 @@ let state = {
   activeGroupTab: "GroupA"
 };
 
-let globalKoTeams = {};
+var globalKoTeams = {};
 
 // Initialize Dashboard
 document.addEventListener("DOMContentLoaded", async () => {
@@ -1888,9 +1897,6 @@ function updateScoresAndStandings() {
     if (t2.startsWith("3")) {
       t2 = assignedThirds[m.node_id] || t2;
     }
-
-    t1 = state.scores[m.node_id + "_overrideTeam1"] || t1;
-    t2 = state.scores[m.node_id + "_overrideTeam2"] || t2;
     
     r32Teams[m.node_id] = { team1: t1, team2: t2 };
   });
@@ -1948,14 +1954,14 @@ function updateScoresAndStandings() {
       if (nodeId === "THIRD") {
         // Third-place match uses losers instead of winners
         koTeams[nodeId] = {
-          team1: state.scores[nodeId + "_overrideTeam1"] || getLoserOfNode(deps[0], "act") || `Loser ${deps[0]}`,
-          team2: state.scores[nodeId + "_overrideTeam2"] || getLoserOfNode(deps[1], "act") || `Loser ${deps[1]}`
+          team1: getLoserOfNode(deps[0], "act") || `Loser ${deps[0]}`,
+          team2: getLoserOfNode(deps[1], "act") || `Loser ${deps[1]}`
         };
       } else {
         // All other knockout matches use winners of their dependencies
         koTeams[nodeId] = {
-          team1: state.scores[nodeId + "_overrideTeam1"] || getWinnerOfNode(deps[0], "act") || `Winner ${deps[0]}`,
-          team2: state.scores[nodeId + "_overrideTeam2"] || getWinnerOfNode(deps[1], "act") || `Winner ${deps[1]}`
+          team1: getWinnerOfNode(deps[0], "act") || `Winner ${deps[0]}`,
+          team2: getWinnerOfNode(deps[1], "act") || `Winner ${deps[1]}`
         };
       }
     }
@@ -3021,37 +3027,29 @@ function updateKoMatchDOM(nodeId, teamsObj) {
   const team2Info = document.getElementById(`ko-info-${nodeId}-team2`);
   
   if (team1Info && team2Info) {
-  const renderTeamInfo = (t, nodeId, teamIdx) => {
-    const isPlaceholder = t.startsWith("Winner") || t.startsWith("Loser") || t.match(/^\d/) || t.startsWith("3");
-    const overrideKey = `${nodeId}_overrideTeam${teamIdx}`;
-    const hasOverride = state.scores[overrideKey] !== undefined;
-
-    let options = `<option value="">-- Auto${isPlaceholder ? ` (${t})` : ''} --</option>`;
-    Object.keys(teamFlags).sort().forEach(teamName => {
-      options += `<option value="${teamName}" ${teamName === t && !isPlaceholder ? 'selected' : ''}>${teamName}</option>`;
-    });
-
-    const selectHtml = `
-      <select class="ko-team-override-select" data-node-id="${nodeId}" data-team-idx="${teamIdx}" 
-        style="background: transparent; border: 1px dashed ${hasOverride ? '#3b82f6' : 'rgba(255,255,255,0.2)'}; 
-        color: ${isPlaceholder ? '#94a3b8' : 'white'}; outline: none; padding: 2px; border-radius: 4px; 
-        font-family: inherit; font-size: 0.9rem; cursor: pointer; max-width: 100%; text-overflow: ellipsis;">
-        ${options}
-      </select>
-    `;
-
-    if (isPlaceholder) {
-      return selectHtml;
+    // Team 1
+    const t1 = teamsObj.team1;
+    const isPlaceholder1 = t1.startsWith("Winner") || t1.startsWith("Loser") || t1.match(/^\d/) || t1.startsWith("3");
+    if (isPlaceholder1) {
+      team1Info.innerHTML = `<span class="ko-placeholder-text">${t1}</span>`;
     } else {
-      return `
-        <img src="${getFlagUrl(t)}" alt="">
-        ${selectHtml}
+      team1Info.innerHTML = `
+        <img src="${getFlagUrl(t1)}" alt="">
+        <span class="team-name">${t1}</span>
       `;
     }
-  };
-
-    team1Info.innerHTML = renderTeamInfo(teamsObj.team1, nodeId, 1);
-    team2Info.innerHTML = renderTeamInfo(teamsObj.team2, nodeId, 2);
+    
+    // Team 2
+    const t2 = teamsObj.team2;
+    const isPlaceholder2 = t2.startsWith("Winner") || t2.startsWith("Loser") || t2.match(/^\d/) || t2.startsWith("3");
+    if (isPlaceholder2) {
+      team2Info.innerHTML = `<span class="ko-placeholder-text">${t2}</span>`;
+    } else {
+      team2Info.innerHTML = `
+        <img src="${getFlagUrl(t2)}" alt="">
+        <span class="team-name">${t2}</span>
+      `;
+    }
     
     // Highlight predicted winners
     const row1 = document.getElementById(`ko-row-${nodeId}-team1`);
@@ -3277,25 +3275,6 @@ function initActionHandlers() {
       }
     };
     reader.readAsText(file);
-  });
-  
-  // Add delegated listener for knockout team overrides
-  document.addEventListener("change", (e) => {
-    if (e.target && e.target.classList.contains("ko-team-override-select")) {
-      const nodeId = e.target.getAttribute("data-node-id");
-      const teamIdx = e.target.getAttribute("data-team-idx");
-      const val = e.target.value;
-      const overrideKey = `${nodeId}_overrideTeam${teamIdx}`;
-      
-      if (val === "") {
-        delete state.scores[overrideKey];
-      } else {
-        state.scores[overrideKey] = val;
-      }
-      
-      saveStateToLocalStorage();
-      updateScoresAndStandings();
-    }
   });
 }
 
@@ -3655,3 +3634,11 @@ async function fetchLiveScores(silent = false) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
 })();
+
+  
+  state.scores = undefined;
+  
+  updateScoresAndStandings();
+  
+  console.log("R32 TEAMS:");
+  console.log(JSON.stringify(globalKoTeams, null, 2));
