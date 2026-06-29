@@ -9,7 +9,7 @@
     "Tej",
     "Divyank"
   ],
-  "currentUser": "Actual Results",
+  "currentUser": "Karthik",
   "userScores": {
     "Actual Results": {
       "M1_actHome": 2,
@@ -1590,7 +1590,19 @@
       "M69_actHome": 0,
       "M69_actAway": 0,
       "M71_actHome": 3,
-      "M71_actAway": 3
+      "M71_actAway": 3,
+      "M68_predHome": 1,
+      "M68_predAway": 1,
+      "M67_predHome": 0,
+      "M67_predAway": 2,
+      "M70_predHome": 2,
+      "M70_predAway": 1,
+      "M69_predHome": 1,
+      "M69_predAway": 2,
+      "M72_predHome": 0,
+      "M72_predAway": 3,
+      "M71_predHome": 1,
+      "M71_predAway": 2
     },
     "Tej": {
       "M1_predHome": 2,
