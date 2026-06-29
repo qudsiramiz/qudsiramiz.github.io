@@ -9,7 +9,7 @@
     "Tej",
     "Divyank"
   ],
-  "currentUser": "Tej",
+  "currentUser": "Karthik",
   "userScores": {
     "Actual Results": {
       "M1_actHome": 2,
@@ -1703,7 +1703,9 @@
       "R32_9_actHome": 2,
       "R32_9_actAway": 1,
       "R32_3_predHome": 1,
-      "R32_3_predAway": 2
+      "R32_3_predAway": 2,
+      "R32_9_predHome": 2,
+      "R32_9_predAway": 1
     },
     "Tej": {
       "M1_predHome": 2,
