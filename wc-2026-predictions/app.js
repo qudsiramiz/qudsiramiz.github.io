@@ -1222,7 +1222,7 @@ function initTabs() {
 }
 
 // ---------------------- DYNAMIC POINTS CALCULATOR ----------------------
-function calculatePoints(predHome, predAway, actHome, actAway) {
+function calculatePoints(predHome, predAway, actHome, actAway, predHomePens, predAwayPens, actHomePens, actAwayPens) {
   if (predHome === null || predAway === null || actHome === null || actAway === null) return 0;
   
   const predWinner = predHome > predAway ? 'H' : (predHome < predAway ? 'A' : 'D');
@@ -1234,51 +1234,67 @@ function calculatePoints(predHome, predAway, actHome, actAway) {
   const correctAwayScore = (predAway === actAway);
   const correctAtLeastOneScore = (correctHomeScore || correctAwayScore);
   
+  let basePoints = 0;
+
   // Rule 1: Correct winner and correct score
   if (correctWinner && correctScore) {
-    return 5;
+    basePoints = 5;
   }
-  
   // Rule 6: Draw predicted, draw occurred, but scoreline was wrong
-  if (actWinner === 'D' && predWinner === 'D' && !correctScore) {
+  else if (actWinner === 'D' && predWinner === 'D' && !correctScore) {
     const totalPredGoals = predHome + predAway;
     const totalActGoals = actHome + actAway;
     const diff = Math.abs(totalPredGoals - totalActGoals);
     if (diff > 0) {
-      return 4 / diff;
+      basePoints = 4 / diff;
+    } else {
+      basePoints = 5;
     }
-    return 5;
   }
-  
   // Rule 3: Correct winner, and at least one score was correct
-  if (correctWinner && correctAtLeastOneScore) {
-    return 3;
+  else if (correctWinner && correctAtLeastOneScore) {
+    basePoints = 3;
   }
-  
   // Rule 2: Correct winner, but completely incorrect scoreline
-  if (correctWinner) {
-    return 2;
+  else if (correctWinner) {
+    basePoints = 2;
   }
-  
   // Rule 4: Incorrect winner, but one correct score
-  if (!correctWinner && correctAtLeastOneScore) {
-    return 1;
+  else if (!correctWinner && correctAtLeastOneScore) {
+    basePoints = 1;
   }
-  
   // Rule 5: Incorrect winner and incorrect scoreline
-  return 0;
+  else {
+    basePoints = 0;
+  }
+
+  // Knockout Penalty Bonus: +1 point if both predict draw, actual is draw, and penalty winner correctly predicted
+  if (predWinner === 'D' && actWinner === 'D') {
+    if (predHomePens !== undefined && predAwayPens !== undefined && actHomePens !== undefined && actAwayPens !== undefined) {
+      const predPenWinner = predHomePens > predAwayPens ? 'H' : (predHomePens < predAwayPens ? 'A' : null);
+      const actPenWinner = actHomePens > actAwayPens ? 'H' : (actHomePens < actAwayPens ? 'A' : null);
+      if (predPenWinner && actPenWinner && predPenWinner === actPenWinner) {
+        basePoints += 1;
+      }
+    }
+  }
+
+  return basePoints;
 }
 
 // Determine which scoring rule was matched (for stats breakdown)
-function getRuleMatched(predHome, predAway, actHome, actAway) {
-  const points = calculatePoints(predHome, predAway, actHome, actAway);
+function getRuleMatched(predHome, predAway, actHome, actAway, predHomePens, predAwayPens, actHomePens, actAwayPens) {
+  const points = calculatePoints(predHome, predAway, actHome, actAway, predHomePens, predAwayPens, actHomePens, actAwayPens);
   if (predHome === null || predAway === null || actHome === null || actAway === null) return null;
   
-  if (points === 5) return 'rule1';
-  if (points === 3) return 'rule3';
-  if (points === 2) return 'rule2';
-  if (points === 1) return 'rule4';
-  if (points > 0 && points < 4 && (predHome === predAway)) return 'rule6';
+  // Strip off the penalty bonus to figure out the base rule
+  const basePoints = (predHome === predAway && actHome === actAway && predHomePens !== undefined && actHomePens !== undefined && points > 0) ? points - 1 : points;
+  
+  if (basePoints === 5) return 'rule1';
+  if (basePoints === 3) return 'rule3';
+  if (basePoints === 2) return 'rule2';
+  if (basePoints === 1) return 'rule4';
+  if (basePoints > 0 && basePoints < 4 && (predHome === predAway)) return 'rule6';
   return 'rule5'; // 0 points
 }
 
@@ -1889,8 +1905,8 @@ function updateScoresAndStandings() {
       t2 = assignedThirds[m.node_id] || t2;
     }
 
-    t1 = state.scores[m.node_id + "_overrideTeam1"] || t1;
-    t2 = state.scores[m.node_id + "_overrideTeam2"] || t2;
+    t1 = state.userScores[state.users[0]][m.node_id + "_overrideTeam1"] || t1;
+    t2 = state.userScores[state.users[0]][m.node_id + "_overrideTeam2"] || t2;
     
     r32Teams[m.node_id] = { team1: t1, team2: t2 };
   });
@@ -1918,6 +1934,14 @@ function updateScoresAndStandings() {
     if (home === undefined || away === undefined) return null;
     if (home > away) return scoresMap.team1;
     if (home < away) return scoresMap.team2;
+    
+    // Check penalties if it's a draw
+    const homePens = state.scores[nodeId + "_" + prefix + "HomePens"];
+    const awayPens = state.scores[nodeId + "_" + prefix + "AwayPens"];
+    if (homePens !== undefined && awayPens !== undefined) {
+      if (homePens > awayPens) return scoresMap.team1;
+      if (homePens < awayPens) return scoresMap.team2;
+    }
     return null;
   }
 
@@ -1936,7 +1960,18 @@ function updateScoresAndStandings() {
     const home = state.scores[nodeId + "_" + prefix + "Home"];
     const away = state.scores[nodeId + "_" + prefix + "Away"];
     if (home === undefined || away === undefined) return null;
-    return home > away ? scoresMap.team2 : scoresMap.team1;
+    
+    if (home > away) return scoresMap.team2;
+    if (home < away) return scoresMap.team1;
+    
+    // Check penalties if it's a draw
+    const homePens = state.scores[nodeId + "_" + prefix + "HomePens"];
+    const awayPens = state.scores[nodeId + "_" + prefix + "AwayPens"];
+    if (homePens !== undefined && awayPens !== undefined) {
+      if (homePens > awayPens) return scoresMap.team2;
+      if (homePens < awayPens) return scoresMap.team1;
+    }
+    return null;
   }
 
   // Populate winners along the tree using depends_on from knockout data
@@ -1948,14 +1983,14 @@ function updateScoresAndStandings() {
       if (nodeId === "THIRD") {
         // Third-place match uses losers instead of winners
         koTeams[nodeId] = {
-          team1: state.scores[nodeId + "_overrideTeam1"] || getLoserOfNode(deps[0], "act") || `Loser ${deps[0]}`,
-          team2: state.scores[nodeId + "_overrideTeam2"] || getLoserOfNode(deps[1], "act") || `Loser ${deps[1]}`
+          team1: state.userScores[state.users[0]][nodeId + "_overrideTeam1"] || getLoserOfNode(deps[0], "act") || `Loser ${deps[0]}`,
+          team2: state.userScores[state.users[0]][nodeId + "_overrideTeam2"] || getLoserOfNode(deps[1], "act") || `Loser ${deps[1]}`
         };
       } else {
         // All other knockout matches use winners of their dependencies
         koTeams[nodeId] = {
-          team1: state.scores[nodeId + "_overrideTeam1"] || getWinnerOfNode(deps[0], "act") || `Winner ${deps[0]}`,
-          team2: state.scores[nodeId + "_overrideTeam2"] || getWinnerOfNode(deps[1], "act") || `Winner ${deps[1]}`
+          team1: state.userScores[state.users[0]][nodeId + "_overrideTeam1"] || getWinnerOfNode(deps[0], "act") || `Winner ${deps[0]}`,
+          team2: state.userScores[state.users[0]][nodeId + "_overrideTeam2"] || getWinnerOfNode(deps[1], "act") || `Winner ${deps[1]}`
         };
       }
     }
@@ -1986,11 +2021,16 @@ function updateScoresAndStandings() {
     if (badge) {
       if (predHome !== undefined && predAway !== undefined && actHome !== undefined && actAway !== undefined) {
         evaluatedMatches += 1;
-        const pts = calculatePoints(predHome, predAway, actHome, actAway);
+        const predHomePens = state.scores[nodeId + "_predHomePens"];
+        const predAwayPens = state.scores[nodeId + "_predAwayPens"];
+        const actHomePens = state.scores[nodeId + "_actHomePens"];
+        const actAwayPens = state.scores[nodeId + "_actAwayPens"];
+        
+        const pts = calculatePoints(predHome, predAway, actHome, actAway, predHomePens, predAwayPens, actHomePens, actAwayPens);
         totalPoints += pts;
         totalGoalError += (Math.abs(predHome - actHome) + Math.abs(predAway - actAway));
         
-        const rule = getRuleMatched(predHome, predAway, actHome, actAway);
+        const rule = getRuleMatched(predHome, predAway, actHome, actAway, predHomePens, predAwayPens, actHomePens, actAwayPens);
         if (rule) ruleCounts[rule] += 1;
         
         badge.textContent = pts.toFixed(pts % 1 === 0 ? 0 : 2) + " pts";
@@ -2023,7 +2063,7 @@ function updateScoresAndStandings() {
   // Disable actual score inputs for non-default users
   if (config.isLocal) {
     const isDefaultUser = state.currentUser === state.users[0];
-    document.querySelectorAll('.score-input.actual, .ko-score-input.actual').forEach(input => {
+    document.querySelectorAll('.score-input.actual, .ko-score-input.actual, .ko-score-input-pens.actual').forEach(input => {
       if (!isDefaultUser) {
         input.disabled = true;
         input.title = "Switch to " + state.users[0] + " to edit actual scores";
@@ -2084,10 +2124,15 @@ function calculateUserStats(scoresObj) {
     }
     if (predHome !== undefined && predAway !== undefined && actHome !== undefined && actAway !== undefined) {
       evaluatedMatches += 1;
-      const pts = calculatePoints(predHome, predAway, actHome, actAway);
+      const predHomePens = scoresObj[nodeId + "_predHomePens"];
+      const predAwayPens = scoresObj[nodeId + "_predAwayPens"];
+      const actHomePens = scoresObj[nodeId + "_actHomePens"];
+      const actAwayPens = scoresObj[nodeId + "_actAwayPens"];
+
+      const pts = calculatePoints(predHome, predAway, actHome, actAway, predHomePens, predAwayPens, actHomePens, actAwayPens);
       totalPoints += pts;
       totalGoalError += (Math.abs(predHome - actHome) + Math.abs(predAway - actAway));
-      const rule = getRuleMatched(predHome, predAway, actHome, actAway);
+      const rule = getRuleMatched(predHome, predAway, actHome, actAway, predHomePens, predAwayPens, actHomePens, actAwayPens);
       if (rule) ruleCounts[rule] += 1;
     }
   });
@@ -2180,7 +2225,15 @@ function renderPredictionsMatrix() {
         const pHome = state.userScores[u][mId + "_predHome"];
         const pAway = state.userScores[u][mId + "_predAway"];
         if (pHome !== undefined && pAway !== undefined) {
-          finalTotals[u] += calculatePoints(pHome, pAway, actHome, actAway);
+          if (m.isKo) {
+            const pHomePens = state.userScores[u][mId + "_predHomePens"];
+            const pAwayPens = state.userScores[u][mId + "_predAwayPens"];
+            const aHomePens = state.userScores[state.users[0]][mId + "_actHomePens"];
+            const aAwayPens = state.userScores[state.users[0]][mId + "_actAwayPens"];
+            finalTotals[u] += calculatePoints(pHome, pAway, actHome, actAway, pHomePens, pAwayPens, aHomePens, aAwayPens);
+          } else {
+            finalTotals[u] += calculatePoints(pHome, pAway, actHome, actAway);
+          }
         }
       });
     }
@@ -2295,7 +2348,15 @@ function renderPredictionsMatrix() {
       let pts = 0;
       let ptsStr = "";
       if (pHome !== undefined && pAway !== undefined && isPlayed) {
-        pts = calculatePoints(pHome, pAway, actHome, actAway);
+        if (m.isKo) {
+          const pHomePens = state.userScores[u][mId + "_predHomePens"];
+          const pAwayPens = state.userScores[u][mId + "_predAwayPens"];
+          const aHomePens = state.userScores[state.users[0]][mId + "_actHomePens"];
+          const aAwayPens = state.userScores[state.users[0]][mId + "_actAwayPens"];
+          pts = calculatePoints(pHome, pAway, actHome, actAway, pHomePens, pAwayPens, aHomePens, aAwayPens);
+        } else {
+          pts = calculatePoints(pHome, pAway, actHome, actAway);
+        }
         ptsStr = `<br><span style="font-size: 0.65rem; color: #9ca3af;">(${pts.toFixed(pts % 1 === 0 ? 0 : 2)}p)</span>`;
       }
       
@@ -2754,13 +2815,13 @@ function renderKnockoutBracket() {
   });
   
   // Register Input Event Listeners for Knockouts
-  document.querySelectorAll(".ko-score-input").forEach(input => {
+  document.querySelectorAll(".ko-score-input, .ko-score-input-pens").forEach(input => {
     input.addEventListener("input", (e) => {
       const nodeId = e.target.getAttribute("data-node-id");
       const type = e.target.getAttribute("data-type");
       const val = e.target.value === "" ? "" : parseInt(e.target.value);
       
-      if (type === "actHome" || type === "actAway") {
+      if (type === "actHome" || type === "actAway" || type === "actHomePens" || type === "actAwayPens") {
         state.users.forEach(u => {
           if (val === "" || isNaN(val)) {
             delete state.userScores[u][nodeId + "_" + type];
@@ -2987,9 +3048,15 @@ function createKoMatchCard(m, listId) {
         <input type="number" min="0" placeholder="P" class="ko-score-input pred ko-pred-home" 
           data-node-id="${m.node_id}" data-type="predHome"
           value="${state.scores[m.node_id + '_predHome'] !== undefined ? state.scores[m.node_id + '_predHome'] : ''}">
+        <input type="number" min="0" placeholder="p" class="ko-score-input-pens pred ko-pred-home-pens" 
+          data-node-id="${m.node_id}" data-type="predHomePens" style="display: none;" title="Penalties (Prediction)"
+          value="${state.scores[m.node_id + '_predHomePens'] !== undefined ? state.scores[m.node_id + '_predHomePens'] : ''}">
         <input type="number" min="0" placeholder="A" class="ko-score-input actual ko-act-home" 
           data-node-id="${m.node_id}" data-type="actHome"
           value="${state.scores[m.node_id + '_actHome'] !== undefined ? state.scores[m.node_id + '_actHome'] : ''}">
+        <input type="number" min="0" placeholder="p" class="ko-score-input-pens actual ko-act-home-pens" 
+          data-node-id="${m.node_id}" data-type="actHomePens" style="display: none;" title="Penalties (Actual)"
+          value="${state.scores[m.node_id + '_actHomePens'] !== undefined ? state.scores[m.node_id + '_actHomePens'] : ''}">
       </div>
     </div>
     
@@ -3002,9 +3069,15 @@ function createKoMatchCard(m, listId) {
         <input type="number" min="0" placeholder="P" class="ko-score-input pred ko-pred-away" 
           data-node-id="${m.node_id}" data-type="predAway"
           value="${state.scores[m.node_id + '_predAway'] !== undefined ? state.scores[m.node_id + '_predAway'] : ''}">
+        <input type="number" min="0" placeholder="p" class="ko-score-input-pens pred ko-pred-away-pens" 
+          data-node-id="${m.node_id}" data-type="predAwayPens" style="display: none;" title="Penalties (Prediction)"
+          value="${state.scores[m.node_id + '_predAwayPens'] !== undefined ? state.scores[m.node_id + '_predAwayPens'] : ''}">
         <input type="number" min="0" placeholder="A" class="ko-score-input actual ko-act-away" 
           data-node-id="${m.node_id}" data-type="actAway"
           value="${state.scores[m.node_id + '_actAway'] !== undefined ? state.scores[m.node_id + '_actAway'] : ''}">
+        <input type="number" min="0" placeholder="p" class="ko-score-input-pens actual ko-act-away-pens" 
+          data-node-id="${m.node_id}" data-type="actAwayPens" style="display: none;" title="Penalties (Actual)"
+          value="${state.scores[m.node_id + '_actAwayPens'] !== undefined ? state.scores[m.node_id + '_actAwayPens'] : ''}">
       </div>
     </div>
     
@@ -3024,18 +3097,20 @@ function updateKoMatchDOM(nodeId, teamsObj) {
   const renderTeamInfo = (t, nodeId, teamIdx) => {
     const isPlaceholder = t.startsWith("Winner") || t.startsWith("Loser") || t.match(/^\d/) || t.startsWith("3");
     const overrideKey = `${nodeId}_overrideTeam${teamIdx}`;
-    const hasOverride = state.scores[overrideKey] !== undefined;
+    const hasOverride = state.userScores[state.users[0]][overrideKey] !== undefined;
 
     let options = `<option value="">-- Auto${isPlaceholder ? ` (${t})` : ''} --</option>`;
     Object.keys(teamFlags).sort().forEach(teamName => {
       options += `<option value="${teamName}" ${teamName === t && !isPlaceholder ? 'selected' : ''}>${teamName}</option>`;
     });
 
+    const isEditable = config.isLocal && state.currentUser === state.users[0];
     const selectHtml = `
-      <select class="ko-team-override-select" data-node-id="${nodeId}" data-team-idx="${teamIdx}" 
+      <select class="ko-team-override-select" data-node-id="${nodeId}" data-team-idx="${teamIdx}" ${!isEditable ? 'disabled' : ''}
+        title="${!isEditable ? 'Switch to ' + state.users[0] + ' to override' : 'Override Team'}"
         style="background: transparent; border: 1px dashed ${hasOverride ? '#3b82f6' : 'rgba(255,255,255,0.2)'}; 
         color: ${isPlaceholder ? '#94a3b8' : 'white'}; outline: none; padding: 2px; border-radius: 4px; 
-        font-family: inherit; font-size: 0.9rem; cursor: pointer; max-width: 100%; text-overflow: ellipsis;">
+        font-family: inherit; font-size: 0.9rem; cursor: ${!isEditable ? 'not-allowed' : 'pointer'}; max-width: 100%; text-overflow: ellipsis;">
         ${options}
       </select>
     `;
@@ -3065,6 +3140,33 @@ function updateKoMatchDOM(nodeId, teamsObj) {
       if (predHome !== undefined && predAway !== undefined) {
         if (predHome > predAway) row1.classList.add("winner-predicted");
         else if (predHome < predAway) row2.classList.add("winner-predicted");
+        else {
+          const predHomePens = state.scores[nodeId + "_predHomePens"];
+          const predAwayPens = state.scores[nodeId + "_predAwayPens"];
+          if (predHomePens !== undefined && predAwayPens !== undefined) {
+            if (predHomePens > predAwayPens) row1.classList.add("winner-predicted");
+            else if (predHomePens < predAwayPens) row2.classList.add("winner-predicted");
+          }
+        }
+      }
+      
+      // Toggle penalty inputs visibility
+      const predHomePensInput = document.querySelector(`.ko-pred-home-pens[data-node-id="${nodeId}"]`);
+      const predAwayPensInput = document.querySelector(`.ko-pred-away-pens[data-node-id="${nodeId}"]`);
+      if (predHomePensInput && predAwayPensInput) {
+        const showPredPens = predHome !== undefined && predAway !== undefined && predHome === predAway;
+        predHomePensInput.style.display = showPredPens ? "inline-block" : "none";
+        predAwayPensInput.style.display = showPredPens ? "inline-block" : "none";
+      }
+
+      const actHome = state.scores[nodeId + "_actHome"];
+      const actAway = state.scores[nodeId + "_actAway"];
+      const actHomePensInput = document.querySelector(`.ko-act-home-pens[data-node-id="${nodeId}"]`);
+      const actAwayPensInput = document.querySelector(`.ko-act-away-pens[data-node-id="${nodeId}"]`);
+      if (actHomePensInput && actAwayPensInput) {
+        const showActPens = actHome !== undefined && actAway !== undefined && actHome === actAway;
+        actHomePensInput.style.display = showActPens ? "inline-block" : "none";
+        actAwayPensInput.style.display = showActPens ? "inline-block" : "none";
       }
     }
   }
@@ -3527,8 +3629,8 @@ async function fetchLiveScores(silent = false) {
   }
 
   try {
-    // Switch to ESPN API (100% Free, No Key Required)
-    const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard");
+    // Switch to ESPN API (100% Free, No Key Required, Fetches whole tournament range)
+    const res = await fetch("https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=20260611-20260719&limit=1000");
     
     if (!res.ok) {
       throw new Error(`ESPN API returned status ${res.status}`);
@@ -3580,14 +3682,12 @@ async function fetchLiveScores(silent = false) {
           let dashboardHome = mData.team1 || mData.team1_placeholder || "";
           let dashboardAway = mData.team2 || mData.team2_placeholder || "";
           
-          if (!dashboardHome || !dashboardAway) continue;
+          if (mData.node_id && globalKoTeams[mData.node_id]) {
+            dashboardHome = globalKoTeams[mData.node_id].team1 || dashboardHome;
+            dashboardAway = globalKoTeams[mData.node_id].team2 || dashboardAway;
+          }
           
-          if (typeof dashboardHome === 'string' && dashboardHome.match(/^[1-3][A-L]$|^W[0-9]+$/)) {
-             dashboardHome = state.knockoutTeams[dashboardHome] || dashboardHome;
-          }
-          if (typeof dashboardAway === 'string' && dashboardAway.match(/^[1-3][A-L]$|^W[0-9]+$/)) {
-             dashboardAway = state.knockoutTeams[dashboardAway] || dashboardAway;
-          }
+          if (!dashboardHome || !dashboardAway) continue;
           
           if (normalizeTeamName(dashboardHome) === hNameAPI && normalizeTeamName(dashboardAway) === aNameAPI) {
             matchId = mData.id;

@@ -8,17 +8,36 @@ appCode = appCode.replace(/let state = \{/g, 'var state = {');
 appCode = appCode.replace(/let globalKoTeams = \{\};/g, 'var globalKoTeams = {};');
 
 let script = `
-  global.window = { location: { hostname: 'localhost', protocol: 'http:' } };
+  global.window = { 
+    location: { hostname: 'localhost', protocol: 'http:' },
+    addEventListener: () => {},
+    scrollTo: () => {}
+  };
+  global.localStorage = {
+    getItem: () => null,
+    setItem: () => null,
+    removeItem: () => null
+  };
   global.document = {
     addEventListener: () => {},
     querySelectorAll: () => [],
-    getElementById: () => null,
-    querySelector: () => null,
+    getElementById: () => ({
+      classList: { add: () => {}, remove: () => {}, toggle: () => {}, contains: () => false },
+      style: {},
+      appendChild: () => {},
+      getContext: () => ({}),
+      addEventListener: () => {}
+    }),
+    querySelector: () => ({
+      classList: { add: () => {}, remove: () => {}, toggle: () => {}, contains: () => false },
+      style: {},
+      addEventListener: () => {}
+    }),
   };
   
   ${appCode}
   
-  state.scores = ${JSON.stringify(data.users['Actual Results'])};
+  state.scores = ${JSON.stringify(data.userScores['Actual Results'])};
   
   updateScoresAndStandings();
   

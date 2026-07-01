@@ -898,7 +898,7 @@ body {
   gap: 0.25rem;
 }
 
-.ko-score-input {
+.ko-score-input, .ko-score-input-pens {
   width: 34px;
   height: 30px;
   background: rgba(255,255,255,0.05);
@@ -911,17 +911,26 @@ body {
   outline: none;
 }
 
-.ko-score-input:focus {
+.ko-score-input-pens {
+  width: 26px;
+  height: 24px;
+  font-size: 0.75rem;
+  margin-left: 2px;
+}
+
+.ko-score-input:focus, .ko-score-input-pens:focus {
   border-color: var(--gold);
 }
 
 /* Hide number input spinners on knockout inputs */
 .ko-score-input::-webkit-outer-spin-button,
-.ko-score-input::-webkit-inner-spin-button {
+.ko-score-input::-webkit-inner-spin-button,
+.ko-score-input-pens::-webkit-outer-spin-button,
+.ko-score-input-pens::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
-.ko-score-input {
+.ko-score-input, .ko-score-input-pens {
   -moz-appearance: textfield;
 }
 
