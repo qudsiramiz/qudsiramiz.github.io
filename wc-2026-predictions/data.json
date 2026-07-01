@@ -9,7 +9,7 @@
     "Tej",
     "Divyank"
   ],
-  "currentUser": "Karthik",
+  "currentUser": "Tej",
   "userScores": {
     "Actual Results": {
       "M1_actHome": 2,
@@ -2004,7 +2004,11 @@
       "R32_8_predHome": 2,
       "R32_8_predAway": 1,
       "R32_7_predHome": 3,
-      "R32_7_predAway": 1
+      "R32_7_predAway": 1,
+      "R32_4_predHome": 2,
+      "R32_4_predAway": 1,
+      "R32_1_predHome": 3,
+      "R32_1_predAway": 1
     },
     "Tej": {
       "M1_predHome": 2,
@@ -2153,7 +2157,6 @@
       "R32_4_predHome": 3,
       "R32_4_predAway": 2,
       "R32_10_predHome": 1,
-      "R32_10_predAway": 1,
       "R32_2_overrideTeam2": "Sweden",
       "R32_2_predHome": 3,
       "R32_2_predAway": 0,
@@ -2363,7 +2366,16 @@
       "R32_12_actHome": 2,
       "R32_12_actAway": 1,
       "R32_8_actHome": 0,
-      "R32_8_actAway": 1
+      "R32_8_actAway": 1,
+      "R32_10_predHomePens": 0,
+      "R32_10_predAway": 1,
+      "R32_10_predAwayPens": 1,
+      "R32_7_predHomePens": 1,
+      "R32_7_predAwayPens": 0,
+      "R32_5_predHomePens": 0,
+      "R32_5_predAwayPens": 1,
+      "R32_14_predHomePens": 1,
+      "R32_14_predAwayPens": 0
     },
     "Divyank": {
       "M1_predHome": 2,
@@ -2687,7 +2699,11 @@
       "R32_12_actHome": 2,
       "R32_12_actAway": 1,
       "R32_8_actHome": 0,
-      "R32_8_actAway": 1
+      "R32_8_actAway": 1,
+      "R32_1_predHome": 2,
+      "R32_1_predAway": 0,
+      "R32_4_predHome": 3,
+      "R32_4_predAway": 1
     }
   },
   "viewMode": "sequence",
