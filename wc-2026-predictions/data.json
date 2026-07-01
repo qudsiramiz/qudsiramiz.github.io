@@ -9,7 +9,7 @@
     "Tej",
     "Divyank"
   ],
-  "currentUser": "Tej",
+  "currentUser": "Actual Results",
   "userScores": {
     "Actual Results": {
       "M1_actHome": 2,
@@ -165,7 +165,11 @@
       "R32_2_overrideTeam2": "Sweden",
       "R32_7_overrideTeam2": "Bosnia-Herz.",
       "R32_11_overrideTeam2": "Ecuador",
-      "R32_15_overrideTeam2": "Algeria"
+      "R32_15_overrideTeam2": "Algeria",
+      "M80_actHome": 2,
+      "M80_actAway": 1,
+      "M82_actHome": 0,
+      "M82_actAway": 0
     },
     "oneiros": {
       "M1_predHome": 2,
@@ -492,7 +496,11 @@
       "R32_3_actHome": 0,
       "R32_3_actAway": 1,
       "R32_9_actHome": 2,
-      "R32_9_actAway": 1
+      "R32_9_actAway": 1,
+      "M80_actHome": 2,
+      "M80_actAway": 1,
+      "M82_actHome": 0,
+      "M82_actAway": 0
     },
     "Nithin": {
       "M1_predHome": 2,
@@ -816,7 +824,11 @@
       "R32_3_actHome": 0,
       "R32_3_actAway": 1,
       "R32_9_actHome": 2,
-      "R32_9_actAway": 1
+      "R32_9_actAway": 1,
+      "M80_actHome": 2,
+      "M80_actAway": 1,
+      "M82_actHome": 0,
+      "M82_actAway": 0
     },
     "Abhi": {
       "M1_predHome": 2,
@@ -1142,7 +1154,11 @@
       "R32_3_actHome": 0,
       "R32_3_actAway": 1,
       "R32_9_actHome": 2,
-      "R32_9_actAway": 1
+      "R32_9_actAway": 1,
+      "M80_actHome": 2,
+      "M80_actAway": 1,
+      "M82_actHome": 0,
+      "M82_actAway": 0
     },
     "Anuj": {
       "M1_predHome": 2,
@@ -1473,7 +1489,11 @@
       "R32_3_actHome": 0,
       "R32_3_actAway": 1,
       "R32_9_actHome": 2,
-      "R32_9_actAway": 1
+      "R32_9_actAway": 1,
+      "M80_actHome": 2,
+      "M80_actAway": 1,
+      "M82_actHome": 0,
+      "M82_actAway": 0
     },
     "Karthik": {
       "M1_predHome": 2,
@@ -1769,7 +1789,11 @@
       "R32_3_actHome": 0,
       "R32_3_actAway": 1,
       "R32_9_actHome": 2,
-      "R32_9_actAway": 1
+      "R32_9_actAway": 1,
+      "M80_actHome": 2,
+      "M80_actAway": 1,
+      "M82_actHome": 0,
+      "M82_actAway": 0
     },
     "Tej": {
       "M1_predHome": 2,
@@ -2092,7 +2116,11 @@
       "R32_3_actHome": 0,
       "R32_3_actAway": 1,
       "R32_9_actHome": 2,
-      "R32_9_actAway": 1
+      "R32_9_actAway": 1,
+      "M80_actHome": 2,
+      "M80_actAway": 1,
+      "M82_actHome": 0,
+      "M82_actAway": 0
     },
     "Divyank": {
       "M1_predHome": 2,
@@ -2380,7 +2408,11 @@
       "R32_3_actHome": 0,
       "R32_3_actAway": 1,
       "R32_9_actHome": 2,
-      "R32_9_actAway": 1
+      "R32_9_actAway": 1,
+      "M80_actHome": 2,
+      "M80_actAway": 1,
+      "M82_actHome": 0,
+      "M82_actAway": 0
     }
   },
   "viewMode": "sequence",
