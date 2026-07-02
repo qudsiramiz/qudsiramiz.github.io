@@ -204,7 +204,9 @@
       "R32_8_actHome": 3,
       "R32_8_actAway": 2,
       "R32_7_actHome": 2,
-      "R32_7_actAway": 0
+      "R32_7_actAway": 0,
+      "R32_6_actHome": 3,
+      "R32_6_actAway": 0
     },
     "oneiros": {
       "M1_predHome": 2,
@@ -569,7 +571,9 @@
       "R32_8_actHome": 3,
       "R32_8_actAway": 2,
       "R32_7_actHome": 2,
-      "R32_7_actAway": 0
+      "R32_7_actAway": 0,
+      "R32_6_actHome": 3,
+      "R32_6_actAway": 0
     },
     "Nithin": {
       "M1_predHome": 2,
@@ -931,7 +935,9 @@
       "R32_8_actHome": 3,
       "R32_8_actAway": 2,
       "R32_7_actHome": 2,
-      "R32_7_actAway": 0
+      "R32_7_actAway": 0,
+      "R32_6_actHome": 3,
+      "R32_6_actAway": 0
     },
     "Abhi": {
       "M1_predHome": 2,
@@ -1301,7 +1307,9 @@
       "R32_8_actHome": 3,
       "R32_8_actAway": 2,
       "R32_7_actHome": 2,
-      "R32_7_actAway": 0
+      "R32_7_actAway": 0,
+      "R32_6_actHome": 3,
+      "R32_6_actAway": 0
     },
     "Anuj": {
       "M1_predHome": 2,
@@ -1670,7 +1678,9 @@
       "R32_8_actHome": 3,
       "R32_8_actAway": 2,
       "R32_7_actHome": 2,
-      "R32_7_actAway": 0
+      "R32_7_actAway": 0,
+      "R32_6_actHome": 3,
+      "R32_6_actAway": 0
     },
     "Karthik": {
       "M1_predHome": 2,
@@ -2026,7 +2036,9 @@
       "R32_8_actHome": 3,
       "R32_8_actAway": 2,
       "R32_7_actHome": 2,
-      "R32_7_actAway": 0
+      "R32_7_actAway": 0,
+      "R32_6_actHome": 3,
+      "R32_6_actAway": 0
     },
     "Tej": {
       "M1_predHome": 2,
@@ -2395,7 +2407,9 @@
       "R32_8_actHome": 3,
       "R32_8_actAway": 2,
       "R32_7_actHome": 2,
-      "R32_7_actAway": 0
+      "R32_7_actAway": 0,
+      "R32_6_actHome": 3,
+      "R32_6_actAway": 0
     },
     "Divyank": {
       "M1_predHome": 2,
@@ -2751,7 +2765,9 @@
       "R32_8_actHome": 3,
       "R32_8_actAway": 2,
       "R32_7_actHome": 2,
-      "R32_7_actAway": 0
+      "R32_7_actAway": 0,
+      "R32_6_actHome": 3,
+      "R32_6_actAway": 0
     }
   },
   "viewMode": "sequence",
