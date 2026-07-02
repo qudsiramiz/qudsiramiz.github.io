@@ -2394,7 +2394,119 @@ function renderPredictionsMatrix() {
     }
   });
   if (minMatch === Infinity) { minMatch = 0; maxMatch = 104; }
-  else { minMatch = -1; maxMatch += 2; }
+  else { minMatch = -1; maxMatch = 104; }
+
+  // Build Animation Frames
+  const frames = [];
+  const maxPoints = Math.max(...plotlyData.map(t => t.x.length));
+
+  for (let k = 1; k <= maxPoints; k++) {
+    const frameData = plotlyData.map(t => ({
+      x: t.x.slice(0, k),
+      y: t.y.slice(0, k),
+      text: t.text.slice(0, k)
+    }));
+
+    let frameAnnotations = usersToShow.map((u, uIdx) => {
+      const t = plotlyData[uIdx];
+      const lastIdx = Math.min(k - 1, t.x.length - 1);
+      if (lastIdx < 0 || t.x.length === 0) return null;
+      
+      return {
+        user: u,
+        x: t.x[lastIdx],
+        y: t.y[lastIdx],
+        rawY: t.y[lastIdx],
+        text: `<b>${u}</b>`,
+        showarrow: false,
+        xanchor: 'left',
+        yanchor: 'middle',
+        font: { color: userColors[u], family: 'Inter, sans-serif', size: 10 },
+        bgcolor: 'rgba(0,0,0,0.6)',
+        bordercolor: userColors[u],
+        borderwidth: 1,
+        borderpad: 2,
+        yshift: 0
+      };
+    }).filter(a => a !== null);
+
+    if (frameAnnotations.length > 0) {
+      // Find the maximum points in this frame to highlight the leader
+      const maxY = Math.max(...frameAnnotations.map(a => a.rawY));
+      
+      // Sort ascending by rawY to stack overlapping labels upward
+      frameAnnotations.sort((a, b) => a.rawY - b.rawY);
+      
+      let prevRawY = -Infinity;
+      let prevShift = 0;
+      
+      for (let i = 0; i < frameAnnotations.length; i++) {
+        const ann = frameAnnotations[i];
+        
+        // Approximate pixels per point: ~600px height / ~120 max points = ~5px per point
+        const pixelDiff = (ann.rawY - prevRawY) * 5;
+        const currentDistance = pixelDiff - prevShift;
+        
+        if (currentDistance < 25) {
+          ann.yshift = 25 - currentDistance;
+        } else {
+          ann.yshift = 0;
+        }
+        
+        prevRawY = ann.rawY;
+        prevShift = ann.yshift;
+        
+        // Highlight leader
+        if (ann.rawY === maxY && maxY > 0) {
+          ann.text = `👑 <b>${ann.user}</b>`;
+          ann.font.size = 12;
+          ann.bgcolor = 'rgba(212, 175, 55, 0.4)'; // Gold background
+          ann.bordercolor = '#d4af37';
+          ann.borderwidth = 2;
+        }
+      }
+
+      // Add a global banner for the leader at the top of the graph
+      let banner = null;
+      if (maxY > 0) {
+        const leaders = frameAnnotations.filter(a => a.rawY === maxY).map(a => a.user);
+        const currentMatch = frameAnnotations[0].x;
+        banner = {
+          xref: 'paper',
+          yref: 'paper',
+          x: 0.02,
+          y: 0.98,
+          text: `<b>Match ${currentMatch}</b><br>👑 Leader: <b>${leaders.join(', ')}</b>`,
+          showarrow: false,
+          xanchor: 'left',
+          yanchor: 'top',
+          font: { color: '#ffffff', family: 'Inter, sans-serif', size: 14 },
+          bgcolor: 'rgba(212, 175, 55, 0.4)',
+          bordercolor: '#d4af37',
+          borderwidth: 2,
+          borderpad: 6
+        };
+      }
+      
+      if (k === maxPoints) {
+        frameAnnotations = []; // Clear individual labels on the final frame
+      }
+      
+      if (banner) {
+        frameAnnotations.push(banner);
+      }
+    }
+
+    frames.push({
+      name: 'f' + k,
+      data: frameData,
+      layout: { annotations: frameAnnotations }
+    });
+  }
+
+  window.plotlyFrames = frames;
+
+  const maxTotals = Math.max(0, ...plotlyData.flatMap(t => t.y));
 
   // Render Plotly Graph
   const layout = {
@@ -2416,7 +2528,8 @@ function renderPredictionsMatrix() {
     yaxis: { 
       title: 'Cumulative Points', 
       gridcolor: 'rgba(255,255,255,0.1)',
-      zerolinecolor: 'rgba(255,255,255,0.2)'
+      zerolinecolor: 'rgba(255,255,255,0.2)',
+      range: [0, maxTotals * 1.15 + 15]
     },
     legend: { orientation: 'h', y: -0.2 },
     hovermode: document.getElementById('toggle-spikeline') && !document.getElementById('toggle-spikeline').checked ? false : 'closest',
@@ -2425,11 +2538,94 @@ function renderPredictionsMatrix() {
       bgcolor: '#0b0125',
       font: { color: '#ffffff', family: 'Inter, sans-serif' },
       bordercolor: 'rgba(212, 175, 55, 0.4)'
-    }
+    },
+    annotations: window.plotlyFrames && window.plotlyFrames.length > 0 ? window.plotlyFrames[window.plotlyFrames.length - 1].layout.annotations : []
   };
   
   if (typeof Plotly !== 'undefined') {
-    Plotly.newPlot('plotly-graph', plotlyData, layout, {responsive: true, displayModeBar: true, displaylogo: false});
+    Plotly.newPlot('plotly-graph', plotlyData, layout, {responsive: true, displayModeBar: true, displaylogo: false}).then(() => {
+      Plotly.addFrames('plotly-graph', window.plotlyFrames);
+    });
+  }
+
+  // --- GAP ANALYSIS GRAPH ---
+  const gapData = usersToShow.map(u => ({
+    x: [],
+    y: [],
+    text: [],
+    mode: 'lines',
+    name: u,
+    line: { color: userColors[u], width: 2 },
+    hovertemplate: '%{text}<extra></extra>'
+  }));
+
+  for (let k = 0; k < maxPoints; k++) {
+    const yValues = plotlyData.map(t => t.y[k]);
+    const maxVal = Math.max(...yValues);
+    
+    usersToShow.forEach((u, uIdx) => {
+      const matchNum = plotlyData[uIdx].x[k];
+      const pt = plotlyData[uIdx].y[k];
+      const gap = pt - maxVal; // will be <= 0
+      
+      gapData[uIdx].x.push(matchNum);
+      gapData[uIdx].y.push(gap);
+      gapData[uIdx].text.push(`<span style="color: ${userColors[u]};"><b>${u}</b>: Gap to leader: ${gap.toFixed(2)} pts</span>`);
+    });
+  }
+
+  const minGap = Math.min(0, ...gapData.flatMap(t => t.y));
+
+  const gapLayout = {
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { color: '#e5e7eb', family: 'Inter, sans-serif' },
+    margin: { t: 20, r: 30, b: 50, l: 50 },
+    xaxis: { 
+      title: 'Match Number', 
+      gridcolor: 'rgba(255,255,255,0.1)',
+      zerolinecolor: 'rgba(255,255,255,0.2)',
+      range: [minMatch, maxMatch],
+      showspikes: document.getElementById('toggle-spikeline') ? document.getElementById('toggle-spikeline').checked : true,
+      spikemode: 'across',
+      spikedash: 'dash',
+      spikecolor: '#ffffff',
+      spikethickness: 1
+    },
+    yaxis: { 
+      title: 'Points Behind Leader', 
+      gridcolor: 'rgba(255,255,255,0.1)',
+      zerolinecolor: 'rgba(255,255,255,0.2)',
+      range: [minGap - 5, 2] // padding on bottom and top
+    },
+    showlegend: false,
+    hovermode: document.getElementById('toggle-spikeline') && !document.getElementById('toggle-spikeline').checked ? false : 'closest',
+    hoverdistance: -1,
+    hoverlabel: {
+      bgcolor: '#0b0125',
+      font: { color: '#ffffff', family: 'Inter, sans-serif' },
+      bordercolor: 'rgba(255, 255, 255, 0.4)'
+    }
+  };
+
+  if (typeof Plotly !== 'undefined' && document.getElementById('plotly-graph-gap')) {
+    const gapFrames = [];
+    for (let k = 1; k <= maxPoints; k++) {
+      const frameData = gapData.map(t => ({
+        x: t.x.slice(0, k),
+        y: t.y.slice(0, k),
+        text: t.text.slice(0, k)
+      }));
+      gapFrames.push({
+        name: 'f' + k,
+        data: frameData
+      });
+    }
+    window.plotlyGapFrames = gapFrames;
+
+    Plotly.newPlot('plotly-graph-gap', gapData, gapLayout, {responsive: true, displayModeBar: true, displaylogo: false}).then(() => {
+      Plotly.addFrames('plotly-graph-gap', window.plotlyGapFrames);
+    });
   }
 
   // Helper to convert hex colors to RGBA
@@ -3581,6 +3777,12 @@ document.addEventListener('DOMContentLoaded', () => {
           'xaxis.showspikes': e.target.checked,
           'hovermode': e.target.checked ? 'closest' : false
         });
+        if (document.getElementById('plotly-graph-gap')) {
+          Plotly.relayout('plotly-graph-gap', {
+            'xaxis.showspikes': e.target.checked,
+            'hovermode': e.target.checked ? 'closest' : false
+          });
+        }
       }
     });
   }
@@ -3589,6 +3791,48 @@ document.addEventListener('DOMContentLoaded', () => {
   if (stSelect) {
     stSelect.addEventListener('change', () => {
       updateScoresAndStandings();
+    });
+  }
+
+  const btnAnimate = document.getElementById('btn-animate-graph');
+  if (btnAnimate) {
+    btnAnimate.addEventListener('click', () => {
+      if (typeof Plotly !== 'undefined' && window.plotlyFrames && window.plotlyFrames.length > 0) {
+        const frameNames = window.plotlyFrames.map(f => f.name);
+        
+        // Reset to first frame instantly
+        const animateMain = Plotly.animate('plotly-graph', [frameNames[0]], {
+          transition: { duration: 0 },
+          frame: { duration: 0, redraw: true },
+          mode: 'immediate'
+        });
+
+        let animateGap = Promise.resolve();
+        if (document.getElementById('plotly-graph-gap') && window.plotlyGapFrames) {
+          animateGap = Plotly.animate('plotly-graph-gap', [frameNames[0]], {
+            transition: { duration: 0 },
+            frame: { duration: 0, redraw: false },
+            mode: 'immediate'
+          });
+        }
+
+        Promise.all([animateMain, animateGap]).then(() => {
+          // Play sequence
+          Plotly.animate('plotly-graph', frameNames, {
+            transition: { duration: 10000 / frameNames.length, easing: 'linear' },
+            frame: { duration: 10000 / frameNames.length, redraw: true },
+            mode: 'immediate'
+          });
+
+          if (document.getElementById('plotly-graph-gap') && window.plotlyGapFrames) {
+            Plotly.animate('plotly-graph-gap', frameNames, {
+              transition: { duration: 10000 / frameNames.length, easing: 'linear' },
+              frame: { duration: 10000 / frameNames.length, redraw: false },
+              mode: 'immediate'
+            });
+          }
+        });
+      }
     });
   }
 });

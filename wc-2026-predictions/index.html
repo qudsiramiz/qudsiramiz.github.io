@@ -376,13 +376,20 @@
             <div class="graph-container-item" style="margin-bottom: 40px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                 <h4 style="margin: 0; color: #e5e7eb; font-size: 1rem; border-left: 3px solid #3b82f6; padding-left: 10px;">Cumulative Points Progression</h4>
-                <label style="color: #9ca3af; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px;">
-                  <input type="checkbox" id="toggle-spikeline" checked> Enable Hover Guide Line
-                </label>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                  <button id="btn-animate-graph" style="background: #3b82f6; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.85rem; font-family: 'Inter', sans-serif; cursor: pointer;"><i class="fa-solid fa-play"></i> Play Animation</button>
+                  <label style="color: #9ca3af; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                    <input type="checkbox" id="toggle-spikeline" checked> Enable Hover Guide Line
+                  </label>
+                </div>
               </div>
               <div id="plotly-graph" style="width: 100%; height: 600px;"></div>
             </div>
-            
+
+            <div class="graph-container-item" style="margin-bottom: 40px;">
+              <h4 style="margin-top: 0; margin-bottom: 10px; color: #e5e7eb; font-size: 1rem; border-left: 3px solid #ef4444; padding-left: 10px;">Differential to the Current Leader (Gap Analysis)</h4>
+              <div id="plotly-graph-gap" style="width: 100%; height: 400px;"></div>
+            </div>            
             <div class="graph-container-item" style="margin-bottom: 40px;">
               <h4 style="margin-top: 0; margin-bottom: 10px; color: #e5e7eb; font-size: 1rem; border-left: 3px solid #10b981; padding-left: 10px;">Prediction Style (Rule Breakdown)</h4>
               <div id="plotly-graph-style" style="width: 100%; height: 300px;"></div>
