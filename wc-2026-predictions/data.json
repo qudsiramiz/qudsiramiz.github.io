@@ -9,7 +9,7 @@
     "Tej",
     "Divyank"
   ],
-  "currentUser": "Karthik",
+  "currentUser": "Actual Results",
   "userScores": {
     "Actual Results": {
       "M1_actHome": 2,
@@ -1839,6 +1839,12 @@
       "R32_4_predAway": 1,
       "R32_1_predHome": 3,
       "R32_1_predAway": 1,
+      "R32_5_predHome": 1,
+      "R32_5_predAway": 0,
+      "R32_6_predHome": 2,
+      "R32_6_predAway": 1,
+      "R32_15_predHome": 2,
+      "R32_15_predAway": 1,
       "M1_actHome": 2,
       "M1_actAway": 0,
       "M2_actHome": 2,
@@ -2020,13 +2026,7 @@
       "R32_8_actHome": 3,
       "R32_8_actAway": 2,
       "R32_7_actHome": 2,
-      "R32_7_actAway": 0,
-      "R32_5_predHome": 1,
-      "R32_5_predAway": 0,
-      "R32_6_predHome": 2,
-      "R32_6_predAway": 1,
-      "R32_15_predHome": 2,
-      "R32_15_predAway": 1
+      "R32_7_actAway": 0
     },
     "Tej": {
       "M1_predHome": 2,
