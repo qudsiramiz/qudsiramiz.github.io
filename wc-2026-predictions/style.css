@@ -794,16 +794,51 @@ body {
 
 .bracket-container {
   display: flex;
-  justify-content: space-between;
-  width: 2200px; /* Forces wide container for brackets */
+  flex-direction: column;
+  gap: 3rem;
+  width: 100%; 
+  max-width: 1200px;
   margin: 0 auto;
   position: relative;
+}
+
+.bracket-half {
+  background: rgba(18, 12, 42, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  box-shadow: inset 0 0 20px rgba(212, 175, 55, 0.05), 0 8px 32px rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.bracket-half-title {
+  text-align: center;
+  font-family: var(--font-header);
+  font-size: 1.2rem;
+  color: var(--text-gold);
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.bracket-half-content {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.finals-content {
+  justify-content: center;
 }
 
 .bracket-round {
   display: flex;
   flex-direction: column;
-  width: 230px;
+  flex: 1;
+  min-width: 220px;
   gap: 1.5rem;
 }
 
@@ -828,19 +863,31 @@ body {
 
 /* Knockout Match Cards */
 .ko-match-card {
-  background: var(--bg-card);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  border-radius: 8px;
-  padding: 0.4rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  background: linear-gradient(145deg, rgba(30, 20, 60, 0.9), rgba(15, 10, 30, 0.95));
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 10px;
+  padding: 0.5rem;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
   position: relative;
-  transition: all var(--transition-fast);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  backdrop-filter: blur(4px);
 }
 
 .ko-match-card:hover {
   border-color: var(--gold);
-  background: var(--bg-card-hover);
-  transform: scale(1.02);
+  background: linear-gradient(145deg, rgba(40, 25, 80, 0.9), rgba(20, 12, 45, 0.95));
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.5), 0 0 15px rgba(212, 175, 55, 0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+  z-index: 10;
+}
+
+#finals-list .ko-match-card {
+  transform: scale(1.05);
+  margin-top: 10px;
+}
+
+#finals-list .ko-match-card:hover {
+  transform: scale(1.08) translateY(-3px);
 }
 
 .ko-match-header {
@@ -862,11 +909,13 @@ body {
 }
 
 .ko-match-team-row.winner-predicted {
-  background: rgba(16, 185, 129, 0.08);
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.05));
+  border-radius: 4px;
 }
 
 .ko-match-team-row.winner-actual {
   border-left: 3px solid var(--green-accent);
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.15), transparent);
 }
 
 .ko-team-info {
@@ -972,11 +1021,26 @@ body {
   margin-bottom: 1rem;
 }
 
+@keyframes pulse-glow {
+  0% { filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5)); transform: scale(1); }
+  50% { filter: drop-shadow(0 0 30px rgba(212, 175, 55, 0.9)); transform: scale(1.05); }
+  100% { filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5)); transform: scale(1); }
+}
+
 .trophy-display i {
   font-size: 4rem;
   color: var(--gold);
-  filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.5));
   margin-bottom: 0.5rem;
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+@keyframes flow-energy {
+  to { stroke-dashoffset: -20; }
+}
+.animated-connector {
+  stroke-dasharray: 6 4;
+  animation: flow-energy 1s linear infinite;
+  filter: drop-shadow(0 0 3px rgba(212,175,55,0.8));
 }
 
 .trophy-title {

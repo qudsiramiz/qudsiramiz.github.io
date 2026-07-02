@@ -789,6 +789,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   });
   
   initTabs();
+  initBracketTabs();
   initUserDropdown();
   
   if (!config.isLocal) {
@@ -1217,6 +1218,39 @@ function initTabs() {
           });
         });
       }
+    });
+  });
+}
+
+function initBracketTabs() {
+  const leftBracket = document.getElementById("bracket-left-half");
+  const rightBracket = document.getElementById("bracket-right-half");
+  
+  document.querySelectorAll(".bracket-layout-header .toggle-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      // Handle active state on buttons
+      document.querySelectorAll(".bracket-layout-header .toggle-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      
+      const viewMode = btn.id;
+      
+      if (viewMode === "btn-bracket-both") {
+        if (leftBracket) leftBracket.style.display = "block";
+        if (rightBracket) rightBracket.style.display = "block";
+      } else if (viewMode === "btn-bracket-left") {
+        if (leftBracket) leftBracket.style.display = "block";
+        if (rightBracket) rightBracket.style.display = "none";
+      } else if (viewMode === "btn-bracket-right") {
+        if (leftBracket) leftBracket.style.display = "none";
+        if (rightBracket) rightBracket.style.display = "block";
+      }
+      
+      // Redraw connectors
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          drawBracketConnectors();
+        });
+      });
     });
   });
 }
@@ -3107,21 +3141,9 @@ function drawBracketConnectors() {
   
   // Determine if a node is on the left or right side of the bracket
   function isLeftSide(nodeId) {
-    if (nodeId.startsWith("R32_")) {
-      const idx = parseInt(nodeId.split("_")[1]);
-      return idx <= 8;
-    }
-    if (nodeId.startsWith("R16_")) {
-      const idx = parseInt(nodeId.split("_")[1]);
-      return idx <= 4;
-    }
-    if (nodeId.startsWith("QF_")) {
-      const idx = parseInt(nodeId.split("_")[1]);
-      return idx <= 2;
-    }
-    if (nodeId === "SF_1") return true;
-    if (nodeId === "SF_2") return false;
-    return null; // Finals/Third - center
+    if (nodeId === "SF_1" || nodeId === "SF_2") return null; // These feed the final
+    // Everything else flows left to right
+    return true; 
   }
   
   // Draw a connector from two feeder nodes into one target node
@@ -3131,12 +3153,12 @@ function drawBracketConnectors() {
     const t = getCardPos(targetId);
     if (!f1 || !f2 || !t) return;
     
-    const leftSide = isLeftSide(feeder1Id);
+    const leftSide = isLeftSide(targetId === "Final" ? feeder1Id : targetId); // wait, for finals, targetId is Final.
     const lineColor = "rgba(212,175,55,0.35)";
     const lineWidth = 1.5;
     
-    if (leftSide === true) {
-      // Left bracket: lines go RIGHT
+    if (targetId !== "FINAL" && targetId !== "THIRD") {
+      // Left to Right flow for all matches in the halves
       const startX = f1.right + 2;
       const midX = (f1.right + t.left) / 2;
       const endX = t.left - 2;
@@ -3148,6 +3170,7 @@ function drawBracketConnectors() {
       path1.setAttribute("stroke-width", lineWidth);
       path1.setAttribute("fill", "none");
       path1.setAttribute("marker-end", "url(#arrow-right)");
+      path1.classList.add("animated-connector");
       svg.appendChild(path1);
       
       // Feeder 2 → merge point
@@ -3156,53 +3179,12 @@ function drawBracketConnectors() {
       path2.setAttribute("stroke", lineColor);
       path2.setAttribute("stroke-width", lineWidth);
       path2.setAttribute("fill", "none");
-      svg.appendChild(path2);
-      
-    } else if (leftSide === false) {
-      // Right bracket: lines go LEFT
-      const startX = f1.left - 2;
-      const midX = (f1.left + t.right) / 2;
-      const endX = t.right + 2;
-      
-      // Feeder 1 → merge point
-      const path1 = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      path1.setAttribute("d", `M${startX},${f1.centerY} H${midX} V${t.centerY} H${endX}`);
-      path1.setAttribute("stroke", lineColor);
-      path1.setAttribute("stroke-width", lineWidth);
-      path1.setAttribute("fill", "none");
-      path1.setAttribute("marker-end", "url(#arrow-left)");
-      svg.appendChild(path1);
-      
-      // Feeder 2 → merge point
-      const path2 = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      path2.setAttribute("d", `M${startX},${f2.centerY} H${midX} V${t.centerY}`);
-      path2.setAttribute("stroke", lineColor);
-      path2.setAttribute("stroke-width", lineWidth);
-      path2.setAttribute("fill", "none");
+      path2.classList.add("animated-connector");
       svg.appendChild(path2);
       
     } else {
-      // Center (Finals) - draw from both sides
-      // SF_1 (left) feeds into Final from left
-      const sf1Pos = getCardPos(feeder1Id);
-      const sf2Pos = getCardPos(feeder2Id);
-      if (!sf1Pos || !sf2Pos) return;
-      
-      const path1 = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      path1.setAttribute("d", `M${sf1Pos.right + 2},${sf1Pos.centerY} H${t.left - 2}`);
-      path1.setAttribute("stroke", lineColor);
-      path1.setAttribute("stroke-width", lineWidth);
-      path1.setAttribute("fill", "none");
-      path1.setAttribute("marker-end", "url(#arrow-right)");
-      svg.appendChild(path1);
-      
-      const path2 = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      path2.setAttribute("d", `M${sf2Pos.left - 2},${sf2Pos.centerY} H${t.right + 2}`);
-      path2.setAttribute("stroke", lineColor);
-      path2.setAttribute("stroke-width", lineWidth);
-      path2.setAttribute("fill", "none");
-      path2.setAttribute("marker-end", "url(#arrow-left)");
-      svg.appendChild(path2);
+      // User requested to remove the lines going from semi finals to the finals
+      // So we don't draw anything here.
     }
   }
   

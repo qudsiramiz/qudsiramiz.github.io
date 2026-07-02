@@ -139,79 +139,93 @@
 
       <!-- TAB 2: KNOCKOUT BRACKET -->
       <section class="tab-pane" id="bracket-tab">
-        <div class="bracket-layout-header">
+        <div class="bracket-layout-header" style="margin-bottom: 20px;">
           <h3>Knockout Stage Progression</h3>
           <p class="section-help">The Round of 32 teams are automatically calculated from your Group
             predictions! Win predictions will promote teams to the next round automatically.</p>
+            
+          <div style="display: flex; align-items: center; gap: 10px; margin-top: 15px;">
+            <span class="toggle-label"><i class="fa-solid fa-eye"></i> View Bracket:</span>
+            <div class="toggle-buttons">
+              <button class="toggle-btn active" id="btn-bracket-both"><i class="fa-solid fa-layer-group"></i> Both Sides</button>
+              <button class="toggle-btn" id="btn-bracket-left"><i class="fa-solid fa-arrow-left"></i> Left Bracket</button>
+              <button class="toggle-btn" id="btn-bracket-right"><i class="fa-solid fa-arrow-right"></i> Right Bracket</button>
+            </div>
+          </div>
         </div>
 
         <div class="bracket-viewport">
-          <div class="bracket-container" id="bracket-container">
-
-            <!-- Round of 32 Left -->
-            <div class="bracket-round r32-left">
-              <h4>Round of 32 (Left)</h4>
-              <div class="match-list" id="r32-left-list"></div>
-            </div>
-
-            <!-- Round of 16 Left -->
-            <div class="bracket-round r16-left">
-              <h4>Round of 16 (Left)</h4>
-              <div class="match-list" id="r16-left-list"></div>
-            </div>
-
-            <!-- Quarter Finals Left -->
-            <div class="bracket-round qf-left">
-              <h4>Quarter-Final (Left)</h4>
-              <div class="match-list" id="qf-left-list"></div>
-            </div>
-
-            <!-- Semi Finals Left -->
-            <div class="bracket-round sf-left">
-              <h4>Semi-Final (Left)</h4>
-              <div class="match-list" id="sf-left-list"></div>
-            </div>
-
-            <!-- Center Stage (Finals & Trophy) -->
-            <div class="bracket-round center-finals">
-              <div class="trophy-display">
-                <i class="fa-solid fa-trophy-large"></i>
-                <div class="trophy-title">FINALS</div>
+            <div class="bracket-container" id="bracket-container">
+              
+              <div class="bracket-half" id="bracket-left-half">
+                <div class="bracket-half-title">🏆 Left Bracket</div>
+                <div class="bracket-half-content">
+                  <!-- Round of 32 Left -->
+                  <div class="bracket-round r32-left">
+                    <h4>Round of 32</h4>
+                    <div class="match-list" id="r32-left-list"></div>
+                  </div>
+                  <!-- Round of 16 Left -->
+                  <div class="bracket-round r16-left">
+                    <h4>Round of 16</h4>
+                    <div class="match-list" id="r16-left-list"></div>
+                  </div>
+                  <!-- Quarter Finals Left -->
+                  <div class="bracket-round qf-left">
+                    <h4>Quarter-Final</h4>
+                    <div class="match-list" id="qf-left-list"></div>
+                  </div>
+                  <!-- Semi Finals Left -->
+                  <div class="bracket-round sf-left">
+                    <h4>Semi-Final</h4>
+                    <div class="match-list" id="sf-left-list"></div>
+                  </div>
+                </div>
               </div>
 
-              <div class="match-list" id="finals-list">
-                <!-- Final and 3rd Place match cards -->
+              <div class="bracket-half" id="bracket-right-half">
+                <div class="bracket-half-title">🏆 Right Bracket</div>
+                <div class="bracket-half-content">
+                  <!-- Round of 32 Right -->
+                  <div class="bracket-round r32-right">
+                    <h4>Round of 32</h4>
+                    <div class="match-list" id="r32-right-list"></div>
+                  </div>
+                  <!-- Round of 16 Right -->
+                  <div class="bracket-round r16-right">
+                    <h4>Round of 16</h4>
+                    <div class="match-list" id="r16-right-list"></div>
+                  </div>
+                  <!-- Quarter Finals Right -->
+                  <div class="bracket-round qf-right">
+                    <h4>Quarter-Final</h4>
+                    <div class="match-list" id="qf-right-list"></div>
+                  </div>
+                  <!-- Semi Finals Right -->
+                  <div class="bracket-round sf-right">
+                    <h4>Semi-Final</h4>
+                    <div class="match-list" id="sf-right-list"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Center Stage (Finals & Trophy) -->
+              <div class="bracket-half finals-half">
+                <div class="bracket-half-title">🏅 The Finals</div>
+                <div class="bracket-half-content finals-content">
+                  <div class="bracket-round center-finals">
+                    <div class="trophy-display" style="text-align: center; color: #d4af37; font-size: 2rem; margin-bottom: 10px;">
+                      <i class="fa-solid fa-trophy-large"></i>
+                    </div>
+                    <div class="match-list" id="finals-list">
+                      <!-- Final and 3rd Place match cards -->
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-
-            <!-- Semi Finals Right -->
-            <div class="bracket-round sf-right">
-              <h4>Semi-Final (Right)</h4>
-              <div class="match-list" id="sf-right-list"></div>
-            </div>
-
-            <!-- Quarter Finals Right -->
-            <div class="bracket-round qf-right">
-              <h4>Quarter-Final (Right)</h4>
-              <div class="match-list" id="qf-right-list"></div>
-            </div>
-
-            <!-- Round of 16 Right -->
-            <div class="bracket-round r16-right">
-              <h4>Round of 16 (Right)</h4>
-              <div class="match-list" id="r16-right-list"></div>
-            </div>
-
-            <!-- Round of 32 Right -->
-            <div class="bracket-round r32-right">
-              <h4>Round of 32 (Right)</h4>
-              <div class="match-list" id="r32-right-list"></div>
-            </div>
-
           </div>
-        </div>
-      </section>
-
+        </section>
       <!-- TAB 3: DETAILED STATS & RULES -->
       <section class="tab-pane" id="stats-tab">
         <div class="stats-layout">
