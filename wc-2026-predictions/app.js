@@ -2284,9 +2284,9 @@ function renderPredictionsMatrix() {
   
   const plotlyData = usersToShow.map(u => {
     return {
-      x: [],
-      y: [],
-      text: [],
+      x: [0],
+      y: [0],
+      text: [`<span style="color: ${userColors[u]};"><b>${u}</b>: Start: 0 pts</span>`],
       mode: 'lines+markers',
       name: u,
       line: { color: userColors[u], width: 3 },
@@ -2369,9 +2369,7 @@ function renderPredictionsMatrix() {
       const d = matchUserData[uIdx];
       
       if (isPlayed) {
-        // Add a slight jitter to x-axis to prevent exact overlap
-        const jitter = (uIdx - (usersToShow.length - 1) / 2) * 0.15;
-        plotlyData[uIdx].x.push(matchNum + jitter);
+        plotlyData[uIdx].x.push(matchNum);
         plotlyData[uIdx].y.push(runningTotals[u]);
         plotlyData[uIdx].text.push(fullHoverTxt);
       }
@@ -2395,8 +2393,8 @@ function renderPredictionsMatrix() {
       maxMatch = Math.max(maxMatch, ...trace.x);
     }
   });
-  if (minMatch === Infinity) { minMatch = 1; maxMatch = 104; }
-  else { minMatch -= 2; maxMatch += 2; }
+  if (minMatch === Infinity) { minMatch = 0; maxMatch = 104; }
+  else { minMatch = -1; maxMatch += 2; }
 
   // Render Plotly Graph
   const layout = {
