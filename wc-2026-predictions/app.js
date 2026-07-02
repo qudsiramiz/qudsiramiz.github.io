@@ -1268,15 +1268,10 @@ function calculatePoints(predHome, predAway, actHome, actAway, predHomePens, pre
     basePoints = 0;
   }
 
-  // Knockout Penalty Bonus: +1 point if both predict draw, actual is draw, and penalty winner correctly predicted
-  if (predWinner === 'D' && actWinner === 'D') {
-    if (predHomePens !== undefined && predAwayPens !== undefined && actHomePens !== undefined && actAwayPens !== undefined) {
-      const predPenWinner = predHomePens > predAwayPens ? 'H' : (predHomePens < predAwayPens ? 'A' : null);
-      const actPenWinner = actHomePens > actAwayPens ? 'H' : (actHomePens < actAwayPens ? 'A' : null);
-      if (predPenWinner && actPenWinner && predPenWinner === actPenWinner) {
-        basePoints += 1;
-      }
-    }
+  // Knockout Penalty Bonus: +1 point if both predict draw and actual is draw
+  const isKo = arguments.length > 4;
+  if (isKo && predWinner === 'D' && actWinner === 'D') {
+    basePoints += 1;
   }
 
   return basePoints;
@@ -1288,7 +1283,8 @@ function getRuleMatched(predHome, predAway, actHome, actAway, predHomePens, pred
   if (predHome === null || predAway === null || actHome === null || actAway === null) return null;
   
   // Strip off the penalty bonus to figure out the base rule
-  const basePoints = (predHome === predAway && actHome === actAway && predHomePens !== undefined && actHomePens !== undefined && points > 0) ? points - 1 : points;
+  const isKo = arguments.length > 4;
+  const basePoints = (isKo && predHome === predAway && actHome === actAway && points > 0) ? points - 1 : points;
   
   if (basePoints === 5) return 'rule1';
   if (basePoints === 3) return 'rule3';
