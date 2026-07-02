@@ -9,7 +9,7 @@
     "Tej",
     "Divyank"
   ],
-  "currentUser": "Tej",
+  "currentUser": "Divyank",
   "userScores": {
     "Actual Results": {
       "M1_actHome": 2,
@@ -201,8 +201,10 @@
       "R32_12_actHome": 2,
       "R32_12_actAway": 1,
       "R32_8_overrideTeam2": "Senegal",
-      "R32_8_actHome": 0,
-      "R32_8_actAway": 1
+      "R32_8_actHome": 3,
+      "R32_8_actAway": 2,
+      "R32_7_actHome": 2,
+      "R32_7_actAway": 0
     },
     "oneiros": {
       "M1_predHome": 2,
@@ -564,8 +566,10 @@
       "R32_11_actAway": 0,
       "R32_12_actHome": 2,
       "R32_12_actAway": 1,
-      "R32_8_actHome": 0,
-      "R32_8_actAway": 1
+      "R32_8_actHome": 3,
+      "R32_8_actAway": 2,
+      "R32_7_actHome": 2,
+      "R32_7_actAway": 0
     },
     "Nithin": {
       "M1_predHome": 2,
@@ -924,8 +928,10 @@
       "R32_11_actAway": 0,
       "R32_12_actHome": 2,
       "R32_12_actAway": 1,
-      "R32_8_actHome": 0,
-      "R32_8_actAway": 1
+      "R32_8_actHome": 3,
+      "R32_8_actAway": 2,
+      "R32_7_actHome": 2,
+      "R32_7_actAway": 0
     },
     "Abhi": {
       "M1_predHome": 2,
@@ -1292,8 +1298,10 @@
       "R32_11_actAway": 0,
       "R32_12_actHome": 2,
       "R32_12_actAway": 1,
-      "R32_8_actHome": 0,
-      "R32_8_actAway": 1
+      "R32_8_actHome": 3,
+      "R32_8_actAway": 2,
+      "R32_7_actHome": 2,
+      "R32_7_actAway": 0
     },
     "Anuj": {
       "M1_predHome": 2,
@@ -1659,8 +1667,10 @@
       "R32_11_actAway": 0,
       "R32_12_actHome": 2,
       "R32_12_actAway": 1,
-      "R32_8_actHome": 0,
-      "R32_8_actAway": 1
+      "R32_8_actHome": 3,
+      "R32_8_actAway": 2,
+      "R32_7_actHome": 2,
+      "R32_7_actAway": 0
     },
     "Karthik": {
       "M1_predHome": 2,
@@ -2007,8 +2017,10 @@
       "R32_11_actAway": 0,
       "R32_12_actHome": 2,
       "R32_12_actAway": 1,
-      "R32_8_actHome": 0,
-      "R32_8_actAway": 1
+      "R32_8_actHome": 3,
+      "R32_8_actAway": 2,
+      "R32_7_actHome": 2,
+      "R32_7_actAway": 0
     },
     "Tej": {
       "M1_predHome": 2,
@@ -2374,8 +2386,10 @@
       "R32_11_actAway": 0,
       "R32_12_actHome": 2,
       "R32_12_actAway": 1,
-      "R32_8_actHome": 0,
-      "R32_8_actAway": 1
+      "R32_8_actHome": 3,
+      "R32_8_actAway": 2,
+      "R32_7_actHome": 2,
+      "R32_7_actAway": 0
     },
     "Divyank": {
       "M1_predHome": 2,
@@ -2512,7 +2526,7 @@
       "M72_predAway": 0,
       "M67_predHome": 0,
       "M67_predAway": 3,
-      "R32_3_predHome": 0,
+      "R32_3_predHome": 1,
       "R32_3_predAway": 2,
       "R32_9_predHome": 3,
       "R32_9_predAway": 0,
@@ -2520,10 +2534,10 @@
       "R32_1_actAwayPens": 1,
       "R32_4_actHomePens": 0,
       "R32_4_actAwayPens": 1,
-      "R32_1_predHome": 2,
-      "R32_1_predAway": 0,
-      "R32_4_predHome": 3,
-      "R32_4_predAway": 1,
+      "R32_1_predHome": 3,
+      "R32_1_predAway": 1,
+      "R32_4_predHome": 2,
+      "R32_4_predAway": 0,
       "M1_actHome": 2,
       "M1_actAway": 0,
       "M2_actHome": 2,
@@ -2702,8 +2716,36 @@
       "R32_11_actAway": 0,
       "R32_12_actHome": 2,
       "R32_12_actAway": 1,
-      "R32_8_actHome": 0,
-      "R32_8_actAway": 1
+      "R32_8_actHome": 3,
+      "R32_8_actAway": 2,
+      "R32_7_actHome": 2,
+      "R32_7_actAway": 0,
+      "R32_10_predHome": 1,
+      "R32_10_predAway": 2,
+      "R32_11_predHome": 3,
+      "R32_11_predAway": 0,
+      "R32_12_predHome": 2,
+      "R32_12_predAway": 0,
+      "R32_13_predHome": 3,
+      "R32_13_predAway": 1,
+      "R32_14_predHome": 1,
+      "R32_14_predAway": 1,
+      "R32_14_predAwayPens": 1,
+      "R32_14_predHomePens": 0,
+      "R32_15_predHome": 2,
+      "R32_15_predAway": 1,
+      "R32_16_predHome": 2,
+      "R32_16_predAway": 1,
+      "R32_2_predHome": 3,
+      "R32_2_predAway": 0,
+      "R32_5_predHome": 3,
+      "R32_5_predAway": 2,
+      "R32_6_predHome": 2,
+      "R32_6_predAway": 0,
+      "R32_7_predHome": 3,
+      "R32_7_predAway": 0,
+      "R32_8_predHome": 2,
+      "R32_8_predAway": 1
     }
   },
   "viewMode": "sequence",
