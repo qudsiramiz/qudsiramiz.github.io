@@ -1100,6 +1100,7 @@ body {
   font-size: 0.9rem;
 }
 
+.rule-score.rule-6 { background: rgba(234, 179, 8, 0.2); color: #fde047; border: 1px solid #eab308; }
 .rule-score.rule-5 { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid var(--green-accent); }
 .rule-score.rule-3 { background: rgba(52, 211, 153, 0.15); color: #a7f3d0; border: 1px solid #34d399; }
 .rule-score.rule-2 { background: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid #3b82f6; }
