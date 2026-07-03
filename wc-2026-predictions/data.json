@@ -2062,7 +2062,13 @@
       "R32_5_actHome": 2,
       "R32_5_actAway": 1,
       "R32_15_actHome": 2,
-      "R32_15_actAway": 0
+      "R32_15_actAway": 0,
+      "R32_14_predHome": 1,
+      "R32_14_predAway": 2,
+      "R32_13_predHome": 3,
+      "R32_13_predAway": 0,
+      "R32_16_predHome": 2,
+      "R32_16_predAway": 1
     },
     "Tej": {
       "M1_predHome": 2,
