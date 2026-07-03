@@ -752,7 +752,7 @@
       "R32_6_predAway": 0,
       "R32_15_predHome": 0,
       "R32_15_predAway": 1,
-      "R32_13_predHome": 1,
+      "R32_13_predHome": 3,
       "R32_13_predAway": 0,
       "R32_14_predHome": 0,
       "R32_14_predAway": 2,
