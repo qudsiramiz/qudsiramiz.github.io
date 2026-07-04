@@ -220,7 +220,9 @@
       "R32_16_actHome": 1,
       "R32_16_actAway": 0,
       "R16_2_actHome": 0,
-      "R16_2_actAway": 3
+      "R16_2_actAway": 3,
+      "R16_1_actHome": 0,
+      "R16_1_actAway": 0
     },
     "oneiros": {
       "M1_predHome": 2,
@@ -617,7 +619,9 @@
       "R32_16_actHome": 1,
       "R32_16_actAway": 0,
       "R16_2_actHome": 0,
-      "R16_2_actAway": 3
+      "R16_2_actAway": 3,
+      "R16_1_actHome": 0,
+      "R16_1_actAway": 0
     },
     "Nithin": {
       "M1_predHome": 2,
@@ -999,7 +1003,9 @@
       "R32_16_actHome": 1,
       "R32_16_actAway": 0,
       "R16_2_actHome": 0,
-      "R16_2_actAway": 3
+      "R16_2_actAway": 3,
+      "R16_1_actHome": 0,
+      "R16_1_actAway": 0
     },
     "Abhi": {
       "M1_predHome": 2,
@@ -1403,7 +1409,9 @@
       "R32_16_actHome": 1,
       "R32_16_actAway": 0,
       "R16_2_actHome": 0,
-      "R16_2_actAway": 3
+      "R16_2_actAway": 3,
+      "R16_1_actHome": 0,
+      "R16_1_actAway": 0
     },
     "Anuj": {
       "M1_predHome": 2,
@@ -1796,7 +1804,9 @@
       "R32_16_actHome": 1,
       "R32_16_actAway": 0,
       "R16_2_actHome": 0,
-      "R16_2_actAway": 3
+      "R16_2_actAway": 3,
+      "R16_1_actHome": 0,
+      "R16_1_actAway": 0
     },
     "Karthik": {
       "M1_predHome": 2,
@@ -2178,7 +2188,9 @@
       "R32_16_actHome": 1,
       "R32_16_actAway": 0,
       "R16_2_actHome": 0,
-      "R16_2_actAway": 3
+      "R16_2_actAway": 3,
+      "R16_1_actHome": 0,
+      "R16_1_actAway": 0
     },
     "Tej": {
       "M1_predHome": 2,
@@ -2583,7 +2595,9 @@
       "R32_16_actHome": 1,
       "R32_16_actAway": 0,
       "R16_2_actHome": 0,
-      "R16_2_actAway": 3
+      "R16_2_actAway": 3,
+      "R16_1_actHome": 0,
+      "R16_1_actAway": 0
     },
     "Divyank": {
       "M1_predHome": 2,
@@ -2959,7 +2973,9 @@
       "R32_16_actHome": 1,
       "R32_16_actAway": 0,
       "R16_2_actHome": 0,
-      "R16_2_actAway": 3
+      "R16_2_actAway": 3,
+      "R16_1_actHome": 0,
+      "R16_1_actAway": 0
     }
   },
   "viewMode": "sequence",
