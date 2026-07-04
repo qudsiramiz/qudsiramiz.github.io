@@ -216,7 +216,9 @@
       "R32_14_actHomePens": 0,
       "R32_14_actAwayPens": 1,
       "R32_13_actHome": 3,
-      "R32_13_actAway": 2
+      "R32_13_actAway": 2,
+      "R32_16_actHome": 1,
+      "R32_16_actAway": 0
     },
     "oneiros": {
       "M1_predHome": 2,
@@ -593,7 +595,9 @@
       "R32_14_actHome": 1,
       "R32_14_actAway": 1,
       "R32_13_actHome": 3,
-      "R32_13_actAway": 2
+      "R32_13_actAway": 2,
+      "R32_16_actHome": 1,
+      "R32_16_actAway": 0
     },
     "Nithin": {
       "M1_predHome": 2,
@@ -967,7 +971,9 @@
       "R32_14_actHome": 1,
       "R32_14_actAway": 1,
       "R32_13_actHome": 3,
-      "R32_13_actAway": 2
+      "R32_13_actAway": 2,
+      "R32_16_actHome": 1,
+      "R32_16_actAway": 0
     },
     "Abhi": {
       "M1_predHome": 2,
@@ -1349,7 +1355,9 @@
       "R32_14_actHome": 1,
       "R32_14_actAway": 1,
       "R32_13_actHome": 3,
-      "R32_13_actAway": 2
+      "R32_13_actAway": 2,
+      "R32_16_actHome": 1,
+      "R32_16_actAway": 0
     },
     "Anuj": {
       "M1_predHome": 2,
@@ -1730,7 +1738,9 @@
       "R32_14_actHome": 1,
       "R32_14_actAway": 1,
       "R32_13_actHome": 3,
-      "R32_13_actAway": 2
+      "R32_13_actAway": 2,
+      "R32_16_actHome": 1,
+      "R32_16_actAway": 0
     },
     "Karthik": {
       "M1_predHome": 2,
@@ -2104,7 +2114,9 @@
       "R32_14_actHome": 1,
       "R32_14_actAway": 1,
       "R32_13_actHome": 3,
-      "R32_13_actAway": 2
+      "R32_13_actAway": 2,
+      "R32_16_actHome": 1,
+      "R32_16_actAway": 0
     },
     "Tej": {
       "M1_predHome": 2,
@@ -2485,7 +2497,9 @@
       "R32_14_actHome": 1,
       "R32_14_actAway": 1,
       "R32_13_actHome": 3,
-      "R32_13_actAway": 2
+      "R32_13_actAway": 2,
+      "R32_16_actHome": 1,
+      "R32_16_actAway": 0
     },
     "Divyank": {
       "M1_predHome": 2,
@@ -2853,7 +2867,9 @@
       "R32_14_actHome": 1,
       "R32_14_actAway": 1,
       "R32_13_actHome": 3,
-      "R32_13_actAway": 2
+      "R32_13_actAway": 2,
+      "R32_16_actHome": 1,
+      "R32_16_actAway": 0
     }
   },
   "viewMode": "sequence",
