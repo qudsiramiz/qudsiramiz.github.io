@@ -372,14 +372,16 @@
               </label>
             </div>
             <p class="section-help" style="margin-bottom: 20px;">A comprehensive view of all matches and predictions made by everyone.</p>
-            <table class="standings-table" style="width: 100%;">
-              <thead id="matrix-header">
-                <!-- Populated by app.js -->
-              </thead>
-              <tbody id="matrix-body">
-                <!-- Populated by app.js -->
-              </tbody>
-            </table>
+            <div style="max-height: calc(100vh - 200px); overflow-y: auto; scrollbar-width: thin; padding-right: 5px;">
+              <table class="standings-table" style="width: 100%;">
+                <thead id="matrix-header">
+                  <!-- Populated by app.js -->
+                </thead>
+                <tbody id="matrix-body">
+                  <!-- Populated by app.js -->
+                </tbody>
+              </table>
+            </div>
           </div>
           <div class="card analysis-card" id="graphs-card"
             style="flex: 1; min-width: 500px; margin: 0; position: sticky; top: 20px; align-self: flex-start; max-height: calc(100vh - 100px); overflow-y: auto; padding-right: 12px; scrollbar-width: thin;">

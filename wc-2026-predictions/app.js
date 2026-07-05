@@ -2273,15 +2273,15 @@ function renderPredictionsMatrix() {
 
   let headerHTML = `
     <tr>
-      <th style="min-width: 80px; text-align: left; white-space: nowrap;">Match</th>
-      <th style="width: 30%; text-align: left;">Teams</th>
-      <th style="text-align: center; width: 10%;">Actual<br><span style="font-size: 0.7rem; font-weight: normal; color: #9ca3af;">Max: ${maxPossibleScore}</span></th>
+      <th style="min-width: 80px; text-align: left; white-space: nowrap; position: sticky; top: 0; z-index: 10; background: var(--bg-deep);">Match</th>
+      <th style="width: 30%; text-align: left; position: sticky; top: 0; z-index: 10; background: var(--bg-deep);">Teams</th>
+      <th style="text-align: center; width: 10%; position: sticky; top: 0; z-index: 10; background: var(--bg-deep);">Actual<br><span style="font-size: 0.7rem; font-weight: normal; color: #9ca3af;">Max: ${maxPossibleScore}</span></th>
   `;
   usersToShow.forEach(u => {
     const pts = finalTotals[u];
     const isCurrentUser = (u === state.currentUser);
-    const highlightBg = isCurrentUser ? 'background-color: rgba(212, 175, 55, 0.15);' : '';
-    headerHTML += `<th style="text-align: center; color: ${userColors[u]}; ${highlightBg}">${u}<br><span style="font-size: 0.7rem; font-weight: normal; color: #9ca3af;">${pts.toFixed(pts % 1 === 0 ? 0 : 2)} pts</span></th>`;
+    const highlightBg = isCurrentUser ? '#1a1432' : 'var(--bg-deep)';
+    headerHTML += `<th style="text-align: center; color: ${userColors[u]}; position: sticky; top: 0; z-index: 10; background: ${highlightBg}; box-shadow: 0 1px 0 rgba(255,255,255,0.1);">${u}<br><span style="font-size: 0.7rem; font-weight: normal; color: #9ca3af;">${pts.toFixed(pts % 1 === 0 ? 0 : 2)} pts</span></th>`;
   });
   headerHTML += `</tr>`;
   headerElem.innerHTML = headerHTML;
