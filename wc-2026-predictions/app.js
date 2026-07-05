@@ -2332,6 +2332,8 @@ function renderPredictionsMatrix() {
   const runningTotals = {};
   usersToShow.forEach(u => runningTotals[u] = 0);
 
+  let currentPhase = '';
+
   // Render sorted list
   allMatches.forEach(m => {
     const matchNum = parseInt(m.id.replace(/[^\d]/g, '')) || m.id;
@@ -2359,8 +2361,32 @@ function renderPredictionsMatrix() {
     const actualHoverStr = (actHome !== undefined && actAway !== undefined) ? `${actHome} - ${actAway}` : "TBD";
     const isPlayed = (actHome !== undefined && actAway !== undefined);
 
-    let rowHTML = `
-      <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+    let rowBgColor = '';
+    let phase = 'Group Stage';
+    if (m.isKo) {
+      if (m.node_id.startsWith('R32')) { rowBgColor = 'background-color: rgba(59, 130, 246, 0.05);'; phase = 'Round of 32'; }
+      else if (m.node_id.startsWith('R16')) { rowBgColor = 'background-color: rgba(59, 130, 246, 0.1);'; phase = 'Round of 16'; }
+      else if (m.node_id.startsWith('QF')) { rowBgColor = 'background-color: rgba(59, 130, 246, 0.15);'; phase = 'Quarter-Finals'; }
+      else if (m.node_id.startsWith('SF')) { rowBgColor = 'background-color: rgba(139, 92, 246, 0.15);'; phase = 'Semi-Finals'; }
+      else if (m.node_id === 'THIRD') { rowBgColor = 'background-color: rgba(245, 158, 11, 0.15);'; phase = 'Third Place Match'; }
+      else if (m.node_id === 'FINAL') { rowBgColor = 'background-color: rgba(212, 175, 55, 0.2);'; phase = 'Final'; }
+    }
+
+    let headerRowHTML = '';
+    if (phase !== currentPhase) {
+      currentPhase = phase;
+      const colspan = 3 + usersToShow.length;
+      headerRowHTML = `
+        <tr>
+          <td colspan="${colspan}" style="background: rgba(255,255,255,0.05); color: #f6e093; text-align: center; font-weight: bold; padding: 8px; font-size: 0.9rem; letter-spacing: 1px; border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);">
+            ${phase.toUpperCase()}
+          </td>
+        </tr>
+      `;
+    }
+
+    let rowHTML = `${headerRowHTML}
+      <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); ${rowBgColor}">
         <td style="color: var(--text-muted); font-size: 0.75rem; white-space: nowrap;">${displayStr}</td>
         <td><strong>${t1}</strong> <span style="color: var(--text-muted); font-size: 0.8rem;">vs</span> <strong>${t2}</strong></td>
         <td style="text-align: center; font-weight: bold; background: rgba(16, 185, 129, 0.05); border-left: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05);">${actualStr}</td>
