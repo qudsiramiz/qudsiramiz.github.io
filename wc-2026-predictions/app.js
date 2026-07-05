@@ -2115,10 +2115,28 @@ function updateScoresAndStandings() {
 
 function calculateUserStats(scoresObj) {
   let totalPoints = 0;
-  let ruleCounts = { rule1: 0, rule2: 0, rule3: 0, rule4: 0, rule5: 0, rule6: 0 };
+  let ruleCounts = { rule1: 0, rule2: 0, rule3: 0, rule4: 0, rule5: 0, rule6: 0, ruleMinus1: 0 };
   let predictedMatches = 0;
   let evaluatedMatches = 0;
   let totalGoalError = 0;
+  
+  let groupPoints = 0;
+  let koPoints = 0;
+  let overUnderTotal = 0;
+  let overUnderCorrect = 0;
+  let cleanSheetTotal = 0;
+  let cleanSheetCorrect = 0;
+  let scorelineCounts = {};
+  let shootoutsTotal = 0;
+  let shootoutsCorrect = 0;
+  
+  let predictedMaxGoals = [];
+  let predictedMinGoals = [];
+  
+  let totalGoalsPredicted = 0;
+  let drawsPredicted = 0;
+  let maxGoalsInMatch = 0;
+  let craziestPrediction = "-";
   
   Object.keys(initialMatchesData.groups).forEach(groupId => {
     initialMatchesData.groups[groupId].forEach(m => {
@@ -2129,6 +2147,16 @@ function calculateUserStats(scoresObj) {
       
       if (predHome !== undefined && predAway !== undefined) {
         predictedMatches += 1;
+        predictedMaxGoals.push(Math.max(predHome, predAway));
+        predictedMinGoals.push(Math.min(predHome, predAway));
+        
+        const matchTotal = predHome + predAway;
+        totalGoalsPredicted += matchTotal;
+        if (predHome === predAway) drawsPredicted++;
+        if (matchTotal > maxGoalsInMatch) {
+          maxGoalsInMatch = matchTotal;
+          craziestPrediction = `${predHome}-${predAway} (${matchTotal}g)`;
+        }
       }
       if (predHome !== undefined && predAway !== undefined && actHome !== undefined && actAway !== undefined) {
         evaluatedMatches += 1;
@@ -2137,6 +2165,22 @@ function calculateUserStats(scoresObj) {
         totalGoalError += (Math.abs(predHome - actHome) + Math.abs(predAway - actAway));
         const rule = getRuleMatched(predHome, predAway, actHome, actAway);
         if (rule) ruleCounts[rule] += 1;
+        
+        groupPoints += pts;
+        
+        const predTotal = predHome + predAway;
+        const actTotal = actHome + actAway;
+        if ((predTotal > 2.5 && actTotal > 2.5) || (predTotal <= 2.5 && actTotal <= 2.5)) overUnderCorrect++;
+        overUnderTotal++;
+        
+        if (predHome === 0 || predAway === 0) {
+          cleanSheetTotal++;
+          if (predHome === 0 && actHome === 0) cleanSheetCorrect++;
+          else if (predAway === 0 && actAway === 0) cleanSheetCorrect++;
+        }
+        
+        const scoreStr = `${predHome}-${predAway}`;
+        scorelineCounts[scoreStr] = (scorelineCounts[scoreStr] || 0) + 1;
       }
     });
   });
@@ -2151,6 +2195,16 @@ function calculateUserStats(scoresObj) {
     
     if (predHome !== undefined && predAway !== undefined) {
       predictedMatches += 1;
+      predictedMaxGoals.push(Math.max(predHome, predAway));
+      predictedMinGoals.push(Math.min(predHome, predAway));
+      
+      const matchTotal = predHome + predAway;
+      totalGoalsPredicted += matchTotal;
+      if (predHome === predAway) drawsPredicted++;
+      if (matchTotal > maxGoalsInMatch) {
+        maxGoalsInMatch = matchTotal;
+        craziestPrediction = `${predHome}-${predAway} (${matchTotal}g)`;
+      }
     }
     if (predHome !== undefined && predAway !== undefined && actHome !== undefined && actAway !== undefined) {
       evaluatedMatches += 1;
@@ -2164,12 +2218,67 @@ function calculateUserStats(scoresObj) {
       totalGoalError += (Math.abs(predHome - actHome) + Math.abs(predAway - actAway));
       const rule = getRuleMatched(predHome, predAway, actHome, actAway, predHomePens, predAwayPens, actHomePens, actAwayPens);
       if (rule) ruleCounts[rule] += 1;
+      
+      koPoints += pts;
+      
+      const predTotal = predHome + predAway;
+      const actTotal = actHome + actAway;
+      if ((predTotal > 2.5 && actTotal > 2.5) || (predTotal <= 2.5 && actTotal <= 2.5)) overUnderCorrect++;
+      overUnderTotal++;
+      
+      if (predHome === 0 || predAway === 0) {
+        cleanSheetTotal++;
+        if (predHome === 0 && actHome === 0) cleanSheetCorrect++;
+        else if (predAway === 0 && actAway === 0) cleanSheetCorrect++;
+      }
+      
+      const scoreStr = `${predHome}-${predAway}`;
+      scorelineCounts[scoreStr] = (scorelineCounts[scoreStr] || 0) + 1;
+      
+      if (actHome === actAway) {
+        shootoutsTotal++;
+        if (predHome === predAway) shootoutsCorrect++;
+      }
     }
   });
   
   const acc = evaluatedMatches > 0 ? Math.round((ruleCounts.rule1 + ruleCounts.rule3 + ruleCounts.rule2 + ruleCounts.rule6) / evaluatedMatches * 100) : 0;
   const avgGoalError = evaluatedMatches > 0 ? (totalGoalError / evaluatedMatches).toFixed(2) : "0.00";
-  return { totalPoints, predictedMatches, acc, ruleCounts, avgGoalError };
+  
+  let favoriteScoreline = "-";
+  let maxCount = 0;
+  for (const [score, count] of Object.entries(scorelineCounts)) {
+    if (count > maxCount) {
+      maxCount = count;
+      favoriteScoreline = score;
+    }
+  }
+  
+  let medianScoreline = "-";
+  if (predictedMaxGoals.length > 0) {
+    predictedMaxGoals.sort((a, b) => a - b);
+    predictedMinGoals.sort((a, b) => a - b);
+    const mid = Math.floor(predictedMaxGoals.length / 2);
+    let medianMax = predictedMaxGoals[mid];
+    let medianMin = predictedMinGoals[mid];
+    if (predictedMaxGoals.length % 2 === 0) {
+      medianMax = (predictedMaxGoals[mid - 1] + predictedMaxGoals[mid]) / 2;
+      medianMin = (predictedMinGoals[mid - 1] + predictedMinGoals[mid]) / 2;
+    }
+    medianMax = medianMax % 1 === 0 ? medianMax : medianMax.toFixed(1);
+    medianMin = medianMin % 1 === 0 ? medianMin : medianMin.toFixed(1);
+    medianScoreline = `${medianMax}-${medianMin}`;
+  }
+  
+  const drawRate = predictedMatches > 0 ? Math.round((drawsPredicted / predictedMatches) * 100) : 0;
+  
+  return { 
+    totalPoints, predictedMatches, acc, ruleCounts, avgGoalError,
+    groupPoints, koPoints, overUnderCorrect, overUnderTotal,
+    cleanSheetCorrect, cleanSheetTotal, favoriteScoreline, medianScoreline,
+    shootoutsCorrect, shootoutsTotal,
+    totalGoalsPredicted, drawRate, craziestPrediction
+  };
 }
 
 function renderPredictionsMatrix() {
@@ -2885,10 +2994,98 @@ function renderPredictionsMatrix() {
     }
   };
 
+  // 5. Advanced Accuracy
+  const advData = [];
+  const overUnderPct = [];
+  const cleanSheetPct = [];
+  usersToShow.forEach(u => {
+    const stats = calculateUserStats(state.userScores[u] || {});
+    overUnderPct.push(stats.overUnderTotal > 0 ? Math.round(stats.overUnderCorrect / stats.overUnderTotal * 100) : 0);
+    cleanSheetPct.push(stats.cleanSheetTotal > 0 ? Math.round(stats.cleanSheetCorrect / stats.cleanSheetTotal * 100) : 0);
+  });
+  
+  advData.push({ x: usersToShow, y: overUnderPct, name: 'Over/Under 2.5 (%)', type: 'bar', marker: { color: '#0ea5e9' } });
+  advData.push({ x: usersToShow, y: cleanSheetPct, name: 'Clean Sheet (%)', type: 'bar', marker: { color: '#10b981' } });
+
+  const advLayout = {
+    paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+    font: { color: '#ffffff', family: 'Inter, sans-serif' },
+    barmode: 'group',
+    xaxis: { gridcolor: 'rgba(255,255,255,0.1)' },
+    yaxis: { title: 'Accuracy (%)', gridcolor: 'rgba(255,255,255,0.1)', range: [0, 100] },
+    legend: { orientation: 'h', y: -0.2 }
+  };
+
+  // 6. Group vs KO Points
+  const phaseData = [];
+  const groupPts = [];
+  const koPts = [];
+  usersToShow.forEach(u => {
+    const stats = calculateUserStats(state.userScores[u] || {});
+    groupPts.push(stats.groupPoints);
+    koPts.push(stats.koPoints);
+  });
+  
+  phaseData.push({ x: usersToShow, y: groupPts, name: 'Group Stage Pts', type: 'bar', marker: { color: '#8b5cf6' } });
+  phaseData.push({ x: usersToShow, y: koPts, name: 'Knockout Stage Pts', type: 'bar', marker: { color: '#ec4899' } });
+
+  const phaseLayout = {
+    paper_bgcolor: 'transparent', plot_bgcolor: 'transparent',
+    font: { color: '#ffffff', family: 'Inter, sans-serif' },
+    barmode: 'stack',
+    xaxis: { gridcolor: 'rgba(255,255,255,0.1)' },
+    yaxis: { title: 'Points', gridcolor: 'rgba(255,255,255,0.1)' },
+    legend: { orientation: 'h', y: -0.2 }
+  };
+
+  // 7. Fun Stats Showcase
+  let funStatsHTML = `
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem; color: #cbd5e1; background: rgba(0,0,0,0.3); border-radius: 6px; overflow: hidden;">
+      <thead>
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2);">
+          <th style="padding: 12px 10px; font-weight: 500;">User</th>
+          <th style="padding: 12px 10px; font-weight: 500;">Accuracy</th>
+          <th style="padding: 12px 10px; font-weight: 500;">Fav Scoreline</th>
+          <th style="padding: 12px 10px; font-weight: 500;">Median Scoreline</th>
+          <th style="padding: 12px 10px; font-weight: 500;">Shootouts</th>
+          <th style="padding: 12px 10px; font-weight: 500;">Total Goals</th>
+          <th style="padding: 12px 10px; font-weight: 500;">Draw Rate</th>
+          <th style="padding: 12px 10px; font-weight: 500;">Craziest Pred</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+  
+  usersToShow.forEach(u => {
+    const stats = calculateUserStats(state.userScores[u] || {});
+    funStatsHTML += `
+        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background-color 0.2s;">
+          <td style="padding: 10px; color: ${userColors[u]}; font-weight: 600; font-size: 0.95rem;">${u}</td>
+          <td style="padding: 10px; color: #4ade80;">${stats.acc}%</td>
+          <td style="padding: 10px; color: #fcd34d;">${stats.favoriteScoreline}</td>
+          <td style="padding: 10px; color: #38bdf8;">${stats.medianScoreline}</td>
+          <td style="padding: 10px; color: #6ee7b7;">${stats.shootoutsCorrect}/${stats.shootoutsTotal}</td>
+          <td style="padding: 10px; color: #fb7185;">${stats.totalGoalsPredicted}</td>
+          <td style="padding: 10px; color: #c084fc;">${stats.drawRate}%</td>
+          <td style="padding: 10px; color: #fca5a5;">${stats.craziestPrediction}</td>
+        </tr>
+    `;
+  });
+  
+  funStatsHTML += `
+      </tbody>
+    </table>
+  `;
+  const funStatsElem = document.getElementById("fun-stats-container");
+  if (funStatsElem) funStatsElem.innerHTML = funStatsHTML;
+
+
   if (typeof Plotly !== 'undefined') {
     Plotly.newPlot('plotly-graph-style', styleData, styleLayout, {responsive: true, displayModeBar: true, displaylogo: false});
     Plotly.newPlot('plotly-graph-groups', radarData, radarLayout, {responsive: true, displayModeBar: true, displaylogo: false});
     Plotly.newPlot('plotly-graph-error', scatterData, scatterLayout, {responsive: true, displayModeBar: true, displaylogo: false});
+    Plotly.newPlot('plotly-graph-adv-acc', advData, advLayout, {responsive: true, displayModeBar: true, displaylogo: false});
+    Plotly.newPlot('plotly-graph-phase-points', phaseData, phaseLayout, {responsive: true, displayModeBar: true, displaylogo: false});
   }
 
   // View Checkboxes Toggle
@@ -2928,7 +3125,7 @@ function renderPredictionsMatrix() {
     };
 
     const resizeGraphs = () => {
-      ["plotly-graph", "plotly-graph-style", "plotly-graph-groups", "plotly-graph-error"].forEach(id => {
+      ["plotly-graph", "plotly-graph-style", "plotly-graph-groups", "plotly-graph-error", "plotly-graph-adv-acc", "plotly-graph-phase-points"].forEach(id => {
         const el = document.getElementById(id);
         if (el && typeof Plotly !== 'undefined') {
           Plotly.Plots.resize(el);
