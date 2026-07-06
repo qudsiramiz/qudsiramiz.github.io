@@ -225,8 +225,8 @@
       "R16_1_actAway": 1,
       "R16_5_actHome": 1,
       "R16_5_actAway": 2,
-      "R16_6_actHome": 1,
-      "R16_6_actAway": 3
+      "R16_6_actAway": 3,
+      "R16_6_actHome": 2
     },
     "oneiros": {
       "M1_predHome": 2,
@@ -628,8 +628,8 @@
       "R16_1_actAway": 1,
       "R16_5_actHome": 1,
       "R16_5_actAway": 2,
-      "R16_6_actHome": 1,
-      "R16_6_actAway": 3
+      "R16_6_actAway": 3,
+      "R16_6_actHome": 2
     },
     "Nithin": {
       "M1_predHome": 2,
@@ -1022,8 +1022,8 @@
       "R16_1_actAway": 1,
       "R16_5_actHome": 1,
       "R16_5_actAway": 2,
-      "R16_6_actHome": 1,
-      "R16_6_actAway": 3
+      "R16_6_actAway": 3,
+      "R16_6_actHome": 2
     },
     "Abhi": {
       "M1_predHome": 2,
@@ -1432,8 +1432,8 @@
       "R16_1_actAway": 1,
       "R16_5_actHome": 1,
       "R16_5_actAway": 2,
-      "R16_6_actHome": 1,
-      "R16_6_actAway": 3
+      "R16_6_actAway": 3,
+      "R16_6_actHome": 2
     },
     "Anuj": {
       "M1_predHome": 2,
@@ -1831,8 +1831,8 @@
       "R16_1_actAway": 1,
       "R16_5_actHome": 1,
       "R16_5_actAway": 2,
-      "R16_6_actHome": 1,
-      "R16_6_actAway": 3
+      "R16_6_actAway": 3,
+      "R16_6_actHome": 2
     },
     "Karthik": {
       "M1_predHome": 2,
@@ -2223,8 +2223,8 @@
       "R16_1_actAway": 1,
       "R16_5_actHome": 1,
       "R16_5_actAway": 2,
-      "R16_6_actHome": 1,
-      "R16_6_actAway": 3
+      "R16_6_actAway": 3,
+      "R16_6_actHome": 2
     },
     "Tej": {
       "M1_predHome": 2,
@@ -2634,8 +2634,8 @@
       "R16_1_actAway": 1,
       "R16_5_actHome": 1,
       "R16_5_actAway": 2,
-      "R16_6_actHome": 1,
-      "R16_6_actAway": 3
+      "R16_6_actAway": 3,
+      "R16_6_actHome": 2
     },
     "Divyank": {
       "M1_predHome": 2,
@@ -3022,8 +3022,8 @@
       "R16_1_actAway": 1,
       "R16_5_actHome": 1,
       "R16_5_actAway": 2,
-      "R16_6_actHome": 1,
-      "R16_6_actAway": 3
+      "R16_6_actAway": 3,
+      "R16_6_actHome": 2
     }
   },
   "viewMode": "sequence",
