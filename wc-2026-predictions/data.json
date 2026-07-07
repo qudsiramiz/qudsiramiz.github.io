@@ -1036,8 +1036,8 @@
       "R16_3_actAway": 1,
       "R16_3_predHome": 1,
       "R16_3_predAway": 3,
-      "R16_4_predHome": 2,
-      "R16_4_predAway": 1,
+      "R16_4_predHome": 0,
+      "R16_4_predAway": 2,
       "R16_4_actHome": 1,
       "R16_4_actAway": 2
     },
