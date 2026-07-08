@@ -1262,7 +1262,21 @@ function calculatePoints(predHome, predAway, actHome, actAway, predHomePens, pre
   const predWinner = predHome > predAway ? 'H' : (predHome < predAway ? 'A' : 'D');
   const actWinner = actHome > actAway ? 'H' : (actHome < actAway ? 'A' : 'D');
   
-  const correctWinner = (predWinner === actWinner);
+  const isKo = arguments.length > 4;
+
+  let predAdvancing = predWinner;
+  let actAdvancing = actWinner;
+
+  if (isKo) {
+    if (predWinner === 'D' && predHomePens !== undefined && predAwayPens !== undefined) {
+      predAdvancing = predHomePens > predAwayPens ? 'H' : (predHomePens < predAwayPens ? 'A' : 'D');
+    }
+    if (actWinner === 'D' && actHomePens !== undefined && actAwayPens !== undefined) {
+      actAdvancing = actHomePens > actAwayPens ? 'H' : (actHomePens < actAwayPens ? 'A' : 'D');
+    }
+  }
+
+  const correctWinner = (predWinner === actWinner) || (isKo && predAdvancing === actAdvancing && predAdvancing !== 'D');
   const correctScore = (predHome === actHome && predAway === actAway);
   const correctHomeScore = (predHome === actHome);
   const correctAwayScore = (predAway === actAway);
@@ -1302,9 +1316,8 @@ function calculatePoints(predHome, predAway, actHome, actAway, predHomePens, pre
     basePoints = 0;
   }
 
-  // Knockout Penalty Bonus: +1 point if both predict draw and actual is draw
-  const isKo = arguments.length > 4;
-  if (isKo && predWinner === 'D' && actWinner === 'D') {
+  // Knockout Penalty Bonus: +1 point if both predict draw, actual is draw, and penalty winner is correct
+  if (isKo && predWinner === 'D' && actWinner === 'D' && predAdvancing === actAdvancing && predAdvancing !== 'D') {
     basePoints += 1;
   }
 
@@ -1316,15 +1329,32 @@ function getRuleMatched(predHome, predAway, actHome, actAway, predHomePens, pred
   const points = calculatePoints(predHome, predAway, actHome, actAway, predHomePens, predAwayPens, actHomePens, actAwayPens);
   if (predHome === null || predAway === null || actHome === null || actAway === null) return null;
   
-  // Strip off the penalty bonus to figure out the base rule
+  const predWinner = predHome > predAway ? 'H' : (predHome < predAway ? 'A' : 'D');
+  const actWinner = actHome > actAway ? 'H' : (actHome < actAway ? 'A' : 'D');
+
   const isKo = arguments.length > 4;
-  const basePoints = (isKo && predHome === predAway && actHome === actAway && points > 0) ? points - 1 : points;
+  let predAdvancing = predWinner;
+  let actAdvancing = actWinner;
+
+  if (isKo) {
+    if (predWinner === 'D' && predHomePens !== undefined && predAwayPens !== undefined) {
+      predAdvancing = predHomePens > predAwayPens ? 'H' : (predHomePens < predAwayPens ? 'A' : 'D');
+    }
+    if (actWinner === 'D' && actHomePens !== undefined && actAwayPens !== undefined) {
+      actAdvancing = actHomePens > actAwayPens ? 'H' : (actHomePens < actAwayPens ? 'A' : 'D');
+    }
+  }
+
+  const hasBonus = (isKo && predWinner === 'D' && actWinner === 'D' && predAdvancing === actAdvancing && predAdvancing !== 'D');
+  
+  // Strip off the penalty bonus to figure out the base rule
+  const basePoints = hasBonus ? points - 1 : points;
   
   if (basePoints === 5) return 'rule1';
   if (basePoints === 3) return 'rule3';
   if (basePoints === 2) return 'rule2';
   if (basePoints === 1) return 'rule4';
-  if (basePoints > 0 && basePoints < 4 && (predHome === predAway)) return 'rule6';
+  if (basePoints > 0 && basePoints < 5 && (predHome === predAway)) return 'rule6';
   return 'rule5'; // 0 points
 }
 
