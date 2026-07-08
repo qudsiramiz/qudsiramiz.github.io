@@ -438,6 +438,8 @@
       "R16_7_predAway": 0,
       "R16_8_predHome": 2,
       "R16_8_predAway": 1,
+      "R16_8_actHomePens": 1,
+      "R16_8_actAwayPens": 0,
       "M1_actHome": 2,
       "M1_actAway": 0,
       "M2_actHome": 2,
@@ -647,9 +649,7 @@
       "R16_7_actHome": 3,
       "R16_7_actAway": 2,
       "R16_8_actHome": 0,
-      "R16_8_actAway": 0,
-      "R16_8_actHomePens": 1,
-      "R16_8_actAwayPens": 0
+      "R16_8_actAway": 0
     },
     "Nithin": {
       "M1_predHome": 2,
@@ -850,6 +850,8 @@
       "R16_7_predAway": 1,
       "R16_8_predHome": 0,
       "R16_8_predAway": 2,
+      "R16_8_actHomePens": 1,
+      "R16_8_actAwayPens": 0,
       "M1_actHome": 2,
       "M1_actAway": 0,
       "M2_actHome": 2,
@@ -1059,9 +1061,7 @@
       "R16_7_actHome": 3,
       "R16_7_actAway": 2,
       "R16_8_actHome": 0,
-      "R16_8_actAway": 0,
-      "R16_8_actHomePens": 1,
-      "R16_8_actAwayPens": 0
+      "R16_8_actAway": 0
     },
     "Abhi": {
       "M1_predHome": 2,
@@ -1270,6 +1270,8 @@
       "R16_7_predAway": 0,
       "R16_8_predHome": 2,
       "R16_8_predAway": 3,
+      "R16_8_actHomePens": 1,
+      "R16_8_actAwayPens": 0,
       "M1_actHome": 2,
       "M1_actAway": 0,
       "M2_actHome": 2,
@@ -1479,9 +1481,7 @@
       "R16_7_actHome": 3,
       "R16_7_actAway": 2,
       "R16_8_actHome": 0,
-      "R16_8_actAway": 0,
-      "R16_8_actHomePens": 1,
-      "R16_8_actAwayPens": 0
+      "R16_8_actAway": 0
     },
     "Anuj": {
       "M1_predHome": 2,
@@ -1685,6 +1685,8 @@
       "R16_7_predAway": 1,
       "R16_8_predHome": 0,
       "R16_8_predAway": 2,
+      "R16_8_actHomePens": 1,
+      "R16_8_actAwayPens": 0,
       "M1_actHome": 2,
       "M1_actAway": 0,
       "M2_actHome": 2,
@@ -1894,9 +1896,7 @@
       "R16_7_actHome": 3,
       "R16_7_actAway": 2,
       "R16_8_actHome": 0,
-      "R16_8_actAway": 0,
-      "R16_8_actHomePens": 1,
-      "R16_8_actAwayPens": 0
+      "R16_8_actAway": 0
     },
     "Karthik": {
       "M1_predHome": 2,
@@ -2095,6 +2095,8 @@
       "R16_7_predAway": 1,
       "R16_8_predHome": 2,
       "R16_8_predAway": 1,
+      "R16_8_actHomePens": 1,
+      "R16_8_actAwayPens": 0,
       "M1_actHome": 2,
       "M1_actAway": 0,
       "M2_actHome": 2,
@@ -2304,9 +2306,7 @@
       "R16_7_actHome": 3,
       "R16_7_actAway": 2,
       "R16_8_actHome": 0,
-      "R16_8_actAway": 0,
-      "R16_8_actHomePens": 1,
-      "R16_8_actAwayPens": 0
+      "R16_8_actAway": 0
     },
     "Tej": {
       "M1_predHome": 2,
@@ -2516,6 +2516,8 @@
       "R16_7_predAway": 0,
       "R16_8_predHome": 1,
       "R16_8_predAway": 2,
+      "R16_8_actHomePens": 1,
+      "R16_8_actAwayPens": 0,
       "M1_actHome": 2,
       "M1_actAway": 0,
       "M2_actHome": 2,
@@ -2725,9 +2727,7 @@
       "R16_7_actHome": 3,
       "R16_7_actAway": 2,
       "R16_8_actHome": 0,
-      "R16_8_actAway": 0,
-      "R16_8_actHomePens": 1,
-      "R16_8_actAwayPens": 0
+      "R16_8_actAway": 0
     },
     "Divyank": {
       "M1_predHome": 2,
@@ -2916,6 +2916,8 @@
       "R16_6_predAway": 1,
       "R16_4_predHome": 1,
       "R16_4_predAway": 2,
+      "R16_8_actHomePens": 1,
+      "R16_8_actAwayPens": 0,
       "M1_actHome": 2,
       "M1_actAway": 0,
       "M2_actHome": 2,
@@ -3125,9 +3127,7 @@
       "R16_7_actHome": 3,
       "R16_7_actAway": 2,
       "R16_8_actHome": 0,
-      "R16_8_actAway": 0,
-      "R16_8_actHomePens": 1,
-      "R16_8_actAwayPens": 0
+      "R16_8_actAway": 0
     }
   },
   "viewMode": "sequence",
