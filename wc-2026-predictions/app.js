@@ -2316,6 +2316,8 @@ function renderPredictionsMatrix() {
   const bodyElem = document.getElementById("matrix-body");
   if (!headerElem || !bodyElem) return;
 
+  const stageFilters = Array.from(document.querySelectorAll('#matrix-stage-filters input[type="checkbox"]:checked')).map(cb => cb.value);
+
   const usersToShow = state.users.filter(u => u !== "Actual Results");
   
   const distinctColors = [
@@ -2578,7 +2580,10 @@ function renderPredictionsMatrix() {
       rowHTML += `<td style="text-align: center; color: ${userColors[u]}; ${bgStyle}">${d.predStr}${d.ptsStr}</td>`;
     });
     rowHTML += `</tr>`;
-    bodyHTML += rowHTML;
+    
+    if (stageFilters.includes(phase)) {
+      bodyHTML += rowHTML;
+    }
   });
 
   bodyElem.innerHTML = bodyHTML;
@@ -3179,6 +3184,17 @@ function renderPredictionsMatrix() {
 
     updateVisibility();
   }
+
+  // Stage filters toggle
+  const filterCheckboxes = document.querySelectorAll('#matrix-stage-filters input[type="checkbox"]');
+  filterCheckboxes.forEach(cb => {
+    if (!cb.dataset.listenerAttached) {
+      cb.addEventListener('change', () => {
+        renderPredictionsMatrix();
+      });
+      cb.dataset.listenerAttached = "true";
+    }
+  });
 }
 
 function renderLeaderboard() {

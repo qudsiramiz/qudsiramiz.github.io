@@ -366,10 +366,22 @@
           <div class="card analysis-card" id="table-card" style="flex: 1; min-width: 500px; margin: 0;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
               <h3 style="margin: 0;">Prediction Comparison</h3>
-              <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer; color: #9ca3af; font-weight: normal; user-select: none;">
-                <input type="checkbox" id="simplified-view-chk" style="cursor: pointer; width: 15px; height: 15px;">
-                Simplified view (hide graphs)
-              </label>
+              <div style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <div id="matrix-stage-filters" style="display: flex; gap: 10px; font-size: 0.85rem; color: #9ca3af; align-items: center;">
+                  <span style="color: #fff;"><i class="fa-solid fa-filter"></i> Filter:</span>
+                  <label style="cursor: pointer;"><input type="checkbox" value="Group Stage" checked> Group Stage</label>
+                  <label style="cursor: pointer;"><input type="checkbox" value="Round of 32" checked> R32</label>
+                  <label style="cursor: pointer;"><input type="checkbox" value="Round of 16" checked> R16</label>
+                  <label style="cursor: pointer;"><input type="checkbox" value="Quarter-Finals" checked> QF</label>
+                  <label style="cursor: pointer;"><input type="checkbox" value="Semi-Finals" checked> SF</label>
+                  <label style="cursor: pointer;"><input type="checkbox" value="Third Place Match" checked> 3rd Place</label>
+                  <label style="cursor: pointer;"><input type="checkbox" value="Final" checked> Final</label>
+                </div>
+                <label style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; cursor: pointer; color: #9ca3af; font-weight: normal; user-select: none; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 15px;">
+                  <input type="checkbox" id="simplified-view-chk" style="cursor: pointer; width: 15px; height: 15px;">
+                  Simplified view (hide graphs)
+                </label>
+              </div>
             </div>
             <p class="section-help" style="margin-bottom: 20px;">A comprehensive view of all matches and predictions made by everyone.</p>
             <div style="max-height: calc(100vh - 200px); overflow-y: auto; scrollbar-width: thin; padding-right: 5px;">
