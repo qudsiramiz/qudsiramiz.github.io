@@ -2316,7 +2316,22 @@ function renderPredictionsMatrix() {
   const bodyElem = document.getElementById("matrix-body");
   if (!headerElem || !bodyElem) return;
 
-  const stageFilters = Array.from(document.querySelectorAll('#matrix-stage-filters input[type="checkbox"]:checked')).map(cb => cb.value);
+  const filterCheckboxes = document.querySelectorAll('#matrix-stage-filters input[type="checkbox"]');
+  filterCheckboxes.forEach(cb => {
+    if (!cb.dataset.listenerAttached) {
+      const savedState = localStorage.getItem(`matrix_filter_${cb.value}`);
+      if (savedState !== null) {
+        cb.checked = savedState === 'true';
+      }
+      cb.addEventListener('change', () => {
+        localStorage.setItem(`matrix_filter_${cb.value}`, cb.checked);
+        renderPredictionsMatrix();
+      });
+      cb.dataset.listenerAttached = "true";
+    }
+  });
+
+  const stageFilters = Array.from(filterCheckboxes).filter(cb => cb.checked).map(cb => cb.value);
 
   const usersToShow = state.users.filter(u => u !== "Actual Results");
   
@@ -3185,16 +3200,6 @@ function renderPredictionsMatrix() {
     updateVisibility();
   }
 
-  // Stage filters toggle
-  const filterCheckboxes = document.querySelectorAll('#matrix-stage-filters input[type="checkbox"]');
-  filterCheckboxes.forEach(cb => {
-    if (!cb.dataset.listenerAttached) {
-      cb.addEventListener('change', () => {
-        renderPredictionsMatrix();
-      });
-      cb.dataset.listenerAttached = "true";
-    }
-  });
 }
 
 function renderLeaderboard() {
