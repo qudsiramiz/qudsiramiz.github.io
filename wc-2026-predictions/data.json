@@ -2354,7 +2354,9 @@
       "R16_8_actHome": 0,
       "R16_8_actAway": 0,
       "QF_1_actHome": 2,
-      "QF_1_actAway": 0
+      "QF_1_actAway": 0,
+      "QF_2_predHome": 3,
+      "QF_2_predAway": 1
     },
     "Tej": {
       "M1_predHome": 2,
