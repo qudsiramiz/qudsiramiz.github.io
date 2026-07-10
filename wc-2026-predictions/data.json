@@ -1077,7 +1077,15 @@
       "R16_8_actHome": 0,
       "R16_8_actAway": 0,
       "QF_1_actHome": 2,
-      "QF_1_actAway": 0
+      "QF_1_actAway": 0,
+      "QF_2_predHome": 2,
+      "QF_2_predAway": 1,
+      "QF_3_predHome": 1,
+      "QF_3_predAway": 1,
+      "QF_3_predHomePens": 0,
+      "QF_3_predAwayPens": 1,
+      "QF_4_predHome": 3,
+      "QF_4_predAway": 1
     },
     "Abhi": {
       "M1_predHome": 2,
