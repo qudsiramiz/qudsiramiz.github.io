@@ -242,7 +242,7 @@
       "QF_2_actHome": 2,
       "QF_2_actAway": 1,
       "QF_3_actHome": 1,
-      "QF_3_actAway": 1
+      "QF_3_actAway": 2
     },
     "oneiros": {
       "M1_predHome": 2,
@@ -669,7 +669,7 @@
       "QF_2_actHome": 2,
       "QF_2_actAway": 1,
       "QF_3_actHome": 1,
-      "QF_3_actAway": 1
+      "QF_3_actAway": 2
     },
     "Nithin": {
       "M1_predHome": 2,
@@ -874,6 +874,14 @@
       "R16_8_actAwayPens": 0,
       "QF_1_predHome": 1,
       "QF_1_predAway": 2,
+      "QF_2_predHome": 2,
+      "QF_2_predAway": 1,
+      "QF_3_predHome": 1,
+      "QF_3_predAway": 1,
+      "QF_3_predHomePens": 0,
+      "QF_3_predAwayPens": 1,
+      "QF_4_predHome": 3,
+      "QF_4_predAway": 1,
       "M1_actHome": 2,
       "M1_actAway": 0,
       "M2_actHome": 2,
@@ -1086,18 +1094,10 @@
       "R16_8_actAway": 0,
       "QF_1_actHome": 2,
       "QF_1_actAway": 0,
-      "QF_2_predHome": 2,
-      "QF_2_predAway": 1,
-      "QF_3_predHome": 1,
-      "QF_3_predAway": 1,
-      "QF_3_predHomePens": 0,
-      "QF_3_predAwayPens": 1,
-      "QF_4_predHome": 3,
-      "QF_4_predAway": 1,
       "QF_2_actHome": 2,
       "QF_2_actAway": 1,
       "QF_3_actHome": 1,
-      "QF_3_actAway": 1
+      "QF_3_actAway": 2
     },
     "Abhi": {
       "M1_predHome": 2,
@@ -1531,7 +1531,7 @@
       "QF_2_actHome": 2,
       "QF_2_actAway": 1,
       "QF_3_actHome": 1,
-      "QF_3_actAway": 1
+      "QF_3_actAway": 2
     },
     "Anuj": {
       "M1_predHome": 2,
@@ -1960,7 +1960,7 @@
       "QF_2_actHome": 2,
       "QF_2_actAway": 1,
       "QF_3_actHome": 1,
-      "QF_3_actAway": 1
+      "QF_3_actAway": 2
     },
     "Karthik": {
       "M1_predHome": 2,
@@ -2163,6 +2163,12 @@
       "R16_8_actAwayPens": 0,
       "QF_1_predHome": 2,
       "QF_1_predAway": 1,
+      "QF_2_predHome": 3,
+      "QF_2_predAway": 1,
+      "QF_3_predHome": 1,
+      "QF_3_predAway": 2,
+      "QF_4_predHome": 2,
+      "QF_4_predAway": 1,
       "M1_actHome": 2,
       "M1_actAway": 0,
       "M2_actHome": 2,
@@ -2375,16 +2381,10 @@
       "R16_8_actAway": 0,
       "QF_1_actHome": 2,
       "QF_1_actAway": 0,
-      "QF_2_predHome": 3,
-      "QF_2_predAway": 1,
       "QF_2_actHome": 2,
       "QF_2_actAway": 1,
-      "QF_3_predHome": 1,
-      "QF_3_predAway": 2,
-      "QF_4_predHome": 2,
-      "QF_4_predAway": 1,
       "QF_3_actHome": 1,
-      "QF_3_actAway": 1
+      "QF_3_actAway": 2
     },
     "Tej": {
       "M1_predHome": 2,
@@ -2821,7 +2821,7 @@
       "QF_2_actHome": 2,
       "QF_2_actAway": 1,
       "QF_3_actHome": 1,
-      "QF_3_actAway": 1
+      "QF_3_actAway": 2
     },
     "Divyank": {
       "M1_predHome": 2,
@@ -3237,7 +3237,7 @@
       "QF_2_actHome": 2,
       "QF_2_actAway": 1,
       "QF_3_actHome": 1,
-      "QF_3_actAway": 1
+      "QF_3_actAway": 2
     }
   },
   "viewMode": "sequence",
