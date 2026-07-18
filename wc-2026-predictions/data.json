@@ -2456,7 +2456,11 @@
       "SF_1_actHome": 0,
       "SF_1_actAway": 2,
       "SF_2_actHome": 1,
-      "SF_2_actAway": 2
+      "SF_2_actAway": 2,
+      "FINAL_predHome": 2,
+      "FINAL_predAway": 1,
+      "THIRD_predHome": 2,
+      "THIRD_predAway": 1
     },
     "Tej": {
       "M1_predHome": 2,
