@@ -250,7 +250,9 @@
       "SF_2_actHome": 1,
       "SF_2_actAway": 2,
       "THIRD_actHome": 4,
-      "THIRD_actAway": 6
+      "THIRD_actAway": 6,
+      "FINAL_actHome": 1,
+      "FINAL_actAway": 0
     },
     "oneiros": {
       "M1_predHome": 2,
@@ -693,7 +695,9 @@
       "THIRD_predHome": 3,
       "THIRD_predAway": 2,
       "THIRD_actHome": 4,
-      "THIRD_actAway": 6
+      "THIRD_actAway": 6,
+      "FINAL_actHome": 1,
+      "FINAL_actAway": 0
     },
     "Nithin": {
       "M1_predHome": 2,
@@ -1137,7 +1141,9 @@
       "FINAL_predHome": 2,
       "FINAL_predAway": 3,
       "THIRD_actHome": 4,
-      "THIRD_actAway": 6
+      "THIRD_actAway": 6,
+      "FINAL_actHome": 1,
+      "FINAL_actAway": 0
     },
     "Abhi": {
       "M1_predHome": 2,
@@ -1587,7 +1593,9 @@
       "FINAL_predAway": 0,
       "FINAL_predHome": 1,
       "THIRD_actHome": 4,
-      "THIRD_actAway": 6
+      "THIRD_actAway": 6,
+      "FINAL_actHome": 1,
+      "FINAL_actAway": 0
     },
     "Anuj": {
       "M1_predHome": 2,
@@ -2032,7 +2040,9 @@
       "FINAL_predHome": 2,
       "FINAL_predAway": 1,
       "THIRD_actHome": 4,
-      "THIRD_actAway": 6
+      "THIRD_actAway": 6,
+      "FINAL_actHome": 1,
+      "FINAL_actAway": 0
     },
     "Karthik": {
       "M1_predHome": 2,
@@ -2472,7 +2482,9 @@
       "THIRD_predHome": 2,
       "THIRD_predAway": 1,
       "THIRD_actHome": 4,
-      "THIRD_actAway": 6
+      "THIRD_actAway": 6,
+      "FINAL_actHome": 1,
+      "FINAL_actAway": 0
     },
     "Tej": {
       "M1_predHome": 2,
@@ -2921,7 +2933,9 @@
       "SF_2_actHome": 1,
       "SF_2_actAway": 2,
       "THIRD_actHome": 4,
-      "THIRD_actAway": 6
+      "THIRD_actAway": 6,
+      "FINAL_actHome": 1,
+      "FINAL_actAway": 0
     },
     "Divyank": {
       "M1_predHome": 2,
@@ -3351,7 +3365,9 @@
       "THIRD_predHome": 2,
       "THIRD_predAway": 0,
       "THIRD_actHome": 4,
-      "THIRD_actAway": 6
+      "THIRD_actAway": 6,
+      "FINAL_actHome": 1,
+      "FINAL_actAway": 0
     }
   },
   "viewMode": "sequence",
