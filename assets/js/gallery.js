@@ -19,7 +19,7 @@ function initGallery() {
         .then(response => response.json())
         .then(images => {
             galleryImages = images;
-            shuffleArray(galleryImages);
+            // Removed shuffleArray to keep chronological (alphabetical) order
             renderThumbnails();
             
             // Move lightbox out of the <article> to avoid CSS transform relative positioning bugs
@@ -40,14 +40,22 @@ function renderThumbnails() {
     galleryImages.forEach((src, index) => {
         const thumb = document.createElement('div');
         thumb.className = 'gallery-thumbnail';
-        thumb.style.backgroundImage = `url('${src}')`;
-        thumb.style.backgroundSize = 'cover';
-        thumb.style.backgroundPosition = 'center';
         thumb.style.cursor = 'pointer';
         thumb.style.borderRadius = '4px';
         thumb.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
         thumb.style.aspectRatio = '1 / 1';
         thumb.style.transition = 'transform 0.2s';
+        thumb.style.overflow = 'hidden';
+        
+        const img = document.createElement('img');
+        img.src = src;
+        img.loading = 'lazy'; // Huge performance boost by deferring offscreen images
+        img.style.width = '100%';
+        img.style.height = '100%';
+        img.style.objectFit = 'cover';
+        img.style.display = 'block';
+        
+        thumb.appendChild(img);
         
         thumb.onmouseover = () => thumb.style.transform = 'scale(1.05)';
         thumb.onmouseout = () => thumb.style.transform = 'scale(1)';
