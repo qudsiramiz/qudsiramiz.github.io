@@ -403,7 +403,7 @@
 		$("#includedContent").load("Bookshelf-2022-01-21.html");
 	});
 
-	$("a.expansion-btn").click(function () {
+	$(document).on("click", "a.expansion-btn", function () {
 		classes = this.className;
 		var divNumber = classes.slice(-1);
 		var toGetId = "#div-" + divNumber;
