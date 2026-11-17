@@ -1,0 +1,2436 @@
+<!DOCTYPE html><html><head><meta charset='UTF-8'><title>CDAWEB Access Log Report - AUG 2026 - Custom Reports</title>
+<style>:root {
+    /* Light Mode Variables */
+    --bg-color: #f8fafc;
+    --surface: #ffffff;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border: #cbd5e1;
+    --border-dashed: #94a3b8;
+    --primary: #3b82f6;
+    --primary-hover: #eff6ff;
+    --table-header-bg: #1e293b;
+    --table-header-text: #f8fafc;
+    --row-alt: #f1f5f9;
+    --link-color: #2563eb;
+    --heatmap-base: 59, 130, 246;
+}
+[data-theme="dark"] {
+    /* Dark Mode Variables */
+    --bg-color: #0f172a;
+    --surface: #1e293b;
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --border: #334155;
+    --border-dashed: #475569;
+    --primary: #06b6d4;
+    --primary-hover: #083344;
+    --table-header-bg: #020617;
+    --table-header-text: #f8fafc;
+    --row-alt: #0f172a;
+    --link-color: #06b6d4;
+    --heatmap-base: 6, 182, 212;
+}
+
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; line-height: 1.5; transition: background-color 0.3s, color 0.3s; }
+.container { max-width: 1400px; margin: 0 auto; padding: 2rem; }
+
+/* Header & Buttons */
+.header-block { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;}
+.title-area h1 { margin: 0 0 0.5rem 0; font-size: 2.25rem; font-weight: 700; color: var(--text-main); }
+.title-area h3 { margin: 0; font-size: 1.125rem; font-weight: 400; color: var(--text-muted); }
+.generated-at { margin: 0.5rem 0 0; color: var(--text-muted); font-size: 0.875rem; }
+.action-buttons { display: flex; gap: 0.5rem; }
+.btn { background: var(--surface); border: 1px solid var(--border); color: var(--text-main); padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 0.875rem; transition: all 0.2s; }
+.btn:hover { border-color: var(--primary); color: var(--primary); }
+
+/* Tabs Styling */
+.tab-container { display: flex; border-bottom: 2px solid var(--border); margin-bottom: 2rem; gap: 1rem; }
+.tab-button { background: none; border: none; padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s ease; margin-bottom: -2px; }
+.tab-button:hover { color: var(--primary); }
+.tab-button.active { color: var(--primary); border-bottom-color: var(--primary); }
+.tab-content { display: none; animation: fadeIn 0.3s; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Links & Navigation */
+a { color: var(--link-color); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.nav-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; align-items: center; }
+.nav-bar-label { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-right: 0.5rem; text-transform: uppercase; }
+.nav-bar a { background: var(--surface); border: 1px solid var(--border); color: var(--link-color); padding: 0.25rem 0.8rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; text-decoration: none; transition: all 0.2s; }
+.nav-bar a:hover { border-color: var(--primary); background: var(--primary-hover); }
+.nav-bar a.active { background: var(--primary); border-color: var(--primary); color: var(--surface); font-weight: 700; }
+
+/* Collapsible Sections */
+details { margin-bottom: 2.5rem; }
+summary { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 0.5rem 0; border-bottom: 2px solid var(--border); margin-bottom: 1rem; list-style: none; }
+summary::-webkit-details-marker { display: none; }
+.summary-title { display: flex; align-items: center; }
+.summary-title::before { content: '▶'; display: inline-block; margin-right: 0.75rem; font-size: 0.85rem; color: var(--primary); transition: transform 0.2s; }
+details[open] > summary .summary-title::before { transform: rotate(90deg); }
+summary h2 { font-size: 1.5rem; font-weight: 600; margin: 0; color: var(--text-main); }
+summary:hover h2 { color: var(--primary); }
+.back-to-top { font-size: 0.875rem; font-weight: 500; }
+p.desc { font-size: 0.95rem; color: var(--text-muted); margin-top: 0; margin-bottom: 1rem; }
+
+/* Table Styling */
+.table-container { background: var(--surface); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow-x: auto; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th { background-color: var(--table-header-bg); color: var(--table-header-text); font-weight: 600; text-transform: uppercase; font-size: 0.75rem; padding: 1rem; border-bottom: 1px solid var(--border); white-space: nowrap; border-right: 1px dashed var(--border-dashed); position: relative;}
+td { padding: 0.875rem 1rem; border-bottom: 1px solid var(--border); font-size: 0.875rem; border-right: 1px dashed var(--border-dashed); }
+th:last-child, td:last-child { border-right: none; }
+tr:last-child td { border-bottom: none; }
+
+/* 3-State Sorting */
+.sortable { cursor: pointer; padding-right: 1.5rem; user-select: none; }
+.sortable::after { content: '↕'; position: absolute; right: 0.5rem; color: var(--text-muted); opacity: 0.5; font-size: 0.85rem;}
+.sortable:hover::after { opacity: 1; color: var(--table-header-text); }
+.sort-asc::after { content: '▲'; opacity: 1; color: var(--primary); }
+.sort-desc::after { content: '▼'; opacity: 1; color: var(--primary); }
+
+/* Plots Grid */
+.plots-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)); gap: 2rem; }
+.plot-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.plot-card h2 { margin: 0 0 0.5rem; font-size: 1.2rem; }
+.plot-card .desc { margin-bottom: 1rem; }
+.bot-report-section { margin-bottom: 2.5rem; }
+.bot-report-section h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+
+.footer { text-align: center; color: var(--text-muted); font-size: 0.875rem; margin-top: 4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }</style></head><body id='top'>
+<div class='container'>
+<div class='header-block'>
+<div class='title-area'>
+<h1>CDAWEB Access Log Report for AUG 2026 - Custom Reports</h1>
+<h3>Analyzed requests from Sat, Aug 01 2026 at 12:00 AM UTC to Mon, Aug 31 2026 at 11:59 PM UTC (31.00 days).</h3>
+<p class='generated-at'>The report was generated or updated on 2026-11-13 07:32:54 UTC.</p>
+</div>
+<div class='action-buttons'>
+<button id='toggle-all-btn' class='btn' onclick='toggleAllSections()'>⮝ Collapse All</button>
+<button id='theme-toggle' class='btn'>🌓 Toggle Theme</button>
+</div></div>
+
+    <div class="tab-container">
+        <button class="tab-button active" onclick="openTab(event, 'Tab-Tables')">📊 Data Tables</button>
+        <button class="tab-button" onclick="openTab(event, 'Tab-Plots')">📈 Visualizations</button>
+    
+</div>
+<div id='Tab-Tables' class='tab-content' style='display: block;'>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<details open id='http-user-agent'>
+<summary>
+<div class='summary-title'><h2>HTTP User Agent</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a class="active" aria-current="location" href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for HTTP User Agent.</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>User Agent</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Total Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Total</th>
+<th class='sortable' style='' onclick='sortTable(this)'>CDAS</th>
+<th class='sortable' style='' onclick='sortTable(this)'>HAPI</th>
+<th class='sortable' style='' onclick='sortTable(this)'>HDP</th>
+<th class='sortable' style='' onclick='sortTable(this)'>MCP</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Other API</th>
+<th class='sortable' style='' onclick='sortTable(this)'>SSC</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''>cdasws/1.7.43 (CPython 3.11.5; Linux-4.18.0-553.144.1.el8_10.x86_64-x86_64-with-glibc2.28)</td>
+<td data-sort='169913.0' style=''>169,913.00</td>
+<td data-sort='10.31' style=''>10.31</td>
+<td data-sort='169913.0' style=''>169,913.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''>python-requests/2.34.2</td>
+<td data-sort='163208.0' style=''>163,208.00</td>
+<td data-sort='9.91' style=''>9.91</td>
+<td data-sort='156226.0' style=''>156,226.00</td>
+<td data-sort='6787.0' style=''>6,787.00</td>
+<td data-sort='4.0' style=''>4.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='191.0' style=''>191.00</td>
+</tr>
+<tr data-orig-idx='2' style='background-color: var(--surface);'>
+<td style=''>HAPI-Nand</td>
+<td data-sort='136793.0' style=''>136,793.00</td>
+<td data-sort='8.3' style=''>8.30</td>
+<td data-sort='136793.0' style=''>136,793.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='3' style='background-color: var(--row-alt);'>
+<td style=''>curlWsExample</td>
+<td data-sort='101531.0' style=''>101,531.00</td>
+<td data-sort='6.16' style=''>6.16</td>
+<td data-sort='101531.0' style=''>101,531.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='4' style='background-color: var(--surface);'>
+<td style=''>python-urllib3/2.6.3</td>
+<td data-sort='94713.0' style=''>94,713.00</td>
+<td data-sort='5.75' style=''>5.75</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='94160.0' style=''>94,160.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='553.0' style=''>553.00</td>
+</tr>
+<tr data-orig-idx='5' style='background-color: var(--row-alt);'>
+<td style=''>Apache-HttpClient/4.5.14 (Java/1.8.0_502)</td>
+<td data-sort='92988.0' style=''>92,988.00</td>
+<td data-sort='5.64' style=''>5.64</td>
+<td data-sort='493.0' style=''>493.00</td>
+<td data-sort='92023.0' style=''>92,023.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='472.0' style=''>472.00</td>
+</tr>
+<tr data-orig-idx='6' style='background-color: var(--surface);'>
+<td style=''>-</td>
+<td data-sort='63194.0' style=''>63,194.00</td>
+<td data-sort='3.84' style=''>3.84</td>
+<td data-sort='8724.0' style=''>8,724.00</td>
+<td data-sort='54448.0' style=''>54,448.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='20.0' style=''>20.00</td>
+<td data-sort='2.0' style=''>2.00</td>
+</tr>
+<tr data-orig-idx='7' style='background-color: var(--row-alt);'>
+<td style=''>python-requests/2.33.1</td>
+<td data-sort='43120.0' style=''>43,120.00</td>
+<td data-sort='2.62' style=''>2.62</td>
+<td data-sort='29426.0' style=''>29,426.00</td>
+<td data-sort='13693.0' style=''>13,693.00</td>
+<td data-sort='1.0' style=''>1.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='8' style='background-color: var(--surface);'>
+<td style=''>Speasy/1.7.1 uname_result(system='Linux', node='sciqlop.lab-lpp.local', release='5.14.0-710.el9.x86_64', version='#1 SMP PREEMPT_DYNAMIC Wed May 27 09:04:56 UTC 2026', machine='x86_64') (SciQLop project)</td>
+<td data-sort='38474.0' style=''>38,474.00</td>
+<td data-sort='2.34' style=''>2.34</td>
+<td data-sort='38474.0' style=''>38,474.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='9' style='background-color: var(--row-alt);'>
+<td style=''>python-requests/2.32.5</td>
+<td data-sort='35073.0' style=''>35,073.00</td>
+<td data-sort='2.13' style=''>2.13</td>
+<td data-sort='34940.0' style=''>34,940.00</td>
+<td data-sort='122.0' style=''>122.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='2.0' style=''>2.00</td>
+<td data-sort='9.0' style=''>9.00</td>
+</tr>
+<tr data-orig-idx='10' style='background-color: var(--surface);'>
+<td style=''>Fuzz Faster U Fool v2.1.0-dev</td>
+<td data-sort='34870.0' style=''>34,870.00</td>
+<td data-sort='2.12' style=''>2.12</td>
+<td data-sort='34870.0' style=''>34,870.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='11' style='background-color: var(--row-alt);'>
+<td style=''>cdasws/1.8.11 (CPython 3.11.13; Linux-6.4.0-150600.23.53-default-x86_64-with-glibc2.38)</td>
+<td data-sort='34437.0' style=''>34,437.00</td>
+<td data-sort='2.09' style=''>2.09</td>
+<td data-sort='34437.0' style=''>34,437.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='12' style='background-color: var(--surface);'>
+<td style=''>node</td>
+<td data-sort='32479.0' style=''>32,479.00</td>
+<td data-sort='1.97' style=''>1.97</td>
+<td data-sort='17.0' style=''>17.00</td>
+<td data-sort='32461.0' style=''>32,461.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='1.0' style=''>1.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='13' style='background-color: var(--row-alt);'>
+<td style=''>python-requests/2.32.4</td>
+<td data-sort='22700.0' style=''>22,700.00</td>
+<td data-sort='1.38' style=''>1.38</td>
+<td data-sort='1360.0' style=''>1,360.00</td>
+<td data-sort='21336.0' style=''>21,336.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='4.0' style=''>4.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='14' style='background-color: var(--surface);'>
+<td style=''>other</td>
+<td data-sort='583928.0' style=''>583,928.00</td>
+<td data-sort='35.44' style=''>35.44</td>
+<td data-sort='317862.0' style=''>317,862.00</td>
+<td data-sort='240301.0' style=''>240,301.00</td>
+<td data-sort='9574.0' style=''>9,574.00</td>
+<td data-sort='128.0' style=''>128.00</td>
+<td data-sort='11164.0' style=''>11,164.00</td>
+<td data-sort='4899.0' style=''>4,899.00</td>
+</tr>
+<tr data-orig-idx='15' style='background-color: var(--row-alt);'>
+<td style=''>Total</td>
+<td data-sort='1647421.0' style=''>1,647,421.00</td>
+<td data-sort='100.0' style=''>100.00</td>
+<td data-sort='1065066.0' style=''>1,065,066.00</td>
+<td data-sort='555331.0' style=''>555,331.00</td>
+<td data-sort='9579.0' style=''>9,579.00</td>
+<td data-sort='128.0' style=''>128.00</td>
+<td data-sort='11191.0' style=''>11,191.00</td>
+<td data-sort='6126.0' style=''>6,126.00</td>
+</tr>
+</tbody></table></div>
+</details>
+<details open id='ws-clients'>
+<summary>
+<div class='summary-title'><h2>WS Clients</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a class="active" aria-current="location" href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for WS Clients.</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>Client</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Total Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Total</th>
+<th class='sortable' style='' onclick='sortTable(this)'>CDAS</th>
+<th class='sortable' style='' onclick='sortTable(this)'>HAPI</th>
+<th class='sortable' style='' onclick='sortTable(this)'>HDP</th>
+<th class='sortable' style='' onclick='sortTable(this)'>MCP</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Other API</th>
+<th class='sortable' style='' onclick='sortTable(this)'>SSC</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''>other</td>
+<td data-sort='537633.0' style=''>537,633.00</td>
+<td data-sort='32.63' style=''>32.63</td>
+<td data-sort='58897.0' style=''>58,897.00</td>
+<td data-sort='471548.0' style=''>471,548.00</td>
+<td data-sort='961.0' style=''>961.00</td>
+<td data-sort='5.0' style=''>5.00</td>
+<td data-sort='4830.0' style=''>4,830.00</td>
+<td data-sort='1392.0' style=''>1,392.00</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''>cdasws</td>
+<td data-sort='366719.0' style=''>366,719.00</td>
+<td data-sort='22.26' style=''>22.26</td>
+<td data-sort='366713.0' style=''>366,713.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='6.0' style=''>6.00</td>
+</tr>
+<tr data-orig-idx='2' style='background-color: var(--surface);'>
+<td style=''>python-requests</td>
+<td data-sort='281688.0' style=''>281,688.00</td>
+<td data-sort='17.1' style=''>17.10</td>
+<td data-sort='237886.0' style=''>237,886.00</td>
+<td data-sort='43588.0' style=''>43,588.00</td>
+<td data-sort='6.0' style=''>6.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='8.0' style=''>8.00</td>
+<td data-sort='200.0' style=''>200.00</td>
+</tr>
+<tr data-orig-idx='3' style='background-color: var(--row-alt);'>
+<td style=''>HAPI-Nand</td>
+<td data-sort='136793.0' style=''>136,793.00</td>
+<td data-sort='8.3' style=''>8.30</td>
+<td data-sort='136793.0' style=''>136,793.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='4' style='background-color: var(--surface);'>
+<td style=''>Mozilla/5.0</td>
+<td data-sort='102422.0' style=''>102,422.00</td>
+<td data-sort='6.22' style=''>6.22</td>
+<td data-sort='67755.0' style=''>67,755.00</td>
+<td data-sort='19452.0' style=''>19,452.00</td>
+<td data-sort='8612.0' style=''>8,612.00</td>
+<td data-sort='123.0' style=''>123.00</td>
+<td data-sort='6353.0' style=''>6,353.00</td>
+<td data-sort='127.0' style=''>127.00</td>
+</tr>
+<tr data-orig-idx='5' style='background-color: var(--row-alt);'>
+<td style=''>curlWsExample</td>
+<td data-sort='101531.0' style=''>101,531.00</td>
+<td data-sort='6.16' style=''>6.16</td>
+<td data-sort='101531.0' style=''>101,531.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='6' style='background-color: var(--surface);'>
+<td style=''>Speasy</td>
+<td data-sort='81258.0' style=''>81,258.00</td>
+<td data-sort='4.93' style=''>4.93</td>
+<td data-sort='60497.0' style=''>60,497.00</td>
+<td data-sort='16360.0' style=''>16,360.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='4401.0' style=''>4,401.00</td>
+</tr>
+<tr data-orig-idx='7' style='background-color: var(--row-alt);'>
+<td style=''>Fuzz Faster U Fool</td>
+<td data-sort='34870.0' style=''>34,870.00</td>
+<td data-sort='2.12' style=''>2.12</td>
+<td data-sort='34870.0' style=''>34,870.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='8' style='background-color: var(--surface);'>
+<td style=''>python-httpx</td>
+<td data-sort='4507.0' style=''>4,507.00</td>
+<td data-sort='0.27' style=''>0.27</td>
+<td data-sort='124.0' style=''>124.00</td>
+<td data-sort='4383.0' style=''>4,383.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='9' style='background-color: var(--row-alt);'>
+<td style=''>other</td>
+<td data-sort='537633.0' style=''>537,633.00</td>
+<td data-sort='32.63' style=''>32.63</td>
+<td data-sort='58897.0' style=''>58,897.00</td>
+<td data-sort='471548.0' style=''>471,548.00</td>
+<td data-sort='961.0' style=''>961.00</td>
+<td data-sort='5.0' style=''>5.00</td>
+<td data-sort='4830.0' style=''>4,830.00</td>
+<td data-sort='1392.0' style=''>1,392.00</td>
+</tr>
+<tr data-orig-idx='10' style='background-color: var(--surface);'>
+<td style=''>Total</td>
+<td data-sort='2185054.0' style=''>2,185,054.00</td>
+<td data-sort='132.62' style=''>132.62</td>
+<td data-sort='1123963.0' style=''>1,123,963.00</td>
+<td data-sort='1026879.0' style=''>1,026,879.00</td>
+<td data-sort='10540.0' style=''>10,540.00</td>
+<td data-sort='133.0' style=''>133.00</td>
+<td data-sort='16021.0' style=''>16,021.00</td>
+<td data-sort='7518.0' style=''>7,518.00</td>
+</tr>
+</tbody></table></div>
+</details>
+<details open id='python-client-requests'>
+<summary>
+<div class='summary-title'><h2>Python Client Requests</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a class="active" aria-current="location" href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for Python Client Requests.</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>Python Client Requests</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Total Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Total</th>
+<th class='sortable' style='' onclick='sortTable(this)'>CDAS</th>
+<th class='sortable' style='' onclick='sortTable(this)'>HAPI</th>
+<th class='sortable' style='' onclick='sortTable(this)'>HDP</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Other API</th>
+<th class='sortable' style='' onclick='sortTable(this)'>SSC</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''>cdasws</td>
+<td data-sort='366719.0' style=''>366,719.00</td>
+<td data-sort='56.17' style=''>56.17</td>
+<td data-sort='366713.0' style=''>366,713.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='6.0' style=''>6.00</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''>python-requests</td>
+<td data-sort='281688.0' style=''>281,688.00</td>
+<td data-sort='43.14' style=''>43.14</td>
+<td data-sort='237886.0' style=''>237,886.00</td>
+<td data-sort='43588.0' style=''>43,588.00</td>
+<td data-sort='6.0' style=''>6.00</td>
+<td data-sort='8.0' style=''>8.00</td>
+<td data-sort='200.0' style=''>200.00</td>
+</tr>
+<tr data-orig-idx='2' style='background-color: var(--surface);'>
+<td style=''>python-httpx</td>
+<td data-sort='4507.0' style=''>4,507.00</td>
+<td data-sort='0.69' style=''>0.69</td>
+<td data-sort='124.0' style=''>124.00</td>
+<td data-sort='4383.0' style=''>4,383.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='3' style='background-color: var(--row-alt);'>
+<td style=''>Total</td>
+<td data-sort='652914.0' style=''>652,914.00</td>
+<td data-sort='100.0' style=''>100.00</td>
+<td data-sort='604723.0' style=''>604,723.00</td>
+<td data-sort='47971.0' style=''>47,971.00</td>
+<td data-sort='6.0' style=''>6.00</td>
+<td data-sort='8.0' style=''>8.00</td>
+<td data-sort='206.0' style=''>206.00</td>
+</tr>
+</tbody></table></div>
+</details>
+<details open id='python-source-addresses'>
+<summary>
+<div class='summary-title'><h2>Python Source Addresses</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a class="active" aria-current="location" href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for Python Source Addresses.</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>Python Sources</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Total Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Total</th>
+<th class='sortable' style='' onclick='sortTable(this)'>CDAS</th>
+<th class='sortable' style='' onclick='sortTable(this)'>HAPI</th>
+<th class='sortable' style='' onclick='sortTable(this)'>HDP</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Other API</th>
+<th class='sortable' style='' onclick='sortTable(this)'>SSC</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='169913.0' style=''>169,913.00</td>
+<td data-sort='26.02' style=''>26.02</td>
+<td data-sort='169913.0' style=''>169,913.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='46060.0' style=''>46,060.00</td>
+<td data-sort='7.05' style=''>7.05</td>
+<td data-sort='46060.0' style=''>46,060.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='2' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='34937.0' style=''>34,937.00</td>
+<td data-sort='5.35' style=''>5.35</td>
+<td data-sort='34937.0' style=''>34,937.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='3' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='34224.0' style=''>34,224.00</td>
+<td data-sort='5.24' style=''>5.24</td>
+<td data-sort='34224.0' style=''>34,224.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='4' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='26921.0' style=''>26,921.00</td>
+<td data-sort='4.12' style=''>4.12</td>
+<td data-sort='26921.0' style=''>26,921.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='5' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='26911.0' style=''>26,911.00</td>
+<td data-sort='4.12' style=''>4.12</td>
+<td data-sort='26911.0' style=''>26,911.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='6' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='15992.0' style=''>15,992.00</td>
+<td data-sort='2.45' style=''>2.45</td>
+<td data-sort='15992.0' style=''>15,992.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='7' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='13450.0' style=''>13,450.00</td>
+<td data-sort='2.06' style=''>2.06</td>
+<td data-sort='13450.0' style=''>13,450.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='8' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='11679.0' style=''>11,679.00</td>
+<td data-sort='1.79' style=''>1.79</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='11679.0' style=''>11,679.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='9' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='10996.0' style=''>10,996.00</td>
+<td data-sort='1.68' style=''>1.68</td>
+<td data-sort='10996.0' style=''>10,996.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='10' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='9395.0' style=''>9,395.00</td>
+<td data-sort='1.44' style=''>1.44</td>
+<td data-sort='9395.0' style=''>9,395.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='11' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='8729.0' style=''>8,729.00</td>
+<td data-sort='1.34' style=''>1.34</td>
+<td data-sort='8729.0' style=''>8,729.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='12' style='background-color: var(--surface);'>
+<td style=''>other</td>
+<td data-sort='243707.0' style=''>243,707.00</td>
+<td data-sort='37.33' style=''>37.33</td>
+<td data-sort='207195.0' style=''>207,195.00</td>
+<td data-sort='36292.0' style=''>36,292.00</td>
+<td data-sort='6.0' style=''>6.00</td>
+<td data-sort='8.0' style=''>8.00</td>
+<td data-sort='206.0' style=''>206.00</td>
+</tr>
+<tr data-orig-idx='13' style='background-color: var(--row-alt);'>
+<td style=''>Total</td>
+<td data-sort='652914.0' style=''>652,914.00</td>
+<td data-sort='99.99' style=''>99.99</td>
+<td data-sort='604723.0' style=''>604,723.00</td>
+<td data-sort='47971.0' style=''>47,971.00</td>
+<td data-sort='6.0' style=''>6.00</td>
+<td data-sort='8.0' style=''>8.00</td>
+<td data-sort='206.0' style=''>206.00</td>
+</tr>
+</tbody></table></div>
+</details>
+<details open id='python-client-addresses'>
+<summary>
+<div class='summary-title'><h2>Python Client Addresses</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a class="active" aria-current="location" href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for Python Client Addresses.</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>Python Clients | Sources</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Total Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Total</th>
+<th class='sortable' style='' onclick='sortTable(this)'>CDAS</th>
+<th class='sortable' style='' onclick='sortTable(this)'>HAPI</th>
+<th class='sortable' style='' onclick='sortTable(this)'>HDP</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Other API</th>
+<th class='sortable' style='' onclick='sortTable(this)'>SSC</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''>cdasws | </td>
+<td data-sort='169913.0' style=''>169,913.00</td>
+<td data-sort='26.02' style=''>26.02</td>
+<td data-sort='169913.0' style=''>169,913.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''>python-requests | </td>
+<td data-sort='46060.0' style=''>46,060.00</td>
+<td data-sort='7.05' style=''>7.05</td>
+<td data-sort='46060.0' style=''>46,060.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='2' style='background-color: var(--surface);'>
+<td style=''>cdasws | </td>
+<td data-sort='34937.0' style=''>34,937.00</td>
+<td data-sort='5.35' style=''>5.35</td>
+<td data-sort='34937.0' style=''>34,937.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='3' style='background-color: var(--row-alt);'>
+<td style=''>python-requests | </td>
+<td data-sort='34224.0' style=''>34,224.00</td>
+<td data-sort='5.24' style=''>5.24</td>
+<td data-sort='34224.0' style=''>34,224.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='4' style='background-color: var(--surface);'>
+<td style=''>python-requests | </td>
+<td data-sort='26921.0' style=''>26,921.00</td>
+<td data-sort='4.12' style=''>4.12</td>
+<td data-sort='26921.0' style=''>26,921.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='5' style='background-color: var(--row-alt);'>
+<td style=''>python-requests | </td>
+<td data-sort='26911.0' style=''>26,911.00</td>
+<td data-sort='4.12' style=''>4.12</td>
+<td data-sort='26911.0' style=''>26,911.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='6' style='background-color: var(--surface);'>
+<td style=''>cdasws | </td>
+<td data-sort='15992.0' style=''>15,992.00</td>
+<td data-sort='2.45' style=''>2.45</td>
+<td data-sort='15992.0' style=''>15,992.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='7' style='background-color: var(--row-alt);'>
+<td style=''>cdasws | </td>
+<td data-sort='13450.0' style=''>13,450.00</td>
+<td data-sort='2.06' style=''>2.06</td>
+<td data-sort='13450.0' style=''>13,450.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='8' style='background-color: var(--surface);'>
+<td style=''>python-requests | </td>
+<td data-sort='11679.0' style=''>11,679.00</td>
+<td data-sort='1.79' style=''>1.79</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='11679.0' style=''>11,679.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='9' style='background-color: var(--row-alt);'>
+<td style=''>python-requests | </td>
+<td data-sort='10996.0' style=''>10,996.00</td>
+<td data-sort='1.68' style=''>1.68</td>
+<td data-sort='10996.0' style=''>10,996.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='10' style='background-color: var(--surface);'>
+<td style=''>cdasws | </td>
+<td data-sort='9395.0' style=''>9,395.00</td>
+<td data-sort='1.44' style=''>1.44</td>
+<td data-sort='9395.0' style=''>9,395.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='11' style='background-color: var(--row-alt);'>
+<td style=''>python-requests | </td>
+<td data-sort='8729.0' style=''>8,729.00</td>
+<td data-sort='1.34' style=''>1.34</td>
+<td data-sort='8729.0' style=''>8,729.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='12' style='background-color: var(--surface);'>
+<td style=''>other</td>
+<td data-sort='243707.0' style=''>243,707.00</td>
+<td data-sort='37.33' style=''>37.33</td>
+<td data-sort='207195.0' style=''>207,195.00</td>
+<td data-sort='36292.0' style=''>36,292.00</td>
+<td data-sort='6.0' style=''>6.00</td>
+<td data-sort='8.0' style=''>8.00</td>
+<td data-sort='206.0' style=''>206.00</td>
+</tr>
+<tr data-orig-idx='13' style='background-color: var(--row-alt);'>
+<td style=''>Total</td>
+<td data-sort='652914.0' style=''>652,914.00</td>
+<td data-sort='99.99' style=''>99.99</td>
+<td data-sort='604723.0' style=''>604,723.00</td>
+<td data-sort='47971.0' style=''>47,971.00</td>
+<td data-sort='6.0' style=''>6.00</td>
+<td data-sort='8.0' style=''>8.00</td>
+<td data-sort='206.0' style=''>206.00</td>
+</tr>
+</tbody></table></div>
+</details>
+<details open id='java-versions'>
+<summary>
+<div class='summary-title'><h2>Java Versions</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a class="active" aria-current="location" href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for Java Versions.</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>Java Version</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Total Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Total</th>
+<th class='sortable' style='' onclick='sortTable(this)'>CDAS</th>
+<th class='sortable' style='' onclick='sortTable(this)'>HAPI</th>
+<th class='sortable' style='' onclick='sortTable(this)'>HDP</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Other API</th>
+<th class='sortable' style='' onclick='sortTable(this)'>SSC</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''>1.8</td>
+<td data-sort='121414.0' style=''>121,414.00</td>
+<td data-sort='97.98' style=''>97.98</td>
+<td data-sort='9594.0' style=''>9,594.00</td>
+<td data-sort='110684.0' style=''>110,684.00</td>
+<td data-sort='246.0' style=''>246.00</td>
+<td data-sort='208.0' style=''>208.00</td>
+<td data-sort='682.0' style=''>682.00</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''>21.0</td>
+<td data-sort='2233.0' style=''>2,233.00</td>
+<td data-sort='1.8' style=''>1.80</td>
+<td data-sort='14.0' style=''>14.00</td>
+<td data-sort='2219.0' style=''>2,219.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='2' style='background-color: var(--surface);'>
+<td style=''>17.0</td>
+<td data-sort='114.0' style=''>114.00</td>
+<td data-sort='0.09' style=''>0.09</td>
+<td data-sort='49.0' style=''>49.00</td>
+<td data-sort='65.0' style=''>65.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='3' style='background-color: var(--row-alt);'>
+<td style=''>11.0</td>
+<td data-sort='64.0' style=''>64.00</td>
+<td data-sort='0.05' style=''>0.05</td>
+<td data-sort='40.0' style=''>40.00</td>
+<td data-sort='18.0' style=''>18.00</td>
+<td data-sort='6.0' style=''>6.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='4' style='background-color: var(--surface);'>
+<td style=''>26.0</td>
+<td data-sort='50.0' style=''>50.00</td>
+<td data-sort='0.04' style=''>0.04</td>
+<td data-sort='50.0' style=''>50.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='5' style='background-color: var(--row-alt);'>
+<td style=''>other</td>
+<td data-sort='44.0' style=''>44.00</td>
+<td data-sort='0.04' style=''>0.04</td>
+<td data-sort='40.0' style=''>40.00</td>
+<td data-sort='3.0' style=''>3.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='1.0' style=''>1.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='6' style='background-color: var(--surface);'>
+<td style=''>Total</td>
+<td data-sort='123919.0' style=''>123,919.00</td>
+<td data-sort='100.0' style=''>100.00</td>
+<td data-sort='9787.0' style=''>9,787.00</td>
+<td data-sort='112989.0' style=''>112,989.00</td>
+<td data-sort='252.0' style=''>252.00</td>
+<td data-sort='209.0' style=''>209.00</td>
+<td data-sort='682.0' style=''>682.00</td>
+</tr>
+</tbody></table></div>
+</details>
+<details open id='java-source-addresses'>
+<summary>
+<div class='summary-title'><h2>Java Source Addresses</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a class="active" aria-current="location" href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for Java Source Addresses.</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>Java Sources</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Total Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Total</th>
+<th class='sortable' style='' onclick='sortTable(this)'>CDAS</th>
+<th class='sortable' style='' onclick='sortTable(this)'>HAPI</th>
+<th class='sortable' style='' onclick='sortTable(this)'>HDP</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Other API</th>
+<th class='sortable' style='' onclick='sortTable(this)'>SSC</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='106949.0' style=''>106,949.00</td>
+<td data-sort='86.31' style=''>86.31</td>
+<td data-sort='546.0' style=''>546.00</td>
+<td data-sort='105574.0' style=''>105,574.00</td>
+<td data-sort='165.0' style=''>165.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='664.0' style=''>664.00</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='8667.0' style=''>8,667.00</td>
+<td data-sort='6.99' style=''>6.99</td>
+<td data-sort='7202.0' style=''>7,202.00</td>
+<td data-sort='1465.0' style=''>1,465.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='2' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='3526.0' style=''>3,526.00</td>
+<td data-sort='2.85' style=''>2.85</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='3511.0' style=''>3,511.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='15.0' style=''>15.00</td>
+</tr>
+<tr data-orig-idx='3' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='1377.0' style=''>1,377.00</td>
+<td data-sort='1.11' style=''>1.11</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='1377.0' style=''>1,377.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='4' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='902.0' style=''>902.00</td>
+<td data-sort='0.73' style=''>0.73</td>
+<td data-sort='63.0' style=''>63.00</td>
+<td data-sort='839.0' style=''>839.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='5' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='265.0' style=''>265.00</td>
+<td data-sort='0.21' style=''>0.21</td>
+<td data-sort='265.0' style=''>265.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='6' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='214.0' style=''>214.00</td>
+<td data-sort='0.17' style=''>0.17</td>
+<td data-sort='214.0' style=''>214.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='7' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='178.0' style=''>178.00</td>
+<td data-sort='0.14' style=''>0.14</td>
+<td data-sort='178.0' style=''>178.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='8' style='background-color: var(--surface);'>
+<td style=''>other</td>
+<td data-sort='1841.0' style=''>1,841.00</td>
+<td data-sort='1.49' style=''>1.49</td>
+<td data-sort='1319.0' style=''>1,319.00</td>
+<td data-sort='223.0' style=''>223.00</td>
+<td data-sort='87.0' style=''>87.00</td>
+<td data-sort='209.0' style=''>209.00</td>
+<td data-sort='3.0' style=''>3.00</td>
+</tr>
+<tr data-orig-idx='9' style='background-color: var(--row-alt);'>
+<td style=''>Total</td>
+<td data-sort='123919.0' style=''>123,919.00</td>
+<td data-sort='100.0' style=''>100.00</td>
+<td data-sort='9787.0' style=''>9,787.00</td>
+<td data-sort='112989.0' style=''>112,989.00</td>
+<td data-sort='252.0' style=''>252.00</td>
+<td data-sort='209.0' style=''>209.00</td>
+<td data-sort='682.0' style=''>682.00</td>
+</tr>
+</tbody></table></div>
+</details>
+<details open id='idl-source-addresses'>
+<summary>
+<div class='summary-title'><h2>IDL Source Addresses</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a class="active" aria-current="location" href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for IDL Source Addresses.</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>IDL Sources</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Total Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Total</th>
+<th class='sortable' style='' onclick='sortTable(this)'>CDAS</th>
+<th class='sortable' style='' onclick='sortTable(this)'>HAPI</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='627.0' style=''>627.00</td>
+<td data-sort='17.29' style=''>17.29</td>
+<td data-sort='627.0' style=''>627.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='566.0' style=''>566.00</td>
+<td data-sort='15.61' style=''>15.61</td>
+<td data-sort='566.0' style=''>566.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='2' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='310.0' style=''>310.00</td>
+<td data-sort='8.55' style=''>8.55</td>
+<td data-sort='20.0' style=''>20.00</td>
+<td data-sort='290.0' style=''>290.00</td>
+</tr>
+<tr data-orig-idx='3' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='280.0' style=''>280.00</td>
+<td data-sort='7.72' style=''>7.72</td>
+<td data-sort='280.0' style=''>280.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='4' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='235.0' style=''>235.00</td>
+<td data-sort='6.48' style=''>6.48</td>
+<td data-sort='235.0' style=''>235.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='5' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='214.0' style=''>214.00</td>
+<td data-sort='5.9' style=''>5.90</td>
+<td data-sort='214.0' style=''>214.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='6' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='176.0' style=''>176.00</td>
+<td data-sort='4.85' style=''>4.85</td>
+<td data-sort='176.0' style=''>176.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='7' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='167.0' style=''>167.00</td>
+<td data-sort='4.61' style=''>4.61</td>
+<td data-sort='167.0' style=''>167.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='8' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='161.0' style=''>161.00</td>
+<td data-sort='4.44' style=''>4.44</td>
+<td data-sort='161.0' style=''>161.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='9' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='156.0' style=''>156.00</td>
+<td data-sort='4.3' style=''>4.30</td>
+<td data-sort='156.0' style=''>156.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='10' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='145.0' style=''>145.00</td>
+<td data-sort='4.0' style=''>4.00</td>
+<td data-sort='145.0' style=''>145.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='11' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='89.0' style=''>89.00</td>
+<td data-sort='2.45' style=''>2.45</td>
+<td data-sort='89.0' style=''>89.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='12' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='85.0' style=''>85.00</td>
+<td data-sort='2.34' style=''>2.34</td>
+<td data-sort='85.0' style=''>85.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='13' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='73.0' style=''>73.00</td>
+<td data-sort='2.01' style=''>2.01</td>
+<td data-sort='73.0' style=''>73.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='14' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='56.0' style=''>56.00</td>
+<td data-sort='1.54' style=''>1.54</td>
+<td data-sort='56.0' style=''>56.00</td>
+<td data-sort='0.0' style=''>0.00</td>
+</tr>
+<tr data-orig-idx='15' style='background-color: var(--row-alt);'>
+<td style=''>other</td>
+<td data-sort='286.0' style=''>286.00</td>
+<td data-sort='7.89' style=''>7.89</td>
+<td data-sort='284.0' style=''>284.00</td>
+<td data-sort='2.0' style=''>2.00</td>
+</tr>
+<tr data-orig-idx='16' style='background-color: var(--surface);'>
+<td style=''>Total</td>
+<td data-sort='3626.0' style=''>3,626.00</td>
+<td data-sort='99.98' style=''>99.98</td>
+<td data-sort='3334.0' style=''>3,334.00</td>
+<td data-sort='292.0' style=''>292.00</td>
+</tr>
+</tbody></table></div>
+</details>
+<details open id='cdas-rest-requests'>
+<summary>
+<div class='summary-title'><h2>CDAS REST Requests</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a class="active" aria-current="location" href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for CDAS REST Requests.</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>Source</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Calls</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='2034' style=''>2,034</td>
+<td data-sort='13.39' style=''>13.39</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='1843' style=''>1,843</td>
+<td data-sort='12.13' style=''>12.13</td>
+</tr>
+<tr data-orig-idx='2' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='708' style=''>708</td>
+<td data-sort='4.66' style=''>4.66</td>
+</tr>
+<tr data-orig-idx='3' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='423' style=''>423</td>
+<td data-sort='2.78' style=''>2.78</td>
+</tr>
+<tr data-orig-idx='4' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='408' style=''>408</td>
+<td data-sort='2.69' style=''>2.69</td>
+</tr>
+<tr data-orig-idx='5' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='408' style=''>408</td>
+<td data-sort='2.69' style=''>2.69</td>
+</tr>
+<tr data-orig-idx='6' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='328' style=''>328</td>
+<td data-sort='2.16' style=''>2.16</td>
+</tr>
+<tr data-orig-idx='7' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='301' style=''>301</td>
+<td data-sort='1.98' style=''>1.98</td>
+</tr>
+<tr data-orig-idx='8' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='262' style=''>262</td>
+<td data-sort='1.72' style=''>1.72</td>
+</tr>
+<tr data-orig-idx='9' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='260' style=''>260</td>
+<td data-sort='1.71' style=''>1.71</td>
+</tr>
+<tr data-orig-idx='10' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='219' style=''>219</td>
+<td data-sort='1.44' style=''>1.44</td>
+</tr>
+<tr data-orig-idx='11' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='210' style=''>210</td>
+<td data-sort='1.38' style=''>1.38</td>
+</tr>
+<tr data-orig-idx='12' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='204' style=''>204</td>
+<td data-sort='1.34' style=''>1.34</td>
+</tr>
+<tr data-orig-idx='13' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='199' style=''>199</td>
+<td data-sort='1.31' style=''>1.31</td>
+</tr>
+<tr data-orig-idx='14' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='197' style=''>197</td>
+<td data-sort='1.3' style=''>1.30</td>
+</tr>
+<tr data-orig-idx='15' style='background-color: var(--row-alt);'>
+<td style=''>other</td>
+<td data-sort='7188' style=''>7,188</td>
+<td data-sort='47.31' style=''>47.31</td>
+</tr>
+<tr data-orig-idx='16' style='background-color: var(--surface);'>
+<td style=''>Total</td>
+<td data-sort='15192' style=''>15,192</td>
+<td data-sort='99.99' style=''>99.99</td>
+</tr>
+</tbody></table></div>
+</details>
+<details open id='hapi-requests'>
+<summary>
+<div class='summary-title'><h2>HAPI Requests</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a class="active" aria-current="location" href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for HAPI Requests.</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>Source</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Calls</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='106482' style=''>106,482</td>
+<td data-sort='18.79' style=''>18.79</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='57379' style=''>57,379</td>
+<td data-sort='10.12' style=''>10.12</td>
+</tr>
+<tr data-orig-idx='2' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='55470' style=''>55,470</td>
+<td data-sort='9.79' style=''>9.79</td>
+</tr>
+<tr data-orig-idx='3' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='29428' style=''>29,428</td>
+<td data-sort='5.19' style=''>5.19</td>
+</tr>
+<tr data-orig-idx='4' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='14531' style=''>14,531</td>
+<td data-sort='2.56' style=''>2.56</td>
+</tr>
+<tr data-orig-idx='5' style='background-color: var(--row-alt);'>
+<td style=''>other</td>
+<td data-sort='303476' style=''>303,476</td>
+<td data-sort='53.55' style=''>53.55</td>
+</tr>
+<tr data-orig-idx='6' style='background-color: var(--surface);'>
+<td style=''>Total</td>
+<td data-sort='566766' style=''>566,766</td>
+<td data-sort='100.0' style=''>100.00</td>
+</tr>
+</tbody></table></div>
+</details>
+<details open id='hdp-spase-registry-requests'>
+<summary>
+<div class='summary-title'><h2>HDP SPASE Registry Requests</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a class="active" aria-current="location" href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for HDP SPASE Registry Requests.</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>Source</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Calls</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='3274' style=''>3,274</td>
+<td data-sort='43.52' style=''>43.52</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='615' style=''>615</td>
+<td data-sort='8.17' style=''>8.17</td>
+</tr>
+<tr data-orig-idx='2' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='336' style=''>336</td>
+<td data-sort='4.47' style=''>4.47</td>
+</tr>
+<tr data-orig-idx='3' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='326' style=''>326</td>
+<td data-sort='4.33' style=''>4.33</td>
+</tr>
+<tr data-orig-idx='4' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='297' style=''>297</td>
+<td data-sort='3.95' style=''>3.95</td>
+</tr>
+<tr data-orig-idx='5' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='165' style=''>165</td>
+<td data-sort='2.19' style=''>2.19</td>
+</tr>
+<tr data-orig-idx='6' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='105' style=''>105</td>
+<td data-sort='1.4' style=''>1.40</td>
+</tr>
+<tr data-orig-idx='7' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='74' style=''>74</td>
+<td data-sort='0.98' style=''>0.98</td>
+</tr>
+<tr data-orig-idx='8' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='40' style=''>40</td>
+<td data-sort='0.53' style=''>0.53</td>
+</tr>
+<tr data-orig-idx='9' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='29' style=''>29</td>
+<td data-sort='0.39' style=''>0.39</td>
+</tr>
+<tr data-orig-idx='10' style='background-color: var(--surface);'>
+<td style=''>other</td>
+<td data-sort='2262' style=''>2,262</td>
+<td data-sort='30.07' style=''>30.07</td>
+</tr>
+<tr data-orig-idx='11' style='background-color: var(--row-alt);'>
+<td style=''>Total</td>
+<td data-sort='7523' style=''>7,523</td>
+<td data-sort='100.0' style=''>100.00</td>
+</tr>
+</tbody></table></div>
+</details>
+<details open id='4d-orbit-viewer-requests'>
+<summary>
+<div class='summary-title'><h2>4D Orbit Viewer Requests</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a class="active" aria-current="location" href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for 4D Orbit Viewer Requests.</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>Source</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Calls</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='54298' style=''>54,298</td>
+<td data-sort='3.55' style=''>3.55</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='34087' style=''>34,087</td>
+<td data-sort='2.23' style=''>2.23</td>
+</tr>
+<tr data-orig-idx='2' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='19629' style=''>19,629</td>
+<td data-sort='1.28' style=''>1.28</td>
+</tr>
+<tr data-orig-idx='3' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='14241' style=''>14,241</td>
+<td data-sort='0.93' style=''>0.93</td>
+</tr>
+<tr data-orig-idx='4' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='4767' style=''>4,767</td>
+<td data-sort='0.31' style=''>0.31</td>
+</tr>
+<tr data-orig-idx='5' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='4422' style=''>4,422</td>
+<td data-sort='0.29' style=''>0.29</td>
+</tr>
+<tr data-orig-idx='6' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='4408' style=''>4,408</td>
+<td data-sort='0.29' style=''>0.29</td>
+</tr>
+<tr data-orig-idx='7' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='4347' style=''>4,347</td>
+<td data-sort='0.28' style=''>0.28</td>
+</tr>
+<tr data-orig-idx='8' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='4331' style=''>4,331</td>
+<td data-sort='0.28' style=''>0.28</td>
+</tr>
+<tr data-orig-idx='9' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='4323' style=''>4,323</td>
+<td data-sort='0.28' style=''>0.28</td>
+</tr>
+<tr data-orig-idx='10' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='4293' style=''>4,293</td>
+<td data-sort='0.28' style=''>0.28</td>
+</tr>
+<tr data-orig-idx='11' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='4287' style=''>4,287</td>
+<td data-sort='0.28' style=''>0.28</td>
+</tr>
+<tr data-orig-idx='12' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='4281' style=''>4,281</td>
+<td data-sort='0.28' style=''>0.28</td>
+</tr>
+<tr data-orig-idx='13' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='4281' style=''>4,281</td>
+<td data-sort='0.28' style=''>0.28</td>
+</tr>
+<tr data-orig-idx='14' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='4262' style=''>4,262</td>
+<td data-sort='0.28' style=''>0.28</td>
+</tr>
+<tr data-orig-idx='15' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='4258' style=''>4,258</td>
+<td data-sort='0.28' style=''>0.28</td>
+</tr>
+<tr data-orig-idx='16' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='4255' style=''>4,255</td>
+<td data-sort='0.28' style=''>0.28</td>
+</tr>
+<tr data-orig-idx='17' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='4255' style=''>4,255</td>
+<td data-sort='0.28' style=''>0.28</td>
+</tr>
+<tr data-orig-idx='18' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='4253' style=''>4,253</td>
+<td data-sort='0.28' style=''>0.28</td>
+</tr>
+<tr data-orig-idx='19' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='4249' style=''>4,249</td>
+<td data-sort='0.28' style=''>0.28</td>
+</tr>
+<tr data-orig-idx='20' style='background-color: var(--surface);'>
+<td style=''>other</td>
+<td data-sort='1337527' style=''>1,337,527</td>
+<td data-sort='87.47' style=''>87.47</td>
+</tr>
+<tr data-orig-idx='21' style='background-color: var(--row-alt);'>
+<td style=''>Total</td>
+<td data-sort='1529054' style=''>1,529,054</td>
+<td data-sort='99.99' style=''>99.99</td>
+</tr>
+</tbody></table></div>
+</details>
+<details open id='rest-ip-protocol'>
+<summary>
+<div class='summary-title'><h2>REST IP Protocol</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a class="active" aria-current="location" href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for REST IP Protocol.</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>Protocol</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Calls</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''>IPv4</td>
+<td style=''>10899</td>
+<td data-sort='71.74' style=''>71.74</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''>IPv6</td>
+<td style=''>4293</td>
+<td data-sort='28.26' style=''>28.26</td>
+</tr>
+</tbody></table></div>
+</details>
+<details open id='cdas-rest-web-service-methods'>
+<summary>
+<div class='summary-title'><h2>CDAS REST Web Service Methods</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a class="active" aria-current="location" href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for CDAS REST Web Service Methods.</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>Method Name</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Calls</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''>getData</td>
+<td data-sort='63' style=''>63</td>
+<td data-sort='85.14' style=''>85.14</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''>GetData</td>
+<td data-sort='7' style=''>7</td>
+<td data-sort='9.46' style=''>9.46</td>
+</tr>
+<tr data-orig-idx='2' style='background-color: var(--surface);'>
+<td style=''>getdata</td>
+<td data-sort='4' style=''>4</td>
+<td data-sort='5.41' style=''>5.41</td>
+</tr>
+<tr data-orig-idx='3' style='background-color: var(--row-alt);'>
+<td style=''>Total</td>
+<td data-sort='74' style=''>74</td>
+<td data-sort='100.01' style=''>100.01</td>
+</tr>
+</tbody></table></div>
+</details>
+<details open id='cdas-web-service-dataset-statistics'>
+<summary>
+<div class='summary-title'><h2>CDAS Web Service Dataset Statistics</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a class="active" aria-current="location" href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for CDAS Web Service Dataset Statistics.</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>Dataset</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Calls</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''>SOLO_LL02_SWA-PAS-MOM</td>
+<td data-sort='43046' style=''>43,046</td>
+<td data-sort='9.13' style=''>9.13</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''>SOLO_LL02_MAG</td>
+<td data-sort='43020' style=''>43,020</td>
+<td data-sort='9.13' style=''>9.13</td>
+</tr>
+<tr data-orig-idx='2' style='background-color: var(--surface);'>
+<td style=''>MMS1_FPI_FAST_L2_DIS-MOMS</td>
+<td data-sort='12703' style=''>12,703</td>
+<td data-sort='2.7' style=''>2.70</td>
+</tr>
+<tr data-orig-idx='3' style='background-color: var(--row-alt);'>
+<td style=''>THA_L2_FGM</td>
+<td data-sort='11751' style=''>11,751</td>
+<td data-sort='2.49' style=''>2.49</td>
+</tr>
+<tr data-orig-idx='4' style='background-color: var(--surface);'>
+<td style=''>OMNI2_H0_MRG1HR</td>
+<td data-sort='8708' style=''>8,708</td>
+<td data-sort='1.85' style=''>1.85</td>
+</tr>
+<tr data-orig-idx='5' style='background-color: var(--row-alt);'>
+<td style=''>MMS1_FGM_SRVY_L2</td>
+<td data-sort='8195' style=''>8,195</td>
+<td data-sort='1.74' style=''>1.74</td>
+</tr>
+<tr data-orig-idx='6' style='background-color: var(--surface);'>
+<td style=''>PSP_FLD_L2_MAG_RTN_1MIN</td>
+<td data-sort='7126' style=''>7,126</td>
+<td data-sort='1.51' style=''>1.51</td>
+</tr>
+<tr data-orig-idx='7' style='background-color: var(--row-alt);'>
+<td style=''>STA_LB_IMPACT</td>
+<td data-sort='6080' style=''>6,080</td>
+<td data-sort='1.29' style=''>1.29</td>
+</tr>
+<tr data-orig-idx='8' style='background-color: var(--surface);'>
+<td style=''>STA_LB_PLA_BROWSE</td>
+<td data-sort='6031' style=''>6,031</td>
+<td data-sort='1.28' style=''>1.28</td>
+</tr>
+<tr data-orig-idx='9' style='background-color: var(--row-alt);'>
+<td style=''>WI_SFSP_3DP</td>
+<td data-sort='5869' style=''>5,869</td>
+<td data-sort='1.25' style=''>1.25</td>
+</tr>
+<tr data-orig-idx='10' style='background-color: var(--surface);'>
+<td style=''>SOHO_ERNE-HED_L2-1MIN</td>
+<td data-sort='5328' style=''>5,328</td>
+<td data-sort='1.13' style=''>1.13</td>
+</tr>
+<tr data-orig-idx='11' style='background-color: var(--row-alt);'>
+<td style=''>PSP_ISOIS-EPIHI_L2-HET-RATES60</td>
+<td data-sort='5108' style=''>5,108</td>
+<td data-sort='1.08' style=''>1.08</td>
+</tr>
+<tr data-orig-idx='12' style='background-color: var(--surface);'>
+<td style=''>STA_L1_HET</td>
+<td data-sort='4662' style=''>4,662</td>
+<td data-sort='0.99' style=''>0.99</td>
+</tr>
+<tr data-orig-idx='13' style='background-color: var(--row-alt);'>
+<td style=''>OMNI_HRO2_1MIN</td>
+<td data-sort='4571' style=''>4,571</td>
+<td data-sort='0.97' style=''>0.97</td>
+</tr>
+<tr data-orig-idx='14' style='background-color: var(--surface);'>
+<td style=''>PSP_SWP_SPC_L3I</td>
+<td data-sort='4558' style=''>4,558</td>
+<td data-sort='0.97' style=''>0.97</td>
+</tr>
+<tr data-orig-idx='15' style='background-color: var(--row-alt);'>
+<td style=''>other</td>
+<td data-sort='294597' style=''>294,597</td>
+<td data-sort='62.5' style=''>62.50</td>
+</tr>
+<tr data-orig-idx='16' style='background-color: var(--surface);'>
+<td style=''>Total</td>
+<td data-sort='471353' style=''>471,353</td>
+<td data-sort='100.01' style=''>100.01</td>
+</tr>
+</tbody></table></div>
+</details>
+<details open id='ssc-object-web-service-statistics'>
+<summary>
+<div class='summary-title'><h2>SSC Object Web Service Statistics</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a class="active" aria-current="location" href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for SSC Object Web Service Statistics.</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>Object Name</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Calls</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''>OMNI2_H0_MRG1HR</td>
+<td data-sort='57710' style=''>57,710</td>
+<td data-sort='13.27' style=''>13.27</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''>OMNI_HRO_1MIN</td>
+<td data-sort='33773' style=''>33,773</td>
+<td data-sort='7.77' style=''>7.77</td>
+</tr>
+<tr data-orig-idx='2' style='background-color: var(--surface);'>
+<td style=''>OMNI_HRO2_1MIN</td>
+<td data-sort='31778' style=''>31,778</td>
+<td data-sort='7.31' style=''>7.31</td>
+</tr>
+<tr data-orig-idx='3' style='background-color: var(--row-alt);'>
+<td style=''>IMAP_IALIRT_L1_REALTIME</td>
+<td data-sort='23696' style=''>23,696</td>
+<td data-sort='5.45' style=''>5.45</td>
+</tr>
+<tr data-orig-idx='4' style='background-color: var(--surface);'>
+<td style=''>VG1_PWS_LR</td>
+<td data-sort='19536' style=''>19,536</td>
+<td data-sort='4.49' style=''>4.49</td>
+</tr>
+<tr data-orig-idx='5' style='background-color: var(--row-alt);'>
+<td style=''>MVN_INSITU_KP-4SEC</td>
+<td data-sort='7332' style=''>7,332</td>
+<td data-sort='1.69' style=''>1.69</td>
+</tr>
+<tr data-orig-idx='6' style='background-color: var(--surface);'>
+<td style=''>AC_K1_SWE</td>
+<td data-sort='6530' style=''>6,530</td>
+<td data-sort='1.5' style=''>1.50</td>
+</tr>
+<tr data-orig-idx='7' style='background-color: var(--row-alt);'>
+<td style=''>AC_H0_MFI</td>
+<td data-sort='6046' style=''>6,046</td>
+<td data-sort='1.39' style=''>1.39</td>
+</tr>
+<tr data-orig-idx='8' style='background-color: var(--surface);'>
+<td style=''>WI_H0_MFI</td>
+<td data-sort='4856' style=''>4,856</td>
+<td data-sort='1.12' style=''>1.12</td>
+</tr>
+<tr data-orig-idx='9' style='background-color: var(--row-alt);'>
+<td style=''>MMS1_HPCA_SRVY_L2_MOMENTS</td>
+<td data-sort='4765' style=''>4,765</td>
+<td data-sort='1.1' style=''>1.10</td>
+</tr>
+<tr data-orig-idx='10' style='background-color: var(--surface);'>
+<td style=''>AC_OR_SSC</td>
+<td data-sort='4550' style=''>4,550</td>
+<td data-sort='1.05' style=''>1.05</td>
+</tr>
+<tr data-orig-idx='11' style='background-color: var(--row-alt);'>
+<td style=''>AC_H2_SWE</td>
+<td data-sort='3396' style=''>3,396</td>
+<td data-sort='0.78' style=''>0.78</td>
+</tr>
+<tr data-orig-idx='12' style='background-color: var(--surface);'>
+<td style=''>AC_H2_MFI</td>
+<td data-sort='3343' style=''>3,343</td>
+<td data-sort='0.77' style=''>0.77</td>
+</tr>
+<tr data-orig-idx='13' style='background-color: var(--row-alt);'>
+<td style=''>MMS1_MEC_SRVY_L2_EPHT89Q</td>
+<td data-sort='3233' style=''>3,233</td>
+<td data-sort='0.74' style=''>0.74</td>
+</tr>
+<tr data-orig-idx='14' style='background-color: var(--surface);'>
+<td style=''>spase</td>
+<td data-sort='3180' style=''>3,180</td>
+<td data-sort='0.73' style=''>0.73</td>
+</tr>
+<tr data-orig-idx='15' style='background-color: var(--row-alt);'>
+<td style=''>MMS1_FGM_SRVY_L2</td>
+<td data-sort='2791' style=''>2,791</td>
+<td data-sort='0.64' style=''>0.64</td>
+</tr>
+<tr data-orig-idx='16' style='background-color: var(--surface);'>
+<td style=''>WI_H1_SWE</td>
+<td data-sort='2778' style=''>2,778</td>
+<td data-sort='0.64' style=''>0.64</td>
+</tr>
+<tr data-orig-idx='17' style='background-color: var(--row-alt);'>
+<td style=''>PSP_SWP_SPC_L3I</td>
+<td data-sort='2670' style=''>2,670</td>
+<td data-sort='0.61' style=''>0.61</td>
+</tr>
+<tr data-orig-idx='18' style='background-color: var(--surface);'>
+<td style=''>THE_L2_FGM</td>
+<td data-sort='2656' style=''>2,656</td>
+<td data-sort='0.61' style=''>0.61</td>
+</tr>
+<tr data-orig-idx='19' style='background-color: var(--row-alt);'>
+<td style=''>DSCOVR_H0_MAG</td>
+<td data-sort='2637' style=''>2,637</td>
+<td data-sort='0.61' style=''>0.61</td>
+</tr>
+<tr data-orig-idx='20' style='background-color: var(--surface);'>
+<td style=''>THD_L2_FGM</td>
+<td data-sort='2576' style=''>2,576</td>
+<td data-sort='0.59' style=''>0.59</td>
+</tr>
+<tr data-orig-idx='21' style='background-color: var(--row-alt);'>
+<td style=''>THA_L2_FGM</td>
+<td data-sort='2549' style=''>2,549</td>
+<td data-sort='0.59' style=''>0.59</td>
+</tr>
+<tr data-orig-idx='22' style='background-color: var(--surface);'>
+<td style=''>PSP_COHO1HR_MERGED_MAG_PLASMA</td>
+<td data-sort='2466' style=''>2,466</td>
+<td data-sort='0.57' style=''>0.57</td>
+</tr>
+<tr data-orig-idx='23' style='background-color: var(--row-alt);'>
+<td style=''>PSP_FLD_L2_RFS_HFR</td>
+<td data-sort='2425' style=''>2,425</td>
+<td data-sort='0.56' style=''>0.56</td>
+</tr>
+<tr data-orig-idx='24' style='background-color: var(--surface);'>
+<td style=''>AC_H0_SWE</td>
+<td data-sort='2359' style=''>2,359</td>
+<td data-sort='0.54' style=''>0.54</td>
+</tr>
+<tr data-orig-idx='25' style='background-color: var(--row-alt);'>
+<td style=''>ERG_MGF_L2_8SEC</td>
+<td data-sort='2222' style=''>2,222</td>
+<td data-sort='0.51' style=''>0.51</td>
+</tr>
+<tr data-orig-idx='26' style='background-color: var(--surface);'>
+<td style=''>RBSP-A_MAGNETOMETER_4SEC-GSM_EMFISIS-L3</td>
+<td data-sort='2202' style=''>2,202</td>
+<td data-sort='0.51' style=''>0.51</td>
+</tr>
+<tr data-orig-idx='27' style='background-color: var(--row-alt);'>
+<td style=''>RBSP-B_MAGNETOMETER_4SEC-GSM_EMFISIS-L3</td>
+<td data-sort='2193' style=''>2,193</td>
+<td data-sort='0.5' style=''>0.50</td>
+</tr>
+<tr data-orig-idx='28' style='background-color: var(--surface);'>
+<td style=''>MMS1_FPI_FAST_L2_DES-MOMS</td>
+<td data-sort='2147' style=''>2,147</td>
+<td data-sort='0.49' style=''>0.49</td>
+</tr>
+<tr data-orig-idx='29' style='background-color: var(--row-alt);'>
+<td style=''>MMS1_FPI_BRST_L2_DES-MOMS</td>
+<td data-sort='2137' style=''>2,137</td>
+<td data-sort='0.49' style=''>0.49</td>
+</tr>
+<tr data-orig-idx='30' style='background-color: var(--surface);'>
+<td style=''>GOES13_EPS-MAGED_5MIN</td>
+<td data-sort='2096' style=''>2,096</td>
+<td data-sort='0.48' style=''>0.48</td>
+</tr>
+<tr data-orig-idx='31' style='background-color: var(--row-alt);'>
+<td style=''>GOES15_EPS-MAGED_5MIN</td>
+<td data-sort='2083' style=''>2,083</td>
+<td data-sort='0.48' style=''>0.48</td>
+</tr>
+<tr data-orig-idx='32' style='background-color: var(--surface);'>
+<td style=''>GOES14_EPS-MAGED_5MIN</td>
+<td data-sort='2077' style=''>2,077</td>
+<td data-sort='0.48' style=''>0.48</td>
+</tr>
+<tr data-orig-idx='33' style='background-color: var(--row-alt);'>
+<td style=''>OMNI_COHO1HR_MERGED_MAG_PLASMA</td>
+<td data-sort='1982' style=''>1,982</td>
+<td data-sort='0.46' style=''>0.46</td>
+</tr>
+<tr data-orig-idx='34' style='background-color: var(--surface);'>
+<td style=''>MMS1_FPI_FAST_L2_DIS-MOMS</td>
+<td data-sort='1981' style=''>1,981</td>
+<td data-sort='0.46' style=''>0.46</td>
+</tr>
+<tr data-orig-idx='35' style='background-color: var(--row-alt);'>
+<td style=''>other</td>
+<td data-sort='174020' style=''>174,020</td>
+<td data-sort='40.03' style=''>40.03</td>
+</tr>
+<tr data-orig-idx='36' style='background-color: var(--surface);'>
+<td style=''>Total</td>
+<td data-sort='434771' style=''>434,771</td>
+<td data-sort='100.01' style=''>100.01</td>
+</tr>
+</tbody></table></div>
+</details>
+<details open id='rest-rejected-requests-(http-503/429)'>
+<summary>
+<div class='summary-title'><h2>REST Rejected Requests (HTTP 503/429)</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a class="active" aria-current="location" href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for REST Rejected Requests (HTTP 503/429).</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>Source</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Calls</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='1187' style=''>1,187</td>
+<td data-sort='45.57' style=''>45.57</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='196' style=''>196</td>
+<td data-sort='7.52' style=''>7.52</td>
+</tr>
+<tr data-orig-idx='2' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='140' style=''>140</td>
+<td data-sort='5.37' style=''>5.37</td>
+</tr>
+<tr data-orig-idx='3' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='138' style=''>138</td>
+<td data-sort='5.3' style=''>5.30</td>
+</tr>
+<tr data-orig-idx='4' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='119' style=''>119</td>
+<td data-sort='4.57' style=''>4.57</td>
+</tr>
+<tr data-orig-idx='5' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='114' style=''>114</td>
+<td data-sort='4.38' style=''>4.38</td>
+</tr>
+<tr data-orig-idx='6' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='89' style=''>89</td>
+<td data-sort='3.42' style=''>3.42</td>
+</tr>
+<tr data-orig-idx='7' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='64' style=''>64</td>
+<td data-sort='2.46' style=''>2.46</td>
+</tr>
+<tr data-orig-idx='8' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='62' style=''>62</td>
+<td data-sort='2.38' style=''>2.38</td>
+</tr>
+<tr data-orig-idx='9' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='60' style=''>60</td>
+<td data-sort='2.3' style=''>2.30</td>
+</tr>
+<tr data-orig-idx='10' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='49' style=''>49</td>
+<td data-sort='1.88' style=''>1.88</td>
+</tr>
+<tr data-orig-idx='11' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='43' style=''>43</td>
+<td data-sort='1.65' style=''>1.65</td>
+</tr>
+<tr data-orig-idx='12' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='34' style=''>34</td>
+<td data-sort='1.31' style=''>1.31</td>
+</tr>
+<tr data-orig-idx='13' style='background-color: var(--row-alt);'>
+<td style=''></td>
+<td data-sort='33' style=''>33</td>
+<td data-sort='1.27' style=''>1.27</td>
+</tr>
+<tr data-orig-idx='14' style='background-color: var(--surface);'>
+<td style=''></td>
+<td data-sort='28' style=''>28</td>
+<td data-sort='1.07' style=''>1.07</td>
+</tr>
+<tr data-orig-idx='15' style='background-color: var(--row-alt);'>
+<td style=''>other</td>
+<td data-sort='249' style=''>249</td>
+<td data-sort='9.56' style=''>9.56</td>
+</tr>
+<tr data-orig-idx='16' style='background-color: var(--surface);'>
+<td style=''>Total</td>
+<td data-sort='2605' style=''>2,605</td>
+<td data-sort='100.01' style=''>100.01</td>
+</tr>
+</tbody></table></div>
+</details>
+<details open id='ws-request-ports'>
+<summary>
+<div class='summary-title'><h2>WS Request Ports</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a class="active" aria-current="location" href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for WS Request Ports.</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>Port</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Calls</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''>https</td>
+<td data-sort='52682930' style=''>52,682,930</td>
+<td data-sort='99.51' style=''>99.51</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''>http</td>
+<td data-sort='256817' style=''>256,817</td>
+<td data-sort='0.49' style=''>0.49</td>
+</tr>
+<tr data-orig-idx='2' style='background-color: var(--surface);'>
+<td style=''>Total</td>
+<td data-sort='52939747' style=''>52,939,747</td>
+<td data-sort='100.0' style=''>100.00</td>
+</tr>
+</tbody></table></div>
+</details>
+<details open id='hapi-traffic-summary'>
+<summary>
+<div class='summary-title'><h2>HAPI Traffic Summary</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a class="active" aria-current="location" href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for HAPI Traffic Summary.</p>
+<div class='table-container'><table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>
+<tr><td><strong>Requests from robots</strong></td><td>364</td></tr>
+<tr><td><strong>Non-robot requests</strong></td><td>240031</td></tr>
+<tr><td><strong>Distinct clients/locations</strong></td><td>7667</td></tr>
+</tbody></table></div>
+</details>
+<details open id='hapi-web-service-clients'>
+<summary>
+<div class='summary-title'><h2>HAPI Web Service Clients</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a class="active" aria-current="location" href="#hapi-web-service-clients">HAPI Web Service Clients</a><a href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for HAPI Web Service Clients.</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>Source | User-Agent</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Calls</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''> | python-urllib3/2.6.3</td>
+<td data-sort='17018' style=''>17,018</td>
+<td data-sort='7.08' style=''>7.08</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''> | node</td>
+<td data-sort='14531' style=''>14,531</td>
+<td data-sort='6.04' style=''>6.04</td>
+</tr>
+<tr data-orig-idx='2' style='background-color: var(--surface);'>
+<td style=''> | python-requests/2.33.1</td>
+<td data-sort='11679' style=''>11,679</td>
+<td data-sort='4.86' style=''>4.86</td>
+</tr>
+<tr data-orig-idx='3' style='background-color: var(--row-alt);'>
+<td style=''> | MMSTrackerMac/1 CFNetwork/3860.600.21 Darwin/25.5.0</td>
+<td data-sort='11291' style=''>11,291</td>
+<td data-sort='4.7' style=''>4.70</td>
+</tr>
+<tr data-orig-idx='4' style='background-color: var(--surface);'>
+<td style=''> | python-urllib3/2.6.3</td>
+<td data-sort='9803' style=''>9,803</td>
+<td data-sort='4.08' style=''>4.08</td>
+</tr>
+<tr data-orig-idx='5' style='background-color: var(--row-alt);'>
+<td style=''> | Seismic/1 CFNetwork/3860.600.12 Darwin/25.5.0</td>
+<td data-sort='8092' style=''>8,092</td>
+<td data-sort='3.37' style=''>3.37</td>
+</tr>
+<tr data-orig-idx='6' style='background-color: var(--surface);'>
+<td style=''> | curl/8.5.0</td>
+<td data-sort='7244' style=''>7,244</td>
+<td data-sort='3.01' style=''>3.01</td>
+</tr>
+<tr data-orig-idx='7' style='background-color: var(--row-alt);'>
+<td style=''> | Python-urllib/3.11</td>
+<td data-sort='6317' style=''>6,317</td>
+<td data-sort='2.63' style=''>2.63</td>
+</tr>
+<tr data-orig-idx='8' style='background-color: var(--surface);'>
+<td style=''> | Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/ Safari/537.36</td>
+<td data-sort='4837' style=''>4,837</td>
+<td data-sort='2.01' style=''>2.01</td>
+</tr>
+<tr data-orig-idx='9' style='background-color: var(--row-alt);'>
+<td style=''> | python-requests/2.32.4</td>
+<td data-sort='4794' style=''>4,794</td>
+<td data-sort='1.99' style=''>1.99</td>
+</tr>
+<tr data-orig-idx='10' style='background-color: var(--surface);'>
+<td style=''> | python-requests/2.32.4</td>
+<td data-sort='4690' style=''>4,690</td>
+<td data-sort='1.95' style=''>1.95</td>
+</tr>
+<tr data-orig-idx='11' style='background-color: var(--row-alt);'>
+<td style=''> | node</td>
+<td data-sort='3977' style=''>3,977</td>
+<td data-sort='1.65' style=''>1.65</td>
+</tr>
+<tr data-orig-idx='12' style='background-color: var(--surface);'>
+<td style=''> | Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.6998.208 Safari/537.36</td>
+<td data-sort='3672' style=''>3,672</td>
+<td data-sort='1.53' style=''>1.53</td>
+</tr>
+<tr data-orig-idx='13' style='background-color: var(--row-alt);'>
+<td style=''> | curl/8.5.0</td>
+<td data-sort='3369' style=''>3,369</td>
+<td data-sort='1.4' style=''>1.40</td>
+</tr>
+<tr data-orig-idx='14' style='background-color: var(--surface);'>
+<td style=''> | MMSTrackerMac/1 CFNetwork/3860.600.21 Darwin/25.5.0</td>
+<td data-sort='2884' style=''>2,884</td>
+<td data-sort='1.2' style=''>1.20</td>
+</tr>
+<tr data-orig-idx='15' style='background-color: var(--row-alt);'>
+<td style=''> | NYC-Helio-EMS-LowRAM/1.0</td>
+<td data-sort='2749' style=''>2,749</td>
+<td data-sort='1.14' style=''>1.14</td>
+</tr>
+<tr data-orig-idx='16' style='background-color: var(--surface);'>
+<td style=''> | python-urllib3/2.6.3</td>
+<td data-sort='2446' style=''>2,446</td>
+<td data-sort='1.02' style=''>1.02</td>
+</tr>
+<tr data-orig-idx='17' style='background-color: var(--row-alt);'>
+<td style=''> | node</td>
+<td data-sort='2393' style=''>2,393</td>
+<td data-sort='1.0' style=''>1.00</td>
+</tr>
+<tr data-orig-idx='18' style='background-color: var(--surface);'>
+<td style=''> | Gravity-MANTA-OMNI-HRO/1.0</td>
+<td data-sort='2328' style=''>2,328</td>
+<td data-sort='0.97' style=''>0.97</td>
+</tr>
+<tr data-orig-idx='19' style='background-color: var(--row-alt);'>
+<td style=''> | Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/149.0.7827.55 Safari/537.36</td>
+<td data-sort='2263' style=''>2,263</td>
+<td data-sort='0.94' style=''>0.94</td>
+</tr>
+<tr data-orig-idx='20' style='background-color: var(--surface);'>
+<td style=''>other</td>
+<td data-sort='114018' style=''>114,018</td>
+<td data-sort='47.43' style=''>47.43</td>
+</tr>
+<tr data-orig-idx='21' style='background-color: var(--row-alt);'>
+<td style=''>Total</td>
+<td data-sort='240395' style=''>240,395</td>
+<td data-sort='100.0' style=''>100.00</td>
+</tr>
+</tbody></table></div>
+</details>
+<details open id='hapi-dataset-statistics'>
+<summary>
+<div class='summary-title'><h2>HAPI Dataset Statistics</h2></div>
+<a href='#top' class='back-to-top' onclick='event.stopPropagation()'>&uarr; Top</a>
+</summary>
+<div class='nav-bar'><span class='nav-bar-label'>Jump to:</span><a href="#http-user-agent">HTTP User Agent</a><a href="#ws-clients">WS Clients</a><a href="#python-client-requests">Python Client Requests</a><a href="#python-source-addresses">Python Source Addresses</a><a href="#python-client-addresses">Python Client Addresses</a><a href="#java-versions">Java Versions</a><a href="#java-source-addresses">Java Source Addresses</a><a href="#idl-source-addresses">IDL Source Addresses</a><a href="#cdas-rest-requests">CDAS REST Requests</a><a href="#hapi-requests">HAPI Requests</a><a href="#hdp-spase-registry-requests">HDP SPASE Registry Requests</a><a href="#4d-orbit-viewer-requests">4D Orbit Viewer Requests</a><a href="#rest-ip-protocol">REST IP Protocol</a><a href="#cdas-rest-web-service-methods">CDAS REST Web Service Methods</a><a href="#cdas-web-service-dataset-statistics">CDAS Web Service Dataset Statistics</a><a href="#ssc-object-web-service-statistics">SSC Object Web Service Statistics</a><a href="#rest-rejected-requests-(http-503/429)">REST Rejected Requests (HTTP 503/429)</a><a href="#ws-request-ports">WS Request Ports</a><a href="#hapi-traffic-summary">HAPI Traffic Summary</a><a href="#hapi-web-service-clients">HAPI Web Service Clients</a><a class="active" aria-current="location" href="#hapi-dataset-statistics">HAPI Dataset Statistics</a></div>
+<p class='desc'>Custom breakdown for HAPI Dataset Statistics.</p>
+<div class='table-container'><table><thead>
+<tr>
+<th class='sortable' style='' onclick='sortTable(this)'>Dataset</th>
+<th class='sortable' style='' onclick='sortTable(this)'>Calls</th>
+<th class='sortable' style='' onclick='sortTable(this)'>% of Calls</th>
+</tr>
+</thead><tbody>
+<tr data-orig-idx='0' style='background-color: var(--surface);'>
+<td style=''>OMNI2_H0_MRG1HR</td>
+<td data-sort='42138' style=''>42,138</td>
+<td data-sort='18.86' style=''>18.86</td>
+</tr>
+<tr data-orig-idx='1' style='background-color: var(--row-alt);'>
+<td style=''>OMNI_HRO2_1MIN</td>
+<td data-sort='21776' style=''>21,776</td>
+<td data-sort='9.75' style=''>9.75</td>
+</tr>
+<tr data-orig-idx='2' style='background-color: var(--surface);'>
+<td style=''>OMNI_HRO_1MIN</td>
+<td data-sort='19946' style=''>19,946</td>
+<td data-sort='8.93' style=''>8.93</td>
+</tr>
+<tr data-orig-idx='3' style='background-color: var(--row-alt);'>
+<td style=''>VG1_PWS_LR</td>
+<td data-sort='19511' style=''>19,511</td>
+<td data-sort='8.73' style=''>8.73</td>
+</tr>
+<tr data-orig-idx='4' style='background-color: var(--surface);'>
+<td style=''>IMAP_IALIRT_L1_REALTIME@1</td>
+<td data-sort='7880' style=''>7,880</td>
+<td data-sort='3.53' style=''>3.53</td>
+</tr>
+<tr data-orig-idx='5' style='background-color: var(--row-alt);'>
+<td style=''>IMAP_IALIRT_L1_REALTIME@2</td>
+<td data-sort='7880' style=''>7,880</td>
+<td data-sort='3.53' style=''>3.53</td>
+</tr>
+<tr data-orig-idx='6' style='background-color: var(--surface);'>
+<td style=''>IMAP_IALIRT_L1_REALTIME@4</td>
+<td data-sort='7878' style=''>7,878</td>
+<td data-sort='3.53' style=''>3.53</td>
+</tr>
+<tr data-orig-idx='7' style='background-color: var(--row-alt);'>
+<td style=''>AC_K1_SWE</td>
+<td data-sort='6379' style=''>6,379</td>
+<td data-sort='2.86' style=''>2.86</td>
+</tr>
+<tr data-orig-idx='8' style='background-color: var(--surface);'>
+<td style=''>MVN_INSITU_KP-4SEC</td>
+<td data-sort='4751' style=''>4,751</td>
+<td data-sort='2.13' style=''>2.13</td>
+</tr>
+<tr data-orig-idx='9' style='background-color: var(--row-alt);'>
+<td style=''>MMS1_HPCA_SRVY_L2_MOMENTS</td>
+<td data-sort='4717' style=''>4,717</td>
+<td data-sort='2.11' style=''>2.11</td>
+</tr>
+<tr data-orig-idx='10' style='background-color: var(--surface);'>
+<td style=''>AC_H0_MFI</td>
+<td data-sort='3386' style=''>3,386</td>
+<td data-sort='1.52' style=''>1.52</td>
+</tr>
+<tr data-orig-idx='11' style='background-color: var(--row-alt);'>
+<td style=''>AC_H2_SWE</td>
+<td data-sort='3266' style=''>3,266</td>
+<td data-sort='1.46' style=''>1.46</td>
+</tr>
+<tr data-orig-idx='12' style='background-color: var(--surface);'>
+<td style=''>AC_H2_MFI</td>
+<td data-sort='3247' style=''>3,247</td>
+<td data-sort='1.45' style=''>1.45</td>
+</tr>
+<tr data-orig-idx='13' style='background-color: var(--row-alt);'>
+<td style=''>MMS1_MEC_SRVY_L2_EPHT89Q</td>
+<td data-sort='3196' style=''>3,196</td>
+<td data-sort='1.43' style=''>1.43</td>
+</tr>
+<tr data-orig-idx='14' style='background-color: var(--surface);'>
+<td style=''>PSP_COHO1HR_MERGED_MAG_PLASMA</td>
+<td data-sort='2282' style=''>2,282</td>
+<td data-sort='1.02' style=''>1.02</td>
+</tr>
+<tr data-orig-idx='15' style='background-color: var(--row-alt);'>
+<td style=''>other</td>
+<td data-sort='65145' style=''>65,145</td>
+<td data-sort='29.16' style=''>29.16</td>
+</tr>
+<tr data-orig-idx='16' style='background-color: var(--surface);'>
+<td style=''>Total</td>
+<td data-sort='223378' style=''>223,378</td>
+<td data-sort='100.0' style=''>100.00</td>
+</tr>
+</tbody></table></div>
+</details>
+</div>
+<div id='Tab-Plots' class='tab-content' style='display: none;'>
+
+</div>
+<script>
+// --- NEW: Plotly Theme Updater ---
+function updatePlotlyTheme(isDark) {
+    if (typeof Plotly === 'undefined') return; // Failsafe if no plots exist
+    
+    const plots = document.querySelectorAll('.js-plotly-plot');
+    const update = {
+        'paper_bgcolor': 'rgba(0,0,0,0)', // Transparent so the CSS card color shows!
+        'plot_bgcolor': 'rgba(0,0,0,0)',
+        'font.color': isDark ? '#f8fafc' : '#0f172a',
+        'xaxis.gridcolor': isDark ? '#334155' : '#e2e8f0',
+        'yaxis.gridcolor': isDark ? '#334155' : '#e2e8f0',
+        'xaxis.zerolinecolor': isDark ? '#334155' : '#e2e8f0',
+        'yaxis.zerolinecolor': isDark ? '#334155' : '#e2e8f0'
+    };
+
+    plots.forEach(plot => {
+        Plotly.relayout(plot, update);
+    });
+}
+
+// --- Theme Setup & Toggle ---
+const toggle = document.getElementById('theme-toggle');
+
+// Check initial theme state on page load
+let isDark = localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+if (isDark) {
+    document.body.setAttribute('data-theme', 'dark');
+}
+
+// Ensure plots get themed correctly right when the page finishes loading
+window.addEventListener('load', () => {
+    isDark = document.body.getAttribute('data-theme') === 'dark';
+    updatePlotlyTheme(isDark);
+
+    const tabNameByHash = {
+        '#bot_traffic': 'Tab-Bots',
+        '#visualizations': 'Tab-Plots',
+        '#data_tables': 'Tab-Tables'
+    };
+    const tabName = tabNameByHash[window.location.hash];
+    if (tabName) {
+        const tabButton = Array.from(document.querySelectorAll('.tab-button')).find(
+            button => button.getAttribute('onclick').includes(tabName)
+        );
+        if (tabButton) {
+            tabButton.click();
+        }
+    }
+});
+
+toggle.addEventListener('click', () => {
+    if (document.body.getAttribute('data-theme') === 'dark') {
+        document.body.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'light');
+        updatePlotlyTheme(false); // Update Plotly to Light
+    } else {
+        document.body.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+        updatePlotlyTheme(true); // Update Plotly to Dark
+    }
+});
+
+// --- Tab Navigation Logic ---
+function openTab(evt, tabName) {
+    let tabContents = document.getElementsByClassName("tab-content");
+    for (let i = 0; i < tabContents.length; i++) {
+        tabContents[i].style.display = "none";
+    }
+    let tablinks = document.getElementsByClassName("tab-button");
+    for (let i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+    }
+    document.getElementById(tabName).style.display = "block";
+    
+    if (evt) {
+        evt.currentTarget.className += " active";
+        const hashByTabName = {
+            'Tab-Bots': 'bot_traffic',
+            'Tab-Plots': 'visualizations',
+            'Tab-Tables': 'data_tables'
+        };
+        const hashName = hashByTabName[tabName];
+        history.replaceState(null, null, '#' + hashName);
+    }
+    
+    window.dispatchEvent(new Event('resize')); 
+}
+
+// --- Expand/Collapse Logic ---
+function toggleAllSections() {
+    const details = document.querySelectorAll('details');
+    const btn = document.getElementById('toggle-all-btn');
+    const isAnyClosed = Array.from(details).some(d => !d.open);
+    details.forEach(d => d.open = isAnyClosed);
+    btn.innerHTML = isAnyClosed ? '⮝ Collapse All' : '⮟ Expand All';
+}
+
+// --- 3-State Sorting Logic ---
+function sortTable(th) {
+    const table = th.closest('table');
+    const tbody = table.querySelector('tbody');
+    if (!tbody) return;
+    
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const colIndex = Array.from(th.parentNode.children).indexOf(th);
+    let state = parseInt(th.getAttribute('data-sort-state') || '0');
+
+    table.querySelectorAll('th').forEach(header => {
+        header.setAttribute('data-sort-state', '0');
+        header.classList.remove('sort-asc', 'sort-desc');
+    });
+
+    state = (state + 1) % 3;
+    th.setAttribute('data-sort-state', state.toString());
+    if (state === 1) th.classList.add('sort-asc');
+    if (state === 2) th.classList.add('sort-desc');
+
+    rows.sort((a, b) => {
+        if (state === 0) return parseInt(a.getAttribute('data-orig-idx')) - parseInt(b.getAttribute('data-orig-idx'));
+        const multiplier = state === 1 ? 1 : -1;
+        const aCell = a.children[colIndex];
+        const bCell = b.children[colIndex];
+        const aText = aCell.innerText.trim();
+        const bText = bCell.innerText.trim();
+        const aSortValue = Number(aCell.dataset.sort);
+        const bSortValue = Number(bCell.dataset.sort);
+        const hasNumericSortValues = (
+            aCell.dataset.sort !== undefined &&
+            bCell.dataset.sort !== undefined &&
+            Number.isFinite(aSortValue) &&
+            Number.isFinite(bSortValue)
+        );
+
+        if (hasNumericSortValues) {
+            return (aSortValue - bSortValue) * multiplier;
+        }
+
+        const aNum = parseFloat(aText.replace(/[^0-9.-]+/g,""));
+        const bNum = parseFloat(bText.replace(/[^0-9.-]+/g,""));
+
+        if (!isNaN(aNum) && !isNaN(bNum) && /[0-9]/.test(aText) && /[0-9]/.test(bText)) {
+            return (aNum - bNum) * multiplier;
+        }
+        return aText.localeCompare(bText) * multiplier;
+    });
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+</script>
+</div></body></html>
