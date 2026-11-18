@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PIONEER6 Inventory Index - CDAWeb</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root, body.dark {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #0284c7;
+      --accent-light: #38bdf8;
+      --success: #10b981;
+      --plot-paper: #1e293b;
+      --plot-bg: #0f172a;
+      --plot-grid: #334155;
+    }
+    body.light {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --accent: #0284c7;
+      --accent-light: #0369a1;
+      --success: #16a34a;
+      --plot-paper: #ffffff;
+      --plot-bg: #f8fafc;
+      --plot-grid: #e2e8f0;
+    }
+    body {
+      margin: 0;
+      padding: 24px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    input[type="date"] {
+      color-scheme: dark;
+    }
+    body.light input[type="date"] {
+      color-scheme: light;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .page-footer { margin: 20px 0 0; color: var(--text-muted); font-size: 12px; text-align: center; }
+    .page-footer a { color: var(--accent-light); }
+    .breadcrumbs { font-size: 14px; margin-bottom: 0; color: var(--text-muted); }
+    .breadcrumbs a { color: var(--accent-light); text-decoration: none; }
+    .breadcrumbs a:hover { text-decoration: underline; }
+    .btn-theme {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-theme:hover { opacity: 0.9; }
+    h1 { margin: 0 0 6px 0; font-size: 28px; }
+    .subtitle { color: var(--text-muted); font-size: 15px; margin: 0 0 20px 0; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .kpi-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 20px; font-weight: 700; color: var(--text); }
+    .controls-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    input[type="text"], input[type="date"], select {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: 13px;
+    }
+    button, .btn-sm {
+      background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block;
+    }
+    button.btn-secondary { background: var(--border); color: var(--text); }
+    button:hover, .btn-sm:hover { opacity: 0.9; }
+    .chart-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th { padding: 10px 12px; background: rgba(125,125,125,0.06); color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .progress-bar { width: 70px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; display: inline-block; }
+    .progress-bar .fill { height: 100%; background: var(--success); }
+    .badge-sm { display: inline-block; padding: 2px 8px; background: rgba(56, 189, 248, 0.15); color: var(--accent-light); border-radius: 4px; font-size: 11px; }
+    .chart-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .pan-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(125,125,125,0.08);
+      padding: 3px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .btn-pan {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-pan:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .btn-pan:disabled, .btn-pan.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .btn-preset {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .btn-preset:hover {
+      opacity: 0.9;
+      color: var(--text);
+    }
+    .btn-preset.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      font-weight: 700;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+    }
+    .xtick text, .ytick text {
+      fill: var(--text) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+      <div class="breadcrumbs">
+        <a href="../inventory_index.html">CDAWeb Inventory</a> &gt;
+        <span>PIONEER6 Index</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="../PIONEER6_Inventory.png" target="_blank" class="btn-theme"> View PIONEER6 PNG</a>
+        <button class="btn-theme" onclick="exportPlotAsPng('timeline-chart', 'PIONEER6_timeline.png')"> Download Plot PNG</button>
+        <button id="theme-toggle" class="btn-theme" onclick="toggleTheme()">☀️ Light Mode</button>
+      </div>
+    </div>
+    <h1>PIONEER6 Mission Data Inventory</h1>
+    <p class="subtitle">Complete catalog of holdings and availability for PIONEER6 spacecraft</p>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Datasets</div>
+        <div class="kpi-value">1</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Instruments</div>
+        <div class="kpi-value">1</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total CDF Files</div>
+        <div class="kpi-value">1</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Mission Span</div>
+        <div class="kpi-value" style="font-size: 14px;">2005-01-01 &rarr; 2005-01-01</div>
+      </div>
+    </div>
+
+    <div class="controls-card">
+      <input type="text" id="search-box" placeholder="Search datasets..." oninput="filterTable()">
+      <select id="instrument-filter" onchange="filterTable()">
+        <option value="">All Instruments (1)</option>
+        <option value='Magnetic Fields (space)'>Magnetic Fields (space)</option>
+      </select>
+      <button class="btn-secondary" onclick="selectAll(true)">Select All</button>
+      <button class="btn-secondary" onclick="selectAll(false)">Clear All</button>
+      <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; font-size: 13px; font-weight: 600; padding: 4px 10px; background: rgba(125,125,125,0.08); border-radius: 6px; border: 1px solid var(--border);">
+        <input type="checkbox" id="toggle-chart-cb" autocomplete="off" onchange="toggleChartDisplay(this.checked)">
+        <span> Show Timeline Graph</span>
+      </label>
+      <div style="margin-left: auto; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+        <span style="font-size: 13px; color: var(--text-muted);">Date Range:</span>
+        <input type="date" id="filter-start" value="2005-01-01" oninput="clearPresetHighlight()">
+        <span style="color: var(--text-muted);">&rarr;</span>
+        <input type="date" id="filter-stop" value="2005-01-01" oninput="clearPresetHighlight()">
+        <button onclick="updateView()">Apply</button>
+        <button type="button" class="btn-preset" data-preset="1y" onclick="presetRange('1y')">1 Year</button>
+        <button type="button" class="btn-preset" data-preset="5y" onclick="presetRange('5y')">5 Years</button>
+        <button type="button" class="btn-preset active" data-preset="all" onclick="presetRange('all')">All Time</button>
+      </div>
+    </div>
+
+    <div class="chart-card" id="chart-card-container" style="display: none;">
+      <div class="chart-hint">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <span><strong>Availability Timeline (Selected Items)</strong></span>
+          <div class="pan-controls">
+            <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin: 0 4px;">Time Window:</span>
+            <button type="button" class="btn-pan disabled" disabled title="Pan backward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', -1)">◀ Prev Frame</button>
+            <button type="button" class="btn-pan" title="Reset zoom to full range" onclick="resetTimelineZoom('timeline-chart')">↺ Reset Zoom</button>
+            <button type="button" class="btn-pan disabled" disabled title="Pan forward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', 1)">Next Frame ▶</button>
+            <button type="button" class="btn-pan" title="Reselect all unselected items" onclick="resetAllSelections()">↺ Reset Selection</button>
+            <button type="button" class="btn-pan" title="Download timeline chart as PNG" onclick="exportPlotAsPng('timeline-chart', 'PIONEER6_timeline.png')"> PNG</button>
+          </div>
+        </div>
+        <span>💡 Click row/label to unselect • Ctrl+Click to open full dataset page</span>
+      </div>
+      <div id="timeline-chart" style="min-height: 120px; width: 100%;"></div>
+    </div>
+
+    <div class="table-card">
+      <h3 style="margin: 0 0 12px 0;">Available Datasets</h3>
+      <table id="datasets-table">
+        <thead>
+          <tr>
+            <th style="width: 30px;"><input type="checkbox" id="master-cb" checked onchange="toggleAllCheckboxes(this.checked)"></th>
+            <th class="sortable" data-sort-type="text">Dataset ID</th>
+            <th class="sortable" data-sort-type="text">Instrument</th>
+            <th class="sortable" data-sort-type="text">Product</th>
+            <th class="sortable" data-sort-type="date">Time Coverage</th>
+            <th class="sortable" data-sort-type="number">CDF Count</th>
+            <th class="sortable" data-sort-type="number">Coverage</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="datasets-tbody">
+          
+        <tr data-inst="Magnetic Fields (space)" data-name="PIONEER6_R0_MAGPLASMA">
+          <td><input type="checkbox" class="dset-checkbox" value="PIONEER6_R0_MAGPLASMA" checked onchange="updateView()"></td>
+          <td><a href="./PIONEER6_R0_MAGPLASMA.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">PIONEER6_R0_MAGPLASMA</a></td>
+          <td><span class="badge-sm">Magnetic Fields (space)</span></td>
+          <td style="color: var(--text-muted);">PIONEER6_R0_MAGPLASMA</td>
+          <td>2005-01-01 &rarr; 2005-01-01</td>
+          <td>1</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./PIONEER6_R0_MAGPLASMA.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const allDatasets = [{"name": "PIONEER6_R0_MAGPLASMA", "instrument": "Magnetic Fields (space)", "product": "PIONEER6_R0_MAGPLASMA", "cdf_count": 1, "active_days": 0.041666666666666664, "coverage_pct": 100.0, "earliest": "2005-01-01", "latest": "2005-01-01", "intervals": [["2005-01-01 00:00:00", "2005-01-01 01:00:00"]], "page": "./PIONEER6_R0_MAGPLASMA.html"}];
+
+    function parseDateMs(str) {
+      if (!str) return NaN;
+      const s = str.trim();
+      const iso = s.replace(/\//g, '-').replace(' ', 'T') + 'Z';
+      const ms = Date.parse(iso);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function enableSortableTable(tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      table.querySelectorAll('th.sortable').forEach((header, columnIndex) => {
+        header.tabIndex = 0;
+        header.setAttribute('role', 'button');
+        header.setAttribute('aria-sort', 'none');
+        const sortColumn = () => {
+          const ascending = header.getAttribute('aria-sort') !== 'ascending';
+          table.querySelectorAll('th.sortable').forEach(th => th.setAttribute('aria-sort', 'none'));
+          header.setAttribute('aria-sort', ascending ? 'ascending' : 'descending');
+          const rows = Array.from(table.tBodies[0].rows);
+          const type = header.getAttribute('data-sort-type');
+          rows.sort((left, right) => {
+            const a = left.cells[columnIndex].textContent.trim();
+            const b = right.cells[columnIndex].textContent.trim();
+            let comparison;
+            if (type === 'number') comparison = Number(a.replace(/[^0-9.-]/g, '')) - Number(b.replace(/[^0-9.-]/g, ''));
+            else if (type === 'date') comparison = parseDateMs(a.split('→')[0].trim()) - parseDateMs(b.split('→')[0].trim());
+            else comparison = a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+            return ascending ? comparison : -comparison;
+          });
+          rows.forEach(row => table.tBodies[0].appendChild(row));
+        };
+        header.addEventListener('click', sortColumn);
+        header.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); sortColumn(); }
+        });
+      });
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+      const newTheme = isDark ? 'light' : 'dark';
+      document.body.className = newTheme;
+      localStorage.setItem('cdaweb_theme', newTheme);
+      document.getElementById('theme-toggle').textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      updateView();
+    }
+
+    function toggleChartDisplay(show) {
+      const chartCard = document.getElementById('chart-card-container');
+      if (chartCard) {
+        chartCard.style.display = show ? 'block' : 'none';
+      }
+      if (show) {
+        updateView();
+        setTimeout(() => {
+          const plotDiv = document.getElementById('timeline-chart');
+          if (plotDiv) {
+            Plotly.Plots.resize(plotDiv);
+          }
+        }, 50);
+      }
+    }
+
+    function resetAllSelections() {
+      document.querySelectorAll('.dset-checkbox').forEach(cb => {
+        cb.checked = true;
+      });
+      const masterCb = document.getElementById('master-cb');
+      if (masterCb) masterCb.checked = true;
+      updateView();
+    }
+
+    function presetRange(type) {
+      document.querySelectorAll('.btn-preset').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-preset') === type);
+      });
+      if (type === 'all') {
+        if (window._globalMinTimeMs) {
+          document.getElementById('filter-start').value = formatAxisDate(window._globalMinTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-start').value = '';
+        }
+        if (window._globalMaxTimeMs) {
+          document.getElementById('filter-stop').value = formatAxisDate(window._globalMaxTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-stop').value = '';
+        }
+        updateView();
+        return;
+      }
+      const now = new Date();
+      const endStr = now.toISOString().split('T')[0];
+      let startStr = '';
+      if (type === '1y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 1);
+        startStr = d.toISOString().split('T')[0];
+      } else if (type === '5y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 5);
+        startStr = d.toISOString().split('T')[0];
+      }
+      document.getElementById('filter-start').value = startStr;
+      document.getElementById('filter-stop').value = endStr;
+      updateView();
+    }
+
+    function clearPresetHighlight() {
+      document.querySelectorAll('.btn-preset').forEach(btn => btn.classList.remove('active'));
+    }
+
+    function updateView() {
+      const showChart = document.getElementById('toggle-chart-cb')?.checked;
+      if (!showChart) {
+        return;
+      }
+
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const checkedBoxes = Array.from(document.querySelectorAll('.dset-checkbox:checked'));
+      const selectedNames = new Set(checkedBoxes.map(cb => cb.value));
+      const startFilter = document.getElementById('filter-start').value;
+      const stopFilter = document.getElementById('filter-stop').value;
+      const startFilterMs = startFilter ? parseDateMs(startFilter) : null;
+      const stopFilterMs = stopFilter ? parseDateMs(stopFilter + ' 23:59:59') : null;
+
+      const isLight = document.body.classList.contains('light');
+      const paperBg = isLight ? '#ffffff' : '#1e293b';
+      const plotBg = isLight ? '#f8fafc' : '#0f172a';
+      const textColor = isLight ? '#0f172a' : '#f8fafc';
+      const gridColor = isLight ? '#e2e8f0' : '#334155';
+
+      const timelineData = { y: [], x: [], base: [], colors: [], hovertext: [] };
+      const colors = ['#0284c7', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6'];
+
+      const activeDatasets = [];
+      allDatasets.forEach(d => {
+        if (instFilter && d.instrument !== instFilter) return;
+        if (query && !d.name.toLowerCase().includes(query) && !d.instrument.toLowerCase().includes(query) && !d.product.toLowerCase().includes(query)) return;
+        if (!selectedNames.has(d.name)) return;
+
+        const validIntervals = [];
+        d.intervals.forEach(inv => {
+          const s = inv[0];
+          const e = inv[1];
+          const sTime = parseDateMs(s);
+          const eTime = parseDateMs(e);
+          if (isNaN(sTime) || isNaN(eTime)) return;
+
+          if (startFilterMs && eTime < startFilterMs) return;
+          if (stopFilterMs && sTime > stopFilterMs) return;
+
+          const sClamped = startFilterMs ? Math.max(sTime, startFilterMs) : sTime;
+          const eClamped = stopFilterMs ? Math.min(eTime, stopFilterMs) : eTime;
+          if (eClamped <= sClamped) return;
+
+          validIntervals.push({ s, e, sClamped, eClamped });
+        });
+
+        if (validIntervals.length > 0) {
+          activeDatasets.push({ d, validIntervals });
+        }
+      });
+
+      const activeNames = activeDatasets.map(item => item.d.name);
+      activeDatasets.forEach((item, idx) => {
+        const color = colors[idx % colors.length];
+        const d = item.d;
+        item.validIntervals.forEach(inv => {
+          const durMs = Math.max(86400000, inv.eClamped - inv.sClamped);
+          timelineData.y.push(d.name);
+          timelineData.x.push(durMs);
+          timelineData.base.push(new Date(inv.sClamped).toISOString());
+          timelineData.colors.push(color);
+          timelineData.hovertext.push(`<b>${d.name}</b><br>${d.instrument} • ${d.product}<br>From: ${inv.s}<br>To: ${inv.e}<br><i>Click to unselect • Ctrl+Click to open full page</i>`);
+        });
+      });
+
+      const traces = timelineData.y.length ? [{
+        type: 'bar',
+        orientation: 'h',
+        y: timelineData.y,
+        x: timelineData.x,
+        base: timelineData.base,
+        marker: { color: timelineData.colors, line: { width: 0 } },
+        hoverinfo: 'text',
+        hovertext: timelineData.hovertext,
+        showlegend: false
+      }] : [];
+
+      const count = activeNames.length;
+      const barGap = count === 1 ? 0.75 : (count === 2 ? 0.6 : (count <= 4 ? 0.45 : 0.25));
+      const barWidth = count === 1 ? 0.32 : (count === 2 ? 0.45 : (count <= 4 ? 0.6 : 0.75));
+      traces.forEach(t => { t.width = barWidth; });
+      const plotHeight = count === 1 ? 140 : (count === 2 ? 180 : Math.max(220, count * 32 + 80));
+
+      const plotDiv = document.getElementById('timeline-chart');
+      plotDiv.style.height = plotHeight + 'px';
+      plotDiv.style.minHeight = plotHeight + 'px';
+
+      const xAxisConfig = {
+        type: 'date',
+        side: 'bottom',
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      // Determine if "All Time" preset is active
+      const allTimeBtn = document.querySelector('.btn-preset[data-preset="all"]');
+      const isAllTime = Boolean(allTimeBtn && allTimeBtn.classList.contains('active'));
+
+      // Calculate data bounds for currently selected/plotted items
+      let plottedMinMs = Infinity;
+      let plottedMaxMs = -Infinity;
+      for (let i = 0; i < timelineData.base.length; i++) {
+        const s = parseAxisTimeMs(timelineData.base[i]);
+        const dur = Number(timelineData.x[i]) || 0;
+        if (Number.isFinite(s)) {
+          if (s < plottedMinMs) plottedMinMs = s;
+          if ((s + dur) > plottedMaxMs) plottedMaxMs = s + dur;
+        }
+      }
+      const hasPlottedData = Number.isFinite(plottedMinMs) && Number.isFinite(plottedMaxMs) && plottedMaxMs >= plottedMinMs;
+
+      if (isAllTime && hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (startFilter && stopFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', stopFilter + ' 23:59:59'];
+        xAxisConfig.autorange = false;
+      } else if (startFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', formatAxisDate(window._globalMaxTimeMs || Date.now())];
+        xAxisConfig.autorange = false;
+      } else if (hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        xAxisConfig.range = [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)];
+        xAxisConfig.autorange = false;
+      } else {
+        xAxisConfig.autorange = true;
+      }
+
+      const xAxis2Config = {
+        type: 'date',
+        overlaying: 'x',
+        side: 'top',
+        matches: 'x',
+        showgrid: false,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      const yAxisConfig = {
+        type: 'category',
+        categoryorder: 'array',
+        categoryarray: activeNames.slice().reverse(),
+        automargin: true,
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor },
+        fixedrange: true,
+        autorange: true
+      };
+
+      const layout = {
+        height: plotHeight,
+        paper_bgcolor: paperBg,
+        plot_bgcolor: plotBg,
+        font: { color: textColor, size: 11 },
+        margin: { l: 180, r: 30, t: 35, b: 40 },
+        xaxis: xAxisConfig,
+        xaxis2: xAxis2Config,
+        yaxis: yAxisConfig,
+        barmode: 'overlay',
+        bargap: barGap,
+        bargroupgap: 0.1,
+        annotations: count === 0 ? [{
+          text: checkedBoxes.length > 0
+            ? 'No data available for the selected datasets in this date range'
+            : 'Select one or more datasets to view timeline',
+          showarrow: false,
+          font: { size: 13, color: textColor }
+        }] : []
+      };
+
+      Plotly.newPlot('timeline-chart', traces, layout, { responsive: true, displayModeBar: true, displaylogo: false }).then(() => {
+        updatePanButtons('timeline-chart');
+      });
+
+      plotDiv.on('plotly_relayout', function() {
+        updatePanButtons('timeline-chart');
+      });
+
+      // Attach click events on chart points and y-axis ticks
+      plotDiv.on('plotly_click', function(data) {
+        if (!data.points || data.points.length === 0) return;
+        const name = data.points[0].y;
+        const isCtrl = data.event && (data.event.ctrlKey || data.event.metaKey);
+        handleRowClick(name, isCtrl);
+      });
+
+      plotDiv.querySelectorAll('.ytick text').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.style.userSelect = 'none';
+        el.title = 'Click to unselect • Ctrl+Click to open full page';
+        el.onclick = function(e) {
+          e.stopPropagation();
+          const isCtrl = e.ctrlKey || e.metaKey;
+          handleRowClick(el.textContent.trim(), isCtrl);
+        };
+      });
+    }
+
+    function handleRowClick(name, isCtrl) {
+      const d = allDatasets.find(item => item.name === name);
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (isCtrl && d && d.page) {
+        window.open(d.page + q, '_blank');
+        return;
+      }
+      const cb = document.querySelector(`.dset-checkbox[value="${name}"]`);
+      if (cb) {
+        cb.checked = !cb.checked;
+        updateView();
+      }
+    }
+
+    function filterTable() {
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+
+      rows.forEach(r => {
+        const name = (r.getAttribute('data-name') || '').toLowerCase();
+        const inst = r.getAttribute('data-inst') || '';
+        const matchQ = !query || name.includes(query);
+        const matchInst = !instFilter || inst === instFilter;
+        r.style.display = (matchQ && matchInst) ? '' : 'none';
+      });
+
+      updateView();
+      propagateQueryToLinks();
+    }
+
+    function selectAll(state) {
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+      rows.forEach(r => {
+        if (r.style.display !== 'none') {
+          const cb = r.querySelector('.dset-checkbox');
+          if (cb) cb.checked = state;
+        }
+      });
+      document.getElementById('master-cb').checked = state;
+      updateView();
+    }
+
+    function toggleAllCheckboxes(state) {
+      selectAll(state);
+    }
+
+    function parseAxisTimeMs(val) {
+      if (val == null) return NaN;
+      if (typeof val === 'number') return val;
+      if (val instanceof Date) return val.getTime();
+      const s = String(val).trim();
+      if (!s) return NaN;
+      if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+      const iso = s.replace(/\//g, '-').replace(' ', 'T');
+      const isoUtc = (iso.includes('Z') || iso.includes('+')) ? iso : iso + 'Z';
+      let ms = Date.parse(isoUtc);
+      if (!isNaN(ms)) return ms;
+      ms = Date.parse(s);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function formatAxisDate(ms) {
+      const d = new Date(ms);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString();
+    }
+
+    function panTimelineWindow(divId, direction) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv || !plotDiv._fullLayout || !plotDiv._fullLayout.xaxis) return;
+      const rng = plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2) return;
+
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+
+      const span = t1 - t0;
+      if (span <= 0) return;
+
+      const newT0 = t0 + (direction * span);
+      const newT1 = t1 + (direction * span);
+
+      Plotly.relayout(plotDiv, {
+        'xaxis.range': [formatAxisDate(newT0), formatAxisDate(newT1)],
+        'xaxis.autorange': false
+      }).then(() => {
+        updatePanButtons(divId);
+      });
+    }
+
+    function resetTimelineZoom(divId) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        Plotly.relayout(plotDiv, {
+          'xaxis.range': [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)],
+          'xaxis.autorange': false
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      } else {
+        Plotly.relayout(plotDiv, {
+          'xaxis.autorange': true
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      }
+    }
+
+    window._globalMinTimeMs = 1104537600000;
+    window._globalMaxTimeMs = 1104541200000;
+
+    function exportPlotAsPng(divId, filename) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      Plotly.downloadImage(plotDiv, {
+        format: 'png',
+        width: 1400,
+        height: Math.max(500, plotDiv.offsetHeight || 500),
+        filename: filename || 'plot.png'
+      });
+    }
+
+    function updatePanButtons(divId) {
+      const plotDiv = document.getElementById(divId);
+      const prevBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', -1)"]`);
+      const nextBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', 1)"]`);
+      if (!plotDiv || !prevBtn || !nextBtn) return;
+      const rng = plotDiv._fullLayout && plotDiv._fullLayout.xaxis && plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2 || !window._globalMinTimeMs || !window._globalMaxTimeMs) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+      const fullSpan = window._globalMaxTimeMs - window._globalMinTimeMs;
+      const currentSpan = t1 - t0;
+      if (currentSpan >= fullSpan - 60000) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      const canPrev = t0 > (window._globalMinTimeMs + 60000);
+      const canNext = t1 < (window._globalMaxTimeMs - 60000);
+      prevBtn.disabled = !canPrev;
+      nextBtn.disabled = !canNext;
+      prevBtn.classList.toggle('disabled', !canPrev);
+      nextBtn.classList.toggle('disabled', !canNext);
+    }
+
+    // Theme initialization
+    const savedTheme = localStorage.getItem('cdaweb_theme') || 'dark';
+    document.body.className = savedTheme;
+    document.getElementById('theme-toggle').textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+    // Propagate URL query params (such as ?view for updog) to relative navigation links
+    function propagateQueryToLinks() {
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (q) {
+        document.querySelectorAll('a[href]').forEach(a => {
+          const href = a.getAttribute('href');
+          if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto:') && !href.includes('?')) {
+            a.setAttribute('href', href + q);
+          }
+        });
+      }
+    }
+
+    // Ensure timeline checkbox is unchecked by default and container is hidden
+    const chartCb = document.getElementById('toggle-chart-cb');
+    if (chartCb) {
+      chartCb.checked = false;
+    }
+    const chartCard = document.getElementById('chart-card-container');
+    if (chartCard) {
+      chartCard.style.display = 'none';
+    }
+
+    enableSortableTable('datasets-table');
+
+    // Initial render
+    updateView();
+    propagateQueryToLinks();
+  </script>
+  <footer class="page-footer">This page was last updated on: 2026-11-17 17:21:04 UTC. For any questions or comments, please contact SPDF support at: <a href="mailto:NASA-SPDF-Support@nasa.gov">NASA-SPDF-Support@nasa.gov</a></footer>
+</body>
+</html>

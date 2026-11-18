@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ERG Inventory Index - CDAWeb</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root, body.dark {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #0284c7;
+      --accent-light: #38bdf8;
+      --success: #10b981;
+      --plot-paper: #1e293b;
+      --plot-bg: #0f172a;
+      --plot-grid: #334155;
+    }
+    body.light {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --accent: #0284c7;
+      --accent-light: #0369a1;
+      --success: #16a34a;
+      --plot-paper: #ffffff;
+      --plot-bg: #f8fafc;
+      --plot-grid: #e2e8f0;
+    }
+    body {
+      margin: 0;
+      padding: 24px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    input[type="date"] {
+      color-scheme: dark;
+    }
+    body.light input[type="date"] {
+      color-scheme: light;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .page-footer { margin: 20px 0 0; color: var(--text-muted); font-size: 12px; text-align: center; }
+    .page-footer a { color: var(--accent-light); }
+    .breadcrumbs { font-size: 14px; margin-bottom: 0; color: var(--text-muted); }
+    .breadcrumbs a { color: var(--accent-light); text-decoration: none; }
+    .breadcrumbs a:hover { text-decoration: underline; }
+    .btn-theme {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-theme:hover { opacity: 0.9; }
+    h1 { margin: 0 0 6px 0; font-size: 28px; }
+    .subtitle { color: var(--text-muted); font-size: 15px; margin: 0 0 20px 0; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .kpi-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 20px; font-weight: 700; color: var(--text); }
+    .controls-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    input[type="text"], input[type="date"], select {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: 13px;
+    }
+    button, .btn-sm {
+      background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block;
+    }
+    button.btn-secondary { background: var(--border); color: var(--text); }
+    button:hover, .btn-sm:hover { opacity: 0.9; }
+    .chart-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th { padding: 10px 12px; background: rgba(125,125,125,0.06); color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .progress-bar { width: 70px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; display: inline-block; }
+    .progress-bar .fill { height: 100%; background: var(--success); }
+    .badge-sm { display: inline-block; padding: 2px 8px; background: rgba(56, 189, 248, 0.15); color: var(--accent-light); border-radius: 4px; font-size: 11px; }
+    .chart-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .pan-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(125,125,125,0.08);
+      padding: 3px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .btn-pan {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-pan:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .btn-pan:disabled, .btn-pan.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .btn-preset {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .btn-preset:hover {
+      opacity: 0.9;
+      color: var(--text);
+    }
+    .btn-preset.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      font-weight: 700;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+    }
+    .xtick text, .ytick text {
+      fill: var(--text) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+      <div class="breadcrumbs">
+        <a href="../inventory_index.html">CDAWeb Inventory</a> &gt;
+        <span>ERG Index</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="../ERG_Inventory.png" target="_blank" class="btn-theme"> View ERG PNG</a>
+        <button class="btn-theme" onclick="exportPlotAsPng('timeline-chart', 'ERG_timeline.png')"> Download Plot PNG</button>
+        <button id="theme-toggle" class="btn-theme" onclick="toggleTheme()">☀️ Light Mode</button>
+      </div>
+    </div>
+    <h1>ERG Mission Data Inventory</h1>
+    <p class="subtitle">Complete catalog of holdings and availability for ERG spacecraft</p>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Datasets</div>
+        <div class="kpi-value">20</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Instruments</div>
+        <div class="kpi-value">9</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total CDF Files</div>
+        <div class="kpi-value">62,212</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Mission Span</div>
+        <div class="kpi-value" style="font-size: 14px;">2016-10-22 &rarr; 2026-11-17</div>
+      </div>
+    </div>
+
+    <div class="controls-card">
+      <input type="text" id="search-box" placeholder="Search datasets..." oninput="filterTable()">
+      <select id="instrument-filter" onchange="filterTable()">
+        <option value="">All Instruments (9)</option>
+        <option value='HEP'>HEP</option><option value='LEPE'>LEPE</option><option value='LEPI'>LEPI</option><option value='MEPE'>MEPE</option><option value='MEPI'>MEPI</option><option value='MGF'>MGF</option><option value='ORB'>ORB</option><option value='PWE'>PWE</option><option value='XEP'>XEP</option>
+      </select>
+      <button class="btn-secondary" onclick="selectAll(true)">Select All</button>
+      <button class="btn-secondary" onclick="selectAll(false)">Clear All</button>
+      <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; font-size: 13px; font-weight: 600; padding: 4px 10px; background: rgba(125,125,125,0.08); border-radius: 6px; border: 1px solid var(--border);">
+        <input type="checkbox" id="toggle-chart-cb" autocomplete="off" onchange="toggleChartDisplay(this.checked)">
+        <span> Show Timeline Graph</span>
+      </label>
+      <div style="margin-left: auto; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+        <span style="font-size: 13px; color: var(--text-muted);">Date Range:</span>
+        <input type="date" id="filter-start" value="2016-10-22" oninput="clearPresetHighlight()">
+        <span style="color: var(--text-muted);">&rarr;</span>
+        <input type="date" id="filter-stop" value="2026-11-17" oninput="clearPresetHighlight()">
+        <button onclick="updateView()">Apply</button>
+        <button type="button" class="btn-preset" data-preset="1y" onclick="presetRange('1y')">1 Year</button>
+        <button type="button" class="btn-preset" data-preset="5y" onclick="presetRange('5y')">5 Years</button>
+        <button type="button" class="btn-preset active" data-preset="all" onclick="presetRange('all')">All Time</button>
+      </div>
+    </div>
+
+    <div class="chart-card" id="chart-card-container" style="display: none;">
+      <div class="chart-hint">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <span><strong>Availability Timeline (Selected Items)</strong></span>
+          <div class="pan-controls">
+            <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin: 0 4px;">Time Window:</span>
+            <button type="button" class="btn-pan disabled" disabled title="Pan backward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', -1)">◀ Prev Frame</button>
+            <button type="button" class="btn-pan" title="Reset zoom to full range" onclick="resetTimelineZoom('timeline-chart')">↺ Reset Zoom</button>
+            <button type="button" class="btn-pan disabled" disabled title="Pan forward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', 1)">Next Frame ▶</button>
+            <button type="button" class="btn-pan" title="Reselect all unselected items" onclick="resetAllSelections()">↺ Reset Selection</button>
+            <button type="button" class="btn-pan" title="Download timeline chart as PNG" onclick="exportPlotAsPng('timeline-chart', 'ERG_timeline.png')"> PNG</button>
+          </div>
+        </div>
+        <span>💡 Click row/label to unselect • Ctrl+Click to open full dataset page</span>
+      </div>
+      <div id="timeline-chart" style="min-height: 120px; width: 100%;"></div>
+    </div>
+
+    <div class="table-card">
+      <h3 style="margin: 0 0 12px 0;">Available Datasets</h3>
+      <table id="datasets-table">
+        <thead>
+          <tr>
+            <th style="width: 30px;"><input type="checkbox" id="master-cb" checked onchange="toggleAllCheckboxes(this.checked)"></th>
+            <th class="sortable" data-sort-type="text">Dataset ID</th>
+            <th class="sortable" data-sort-type="text">Instrument</th>
+            <th class="sortable" data-sort-type="text">Product</th>
+            <th class="sortable" data-sort-type="date">Time Coverage</th>
+            <th class="sortable" data-sort-type="number">CDF Count</th>
+            <th class="sortable" data-sort-type="number">Coverage</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="datasets-tbody">
+          
+        <tr data-inst="HEP" data-name="ERG_HEP_L2_OMNIFLUX">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_HEP_L2_OMNIFLUX" checked onchange="updateView()"></td>
+          <td><a href="./ERG_HEP_L2_OMNIFLUX.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_HEP_L2_OMNIFLUX</a></td>
+          <td><span class="badge-sm">HEP</span></td>
+          <td style="color: var(--text-muted);">OMNIFLUX</td>
+          <td>2017-03-19 &rarr; 2025-07-01</td>
+          <td>2,995</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 97.43653722974456%;"></div></div>
+              <span style="font-size: 11px;">97.44%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_HEP_L2_OMNIFLUX.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="LEPE" data-name="ERG_LEPE_L2_OMNIFLUX">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_LEPE_L2_OMNIFLUX" checked onchange="updateView()"></td>
+          <td><a href="./ERG_LEPE_L2_OMNIFLUX.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_LEPE_L2_OMNIFLUX</a></td>
+          <td><span class="badge-sm">LEPE</span></td>
+          <td style="color: var(--text-muted);">OMNIFLUX</td>
+          <td>2017-02-03 &rarr; 2025-07-01</td>
+          <td>3,066</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 97.58300679918301%;"></div></div>
+              <span style="font-size: 11px;">97.58%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_LEPE_L2_OMNIFLUX.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="LEPI" data-name="ERG_LEPI_L2_OMNIFLUX">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_LEPI_L2_OMNIFLUX" checked onchange="updateView()"></td>
+          <td><a href="./ERG_LEPI_L2_OMNIFLUX.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_LEPI_L2_OMNIFLUX</a></td>
+          <td><span class="badge-sm">LEPI</span></td>
+          <td style="color: var(--text-muted);">OMNIFLUX</td>
+          <td>2017-04-01 &rarr; 2024-05-15</td>
+          <td>2,468</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 91.0359442651076%;"></div></div>
+              <span style="font-size: 11px;">91.04%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_LEPI_L2_OMNIFLUX.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="MEPE" data-name="ERG_MEPE_L2_3DFLUX">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_MEPE_L2_3DFLUX" checked onchange="updateView()"></td>
+          <td><a href="./ERG_MEPE_L2_3DFLUX.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_MEPE_L2_3DFLUX</a></td>
+          <td><span class="badge-sm">MEPE</span></td>
+          <td style="color: var(--text-muted);">3DFLUX</td>
+          <td>2017-03-23 &rarr; 2025-07-01</td>
+          <td>2,985</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 95.95193181681219%;"></div></div>
+              <span style="font-size: 11px;">95.95%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_MEPE_L2_3DFLUX.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="MEPE" data-name="ERG_MEPE_L2_OMNIFLUX">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_MEPE_L2_OMNIFLUX" checked onchange="updateView()"></td>
+          <td><a href="./ERG_MEPE_L2_OMNIFLUX.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_MEPE_L2_OMNIFLUX</a></td>
+          <td><span class="badge-sm">MEPE</span></td>
+          <td style="color: var(--text-muted);">OMNIFLUX</td>
+          <td>2017-03-23 &rarr; 2025-07-01</td>
+          <td>2,984</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 95.92069575854116%;"></div></div>
+              <span style="font-size: 11px;">95.92%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_MEPE_L2_OMNIFLUX.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="MEPI" data-name="ERG_MEPI_L2_3DFLUX">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_MEPI_L2_3DFLUX" checked onchange="updateView()"></td>
+          <td><a href="./ERG_MEPI_L2_3DFLUX.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_MEPI_L2_3DFLUX</a></td>
+          <td><span class="badge-sm">MEPI</span></td>
+          <td style="color: var(--text-muted);">3DFLUX</td>
+          <td>2017-03-24 &rarr; 2025-07-10</td>
+          <td>3,002</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 90.79326104526814%;"></div></div>
+              <span style="font-size: 11px;">90.79%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_MEPI_L2_3DFLUX.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="MEPI" data-name="ERG_MEPI_L2_OMNIFLUX">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_MEPI_L2_OMNIFLUX" checked onchange="updateView()"></td>
+          <td><a href="./ERG_MEPI_L2_OMNIFLUX.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_MEPI_L2_OMNIFLUX</a></td>
+          <td><span class="badge-sm">MEPI</span></td>
+          <td style="color: var(--text-muted);">OMNIFLUX</td>
+          <td>2017-03-24 &rarr; 2025-07-10</td>
+          <td>2,999</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 90.79326104526814%;"></div></div>
+              <span style="font-size: 11px;">90.79%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_MEPI_L2_OMNIFLUX.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="MGF" data-name="ERG_MGF_L2_8SEC">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_MGF_L2_8SEC" checked onchange="updateView()"></td>
+          <td><a href="./ERG_MGF_L2_8SEC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_MGF_L2_8SEC</a></td>
+          <td><span class="badge-sm">MGF</span></td>
+          <td style="color: var(--text-muted);">8SEC</td>
+          <td>2016-12-22 &rarr; 2027-05-30</td>
+          <td>2,874</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 77.93848348655581%;"></div></div>
+              <span style="font-size: 11px;">77.94%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_MGF_L2_8SEC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="ORB" data-name="ERG_ORB_L2">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_ORB_L2" checked onchange="updateView()"></td>
+          <td><a href="./ERG_ORB_L2.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_ORB_L2</a></td>
+          <td><span class="badge-sm">ORB</span></td>
+          <td style="color: var(--text-muted);">DEF</td>
+          <td>2016-10-22 &rarr; 2026-07-07</td>
+          <td>3,494</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.42815815181116%;"></div></div>
+              <span style="font-size: 11px;">98.43%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_ORB_L2.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="ORB" data-name="ERG_ORB_LPRE_L2">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_ORB_LPRE_L2" checked onchange="updateView()"></td>
+          <td><a href="./ERG_ORB_LPRE_L2.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_ORB_LPRE_L2</a></td>
+          <td><span class="badge-sm">ORB</span></td>
+          <td style="color: var(--text-muted);">LPRE</td>
+          <td>2018-01-01 &rarr; 2029-04-01</td>
+          <td>4,107</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.93001291517906%;"></div></div>
+              <span style="font-size: 11px;">99.93%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_ORB_LPRE_L2.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="ORB" data-name="ERG_ORB_MPRE_L2">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_ORB_MPRE_L2" checked onchange="updateView()"></td>
+          <td><a href="./ERG_ORB_MPRE_L2.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_ORB_MPRE_L2</a></td>
+          <td><span class="badge-sm">ORB</span></td>
+          <td style="color: var(--text-muted);">MPRE</td>
+          <td>2017-12-05 &rarr; 2027-04-06</td>
+          <td>3,409</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_ORB_MPRE_L2.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="ORB" data-name="ERG_ORB_PRE_L2">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_ORB_PRE_L2" checked onchange="updateView()"></td>
+          <td><a href="./ERG_ORB_PRE_L2.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_ORB_PRE_L2</a></td>
+          <td><span class="badge-sm">ORB</span></td>
+          <td style="color: var(--text-muted);">PRE</td>
+          <td>2016-12-20 &rarr; 2026-07-28</td>
+          <td>3,507</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_ORB_PRE_L2.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="ORB" data-name="ERG_ORB_SPRE_L2">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_ORB_SPRE_L2" checked onchange="updateView()"></td>
+          <td><a href="./ERG_ORB_SPRE_L2.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_ORB_SPRE_L2</a></td>
+          <td><span class="badge-sm">ORB</span></td>
+          <td style="color: var(--text-muted);">SPRE</td>
+          <td>2016-12-20 &rarr; 2026-10-30</td>
+          <td>3,514</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 97.58400444321022%;"></div></div>
+              <span style="font-size: 11px;">97.58%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_ORB_SPRE_L2.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="PWE" data-name="ERG_PWE_EFD_L2_E_SPIN">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_PWE_EFD_L2_E_SPIN" checked onchange="updateView()"></td>
+          <td><a href="./ERG_PWE_EFD_L2_E_SPIN.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_PWE_EFD_L2_E_SPIN</a></td>
+          <td><span class="badge-sm">PWE</span></td>
+          <td style="color: var(--text-muted);">E_SPIN</td>
+          <td>2017-03-03 &rarr; 2025-07-01</td>
+          <td>3,003</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 97.45503998529229%;"></div></div>
+              <span style="font-size: 11px;">97.46%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_PWE_EFD_L2_E_SPIN.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="PWE" data-name="ERG_PWE_EFD_L2_POT">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_PWE_EFD_L2_POT" checked onchange="updateView()"></td>
+          <td><a href="./ERG_PWE_EFD_L2_POT.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_PWE_EFD_L2_POT</a></td>
+          <td><span class="badge-sm">PWE</span></td>
+          <td style="color: var(--text-muted);">POT</td>
+          <td>2017-03-23 &rarr; 2025-06-30</td>
+          <td>3,018</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.3644411671572%;"></div></div>
+              <span style="font-size: 11px;">99.36%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_PWE_EFD_L2_POT.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="PWE" data-name="ERG_PWE_HFA_L2_SPEC_HIGH">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_PWE_HFA_L2_SPEC_HIGH" checked onchange="updateView()"></td>
+          <td><a href="./ERG_PWE_HFA_L2_SPEC_HIGH.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_PWE_HFA_L2_SPEC_HIGH</a></td>
+          <td><span class="badge-sm">PWE</span></td>
+          <td style="color: var(--text-muted);">SPEC_HIGH</td>
+          <td>2017-03-23 &rarr; 2025-06-30</td>
+          <td>2,959</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 80.96693941292588%;"></div></div>
+              <span style="font-size: 11px;">80.97%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_PWE_HFA_L2_SPEC_HIGH.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="PWE" data-name="ERG_PWE_HFA_L2_SPEC_LOW">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_PWE_HFA_L2_SPEC_LOW" checked onchange="updateView()"></td>
+          <td><a href="./ERG_PWE_HFA_L2_SPEC_LOW.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_PWE_HFA_L2_SPEC_LOW</a></td>
+          <td><span class="badge-sm">PWE</span></td>
+          <td style="color: var(--text-muted);">SPEC_LOW</td>
+          <td>2017-03-23 &rarr; 2025-06-30</td>
+          <td>3,017</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 97.64766640405323%;"></div></div>
+              <span style="font-size: 11px;">97.65%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_PWE_HFA_L2_SPEC_LOW.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="PWE" data-name="ERG_PWE_HFA_L2_SPEC_MONIT">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_PWE_HFA_L2_SPEC_MONIT" checked onchange="updateView()"></td>
+          <td><a href="./ERG_PWE_HFA_L2_SPEC_MONIT.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_PWE_HFA_L2_SPEC_MONIT</a></td>
+          <td><span class="badge-sm">PWE</span></td>
+          <td style="color: var(--text-muted);">SPEC_MONIT</td>
+          <td>2017-03-23 &rarr; 2025-06-30</td>
+          <td>2,784</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 74.68213584208544%;"></div></div>
+              <span style="font-size: 11px;">74.68%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_PWE_HFA_L2_SPEC_MONIT.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="PWE" data-name="ERG_PWE_OFA_L2_SPEC">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_PWE_OFA_L2_SPEC" checked onchange="updateView()"></td>
+          <td><a href="./ERG_PWE_OFA_L2_SPEC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_PWE_OFA_L2_SPEC</a></td>
+          <td><span class="badge-sm">PWE</span></td>
+          <td style="color: var(--text-muted);">SPEC</td>
+          <td>2017-03-23 &rarr; 2025-07-02</td>
+          <td>3,019</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.45922656033383%;"></div></div>
+              <span style="font-size: 11px;">99.46%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_PWE_OFA_L2_SPEC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="XEP" data-name="ERG_XEP_L2_OMNIFLUX">
+          <td><input type="checkbox" class="dset-checkbox" value="ERG_XEP_L2_OMNIFLUX" checked onchange="updateView()"></td>
+          <td><a href="./ERG_XEP_L2_OMNIFLUX.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ERG_XEP_L2_OMNIFLUX</a></td>
+          <td><span class="badge-sm">XEP</span></td>
+          <td style="color: var(--text-muted);">OMNIFLUX</td>
+          <td>2017-03-19 &rarr; 2025-07-01</td>
+          <td>3,008</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.23010748844003%;"></div></div>
+              <span style="font-size: 11px;">98.23%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ERG_XEP_L2_OMNIFLUX.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const allDatasets = [{"name": "ERG_HEP_L2_OMNIFLUX", "instrument": "HEP", "product": "OMNIFLUX", "cdf_count": 2995, "active_days": 2948.429560185185, "coverage_pct": 97.43653722974456, "earliest": "2017-03-19", "latest": "2025-07-01", "intervals": [["2017-03-19 23:59:58", "2017-05-26 23:59:57"], ["2017-05-29 00:00:02", "2017-07-10 15:45:17"], ["2017-07-12 09:01:22", "2017-08-12 16:54:16"], ["2017-08-14 08:57:08", "2017-09-03 01:17:08"], ["2017-09-04 07:18:10", "2020-10-10 13:12:01"], ["2020-10-13 08:15:48", "2020-11-20 23:59:56"], ["2020-11-23 00:00:04", "2021-02-21 18:51:54"], ["2021-02-22 21:07:50", "2021-09-26 08:00:08"], ["2021-09-27 21:22:32", "2022-01-19 23:59:56"], ["2022-01-23 23:59:59", "2022-09-28 23:59:56"], ["2022-10-03 00:00:03", "2022-10-30 15:29:34"], ["2022-11-02 00:00:02", "2023-05-31 13:51:39"], ["2023-06-02 00:49:12", "2023-08-23 16:12:28"], ["2023-08-25 01:29:26", "2024-02-04 10:21:07"], ["2024-02-05 14:16:13", "2024-03-13 23:59:52"], ["2024-03-16 23:59:59", "2025-01-22 23:46:13"], ["2025-01-27 00:00:00", "2025-02-02 21:01:30"], ["2025-02-04 02:15:55", "2025-07-01 23:59:53"]], "page": "./ERG_HEP_L2_OMNIFLUX.html"}, {"name": "ERG_LEPE_L2_OMNIFLUX", "instrument": "LEPE", "product": "OMNIFLUX", "cdf_count": 3066, "active_days": 2996.0047916666667, "coverage_pct": 97.58300679918301, "earliest": "2017-02-03", "latest": "2025-07-01", "intervals": [["2017-02-03 18:55:03", "2017-02-06 21:17:05"], ["2017-02-10 11:33:19", "2017-02-13 01:19:16"], ["2017-02-27 12:38:17", "2017-02-28 01:04:36"], ["2017-03-03 18:31:29", "2017-03-03 23:17:33"], ["2017-03-07 16:40:28", "2017-03-07 18:52:50"], ["2017-03-08 23:46:38", "2017-03-11 15:05:13"], ["2017-03-13 09:07:15", "2017-03-13 11:05:54"], ["2017-03-14 19:33:45", "2017-03-15 00:05:57"], ["2017-03-16 17:40:55", "2017-03-18 23:38:36"], ["2017-03-20 16:25:14", "2021-09-26 08:00:00"], ["2021-09-27 21:22:24", "2023-05-31 13:51:15"], ["2023-06-02 00:49:12", "2023-08-23 16:12:20"], ["2023-08-25 01:28:06", "2024-02-04 10:20:59"], ["2024-02-05 14:16:05", "2025-02-02 21:01:22"], ["2025-02-04 02:16:03", "2025-07-01 23:59:45"]], "page": "./ERG_LEPE_L2_OMNIFLUX.html"}, {"name": "ERG_LEPI_L2_OMNIFLUX", "instrument": "LEPI", "product": "OMNIFLUX", "cdf_count": 2468, "active_days": 2368.7066435185184, "coverage_pct": 91.0359442651076, "earliest": "2017-04-01", "latest": "2024-05-15", "intervals": [["2017-04-01 01:16:44", "2018-01-15 05:59:47"], ["2018-01-17 23:59:51", "2018-02-19 23:59:11"], ["2018-02-21 23:59:41", "2018-03-19 17:59:44"], ["2018-03-22 23:59:53", "2018-04-21 17:59:05"], ["2018-04-22 23:59:51", "2018-12-29 23:59:17"], ["2019-01-01 03:09:19", "2019-03-20 06:49:59"], ["2019-03-21 11:50:36", "2021-07-31 23:59:48"], ["2021-10-31 23:59:56", "2022-09-29 15:57:53"], ["2022-10-01 05:59:43", "2022-10-16 23:44:28"], ["2022-10-21 07:58:50", "2022-10-31 22:29:15"], ["2022-11-05 06:06:54", "2023-05-31 13:47:16"], ["2023-06-02 00:48:40", "2023-06-29 23:10:43"], ["2023-07-01 01:22:12", "2023-08-23 13:00:22"], ["2023-08-25 01:27:50", "2023-10-09 23:52:14"], ["2023-10-12 08:01:47", "2023-10-12 17:35:16"], ["2023-10-14 02:13:17", "2023-10-25 15:59:16"], ["2023-10-28 00:27:57", "2024-02-03 23:59:42"], ["2024-02-14 23:59:53", "2024-03-11 05:59:45"], ["2024-03-13 23:59:52", "2024-05-15 23:59:49"]], "page": "./ERG_LEPI_L2_OMNIFLUX.html"}, {"name": "ERG_MEPE_L2_3DFLUX", "instrument": "MEPE", "product": "3DFLUX", "cdf_count": 2985, "active_days": 2900.606064814815, "coverage_pct": 95.95193181681219, "earliest": "2017-03-23", "latest": "2025-07-01", "intervals": [["2017-03-23 00:31:13", "2018-03-28 02:19:03"], ["2018-03-29 21:05:28", "2019-01-01 13:53:32"], ["2019-01-03 00:00:06", "2019-03-20 06:50:35"], ["2019-03-21 11:50:48", "2019-03-22 06:08:35"], ["2019-03-23 11:06:16", "2020-10-06 23:34:30"], ["2020-10-22 00:00:13", "2021-09-26 08:00:12"], ["2021-09-27 21:22:52", "2023-05-29 07:07:31"], ["2023-05-31 00:00:09", "2023-05-31 10:04:02"], ["2023-06-02 00:49:16", "2023-08-23 16:12:32"], ["2023-08-25 01:28:34", "2024-02-04 10:21:11"], ["2024-02-05 14:16:17", "2024-03-13 23:59:56"], ["2024-03-18 00:00:10", "2024-12-17 06:48:34"], ["2024-12-25 01:21:21", "2025-01-22 23:59:56"], ["2025-01-28 00:15:28", "2025-02-02 20:59:42"], ["2025-02-04 02:16:15", "2025-07-01 23:59:57"]], "page": "./ERG_MEPE_L2_3DFLUX.html"}, {"name": "ERG_MEPE_L2_OMNIFLUX", "instrument": "MEPE", "product": "OMNIFLUX", "cdf_count": 2984, "active_days": 2899.6618055555555, "coverage_pct": 95.92069575854116, "earliest": "2017-03-23", "latest": "2025-07-01", "intervals": [["2017-03-23 00:31:13", "2018-03-28 02:19:03"], ["2018-03-29 21:05:28", "2019-01-01 13:53:32"], ["2019-01-03 00:00:06", "2019-03-20 06:50:35"], ["2019-03-21 11:50:48", "2019-03-22 06:08:35"], ["2019-03-23 11:06:16", "2020-10-06 23:34:30"], ["2020-10-22 00:00:13", "2021-09-26 08:00:12"], ["2021-09-27 21:22:52", "2023-05-29 07:07:31"], ["2023-05-31 00:00:09", "2023-05-31 10:04:02"], ["2023-06-02 00:49:16", "2023-08-23 16:12:32"], ["2023-08-25 01:28:34", "2024-02-04 10:21:11"], ["2024-02-05 14:16:17", "2024-03-13 23:59:56"], ["2024-03-18 00:00:10", "2024-08-20 20:38:54"], ["2024-08-22 00:00:05", "2024-12-17 06:48:34"], ["2024-12-25 01:21:21", "2025-01-22 23:59:56"], ["2025-01-28 00:15:28", "2025-02-02 20:59:42"], ["2025-02-04 02:16:15", "2025-07-01 23:59:57"]], "page": "./ERG_MEPE_L2_OMNIFLUX.html"}, {"name": "ERG_MEPI_L2_3DFLUX", "instrument": "MEPI", "product": "3DFLUX", "cdf_count": 3002, "active_days": 2751.789236111111, "coverage_pct": 90.79326104526814, "earliest": "2017-03-24", "latest": "2025-07-10", "intervals": [["2017-03-24 04:04:51", "2018-03-27 20:03:44"], ["2018-03-30 01:41:09", "2018-05-16 03:55:43"], ["2018-05-17 22:27:13", "2019-01-01 13:53:25"], ["2019-01-02 23:59:58", "2019-03-20 06:50:27"], ["2019-03-21 11:51:04", "2019-03-22 06:08:27"], ["2019-03-23 11:06:24", "2019-05-01 01:10:11"], ["2019-05-02 03:10:18", "2020-10-17 22:26:25"], ["2020-10-19 03:05:36", "2021-09-26 08:00:04"], ["2021-09-27 21:22:44", "2023-05-29 04:20:52"], ["2023-05-31 00:00:01", "2023-05-31 10:04:02"], ["2023-06-02 00:49:33", "2023-08-23 16:12:24"], ["2023-08-25 01:42:19", "2023-11-12 23:59:52"], ["2023-11-22 02:59:24", "2024-02-04 10:21:03"], ["2024-02-05 14:16:33", "2024-03-13 23:59:48"], ["2024-03-18 01:49:08", "2025-02-02 18:51:26"], ["2025-02-04 03:05:40", "2025-06-06 23:59:53"], ["2025-06-25 06:24:45", "2025-06-25 06:25:17"], ["2025-07-10 07:22:55", "2025-07-10 23:59:48"]], "page": "./ERG_MEPI_L2_3DFLUX.html"}, {"name": "ERG_MEPI_L2_OMNIFLUX", "instrument": "MEPI", "product": "OMNIFLUX", "cdf_count": 2999, "active_days": 2751.789236111111, "coverage_pct": 90.79326104526814, "earliest": "2017-03-24", "latest": "2025-07-10", "intervals": [["2017-03-24 04:04:51", "2018-03-27 20:03:44"], ["2018-03-30 01:41:09", "2018-05-16 03:55:43"], ["2018-05-17 22:27:13", "2019-01-01 13:53:25"], ["2019-01-02 23:59:58", "2019-03-20 06:50:27"], ["2019-03-21 11:51:04", "2019-03-22 06:08:27"], ["2019-03-23 11:06:24", "2019-05-01 01:10:11"], ["2019-05-02 03:10:18", "2020-10-17 22:26:25"], ["2020-10-19 03:05:36", "2021-09-26 08:00:04"], ["2021-09-27 21:22:44", "2023-05-29 04:20:52"], ["2023-05-31 00:00:01", "2023-05-31 10:04:02"], ["2023-06-02 00:49:33", "2023-08-23 16:12:24"], ["2023-08-25 01:42:19", "2023-11-12 23:59:52"], ["2023-11-22 02:59:24", "2024-02-04 10:21:03"], ["2024-02-05 14:16:33", "2024-03-13 23:59:48"], ["2024-03-18 01:49:08", "2025-02-02 18:51:26"], ["2025-02-04 03:05:40", "2025-06-06 23:59:53"], ["2025-06-25 06:24:45", "2025-06-25 06:25:17"], ["2025-07-10 07:22:55", "2025-07-10 23:59:48"]], "page": "./ERG_MEPI_L2_OMNIFLUX.html"}, {"name": "ERG_MGF_L2_8SEC", "instrument": "MGF", "product": "8SEC", "cdf_count": 2874, "active_days": 2970.2624421296296, "coverage_pct": 77.93848348655581, "earliest": "2016-12-22", "latest": "2027-05-30", "intervals": [["2016-12-22 22:26:46", "2022-05-26 23:59:46"], ["2022-08-10 23:59:58", "2022-11-03 23:57:17"], ["2022-11-07 23:59:58", "2023-08-23 16:13:32"], ["2023-08-25 01:27:59", "2023-12-26 23:59:48"], ["2024-01-31 23:59:59", "2025-02-06 23:59:48"], ["2025-02-09 23:59:58", "2025-03-10 04:44:12"], ["2025-03-17 23:59:58", "2025-06-28 14:49:08"], ["2026-11-10 00:30:17", "2026-11-11 00:30:17"], ["2027-05-29 23:16:21", "2027-05-30 23:16:21"]], "page": "./ERG_MGF_L2_8SEC.html"}, {"name": "ERG_ORB_L2", "instrument": "ORB", "product": "DEF", "cdf_count": 3494, "active_days": 3489.2506944444444, "coverage_pct": 98.42815815181116, "earliest": "2016-10-22", "latest": "2026-07-07", "intervals": [["2016-10-22 00:40:15", "2016-10-24 01:41:27"], ["2016-12-05 00:00:00", "2016-12-09 06:00:00"], ["2016-12-20 11:00:00", "2026-07-07 00:00:00"]], "page": "./ERG_ORB_L2.html"}, {"name": "ERG_ORB_LPRE_L2", "instrument": "ORB", "product": "LPRE", "cdf_count": 4107, "active_days": 4105.124930555556, "coverage_pct": 99.93001291517906, "earliest": "2018-01-01", "latest": "2029-04-01", "intervals": [["2018-01-01 00:00:00", "2029-04-01 00:00:00"]], "page": "./ERG_ORB_LPRE_L2.html"}, {"name": "ERG_ORB_MPRE_L2", "instrument": "ORB", "product": "MPRE", "cdf_count": 3409, "active_days": 3409.0, "coverage_pct": 100.0, "earliest": "2017-12-05", "latest": "2027-04-06", "intervals": [["2017-12-05 00:00:00", "2027-04-06 00:00:00"]], "page": "./ERG_ORB_MPRE_L2.html"}, {"name": "ERG_ORB_PRE_L2", "instrument": "ORB", "product": "PRE", "cdf_count": 3507, "active_days": 3507.0, "coverage_pct": 100.0, "earliest": "2016-12-20", "latest": "2026-07-28", "intervals": [["2016-12-20 00:00:00", "2026-07-28 00:00:00"]], "page": "./ERG_ORB_PRE_L2.html"}, {"name": "ERG_ORB_SPRE_L2", "instrument": "ORB", "product": "SPRE", "cdf_count": 3514, "active_days": 3514.0, "coverage_pct": 97.58400444321022, "earliest": "2016-12-20", "latest": "2026-10-30", "intervals": [["2016-12-20 00:00:00", "2017-10-24 00:00:00"], ["2018-01-16 00:00:00", "2024-09-27 00:00:00"], ["2024-09-29 00:00:00", "2026-10-30 00:00:00"]], "page": "./ERG_ORB_SPRE_L2.html"}, {"name": "ERG_PWE_EFD_L2_E_SPIN", "instrument": "PWE", "product": "E_SPIN", "cdf_count": 3003, "active_days": 2965.556550925926, "coverage_pct": 97.45503998529229, "earliest": "2017-03-03", "latest": "2025-07-01", "intervals": [["2017-03-03 00:00:17", "2017-03-06 18:55:07"], ["2017-03-21 00:00:10", "2017-04-21 12:33:25"], ["2017-04-24 02:26:58", "2017-12-17 06:21:56"], ["2017-12-18 08:28:47", "2018-08-16 09:13:30"], ["2018-08-18 05:52:00", "2020-10-10 12:51:10"], ["2020-10-20 08:30:06", "2021-04-26 03:05:49"], ["2021-04-28 04:08:19", "2023-07-25 23:59:54"], ["2023-07-28 04:14:20", "2023-08-23 16:13:20"], ["2023-08-25 01:27:54", "2023-10-28 23:59:55"], ["2023-10-30 02:57:29", "2023-11-04 16:00:09"], ["2023-11-06 09:28:10", "2023-12-02 03:48:47"], ["2023-12-04 06:39:44", "2025-03-22 14:49:10"], ["2025-03-24 02:13:10", "2025-07-01 23:59:49"]], "page": "./ERG_PWE_EFD_L2_E_SPIN.html"}, {"name": "ERG_PWE_EFD_L2_POT", "instrument": "PWE", "product": "POT", "cdf_count": 3018, "active_days": 3002.7930555555554, "coverage_pct": 99.3644411671572, "earliest": "2017-03-23", "latest": "2025-06-30", "intervals": [["2017-03-23 00:00:15", "2017-04-21 12:38:09"], ["2017-04-24 02:26:54", "2017-12-17 06:21:52"], ["2017-12-18 08:28:43", "2018-08-16 09:13:26"], ["2018-08-18 05:36:29", "2023-08-23 16:13:16"], ["2023-08-25 01:27:50", "2025-06-30 23:59:44"]], "page": "./ERG_PWE_EFD_L2_POT.html"}, {"name": "ERG_PWE_HFA_L2_SPEC_HIGH", "instrument": "PWE", "product": "SPEC_HIGH", "cdf_count": 2959, "active_days": 2446.6296527777777, "coverage_pct": 80.96693941292588, "earliest": "2017-03-23", "latest": "2025-06-30", "intervals": [["2017-03-23 00:00:08", "2017-04-21 12:33:16"], ["2017-04-24 02:26:47", "2017-12-17 06:22:21"], ["2017-12-18 09:28:59", "2018-01-12 19:33:56"], ["2018-01-14 05:20:59", "2018-01-15 01:23:59"], ["2018-01-16 04:39:01", "2018-01-24 01:19:54"], ["2018-01-25 06:40:01", "2018-02-10 02:03:54"], ["2018-02-11 10:05:01", "2018-02-12 01:20:57"], ["2018-02-13 10:20:03", "2018-04-25 17:11:58"], ["2018-04-26 19:19:36", "2018-08-16 08:00:55"], ["2018-08-18 06:01:52", "2018-09-06 01:39:55"], ["2018-09-07 14:57:57", "2018-09-23 00:54:57"], ["2018-09-24 13:44:59", "2018-10-09 17:26:55"], ["2018-10-10 20:28:57", "2018-10-11 15:59:56"], ["2018-10-12 19:45:59", "2018-10-13 03:22:58"], ["2018-10-14 16:13:00", "2018-10-26 12:59:56"], ["2018-10-27 22:22:59", "2018-10-28 12:17:58"], ["2018-10-29 14:35:04", "2018-11-20 12:26:54"], ["2018-11-21 15:02:56", "2018-12-01 06:37:58"], ["2018-12-02 13:12:00", "2018-12-02 20:43:59"], ["2018-12-04 12:30:03", "2018-12-08 08:43:57"], ["2018-12-10 05:05:00", "2018-12-18 05:42:01"], ["2018-12-19 11:58:04", "2018-12-22 07:11:02"], ["2018-12-23 10:33:05", "2018-12-29 09:26:55"], ["2018-12-30 12:00:01", "2019-01-08 05:29:59"], ["2019-01-09 12:26:01", "2019-01-17 04:47:02"], ["2019-01-18 10:53:00", "2019-01-30 07:37:18"], ["2019-01-31 11:02:57", "2019-02-01 04:14:57"], ["2019-02-02 09:10:00", "2019-02-02 13:10:03"], ["2019-02-04 06:17:02", "2019-02-05 05:45:09"], ["2019-02-06 08:57:07", "2019-02-07 08:23:59"], ["2019-02-08 11:35:59", "2019-02-20 02:11:03"], ["2019-02-21 07:00:02", "2019-02-22 04:19:58"], ["2019-02-23 07:43:00", "2019-03-05 02:18:58"], ["2019-03-06 07:20:04", "2019-03-07 04:30:04"], ["2019-03-08 07:52:58", "2019-03-09 03:47:58"], ["2019-03-10 07:11:00", "2019-03-20 01:41:02"], ["2019-03-21 05:00:04", "2019-03-22 00:54:56"], ["2019-03-23 07:25:06", "2019-03-23 23:52:29"], ["2019-03-25 07:00:04", "2019-03-26 04:00:04"], ["2019-03-28 04:28:02", "2019-05-05 23:01:58"], ["2019-05-07 05:00:04", "2019-07-22 01:00:02"], ["2019-07-23 05:07:04", "2019-07-25 18:02:59"], ["2019-07-27 03:41:01", "2019-07-27 17:17:00"], ["2019-07-29 02:59:03", "2019-08-05 19:10:03"], ["2019-08-06 23:00:05", "2019-08-11 16:52:59"], ["2019-08-13 02:34:05", "2019-08-13 16:07:01"], ["2019-08-14 18:21:07", "2019-12-05 23:45:55"], ["2019-12-09 10:05:03", "2020-03-12 16:00:55"], ["2020-03-17 12:26:05", "2020-03-17 12:56:00"], ["2020-03-21 10:59:00", "2020-03-21 11:28:59"], ["2020-03-23 10:16:02", "2020-03-23 14:21:01"], ["2020-03-25 09:32:04", "2020-03-25 13:37:03"], ["2020-03-26 17:08:05", "2020-03-27 09:17:57"], ["2020-04-17 08:49:00", "2020-04-20 21:59:56"], ["2020-04-22 08:47:58", "2020-04-30 06:23:53"], ["2020-05-01 10:15:00", "2020-05-05 11:59:58"], ["2020-05-06 18:57:04", "2020-05-07 10:59:59"], ["2020-05-09 07:20:02", "2020-05-09 07:49:57"], ["2020-05-11 04:32:04", "2020-05-20 12:03:57"], ["2020-05-22 06:10:00", "2020-05-22 07:30:56"], ["2020-05-23 11:28:02", "2020-06-02 14:00:00"], ["2020-06-04 07:19:58", "2020-06-06 10:37:00"], ["2020-06-08 08:26:02", "2020-06-12 08:00:01"], ["2020-06-13 14:31:05", "2020-10-10 12:15:55"], ["2020-10-20 07:40:57", "2022-04-17 16:59:51"], ["2022-04-19 05:12:04", "2023-08-23 13:38:01"], ["2023-08-25 03:04:51", "2024-02-03 18:56:55"], ["2024-02-05 05:33:57", "2024-02-13 10:47:38"], ["2024-02-14 14:23:01", "2025-06-30 18:19:59"]], "page": "./ERG_PWE_HFA_L2_SPEC_HIGH.html"}, {"name": "ERG_PWE_HFA_L2_SPEC_LOW", "instrument": "PWE", "product": "SPEC_LOW", "cdf_count": 3017, "active_days": 2950.873159722222, "coverage_pct": 97.64766640405323, "earliest": "2017-03-23", "latest": "2025-06-30", "intervals": [["2017-03-23 00:57:54", "2017-04-21 12:08:48"], ["2017-04-24 03:30:47", "2017-12-17 04:59:49"], ["2017-12-18 08:28:31", "2018-08-16 09:13:24"], ["2018-08-18 05:36:24", "2022-04-17 14:57:51"], ["2022-04-19 02:57:51", "2023-08-23 16:13:25"], ["2023-08-25 01:27:43", "2025-06-30 23:59:55"]], "page": "./ERG_PWE_HFA_L2_SPEC_LOW.html"}, {"name": "ERG_PWE_HFA_L2_SPEC_MONIT", "instrument": "PWE", "product": "SPEC_MONIT", "cdf_count": 2784, "active_days": 2256.716412037037, "coverage_pct": 74.68213584208544, "earliest": "2017-03-23", "latest": "2025-06-30", "intervals": [["2017-03-23 00:00:58", "2017-04-21 12:31:20"], ["2017-04-24 02:25:58", "2017-12-17 06:21:01"], ["2017-12-18 09:28:03", "2018-01-12 19:32:53"], ["2018-01-14 05:20:54", "2018-01-15 01:22:55"], ["2018-01-16 04:38:57", "2018-01-24 01:18:07"], ["2018-01-25 06:39:08", "2018-02-10 02:02:27"], ["2018-02-11 10:04:28", "2018-02-12 01:19:29"], ["2018-02-13 10:19:31", "2018-04-25 17:10:38"], ["2018-04-26 20:24:39", "2018-08-16 07:59:44"], ["2018-08-18 06:01:08", "2018-09-06 01:38:28"], ["2018-09-07 18:08:29", "2018-09-11 17:45:33"], ["2018-09-12 21:03:33", "2018-09-21 14:17:40"], ["2018-09-22 17:28:41", "2018-09-22 23:53:41"], ["2018-09-24 16:45:43", "2018-09-24 17:55:43"], ["2018-09-25 21:06:44", "2018-09-26 17:14:44"], ["2018-09-27 20:24:46", "2018-10-09 17:25:55"], ["2018-10-10 20:28:57", "2018-10-11 15:58:57"], ["2018-10-12 19:45:58", "2018-10-13 00:01:58"], ["2018-10-14 19:03:00", "2018-10-26 08:49:12"], ["2018-10-27 22:22:14", "2018-10-28 08:14:14"], ["2018-10-29 14:34:15", "2018-11-20 12:25:39"], ["2018-11-21 15:02:40", "2018-12-01 06:36:50"], ["2018-12-02 15:58:52", "2018-12-02 20:42:52"], ["2018-12-04 15:16:54", "2018-12-08 08:42:58"], ["2018-12-10 05:05:00", "2018-12-18 05:40:09"], ["2018-12-19 12:57:12", "2018-12-21 23:44:15"], ["2018-12-23 13:28:16", "2018-12-29 06:33:23"], ["2018-12-30 11:59:24", "2019-01-08 05:28:35"], ["2019-01-09 12:25:37", "2019-01-17 04:45:47"], ["2019-01-18 14:09:49", "2019-01-19 08:52:49"], ["2019-01-20 11:10:50", "2019-01-30 04:57:03"], ["2019-01-31 14:28:21", "2019-02-01 04:13:18"], ["2019-02-02 09:09:19", "2019-02-02 13:08:19"], ["2019-02-04 06:16:22", "2019-02-05 05:43:34"], ["2019-02-06 12:18:34", "2019-02-07 08:22:19"], ["2019-02-08 11:35:19", "2019-02-20 02:09:32"], ["2019-02-21 06:59:33", "2019-02-22 01:23:34"], ["2019-02-24 06:17:37", "2019-02-24 10:11:37"], ["2019-02-26 00:00:38", "2019-03-05 02:17:46"], ["2019-03-06 07:19:47", "2019-03-07 01:31:48"], ["2019-03-08 08:30:50", "2019-03-09 00:45:50"], ["2019-03-10 10:33:52", "2019-03-20 01:40:02"], ["2019-03-21 05:00:03", "2019-03-22 00:53:04"], ["2019-03-23 07:25:05", "2019-03-23 23:51:06"], ["2019-03-25 06:59:07", "2019-03-26 03:58:08"], ["2019-03-28 04:27:10", "2019-05-05 23:00:51"], ["2019-05-07 04:59:52", "2019-06-21 08:21:42"], ["2019-06-29 17:14:52", "2019-06-29 21:18:52"], ["2019-07-01 06:54:54", "2019-07-01 22:25:55"], ["2019-07-03 08:04:57", "2019-07-03 22:18:57"], ["2019-07-05 13:57:00", "2019-07-21 18:31:18"], ["2019-07-23 07:40:19", "2019-07-23 17:49:21"], ["2019-07-25 06:59:22", "2019-07-25 17:06:23"], ["2019-07-27 06:17:24", "2019-07-27 16:22:25"], ["2019-07-29 05:35:27", "2019-08-04 03:54:33"], ["2019-08-05 07:54:35", "2019-08-05 17:58:36"], ["2019-08-07 07:12:38", "2019-08-11 15:49:42"], ["2019-08-13 05:06:45", "2019-08-13 15:06:45"], ["2019-08-14 18:55:46", "2019-08-15 23:49:48"], ["2019-08-21 00:00:54", "2019-08-21 22:58:55"], ["2019-08-28 21:01:04", "2019-08-31 19:57:07"], ["2019-09-05 00:00:13", "2019-09-05 22:55:14"], ["2019-09-07 01:26:15", "2019-09-09 21:36:19"], ["2019-09-12 23:25:22", "2019-09-13 09:30:22"], ["2019-09-20 01:33:28", "2019-09-20 20:58:29"], ["2019-09-22 00:54:30", "2019-09-22 20:58:31"], ["2019-09-24 00:14:32", "2019-09-24 21:06:32"], ["2019-10-04 23:14:44", "2019-10-05 21:56:46"], ["2019-10-07 02:54:47", "2019-10-07 21:14:47"], ["2019-10-10 20:29:51", "2019-10-11 10:18:51"], ["2019-10-19 22:52:01", "2019-10-21 12:57:03"], ["2019-11-15 17:54:31", "2019-11-16 05:58:31"], ["2019-11-20 21:04:36", "2019-11-21 19:13:37"], ["2019-11-26 18:50:41", "2019-11-29 16:16:43"], ["2019-12-02 16:32:45", "2019-12-05 23:44:48"], ["2019-12-13 17:27:54", "2019-12-25 16:11:04"], ["2019-12-27 11:58:05", "2020-01-11 14:38:17"], ["2020-01-18 03:55:21", "2020-01-18 16:52:22"], ["2020-01-20 03:14:24", "2020-02-11 05:34:42"], ["2020-02-15 01:54:45", "2020-02-25 09:55:54"], ["2020-02-26 13:43:55", "2020-02-27 09:11:56"], ["2020-03-03 11:23:01", "2020-03-12 06:20:10"], ["2020-06-15 12:48:45", "2020-06-29 09:32:00"], ["2020-07-03 13:33:05", "2020-10-10 12:14:03"], ["2020-10-20 07:40:37", "2022-04-17 16:58:07"], ["2022-04-19 05:11:59", "2023-08-23 13:36:37"], ["2023-08-25 03:04:31", "2024-02-13 10:46:07"], ["2024-02-14 14:22:08", "2025-06-30 18:18:16"]], "page": "./ERG_PWE_HFA_L2_SPEC_MONIT.html"}, {"name": "ERG_PWE_OFA_L2_SPEC", "instrument": "PWE", "product": "SPEC", "cdf_count": 3019, "active_days": 3006.6524074074073, "coverage_pct": 99.45922656033383, "earliest": "2017-03-23", "latest": "2025-07-02", "intervals": [["2017-03-23 00:00:08", "2017-04-21 12:38:35"], ["2017-04-24 02:26:51", "2017-12-17 06:22:24"], ["2017-12-18 08:28:38", "2018-08-16 09:13:35"], ["2018-08-18 05:36:22", "2023-08-23 16:13:40"], ["2023-08-25 01:27:50", "2025-07-02 00:00:07"]], "page": "./ERG_PWE_OFA_L2_SPEC.html"}, {"name": "ERG_XEP_L2_OMNIFLUX", "instrument": "XEP", "product": "OMNIFLUX", "cdf_count": 3008, "active_days": 2973.4250694444445, "coverage_pct": 98.23010748844003, "earliest": "2017-03-19", "latest": "2025-07-01", "intervals": [["2017-03-19 00:00:02", "2017-07-15 10:05:17"], ["2017-07-18 12:43:50", "2019-03-20 06:50:23"], ["2019-03-21 11:50:28", "2019-05-21 23:59:38"], ["2019-05-26 00:14:54", "2021-09-26 08:00:00"], ["2021-09-27 21:22:16", "2023-05-31 13:51:31"], ["2023-06-02 00:48:56", "2023-08-23 16:12:20"], ["2023-08-25 01:27:50", "2024-02-04 10:20:59"], ["2024-02-05 14:15:57", "2024-03-12 23:59:40"], ["2024-03-17 00:00:07", "2025-02-02 21:01:22"], ["2025-02-04 02:15:39", "2025-07-01 23:59:37"]], "page": "./ERG_XEP_L2_OMNIFLUX.html"}];
+
+    function parseDateMs(str) {
+      if (!str) return NaN;
+      const s = str.trim();
+      const iso = s.replace(/\//g, '-').replace(' ', 'T') + 'Z';
+      const ms = Date.parse(iso);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function enableSortableTable(tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      table.querySelectorAll('th.sortable').forEach((header, columnIndex) => {
+        header.tabIndex = 0;
+        header.setAttribute('role', 'button');
+        header.setAttribute('aria-sort', 'none');
+        const sortColumn = () => {
+          const ascending = header.getAttribute('aria-sort') !== 'ascending';
+          table.querySelectorAll('th.sortable').forEach(th => th.setAttribute('aria-sort', 'none'));
+          header.setAttribute('aria-sort', ascending ? 'ascending' : 'descending');
+          const rows = Array.from(table.tBodies[0].rows);
+          const type = header.getAttribute('data-sort-type');
+          rows.sort((left, right) => {
+            const a = left.cells[columnIndex].textContent.trim();
+            const b = right.cells[columnIndex].textContent.trim();
+            let comparison;
+            if (type === 'number') comparison = Number(a.replace(/[^0-9.-]/g, '')) - Number(b.replace(/[^0-9.-]/g, ''));
+            else if (type === 'date') comparison = parseDateMs(a.split('→')[0].trim()) - parseDateMs(b.split('→')[0].trim());
+            else comparison = a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+            return ascending ? comparison : -comparison;
+          });
+          rows.forEach(row => table.tBodies[0].appendChild(row));
+        };
+        header.addEventListener('click', sortColumn);
+        header.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); sortColumn(); }
+        });
+      });
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+      const newTheme = isDark ? 'light' : 'dark';
+      document.body.className = newTheme;
+      localStorage.setItem('cdaweb_theme', newTheme);
+      document.getElementById('theme-toggle').textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      updateView();
+    }
+
+    function toggleChartDisplay(show) {
+      const chartCard = document.getElementById('chart-card-container');
+      if (chartCard) {
+        chartCard.style.display = show ? 'block' : 'none';
+      }
+      if (show) {
+        updateView();
+        setTimeout(() => {
+          const plotDiv = document.getElementById('timeline-chart');
+          if (plotDiv) {
+            Plotly.Plots.resize(plotDiv);
+          }
+        }, 50);
+      }
+    }
+
+    function resetAllSelections() {
+      document.querySelectorAll('.dset-checkbox').forEach(cb => {
+        cb.checked = true;
+      });
+      const masterCb = document.getElementById('master-cb');
+      if (masterCb) masterCb.checked = true;
+      updateView();
+    }
+
+    function presetRange(type) {
+      document.querySelectorAll('.btn-preset').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-preset') === type);
+      });
+      if (type === 'all') {
+        if (window._globalMinTimeMs) {
+          document.getElementById('filter-start').value = formatAxisDate(window._globalMinTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-start').value = '';
+        }
+        if (window._globalMaxTimeMs) {
+          document.getElementById('filter-stop').value = formatAxisDate(window._globalMaxTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-stop').value = '';
+        }
+        updateView();
+        return;
+      }
+      const now = new Date();
+      const endStr = now.toISOString().split('T')[0];
+      let startStr = '';
+      if (type === '1y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 1);
+        startStr = d.toISOString().split('T')[0];
+      } else if (type === '5y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 5);
+        startStr = d.toISOString().split('T')[0];
+      }
+      document.getElementById('filter-start').value = startStr;
+      document.getElementById('filter-stop').value = endStr;
+      updateView();
+    }
+
+    function clearPresetHighlight() {
+      document.querySelectorAll('.btn-preset').forEach(btn => btn.classList.remove('active'));
+    }
+
+    function updateView() {
+      const showChart = document.getElementById('toggle-chart-cb')?.checked;
+      if (!showChart) {
+        return;
+      }
+
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const checkedBoxes = Array.from(document.querySelectorAll('.dset-checkbox:checked'));
+      const selectedNames = new Set(checkedBoxes.map(cb => cb.value));
+      const startFilter = document.getElementById('filter-start').value;
+      const stopFilter = document.getElementById('filter-stop').value;
+      const startFilterMs = startFilter ? parseDateMs(startFilter) : null;
+      const stopFilterMs = stopFilter ? parseDateMs(stopFilter + ' 23:59:59') : null;
+
+      const isLight = document.body.classList.contains('light');
+      const paperBg = isLight ? '#ffffff' : '#1e293b';
+      const plotBg = isLight ? '#f8fafc' : '#0f172a';
+      const textColor = isLight ? '#0f172a' : '#f8fafc';
+      const gridColor = isLight ? '#e2e8f0' : '#334155';
+
+      const timelineData = { y: [], x: [], base: [], colors: [], hovertext: [] };
+      const colors = ['#0284c7', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6'];
+
+      const activeDatasets = [];
+      allDatasets.forEach(d => {
+        if (instFilter && d.instrument !== instFilter) return;
+        if (query && !d.name.toLowerCase().includes(query) && !d.instrument.toLowerCase().includes(query) && !d.product.toLowerCase().includes(query)) return;
+        if (!selectedNames.has(d.name)) return;
+
+        const validIntervals = [];
+        d.intervals.forEach(inv => {
+          const s = inv[0];
+          const e = inv[1];
+          const sTime = parseDateMs(s);
+          const eTime = parseDateMs(e);
+          if (isNaN(sTime) || isNaN(eTime)) return;
+
+          if (startFilterMs && eTime < startFilterMs) return;
+          if (stopFilterMs && sTime > stopFilterMs) return;
+
+          const sClamped = startFilterMs ? Math.max(sTime, startFilterMs) : sTime;
+          const eClamped = stopFilterMs ? Math.min(eTime, stopFilterMs) : eTime;
+          if (eClamped <= sClamped) return;
+
+          validIntervals.push({ s, e, sClamped, eClamped });
+        });
+
+        if (validIntervals.length > 0) {
+          activeDatasets.push({ d, validIntervals });
+        }
+      });
+
+      const activeNames = activeDatasets.map(item => item.d.name);
+      activeDatasets.forEach((item, idx) => {
+        const color = colors[idx % colors.length];
+        const d = item.d;
+        item.validIntervals.forEach(inv => {
+          const durMs = Math.max(86400000, inv.eClamped - inv.sClamped);
+          timelineData.y.push(d.name);
+          timelineData.x.push(durMs);
+          timelineData.base.push(new Date(inv.sClamped).toISOString());
+          timelineData.colors.push(color);
+          timelineData.hovertext.push(`<b>${d.name}</b><br>${d.instrument} • ${d.product}<br>From: ${inv.s}<br>To: ${inv.e}<br><i>Click to unselect • Ctrl+Click to open full page</i>`);
+        });
+      });
+
+      const traces = timelineData.y.length ? [{
+        type: 'bar',
+        orientation: 'h',
+        y: timelineData.y,
+        x: timelineData.x,
+        base: timelineData.base,
+        marker: { color: timelineData.colors, line: { width: 0 } },
+        hoverinfo: 'text',
+        hovertext: timelineData.hovertext,
+        showlegend: false
+      }] : [];
+
+      const count = activeNames.length;
+      const barGap = count === 1 ? 0.75 : (count === 2 ? 0.6 : (count <= 4 ? 0.45 : 0.25));
+      const barWidth = count === 1 ? 0.32 : (count === 2 ? 0.45 : (count <= 4 ? 0.6 : 0.75));
+      traces.forEach(t => { t.width = barWidth; });
+      const plotHeight = count === 1 ? 140 : (count === 2 ? 180 : Math.max(220, count * 32 + 80));
+
+      const plotDiv = document.getElementById('timeline-chart');
+      plotDiv.style.height = plotHeight + 'px';
+      plotDiv.style.minHeight = plotHeight + 'px';
+
+      const xAxisConfig = {
+        type: 'date',
+        side: 'bottom',
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      // Determine if "All Time" preset is active
+      const allTimeBtn = document.querySelector('.btn-preset[data-preset="all"]');
+      const isAllTime = Boolean(allTimeBtn && allTimeBtn.classList.contains('active'));
+
+      // Calculate data bounds for currently selected/plotted items
+      let plottedMinMs = Infinity;
+      let plottedMaxMs = -Infinity;
+      for (let i = 0; i < timelineData.base.length; i++) {
+        const s = parseAxisTimeMs(timelineData.base[i]);
+        const dur = Number(timelineData.x[i]) || 0;
+        if (Number.isFinite(s)) {
+          if (s < plottedMinMs) plottedMinMs = s;
+          if ((s + dur) > plottedMaxMs) plottedMaxMs = s + dur;
+        }
+      }
+      const hasPlottedData = Number.isFinite(plottedMinMs) && Number.isFinite(plottedMaxMs) && plottedMaxMs >= plottedMinMs;
+
+      if (isAllTime && hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (startFilter && stopFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', stopFilter + ' 23:59:59'];
+        xAxisConfig.autorange = false;
+      } else if (startFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', formatAxisDate(window._globalMaxTimeMs || Date.now())];
+        xAxisConfig.autorange = false;
+      } else if (hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        xAxisConfig.range = [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)];
+        xAxisConfig.autorange = false;
+      } else {
+        xAxisConfig.autorange = true;
+      }
+
+      const xAxis2Config = {
+        type: 'date',
+        overlaying: 'x',
+        side: 'top',
+        matches: 'x',
+        showgrid: false,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      const yAxisConfig = {
+        type: 'category',
+        categoryorder: 'array',
+        categoryarray: activeNames.slice().reverse(),
+        automargin: true,
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor },
+        fixedrange: true,
+        autorange: true
+      };
+
+      const layout = {
+        height: plotHeight,
+        paper_bgcolor: paperBg,
+        plot_bgcolor: plotBg,
+        font: { color: textColor, size: 11 },
+        margin: { l: 180, r: 30, t: 35, b: 40 },
+        xaxis: xAxisConfig,
+        xaxis2: xAxis2Config,
+        yaxis: yAxisConfig,
+        barmode: 'overlay',
+        bargap: barGap,
+        bargroupgap: 0.1,
+        annotations: count === 0 ? [{
+          text: checkedBoxes.length > 0
+            ? 'No data available for the selected datasets in this date range'
+            : 'Select one or more datasets to view timeline',
+          showarrow: false,
+          font: { size: 13, color: textColor }
+        }] : []
+      };
+
+      Plotly.newPlot('timeline-chart', traces, layout, { responsive: true, displayModeBar: true, displaylogo: false }).then(() => {
+        updatePanButtons('timeline-chart');
+      });
+
+      plotDiv.on('plotly_relayout', function() {
+        updatePanButtons('timeline-chart');
+      });
+
+      // Attach click events on chart points and y-axis ticks
+      plotDiv.on('plotly_click', function(data) {
+        if (!data.points || data.points.length === 0) return;
+        const name = data.points[0].y;
+        const isCtrl = data.event && (data.event.ctrlKey || data.event.metaKey);
+        handleRowClick(name, isCtrl);
+      });
+
+      plotDiv.querySelectorAll('.ytick text').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.style.userSelect = 'none';
+        el.title = 'Click to unselect • Ctrl+Click to open full page';
+        el.onclick = function(e) {
+          e.stopPropagation();
+          const isCtrl = e.ctrlKey || e.metaKey;
+          handleRowClick(el.textContent.trim(), isCtrl);
+        };
+      });
+    }
+
+    function handleRowClick(name, isCtrl) {
+      const d = allDatasets.find(item => item.name === name);
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (isCtrl && d && d.page) {
+        window.open(d.page + q, '_blank');
+        return;
+      }
+      const cb = document.querySelector(`.dset-checkbox[value="${name}"]`);
+      if (cb) {
+        cb.checked = !cb.checked;
+        updateView();
+      }
+    }
+
+    function filterTable() {
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+
+      rows.forEach(r => {
+        const name = (r.getAttribute('data-name') || '').toLowerCase();
+        const inst = r.getAttribute('data-inst') || '';
+        const matchQ = !query || name.includes(query);
+        const matchInst = !instFilter || inst === instFilter;
+        r.style.display = (matchQ && matchInst) ? '' : 'none';
+      });
+
+      updateView();
+      propagateQueryToLinks();
+    }
+
+    function selectAll(state) {
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+      rows.forEach(r => {
+        if (r.style.display !== 'none') {
+          const cb = r.querySelector('.dset-checkbox');
+          if (cb) cb.checked = state;
+        }
+      });
+      document.getElementById('master-cb').checked = state;
+      updateView();
+    }
+
+    function toggleAllCheckboxes(state) {
+      selectAll(state);
+    }
+
+    function parseAxisTimeMs(val) {
+      if (val == null) return NaN;
+      if (typeof val === 'number') return val;
+      if (val instanceof Date) return val.getTime();
+      const s = String(val).trim();
+      if (!s) return NaN;
+      if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+      const iso = s.replace(/\//g, '-').replace(' ', 'T');
+      const isoUtc = (iso.includes('Z') || iso.includes('+')) ? iso : iso + 'Z';
+      let ms = Date.parse(isoUtc);
+      if (!isNaN(ms)) return ms;
+      ms = Date.parse(s);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function formatAxisDate(ms) {
+      const d = new Date(ms);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString();
+    }
+
+    function panTimelineWindow(divId, direction) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv || !plotDiv._fullLayout || !plotDiv._fullLayout.xaxis) return;
+      const rng = plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2) return;
+
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+
+      const span = t1 - t0;
+      if (span <= 0) return;
+
+      const newT0 = t0 + (direction * span);
+      const newT1 = t1 + (direction * span);
+
+      Plotly.relayout(plotDiv, {
+        'xaxis.range': [formatAxisDate(newT0), formatAxisDate(newT1)],
+        'xaxis.autorange': false
+      }).then(() => {
+        updatePanButtons(divId);
+      });
+    }
+
+    function resetTimelineZoom(divId) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        Plotly.relayout(plotDiv, {
+          'xaxis.range': [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)],
+          'xaxis.autorange': false
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      } else {
+        Plotly.relayout(plotDiv, {
+          'xaxis.autorange': true
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      }
+    }
+
+    window._globalMinTimeMs = 1477096815000;
+    window._globalMaxTimeMs = 1794936057544;
+
+    function exportPlotAsPng(divId, filename) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      Plotly.downloadImage(plotDiv, {
+        format: 'png',
+        width: 1400,
+        height: Math.max(500, plotDiv.offsetHeight || 500),
+        filename: filename || 'plot.png'
+      });
+    }
+
+    function updatePanButtons(divId) {
+      const plotDiv = document.getElementById(divId);
+      const prevBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', -1)"]`);
+      const nextBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', 1)"]`);
+      if (!plotDiv || !prevBtn || !nextBtn) return;
+      const rng = plotDiv._fullLayout && plotDiv._fullLayout.xaxis && plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2 || !window._globalMinTimeMs || !window._globalMaxTimeMs) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+      const fullSpan = window._globalMaxTimeMs - window._globalMinTimeMs;
+      const currentSpan = t1 - t0;
+      if (currentSpan >= fullSpan - 60000) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      const canPrev = t0 > (window._globalMinTimeMs + 60000);
+      const canNext = t1 < (window._globalMaxTimeMs - 60000);
+      prevBtn.disabled = !canPrev;
+      nextBtn.disabled = !canNext;
+      prevBtn.classList.toggle('disabled', !canPrev);
+      nextBtn.classList.toggle('disabled', !canNext);
+    }
+
+    // Theme initialization
+    const savedTheme = localStorage.getItem('cdaweb_theme') || 'dark';
+    document.body.className = savedTheme;
+    document.getElementById('theme-toggle').textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+    // Propagate URL query params (such as ?view for updog) to relative navigation links
+    function propagateQueryToLinks() {
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (q) {
+        document.querySelectorAll('a[href]').forEach(a => {
+          const href = a.getAttribute('href');
+          if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto:') && !href.includes('?')) {
+            a.setAttribute('href', href + q);
+          }
+        });
+      }
+    }
+
+    // Ensure timeline checkbox is unchecked by default and container is hidden
+    const chartCb = document.getElementById('toggle-chart-cb');
+    if (chartCb) {
+      chartCb.checked = false;
+    }
+    const chartCard = document.getElementById('chart-card-container');
+    if (chartCard) {
+      chartCard.style.display = 'none';
+    }
+
+    enableSortableTable('datasets-table');
+
+    // Initial render
+    updateView();
+    propagateQueryToLinks();
+  </script>
+  <footer class="page-footer">This page was last updated on: 2026-11-17 17:20:57 UTC. For any questions or comments, please contact SPDF support at: <a href="mailto:NASA-SPDF-Support@nasa.gov">NASA-SPDF-Support@nasa.gov</a></footer>
+</body>
+</html>

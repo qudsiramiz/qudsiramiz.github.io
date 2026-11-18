@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IMAP Inventory Index - CDAWeb</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root, body.dark {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #0284c7;
+      --accent-light: #38bdf8;
+      --success: #10b981;
+      --plot-paper: #1e293b;
+      --plot-bg: #0f172a;
+      --plot-grid: #334155;
+    }
+    body.light {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --accent: #0284c7;
+      --accent-light: #0369a1;
+      --success: #16a34a;
+      --plot-paper: #ffffff;
+      --plot-bg: #f8fafc;
+      --plot-grid: #e2e8f0;
+    }
+    body {
+      margin: 0;
+      padding: 24px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    input[type="date"] {
+      color-scheme: dark;
+    }
+    body.light input[type="date"] {
+      color-scheme: light;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .page-footer { margin: 20px 0 0; color: var(--text-muted); font-size: 12px; text-align: center; }
+    .page-footer a { color: var(--accent-light); }
+    .breadcrumbs { font-size: 14px; margin-bottom: 0; color: var(--text-muted); }
+    .breadcrumbs a { color: var(--accent-light); text-decoration: none; }
+    .breadcrumbs a:hover { text-decoration: underline; }
+    .btn-theme {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-theme:hover { opacity: 0.9; }
+    h1 { margin: 0 0 6px 0; font-size: 28px; }
+    .subtitle { color: var(--text-muted); font-size: 15px; margin: 0 0 20px 0; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .kpi-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 20px; font-weight: 700; color: var(--text); }
+    .controls-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    input[type="text"], input[type="date"], select {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: 13px;
+    }
+    button, .btn-sm {
+      background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block;
+    }
+    button.btn-secondary { background: var(--border); color: var(--text); }
+    button:hover, .btn-sm:hover { opacity: 0.9; }
+    .chart-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th { padding: 10px 12px; background: rgba(125,125,125,0.06); color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .progress-bar { width: 70px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; display: inline-block; }
+    .progress-bar .fill { height: 100%; background: var(--success); }
+    .badge-sm { display: inline-block; padding: 2px 8px; background: rgba(56, 189, 248, 0.15); color: var(--accent-light); border-radius: 4px; font-size: 11px; }
+    .chart-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .pan-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(125,125,125,0.08);
+      padding: 3px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .btn-pan {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-pan:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .btn-pan:disabled, .btn-pan.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .btn-preset {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .btn-preset:hover {
+      opacity: 0.9;
+      color: var(--text);
+    }
+    .btn-preset.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      font-weight: 700;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+    }
+    .xtick text, .ytick text {
+      fill: var(--text) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+      <div class="breadcrumbs">
+        <a href="./inventory_index.html">CDAWeb Inventory</a> &gt;
+        <span>IMAP Index</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="./IMAP_Inventory.png" target="_blank" class="btn-theme"> View IMAP PNG</a>
+        <button class="btn-theme" onclick="exportPlotAsPng('timeline-chart', 'IMAP_timeline.png')"> Download Plot PNG</button>
+        <button id="theme-toggle" class="btn-theme" onclick="toggleTheme()">☀️ Light Mode</button>
+      </div>
+    </div>
+    <h1>IMAP Mission Data Inventory</h1>
+    <p class="subtitle">Complete catalog of holdings and availability for IMAP spacecraft</p>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Datasets</div>
+        <div class="kpi-value">41</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Instruments</div>
+        <div class="kpi-value">10</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total CDF Files</div>
+        <div class="kpi-value">8,076</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Mission Span</div>
+        <div class="kpi-value" style="font-size: 14px;">1947-03-03 &rarr; 2026-11-08</div>
+      </div>
+    </div>
+
+    <div class="controls-card">
+      <input type="text" id="search-box" placeholder="Search datasets..." oninput="filterTable()">
+      <select id="instrument-filter" onchange="filterTable()">
+        <option value="">All Instruments (10)</option>
+        <option value='CODICE'>CODICE</option><option value='EPHEMERIS'>EPHEMERIS</option><option value='GLOWS'>GLOWS</option><option value='HELIO1HR'>HELIO1HR</option><option value='HIT'>HIT</option><option value='IALIRT'>IALIRT</option><option value='IDEX'>IDEX</option><option value='MAG'>MAG</option><option value='SWAPI'>SWAPI</option><option value='SWE'>SWE</option>
+      </select>
+      <button class="btn-secondary" onclick="selectAll(true)">Select All</button>
+      <button class="btn-secondary" onclick="selectAll(false)">Clear All</button>
+      <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; font-size: 13px; font-weight: 600; padding: 4px 10px; background: rgba(125,125,125,0.08); border-radius: 6px; border: 1px solid var(--border);">
+        <input type="checkbox" id="toggle-chart-cb" autocomplete="off" onchange="toggleChartDisplay(this.checked)">
+        <span> Show Timeline Graph</span>
+      </label>
+      <div style="margin-left: auto; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+        <span style="font-size: 13px; color: var(--text-muted);">Date Range:</span>
+        <input type="date" id="filter-start" value="1947-03-03" oninput="clearPresetHighlight()">
+        <span style="color: var(--text-muted);">&rarr;</span>
+        <input type="date" id="filter-stop" value="2026-11-08" oninput="clearPresetHighlight()">
+        <button onclick="updateView()">Apply</button>
+        <button type="button" class="btn-preset" data-preset="1y" onclick="presetRange('1y')">1 Year</button>
+        <button type="button" class="btn-preset" data-preset="5y" onclick="presetRange('5y')">5 Years</button>
+        <button type="button" class="btn-preset active" data-preset="all" onclick="presetRange('all')">All Time</button>
+      </div>
+    </div>
+
+    <div class="chart-card" id="chart-card-container" style="display: none;">
+      <div class="chart-hint">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <span><strong>Availability Timeline (Selected Items)</strong></span>
+          <div class="pan-controls">
+            <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin: 0 4px;">Time Window:</span>
+            <button type="button" class="btn-pan disabled" disabled title="Pan backward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', -1)">◀ Prev Frame</button>
+            <button type="button" class="btn-pan" title="Reset zoom to full range" onclick="resetTimelineZoom('timeline-chart')">↺ Reset Zoom</button>
+            <button type="button" class="btn-pan disabled" disabled title="Pan forward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', 1)">Next Frame ▶</button>
+            <button type="button" class="btn-pan" title="Reselect all unselected items" onclick="resetAllSelections()">↺ Reset Selection</button>
+            <button type="button" class="btn-pan" title="Download timeline chart as PNG" onclick="exportPlotAsPng('timeline-chart', 'IMAP_timeline.png')"> PNG</button>
+          </div>
+        </div>
+        <span>💡 Click row/label to unselect • Ctrl+Click to open full dataset page</span>
+      </div>
+      <div id="timeline-chart" style="min-height: 120px; width: 100%;"></div>
+    </div>
+
+    <div class="table-card">
+      <h3 style="margin: 0 0 12px 0;">Available Datasets</h3>
+      <table id="datasets-table">
+        <thead>
+          <tr>
+            <th style="width: 30px;"><input type="checkbox" id="master-cb" checked onchange="toggleAllCheckboxes(this.checked)"></th>
+            <th class="sortable" data-sort-type="text">Dataset ID</th>
+            <th class="sortable" data-sort-type="text">Instrument</th>
+            <th class="sortable" data-sort-type="text">Product</th>
+            <th class="sortable" data-sort-type="date">Time Coverage</th>
+            <th class="sortable" data-sort-type="number">CDF Count</th>
+            <th class="sortable" data-sort-type="number">Coverage</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="datasets-tbody">
+          
+        <tr data-inst="CODICE" data-name="IMAP_CODICE_L2_HI-DIRECT-EVENTS">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_CODICE_L2_HI-DIRECT-EVENTS" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_CODICE_L2_HI-DIRECT-EVENTS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_CODICE_L2_HI-DIRECT-EVENTS</a></td>
+          <td><span class="badge-sm">CODICE</span></td>
+          <td style="color: var(--text-muted);">HI-DIRECT-EVENTS</td>
+          <td>2026-02-01 &rarr; 2026-07-31</td>
+          <td>181</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.83341580267825%;"></div></div>
+              <span style="font-size: 11px;">98.83%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_CODICE_L2_HI-DIRECT-EVENTS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="CODICE" data-name="IMAP_CODICE_L2_HI-OMNI">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_CODICE_L2_HI-OMNI" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_CODICE_L2_HI-OMNI.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_CODICE_L2_HI-OMNI</a></td>
+          <td><span class="badge-sm">CODICE</span></td>
+          <td style="color: var(--text-muted);">HI-OMNI</td>
+          <td>2026-02-01 &rarr; 2026-07-31</td>
+          <td>181</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.04099636316293%;"></div></div>
+              <span style="font-size: 11px;">99.04%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_CODICE_L2_HI-OMNI.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="CODICE" data-name="IMAP_CODICE_L2_HI-SECTORED">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_CODICE_L2_HI-SECTORED" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_CODICE_L2_HI-SECTORED.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_CODICE_L2_HI-SECTORED</a></td>
+          <td><span class="badge-sm">CODICE</span></td>
+          <td style="color: var(--text-muted);">HI-SECTORED</td>
+          <td>2026-02-01 &rarr; 2026-07-31</td>
+          <td>181</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.83341580267825%;"></div></div>
+              <span style="font-size: 11px;">98.83%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_CODICE_L2_HI-SECTORED.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="CODICE" data-name="IMAP_CODICE_L2_LO-DIRECT-EVENTS">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_CODICE_L2_LO-DIRECT-EVENTS" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_CODICE_L2_LO-DIRECT-EVENTS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_CODICE_L2_LO-DIRECT-EVENTS</a></td>
+          <td><span class="badge-sm">CODICE</span></td>
+          <td style="color: var(--text-muted);">LO-DIRECT-EVENTS</td>
+          <td>2026-02-01 &rarr; 2026-07-31</td>
+          <td>181</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.83341580267825%;"></div></div>
+              <span style="font-size: 11px;">98.83%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_CODICE_L2_LO-DIRECT-EVENTS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="CODICE" data-name="IMAP_CODICE_L2_LO-SW-SPECIES">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_CODICE_L2_LO-SW-SPECIES" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_CODICE_L2_LO-SW-SPECIES.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_CODICE_L2_LO-SW-SPECIES</a></td>
+          <td><span class="badge-sm">CODICE</span></td>
+          <td style="color: var(--text-muted);">LO-SW-SPECIES</td>
+          <td>2026-02-01 &rarr; 2026-07-31</td>
+          <td>181</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.83951627476783%;"></div></div>
+              <span style="font-size: 11px;">98.84%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_CODICE_L2_LO-SW-SPECIES.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="CODICE" data-name="IMAP_CODICE_L3A_HI-DIRECT-EVENTS">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_CODICE_L3A_HI-DIRECT-EVENTS" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_CODICE_L3A_HI-DIRECT-EVENTS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_CODICE_L3A_HI-DIRECT-EVENTS</a></td>
+          <td><span class="badge-sm">CODICE</span></td>
+          <td style="color: var(--text-muted);">HI-DIRECT-EVENTS</td>
+          <td>2026-02-01 &rarr; 2026-07-31</td>
+          <td>181</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.83341580267825%;"></div></div>
+              <span style="font-size: 11px;">98.83%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_CODICE_L3A_HI-DIRECT-EVENTS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="CODICE" data-name="IMAP_CODICE_L3A_LO-DIRECT-EVENTS">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_CODICE_L3A_LO-DIRECT-EVENTS" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_CODICE_L3A_LO-DIRECT-EVENTS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_CODICE_L3A_LO-DIRECT-EVENTS</a></td>
+          <td><span class="badge-sm">CODICE</span></td>
+          <td style="color: var(--text-muted);">LO-DIRECT-EVENTS</td>
+          <td>2026-02-01 &rarr; 2026-07-31</td>
+          <td>181</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.83341580267825%;"></div></div>
+              <span style="font-size: 11px;">98.83%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_CODICE_L3A_LO-DIRECT-EVENTS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="CODICE" data-name="IMAP_CODICE_L3A_LO-PARTIAL-DENSITIES">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_CODICE_L3A_LO-PARTIAL-DENSITIES" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_CODICE_L3A_LO-PARTIAL-DENSITIES.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_CODICE_L3A_LO-PARTIAL-DENSITIES</a></td>
+          <td><span class="badge-sm">CODICE</span></td>
+          <td style="color: var(--text-muted);">LO-PARTIAL-DENSITIES</td>
+          <td>2026-02-01 &rarr; 2026-07-31</td>
+          <td>181</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.83951627476783%;"></div></div>
+              <span style="font-size: 11px;">98.84%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_CODICE_L3A_LO-PARTIAL-DENSITIES.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="CODICE" data-name="IMAP_CODICE_L3A_LO-SW-CHARGE-STATE-DISTRIBUTIONS">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_CODICE_L3A_LO-SW-CHARGE-STATE-DISTRIBUTIONS" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_CODICE_L3A_LO-SW-CHARGE-STATE-DISTRIBUTIONS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_CODICE_L3A_LO-SW-CHARGE-STATE-DISTRIBUTIONS</a></td>
+          <td><span class="badge-sm">CODICE</span></td>
+          <td style="color: var(--text-muted);">LO-SW-CHARGE-STATE-DISTRIBUTIONS</td>
+          <td>2026-02-01 &rarr; 2026-07-31</td>
+          <td>181</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.40507416233444%;"></div></div>
+              <span style="font-size: 11px;">98.41%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_CODICE_L3A_LO-SW-CHARGE-STATE-DISTRIBUTIONS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="CODICE" data-name="IMAP_CODICE_L3A_LO-SW-RATIOS">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_CODICE_L3A_LO-SW-RATIOS" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_CODICE_L3A_LO-SW-RATIOS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_CODICE_L3A_LO-SW-RATIOS</a></td>
+          <td><span class="badge-sm">CODICE</span></td>
+          <td style="color: var(--text-muted);">LO-SW-RATIOS</td>
+          <td>2026-02-01 &rarr; 2026-07-31</td>
+          <td>181</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.40507416233444%;"></div></div>
+              <span style="font-size: 11px;">98.41%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_CODICE_L3A_LO-SW-RATIOS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="CODICE" data-name="IMAP_CODICE_L3B_HI-PITCH-ANGLE">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_CODICE_L3B_HI-PITCH-ANGLE" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_CODICE_L3B_HI-PITCH-ANGLE.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_CODICE_L3B_HI-PITCH-ANGLE</a></td>
+          <td><span class="badge-sm">CODICE</span></td>
+          <td style="color: var(--text-muted);">HI-PITCH-ANGLE</td>
+          <td>2026-02-01 &rarr; 2026-07-31</td>
+          <td>181</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.83341580267825%;"></div></div>
+              <span style="font-size: 11px;">98.83%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_CODICE_L3B_HI-PITCH-ANGLE.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="CODICE" data-name="IMAP_CODICE_L3B_LO-HEPLUS-3D-DISTRIBUTION">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_CODICE_L3B_LO-HEPLUS-3D-DISTRIBUTION" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_CODICE_L3B_LO-HEPLUS-3D-DISTRIBUTION.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_CODICE_L3B_LO-HEPLUS-3D-DISTRIBUTION</a></td>
+          <td><span class="badge-sm">CODICE</span></td>
+          <td style="color: var(--text-muted);">LO-HEPLUS-3D-DISTRIBUTION</td>
+          <td>2026-02-01 &rarr; 2026-07-31</td>
+          <td>181</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.83341580267825%;"></div></div>
+              <span style="font-size: 11px;">98.83%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_CODICE_L3B_LO-HEPLUS-3D-DISTRIBUTION.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="CODICE" data-name="IMAP_CODICE_L3B_LO-HEPLUSPLUS-3D-DISTRIBUTION">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_CODICE_L3B_LO-HEPLUSPLUS-3D-DISTRIBUTION" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_CODICE_L3B_LO-HEPLUSPLUS-3D-DISTRIBUTION.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_CODICE_L3B_LO-HEPLUSPLUS-3D-DISTRIBUTION</a></td>
+          <td><span class="badge-sm">CODICE</span></td>
+          <td style="color: var(--text-muted);">LO-HEPLUSPLUS-3D-DISTRIBUTION</td>
+          <td>2026-02-01 &rarr; 2026-07-31</td>
+          <td>181</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.83341580267825%;"></div></div>
+              <span style="font-size: 11px;">98.83%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_CODICE_L3B_LO-HEPLUSPLUS-3D-DISTRIBUTION.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="CODICE" data-name="IMAP_CODICE_L3B_LO-HPLUS-3D-DISTRIBUTION">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_CODICE_L3B_LO-HPLUS-3D-DISTRIBUTION" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_CODICE_L3B_LO-HPLUS-3D-DISTRIBUTION.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_CODICE_L3B_LO-HPLUS-3D-DISTRIBUTION</a></td>
+          <td><span class="badge-sm">CODICE</span></td>
+          <td style="color: var(--text-muted);">LO-HPLUS-3D-DISTRIBUTION</td>
+          <td>2026-02-01 &rarr; 2026-07-31</td>
+          <td>181</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.83341580267825%;"></div></div>
+              <span style="font-size: 11px;">98.83%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_CODICE_L3B_LO-HPLUS-3D-DISTRIBUTION.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="CODICE" data-name="IMAP_CODICE_L3B_LO-OPLUS6-3D-DISTRIBUTION">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_CODICE_L3B_LO-OPLUS6-3D-DISTRIBUTION" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_CODICE_L3B_LO-OPLUS6-3D-DISTRIBUTION.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_CODICE_L3B_LO-OPLUS6-3D-DISTRIBUTION</a></td>
+          <td><span class="badge-sm">CODICE</span></td>
+          <td style="color: var(--text-muted);">LO-OPLUS6-3D-DISTRIBUTION</td>
+          <td>2026-02-01 &rarr; 2026-07-31</td>
+          <td>181</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.83341580267825%;"></div></div>
+              <span style="font-size: 11px;">98.83%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_CODICE_L3B_LO-OPLUS6-3D-DISTRIBUTION.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GLOWS" data-name="IMAP_GLOWS_L3D_SOLAR-HIST">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_GLOWS_L3D_SOLAR-HIST" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_GLOWS_L3D_SOLAR-HIST.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_GLOWS_L3D_SOLAR-HIST</a></td>
+          <td><span class="badge-sm">GLOWS</span></td>
+          <td style="color: var(--text-muted);">SOLAR-HIST</td>
+          <td>1947-03-03 &rarr; 2026-07-19</td>
+          <td>1</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_GLOWS_L3D_SOLAR-HIST.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="HELIO1HR" data-name="IMAP_HELIO1HR_POSITION">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_HELIO1HR_POSITION" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_HELIO1HR_POSITION.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_HELIO1HR_POSITION</a></td>
+          <td><span class="badge-sm">HELIO1HR</span></td>
+          <td style="color: var(--text-muted);">HELIO1HR</td>
+          <td>2025-09-25 &rarr; 2026-11-08</td>
+          <td>1</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_HELIO1HR_POSITION.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="HIT" data-name="IMAP_HIT_L2_MACROPIXEL-INTENSITY">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_HIT_L2_MACROPIXEL-INTENSITY" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_HIT_L2_MACROPIXEL-INTENSITY.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_HIT_L2_MACROPIXEL-INTENSITY</a></td>
+          <td><span class="badge-sm">HIT</span></td>
+          <td style="color: var(--text-muted);">MACROPIXEL-INTENSITY</td>
+          <td>2026-05-18 &rarr; 2026-07-31</td>
+          <td>73</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 96.83716268152293%;"></div></div>
+              <span style="font-size: 11px;">96.84%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_HIT_L2_MACROPIXEL-INTENSITY.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="HIT" data-name="IMAP_HIT_L2_STANDARD-INTENSITY">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_HIT_L2_STANDARD-INTENSITY" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_HIT_L2_STANDARD-INTENSITY.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_HIT_L2_STANDARD-INTENSITY</a></td>
+          <td><span class="badge-sm">HIT</span></td>
+          <td style="color: var(--text-muted);">STANDARD-INTENSITY</td>
+          <td>2026-02-01 &rarr; 2026-07-31</td>
+          <td>181</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.42476528926446%;"></div></div>
+              <span style="font-size: 11px;">99.42%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_HIT_L2_STANDARD-INTENSITY.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="HIT" data-name="IMAP_HIT_L2_SUMMED-INTENSITY">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_HIT_L2_SUMMED-INTENSITY" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_HIT_L2_SUMMED-INTENSITY.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_HIT_L2_SUMMED-INTENSITY</a></td>
+          <td><span class="badge-sm">HIT</span></td>
+          <td style="color: var(--text-muted);">SUMMED-INTENSITY</td>
+          <td>2026-02-01 &rarr; 2026-07-31</td>
+          <td>181</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.42476528926446%;"></div></div>
+              <span style="font-size: 11px;">99.42%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_HIT_L2_SUMMED-INTENSITY.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="HIT" data-name="IMAP_HIT_L3_MACROPIXEL">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_HIT_L3_MACROPIXEL" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_HIT_L3_MACROPIXEL.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_HIT_L3_MACROPIXEL</a></td>
+          <td><span class="badge-sm">HIT</span></td>
+          <td style="color: var(--text-muted);">MACROPIXEL</td>
+          <td>2026-05-18 &rarr; 2026-07-31</td>
+          <td>73</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 96.83716268152293%;"></div></div>
+              <span style="font-size: 11px;">96.84%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_HIT_L3_MACROPIXEL.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="IALIRT" data-name="IMAP_IALIRT_L1_REALTIME">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_IALIRT_L1_REALTIME" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_IALIRT_L1_REALTIME.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_IALIRT_L1_REALTIME</a></td>
+          <td><span class="badge-sm">IALIRT</span></td>
+          <td style="color: var(--text-muted);">REALTIME</td>
+          <td>2026-02-01 &rarr; 2026-11-07</td>
+          <td>275</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 69.30942158363823%;"></div></div>
+              <span style="font-size: 11px;">69.31%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_IALIRT_L1_REALTIME.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="IDEX" data-name="IMAP_IDEX_L2A_SCI-10DAYS">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_IDEX_L2A_SCI-10DAYS" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_IDEX_L2A_SCI-10DAYS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_IDEX_L2A_SCI-10DAYS</a></td>
+          <td><span class="badge-sm">IDEX</span></td>
+          <td style="color: var(--text-muted);">SCI-10DAYS</td>
+          <td>2026-02-09 &rarr; 2026-08-07</td>
+          <td>18</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 88.92389385371936%;"></div></div>
+              <span style="font-size: 11px;">88.92%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_IDEX_L2A_SCI-10DAYS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="MAG" data-name="IMAP_MAG_L2_BURST-DSRF">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_MAG_L2_BURST-DSRF" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_MAG_L2_BURST-DSRF.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_MAG_L2_BURST-DSRF</a></td>
+          <td><span class="badge-sm">MAG</span></td>
+          <td style="color: var(--text-muted);">BURST-DSRF</td>
+          <td>2025-11-01 &rarr; 2026-07-31</td>
+          <td>272</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.01855663319752%;"></div></div>
+              <span style="font-size: 11px;">99.02%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_MAG_L2_BURST-DSRF.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="MAG" data-name="IMAP_MAG_L2_BURST-GSE">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_MAG_L2_BURST-GSE" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_MAG_L2_BURST-GSE.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_MAG_L2_BURST-GSE</a></td>
+          <td><span class="badge-sm">MAG</span></td>
+          <td style="color: var(--text-muted);">BURST-GSE</td>
+          <td>2025-11-01 &rarr; 2026-07-31</td>
+          <td>272</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.01855663319752%;"></div></div>
+              <span style="font-size: 11px;">99.02%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_MAG_L2_BURST-GSE.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="MAG" data-name="IMAP_MAG_L2_BURST-GSM">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_MAG_L2_BURST-GSM" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_MAG_L2_BURST-GSM.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_MAG_L2_BURST-GSM</a></td>
+          <td><span class="badge-sm">MAG</span></td>
+          <td style="color: var(--text-muted);">BURST-GSM</td>
+          <td>2025-11-01 &rarr; 2026-07-31</td>
+          <td>272</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.01855663319752%;"></div></div>
+              <span style="font-size: 11px;">99.02%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_MAG_L2_BURST-GSM.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="MAG" data-name="IMAP_MAG_L2_BURST-RTN">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_MAG_L2_BURST-RTN" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_MAG_L2_BURST-RTN.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_MAG_L2_BURST-RTN</a></td>
+          <td><span class="badge-sm">MAG</span></td>
+          <td style="color: var(--text-muted);">BURST-RTN</td>
+          <td>2025-11-01 &rarr; 2026-07-31</td>
+          <td>272</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.01855663319752%;"></div></div>
+              <span style="font-size: 11px;">99.02%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_MAG_L2_BURST-RTN.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="MAG" data-name="IMAP_MAG_L2_BURST-SRF">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_MAG_L2_BURST-SRF" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_MAG_L2_BURST-SRF.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_MAG_L2_BURST-SRF</a></td>
+          <td><span class="badge-sm">MAG</span></td>
+          <td style="color: var(--text-muted);">BURST-SRF</td>
+          <td>2025-11-01 &rarr; 2026-07-31</td>
+          <td>272</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.01855663319752%;"></div></div>
+              <span style="font-size: 11px;">99.02%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_MAG_L2_BURST-SRF.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="MAG" data-name="IMAP_MAG_L2_NORM-DSRF">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_MAG_L2_NORM-DSRF" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_MAG_L2_NORM-DSRF.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_MAG_L2_NORM-DSRF</a></td>
+          <td><span class="badge-sm">MAG</span></td>
+          <td style="color: var(--text-muted);">NORM-DSRF</td>
+          <td>2025-11-01 &rarr; 2026-07-31</td>
+          <td>272</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.37085365668047%;"></div></div>
+              <span style="font-size: 11px;">99.37%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_MAG_L2_NORM-DSRF.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="MAG" data-name="IMAP_MAG_L2_NORM-GSE">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_MAG_L2_NORM-GSE" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_MAG_L2_NORM-GSE.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_MAG_L2_NORM-GSE</a></td>
+          <td><span class="badge-sm">MAG</span></td>
+          <td style="color: var(--text-muted);">NORM-GSE</td>
+          <td>2025-11-01 &rarr; 2026-07-31</td>
+          <td>272</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.37085365668047%;"></div></div>
+              <span style="font-size: 11px;">99.37%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_MAG_L2_NORM-GSE.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="MAG" data-name="IMAP_MAG_L2_NORM-GSM">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_MAG_L2_NORM-GSM" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_MAG_L2_NORM-GSM.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_MAG_L2_NORM-GSM</a></td>
+          <td><span class="badge-sm">MAG</span></td>
+          <td style="color: var(--text-muted);">NORM-GSM</td>
+          <td>2025-11-01 &rarr; 2026-07-31</td>
+          <td>272</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.37085365668047%;"></div></div>
+              <span style="font-size: 11px;">99.37%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_MAG_L2_NORM-GSM.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="MAG" data-name="IMAP_MAG_L2_NORM-RTN">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_MAG_L2_NORM-RTN" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_MAG_L2_NORM-RTN.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_MAG_L2_NORM-RTN</a></td>
+          <td><span class="badge-sm">MAG</span></td>
+          <td style="color: var(--text-muted);">NORM-RTN</td>
+          <td>2025-11-01 &rarr; 2026-07-31</td>
+          <td>272</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.37085365668047%;"></div></div>
+              <span style="font-size: 11px;">99.37%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_MAG_L2_NORM-RTN.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="MAG" data-name="IMAP_MAG_L2_NORM-SRF">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_MAG_L2_NORM-SRF" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_MAG_L2_NORM-SRF.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_MAG_L2_NORM-SRF</a></td>
+          <td><span class="badge-sm">MAG</span></td>
+          <td style="color: var(--text-muted);">NORM-SRF</td>
+          <td>2025-11-01 &rarr; 2026-07-31</td>
+          <td>272</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.37085365668047%;"></div></div>
+              <span style="font-size: 11px;">99.37%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_MAG_L2_NORM-SRF.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="EPHEMERIS" data-name="IMAP_OR_SSC">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_OR_SSC" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_OR_SSC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_OR_SSC</a></td>
+          <td><span class="badge-sm">EPHEMERIS</span></td>
+          <td style="color: var(--text-muted);">EPHEMERIS</td>
+          <td>2025-09-25 &rarr; 2026-06-21</td>
+          <td>2</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_OR_SSC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="SWAPI" data-name="IMAP_SWAPI_L2_SCI">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_SWAPI_L2_SCI" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_SWAPI_L2_SCI.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_SWAPI_L2_SCI</a></td>
+          <td><span class="badge-sm">SWAPI</span></td>
+          <td style="color: var(--text-muted);">SCI</td>
+          <td>2025-11-08 &rarr; 2026-07-31</td>
+          <td>260</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 96.70225025756717%;"></div></div>
+              <span style="font-size: 11px;">96.70%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_SWAPI_L2_SCI.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="SWAPI" data-name="IMAP_SWAPI_L3A_ALPHA-SW">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_SWAPI_L3A_ALPHA-SW" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_SWAPI_L3A_ALPHA-SW.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_SWAPI_L3A_ALPHA-SW</a></td>
+          <td><span class="badge-sm">SWAPI</span></td>
+          <td style="color: var(--text-muted);">ALPHA-SW</td>
+          <td>2025-11-08 &rarr; 2026-07-31</td>
+          <td>260</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 96.5135174186271%;"></div></div>
+              <span style="font-size: 11px;">96.51%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_SWAPI_L3A_ALPHA-SW.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="SWAPI" data-name="IMAP_SWAPI_L3A_PROTON-SW">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_SWAPI_L3A_PROTON-SW" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_SWAPI_L3A_PROTON-SW.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_SWAPI_L3A_PROTON-SW</a></td>
+          <td><span class="badge-sm">SWAPI</span></td>
+          <td style="color: var(--text-muted);">PROTON-SW</td>
+          <td>2025-11-08 &rarr; 2026-07-31</td>
+          <td>260</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 96.5135174186271%;"></div></div>
+              <span style="font-size: 11px;">96.51%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_SWAPI_L3A_PROTON-SW.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="SWAPI" data-name="IMAP_SWAPI_L3A_PUI-HE">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_SWAPI_L3A_PUI-HE" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_SWAPI_L3A_PUI-HE.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_SWAPI_L3A_PUI-HE</a></td>
+          <td><span class="badge-sm">SWAPI</span></td>
+          <td style="color: var(--text-muted);">PUI-HE</td>
+          <td>2025-11-08 &rarr; 2026-07-31</td>
+          <td>260</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 95.88285069952396%;"></div></div>
+              <span style="font-size: 11px;">95.88%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_SWAPI_L3A_PUI-HE.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="SWAPI" data-name="IMAP_SWAPI_L3B_COMBINED">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_SWAPI_L3B_COMBINED" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_SWAPI_L3B_COMBINED.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_SWAPI_L3B_COMBINED</a></td>
+          <td><span class="badge-sm">SWAPI</span></td>
+          <td style="color: var(--text-muted);">COMBINED</td>
+          <td>2025-11-08 &rarr; 2026-07-31</td>
+          <td>260</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 95.88285069952396%;"></div></div>
+              <span style="font-size: 11px;">95.88%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_SWAPI_L3B_COMBINED.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="SWE" data-name="IMAP_SWE_L2_SCI">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_SWE_L2_SCI" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_SWE_L2_SCI.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_SWE_L2_SCI</a></td>
+          <td><span class="badge-sm">SWE</span></td>
+          <td style="color: var(--text-muted);">SCI</td>
+          <td>2025-10-21 &rarr; 2026-07-31</td>
+          <td>277</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 96.6340278850701%;"></div></div>
+              <span style="font-size: 11px;">96.63%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_SWE_L2_SCI.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="SWE" data-name="IMAP_SWE_L3_SCI">
+          <td><input type="checkbox" class="dset-checkbox" value="IMAP_SWE_L3_SCI" checked onchange="updateView()"></td>
+          <td><a href="./imap_inventory/IMAP_SWE_L3_SCI.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">IMAP_SWE_L3_SCI</a></td>
+          <td><span class="badge-sm">SWE</span></td>
+          <td style="color: var(--text-muted);">SCI</td>
+          <td>2025-11-07 &rarr; 2026-07-31</td>
+          <td>259</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 96.41391205519709%;"></div></div>
+              <span style="font-size: 11px;">96.41%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./imap_inventory/IMAP_SWE_L3_SCI.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const allDatasets = [{"name": "IMAP_CODICE_L2_HI-DIRECT-EVENTS", "instrument": "CODICE", "product": "HI-DIRECT-EVENTS", "cdf_count": 181, "active_days": 178.88543981481482, "coverage_pct": 98.83341580267825, "earliest": "2026-02-01", "latest": "2026-07-31", "intervals": [["2026-02-01 00:01:01", "2026-07-31 23:56:35"]], "page": "./IMAP_CODICE_L2_HI-DIRECT-EVENTS.html"}, {"name": "IMAP_CODICE_L2_HI-OMNI", "instrument": "CODICE", "product": "HI-OMNI", "cdf_count": 181, "active_days": 179.26321759259258, "coverage_pct": 99.04099636316293, "earliest": "2026-02-01", "latest": "2026-07-31", "intervals": [["2026-02-01 00:00:31", "2026-07-31 23:59:05"]], "page": "./IMAP_CODICE_L2_HI-OMNI.html"}, {"name": "IMAP_CODICE_L2_HI-SECTORED", "instrument": "CODICE", "product": "HI-SECTORED", "cdf_count": 181, "active_days": 178.88543981481482, "coverage_pct": 98.83341580267825, "earliest": "2026-02-01", "latest": "2026-07-31", "intervals": [["2026-02-01 00:01:01", "2026-07-31 23:56:35"]], "page": "./IMAP_CODICE_L2_HI-SECTORED.html"}, {"name": "IMAP_CODICE_L2_LO-DIRECT-EVENTS", "instrument": "CODICE", "product": "LO-DIRECT-EVENTS", "cdf_count": 181, "active_days": 178.88543981481482, "coverage_pct": 98.83341580267825, "earliest": "2026-02-01", "latest": "2026-07-31", "intervals": [["2026-02-01 00:01:01", "2026-07-31 23:56:35"]], "page": "./IMAP_CODICE_L2_LO-DIRECT-EVENTS.html"}, {"name": "IMAP_CODICE_L2_LO-SW-SPECIES", "instrument": "CODICE", "product": "LO-SW-SPECIES", "cdf_count": 181, "active_days": 178.8964814814815, "coverage_pct": 98.83951627476783, "earliest": "2026-02-01", "latest": "2026-07-31", "intervals": [["2026-02-01 00:01:01", "2026-07-31 23:56:35"]], "page": "./IMAP_CODICE_L2_LO-SW-SPECIES.html"}, {"name": "IMAP_CODICE_L3A_HI-DIRECT-EVENTS", "instrument": "CODICE", "product": "HI-DIRECT-EVENTS", "cdf_count": 181, "active_days": 178.88543981481482, "coverage_pct": 98.83341580267825, "earliest": "2026-02-01", "latest": "2026-07-31", "intervals": [["2026-02-01 00:01:01", "2026-07-31 23:56:35"]], "page": "./IMAP_CODICE_L3A_HI-DIRECT-EVENTS.html"}, {"name": "IMAP_CODICE_L3A_LO-DIRECT-EVENTS", "instrument": "CODICE", "product": "LO-DIRECT-EVENTS", "cdf_count": 181, "active_days": 178.88543981481482, "coverage_pct": 98.83341580267825, "earliest": "2026-02-01", "latest": "2026-07-31", "intervals": [["2026-02-01 00:01:01", "2026-07-31 23:56:35"]], "page": "./IMAP_CODICE_L3A_LO-DIRECT-EVENTS.html"}, {"name": "IMAP_CODICE_L3A_LO-PARTIAL-DENSITIES", "instrument": "CODICE", "product": "LO-PARTIAL-DENSITIES", "cdf_count": 181, "active_days": 178.8964814814815, "coverage_pct": 98.83951627476783, "earliest": "2026-02-01", "latest": "2026-07-31", "intervals": [["2026-02-01 00:01:01", "2026-07-31 23:56:35"]], "page": "./IMAP_CODICE_L3A_LO-PARTIAL-DENSITIES.html"}, {"name": "IMAP_CODICE_L3A_LO-SW-CHARGE-STATE-DISTRIBUTIONS", "instrument": "CODICE", "product": "LO-SW-CHARGE-STATE-DISTRIBUTIONS", "cdf_count": 181, "active_days": 178.10469907407406, "coverage_pct": 98.40507416233444, "earliest": "2026-02-01", "latest": "2026-07-31", "intervals": [["2026-02-01 00:05:00", "2026-07-31 23:52:35"]], "page": "./IMAP_CODICE_L3A_LO-SW-CHARGE-STATE-DISTRIBUTIONS.html"}, {"name": "IMAP_CODICE_L3A_LO-SW-RATIOS", "instrument": "CODICE", "product": "LO-SW-RATIOS", "cdf_count": 181, "active_days": 178.10469907407406, "coverage_pct": 98.40507416233444, "earliest": "2026-02-01", "latest": "2026-07-31", "intervals": [["2026-02-01 00:05:00", "2026-07-31 23:52:35"]], "page": "./IMAP_CODICE_L3A_LO-SW-RATIOS.html"}, {"name": "IMAP_CODICE_L3B_HI-PITCH-ANGLE", "instrument": "CODICE", "product": "HI-PITCH-ANGLE", "cdf_count": 181, "active_days": 178.88543981481482, "coverage_pct": 98.83341580267825, "earliest": "2026-02-01", "latest": "2026-07-31", "intervals": [["2026-02-01 00:01:01", "2026-07-31 23:56:35"]], "page": "./IMAP_CODICE_L3B_HI-PITCH-ANGLE.html"}, {"name": "IMAP_CODICE_L3B_LO-HEPLUS-3D-DISTRIBUTION", "instrument": "CODICE", "product": "LO-HEPLUS-3D-DISTRIBUTION", "cdf_count": 181, "active_days": 178.88543981481482, "coverage_pct": 98.83341580267825, "earliest": "2026-02-01", "latest": "2026-07-31", "intervals": [["2026-02-01 00:01:01", "2026-07-31 23:56:35"]], "page": "./IMAP_CODICE_L3B_LO-HEPLUS-3D-DISTRIBUTION.html"}, {"name": "IMAP_CODICE_L3B_LO-HEPLUSPLUS-3D-DISTRIBUTION", "instrument": "CODICE", "product": "LO-HEPLUSPLUS-3D-DISTRIBUTION", "cdf_count": 181, "active_days": 178.88543981481482, "coverage_pct": 98.83341580267825, "earliest": "2026-02-01", "latest": "2026-07-31", "intervals": [["2026-02-01 00:01:01", "2026-07-31 23:56:35"]], "page": "./IMAP_CODICE_L3B_LO-HEPLUSPLUS-3D-DISTRIBUTION.html"}, {"name": "IMAP_CODICE_L3B_LO-HPLUS-3D-DISTRIBUTION", "instrument": "CODICE", "product": "LO-HPLUS-3D-DISTRIBUTION", "cdf_count": 181, "active_days": 178.88543981481482, "coverage_pct": 98.83341580267825, "earliest": "2026-02-01", "latest": "2026-07-31", "intervals": [["2026-02-01 00:01:01", "2026-07-31 23:56:35"]], "page": "./IMAP_CODICE_L3B_LO-HPLUS-3D-DISTRIBUTION.html"}, {"name": "IMAP_CODICE_L3B_LO-OPLUS6-3D-DISTRIBUTION", "instrument": "CODICE", "product": "LO-OPLUS6-3D-DISTRIBUTION", "cdf_count": 181, "active_days": 178.88543981481482, "coverage_pct": 98.83341580267825, "earliest": "2026-02-01", "latest": "2026-07-31", "intervals": [["2026-02-01 00:01:01", "2026-07-31 23:56:35"]], "page": "./IMAP_CODICE_L3B_LO-OPLUS6-3D-DISTRIBUTION.html"}, {"name": "IMAP_GLOWS_L3D_SOLAR-HIST", "instrument": "GLOWS", "product": "SOLAR-HIST", "cdf_count": 1, "active_days": 28993.643900462965, "coverage_pct": 100.0, "earliest": "1947-03-03", "latest": "2026-07-19", "intervals": [["1947-03-03 07:35:32", "2026-07-19 23:02:45"]], "page": "./IMAP_GLOWS_L3D_SOLAR-HIST.html"}, {"name": "IMAP_HELIO1HR_POSITION", "instrument": "HELIO1HR", "product": "HELIO1HR", "cdf_count": 1, "active_days": 409.9583333333333, "coverage_pct": 100.0, "earliest": "2025-09-25", "latest": "2026-11-08", "intervals": [["2025-09-25 00:00:00", "2026-11-08 23:00:00"]], "page": "./IMAP_HELIO1HR_POSITION.html"}, {"name": "IMAP_HIT_L2_MACROPIXEL-INTENSITY", "instrument": "HIT", "product": "MACROPIXEL-INTENSITY", "cdf_count": 73, "active_days": 71.65270833333334, "coverage_pct": 96.83716268152293, "earliest": "2026-05-18", "latest": "2026-07-31", "intervals": [["2026-05-18 23:57:11", "2026-07-31 23:47:05"]], "page": "./IMAP_HIT_L2_MACROPIXEL-INTENSITY.html"}, {"name": "IMAP_HIT_L2_STANDARD-INTENSITY", "instrument": "HIT", "product": "STANDARD-INTENSITY", "cdf_count": 181, "active_days": 179.83378472222222, "coverage_pct": 99.42476528926446, "earliest": "2026-02-01", "latest": "2026-07-31", "intervals": [["2026-02-01 03:00:41", "2026-07-31 23:59:35"]], "page": "./IMAP_HIT_L2_STANDARD-INTENSITY.html"}, {"name": "IMAP_HIT_L2_SUMMED-INTENSITY", "instrument": "HIT", "product": "SUMMED-INTENSITY", "cdf_count": 181, "active_days": 179.83378472222222, "coverage_pct": 99.42476528926446, "earliest": "2026-02-01", "latest": "2026-07-31", "intervals": [["2026-02-01 03:00:41", "2026-07-31 23:59:35"]], "page": "./IMAP_HIT_L2_SUMMED-INTENSITY.html"}, {"name": "IMAP_HIT_L3_MACROPIXEL", "instrument": "HIT", "product": "MACROPIXEL", "cdf_count": 73, "active_days": 71.65270833333334, "coverage_pct": 96.83716268152293, "earliest": "2026-05-18", "latest": "2026-07-31", "intervals": [["2026-05-18 23:57:11", "2026-07-31 23:47:05"]], "page": "./IMAP_HIT_L3_MACROPIXEL.html"}, {"name": "IMAP_IALIRT_L1_REALTIME", "instrument": "IALIRT", "product": "REALTIME", "cdf_count": 275, "active_days": 193.98596064814814, "coverage_pct": 69.30942158363823, "earliest": "2026-02-01", "latest": "2026-11-07", "intervals": [["2026-02-01 00:00:00", "2026-03-04 17:17:18"], ["2026-03-06 06:21:19", "2026-05-11 17:23:16"], ["2026-05-13 15:52:59", "2026-07-10 18:18:43"], ["2026-07-14 04:15:51", "2026-09-21 17:14:09"], ["2026-09-22 21:15:42", "2026-11-07 21:12:55"]], "page": "./IMAP_IALIRT_L1_REALTIME.html"}, {"name": "IMAP_IDEX_L2A_SCI-10DAYS", "instrument": "IDEX", "product": "SCI-10DAYS", "cdf_count": 18, "active_days": 159.54766203703704, "coverage_pct": 88.92389385371936, "earliest": "2026-02-09", "latest": "2026-08-07", "intervals": [["2026-02-09 13:51:45", "2026-02-27 07:38:06"], ["2026-03-01 00:59:37", "2026-03-09 21:09:02"], ["2026-03-11 00:01:48", "2026-03-19 11:44:59"], ["2026-03-21 03:32:18", "2026-03-29 20:18:24"], ["2026-03-31 08:07:01", "2026-04-08 10:45:28"], ["2026-04-10 18:49:58", "2026-04-28 21:06:38"], ["2026-04-30 15:58:08", "2026-05-08 19:24:53"], ["2026-05-10 01:57:15", "2026-06-28 03:53:29"], ["2026-06-29 19:54:48", "2026-07-17 11:26:15"], ["2026-07-20 08:24:02", "2026-08-07 23:57:13"]], "page": "./IMAP_IDEX_L2A_SCI-10DAYS.html"}, {"name": "IMAP_MAG_L2_BURST-DSRF", "instrument": "MAG", "product": "BURST-DSRF", "cdf_count": 272, "active_days": 270.32064814814817, "coverage_pct": 99.01855663319752, "earliest": "2025-11-01", "latest": "2026-07-31", "intervals": [["2025-11-01 00:00:00", "2026-07-31 23:59:59"]], "page": "./IMAP_MAG_L2_BURST-DSRF.html"}, {"name": "IMAP_MAG_L2_BURST-GSE", "instrument": "MAG", "product": "BURST-GSE", "cdf_count": 272, "active_days": 270.32064814814817, "coverage_pct": 99.01855663319752, "earliest": "2025-11-01", "latest": "2026-07-31", "intervals": [["2025-11-01 00:00:00", "2026-07-31 23:59:59"]], "page": "./IMAP_MAG_L2_BURST-GSE.html"}, {"name": "IMAP_MAG_L2_BURST-GSM", "instrument": "MAG", "product": "BURST-GSM", "cdf_count": 272, "active_days": 270.32064814814817, "coverage_pct": 99.01855663319752, "earliest": "2025-11-01", "latest": "2026-07-31", "intervals": [["2025-11-01 00:00:00", "2026-07-31 23:59:59"]], "page": "./IMAP_MAG_L2_BURST-GSM.html"}, {"name": "IMAP_MAG_L2_BURST-RTN", "instrument": "MAG", "product": "BURST-RTN", "cdf_count": 272, "active_days": 270.32064814814817, "coverage_pct": 99.01855663319752, "earliest": "2025-11-01", "latest": "2026-07-31", "intervals": [["2025-11-01 00:00:00", "2026-07-31 23:59:59"]], "page": "./IMAP_MAG_L2_BURST-RTN.html"}, {"name": "IMAP_MAG_L2_BURST-SRF", "instrument": "MAG", "product": "BURST-SRF", "cdf_count": 272, "active_days": 270.32064814814817, "coverage_pct": 99.01855663319752, "earliest": "2025-11-01", "latest": "2026-07-31", "intervals": [["2025-11-01 00:00:00", "2026-07-31 23:59:59"]], "page": "./IMAP_MAG_L2_BURST-SRF.html"}, {"name": "IMAP_MAG_L2_NORM-DSRF", "instrument": "MAG", "product": "NORM-DSRF", "cdf_count": 272, "active_days": 271.2824189814815, "coverage_pct": 99.37085365668047, "earliest": "2025-11-01", "latest": "2026-07-31", "intervals": [["2025-11-01 00:00:00", "2026-07-31 23:59:59"]], "page": "./IMAP_MAG_L2_NORM-DSRF.html"}, {"name": "IMAP_MAG_L2_NORM-GSE", "instrument": "MAG", "product": "NORM-GSE", "cdf_count": 272, "active_days": 271.2824189814815, "coverage_pct": 99.37085365668047, "earliest": "2025-11-01", "latest": "2026-07-31", "intervals": [["2025-11-01 00:00:00", "2026-07-31 23:59:59"]], "page": "./IMAP_MAG_L2_NORM-GSE.html"}, {"name": "IMAP_MAG_L2_NORM-GSM", "instrument": "MAG", "product": "NORM-GSM", "cdf_count": 272, "active_days": 271.2824189814815, "coverage_pct": 99.37085365668047, "earliest": "2025-11-01", "latest": "2026-07-31", "intervals": [["2025-11-01 00:00:00", "2026-07-31 23:59:59"]], "page": "./IMAP_MAG_L2_NORM-GSM.html"}, {"name": "IMAP_MAG_L2_NORM-RTN", "instrument": "MAG", "product": "NORM-RTN", "cdf_count": 272, "active_days": 271.2824189814815, "coverage_pct": 99.37085365668047, "earliest": "2025-11-01", "latest": "2026-07-31", "intervals": [["2025-11-01 00:00:00", "2026-07-31 23:59:59"]], "page": "./IMAP_MAG_L2_NORM-RTN.html"}, {"name": "IMAP_MAG_L2_NORM-SRF", "instrument": "MAG", "product": "NORM-SRF", "cdf_count": 272, "active_days": 271.2824189814815, "coverage_pct": 99.37085365668047, "earliest": "2025-11-01", "latest": "2026-07-31", "intervals": [["2025-11-01 00:00:00", "2026-07-31 23:59:59"]], "page": "./IMAP_MAG_L2_NORM-SRF.html"}, {"name": "IMAP_OR_SSC", "instrument": "EPHEMERIS", "product": "EPHEMERIS", "cdf_count": 2, "active_days": 269.49861111111113, "coverage_pct": 100.0, "earliest": "2025-09-25", "latest": "2026-06-21", "intervals": [["2025-09-25 12:01:30", "2026-06-21 23:59:30"]], "page": "./IMAP_OR_SSC.html"}, {"name": "IMAP_SWAPI_L2_SCI", "instrument": "SWAPI", "product": "SCI", "cdf_count": 260, "active_days": 256.5539351851852, "coverage_pct": 96.70225025756717, "earliest": "2025-11-08", "latest": "2026-07-31", "intervals": [["2025-11-08 16:43:39", "2026-01-05 01:30:10"], ["2026-01-12 22:04:34", "2026-07-31 23:59:55"]], "page": "./IMAP_SWAPI_L2_SCI.html"}, {"name": "IMAP_SWAPI_L3A_ALPHA-SW", "instrument": "SWAPI", "product": "ALPHA-SW", "cdf_count": 260, "active_days": 256.05268518518517, "coverage_pct": 96.5135174186271, "earliest": "2025-11-08", "latest": "2026-07-31", "intervals": [["2025-11-08 16:44:03", "2026-01-05 01:29:34"], ["2026-01-12 22:04:58", "2026-07-31 23:59:31"]], "page": "./IMAP_SWAPI_L3A_ALPHA-SW.html"}, {"name": "IMAP_SWAPI_L3A_PROTON-SW", "instrument": "SWAPI", "product": "PROTON-SW", "cdf_count": 260, "active_days": 256.05268518518517, "coverage_pct": 96.5135174186271, "earliest": "2025-11-08", "latest": "2026-07-31", "intervals": [["2025-11-08 16:44:03", "2026-01-05 01:29:34"], ["2026-01-12 22:04:58", "2026-07-31 23:59:31"]], "page": "./IMAP_SWAPI_L3A_PROTON-SW.html"}, {"name": "IMAP_SWAPI_L3A_PUI-HE", "instrument": "SWAPI", "product": "PUI-HE", "cdf_count": 260, "active_days": 254.37351851851852, "coverage_pct": 95.88285069952396, "earliest": "2025-11-08", "latest": "2026-07-31", "intervals": [["2025-11-08 16:48:33", "2026-01-05 01:25:04"], ["2026-01-12 22:09:28", "2026-07-31 23:55:01"]], "page": "./IMAP_SWAPI_L3A_PUI-HE.html"}, {"name": "IMAP_SWAPI_L3B_COMBINED", "instrument": "SWAPI", "product": "COMBINED", "cdf_count": 260, "active_days": 254.37351851851852, "coverage_pct": 95.88285069952396, "earliest": "2025-11-08", "latest": "2026-07-31", "intervals": [["2025-11-08 16:48:33", "2026-01-05 01:25:04"], ["2026-01-12 22:09:28", "2026-07-31 23:55:01"]], "page": "./IMAP_SWAPI_L3B_COMBINED.html"}, {"name": "IMAP_SWE_L2_SCI", "instrument": "SWE", "product": "SCI", "cdf_count": 277, "active_days": 273.8555671296296, "coverage_pct": 96.6340278850701, "earliest": "2025-10-21", "latest": "2026-07-31", "intervals": [["2025-10-21 14:31:02", "2026-01-04 23:57:52"], ["2026-01-12 22:01:29", "2026-07-31 23:59:11"]], "page": "./IMAP_SWE_L2_SCI.html"}, {"name": "IMAP_SWE_L3_SCI", "instrument": "SWE", "product": "SCI", "cdf_count": 259, "active_days": 256.4606712962963, "coverage_pct": 96.41391205519709, "earliest": "2025-11-07", "latest": "2026-07-31", "intervals": [["2025-11-07 23:59:41", "2026-01-04 23:57:52"], ["2026-01-12 22:01:29", "2026-07-31 23:59:11"]], "page": "./IMAP_SWE_L3_SCI.html"}];
+
+    function parseDateMs(str) {
+      if (!str) return NaN;
+      const s = str.trim();
+      const iso = s.replace(/\//g, '-').replace(' ', 'T') + 'Z';
+      const ms = Date.parse(iso);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function enableSortableTable(tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      table.querySelectorAll('th.sortable').forEach((header, columnIndex) => {
+        header.tabIndex = 0;
+        header.setAttribute('role', 'button');
+        header.setAttribute('aria-sort', 'none');
+        const sortColumn = () => {
+          const ascending = header.getAttribute('aria-sort') !== 'ascending';
+          table.querySelectorAll('th.sortable').forEach(th => th.setAttribute('aria-sort', 'none'));
+          header.setAttribute('aria-sort', ascending ? 'ascending' : 'descending');
+          const rows = Array.from(table.tBodies[0].rows);
+          const type = header.getAttribute('data-sort-type');
+          rows.sort((left, right) => {
+            const a = left.cells[columnIndex].textContent.trim();
+            const b = right.cells[columnIndex].textContent.trim();
+            let comparison;
+            if (type === 'number') comparison = Number(a.replace(/[^0-9.-]/g, '')) - Number(b.replace(/[^0-9.-]/g, ''));
+            else if (type === 'date') comparison = parseDateMs(a.split('→')[0].trim()) - parseDateMs(b.split('→')[0].trim());
+            else comparison = a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+            return ascending ? comparison : -comparison;
+          });
+          rows.forEach(row => table.tBodies[0].appendChild(row));
+        };
+        header.addEventListener('click', sortColumn);
+        header.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); sortColumn(); }
+        });
+      });
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+      const newTheme = isDark ? 'light' : 'dark';
+      document.body.className = newTheme;
+      localStorage.setItem('cdaweb_theme', newTheme);
+      document.getElementById('theme-toggle').textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      updateView();
+    }
+
+    function toggleChartDisplay(show) {
+      const chartCard = document.getElementById('chart-card-container');
+      if (chartCard) {
+        chartCard.style.display = show ? 'block' : 'none';
+      }
+      if (show) {
+        updateView();
+        setTimeout(() => {
+          const plotDiv = document.getElementById('timeline-chart');
+          if (plotDiv) {
+            Plotly.Plots.resize(plotDiv);
+          }
+        }, 50);
+      }
+    }
+
+    function resetAllSelections() {
+      document.querySelectorAll('.dset-checkbox').forEach(cb => {
+        cb.checked = true;
+      });
+      const masterCb = document.getElementById('master-cb');
+      if (masterCb) masterCb.checked = true;
+      updateView();
+    }
+
+    function presetRange(type) {
+      document.querySelectorAll('.btn-preset').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-preset') === type);
+      });
+      if (type === 'all') {
+        if (window._globalMinTimeMs) {
+          document.getElementById('filter-start').value = formatAxisDate(window._globalMinTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-start').value = '';
+        }
+        if (window._globalMaxTimeMs) {
+          document.getElementById('filter-stop').value = formatAxisDate(window._globalMaxTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-stop').value = '';
+        }
+        updateView();
+        return;
+      }
+      const now = new Date();
+      const endStr = now.toISOString().split('T')[0];
+      let startStr = '';
+      if (type === '1y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 1);
+        startStr = d.toISOString().split('T')[0];
+      } else if (type === '5y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 5);
+        startStr = d.toISOString().split('T')[0];
+      }
+      document.getElementById('filter-start').value = startStr;
+      document.getElementById('filter-stop').value = endStr;
+      updateView();
+    }
+
+    function clearPresetHighlight() {
+      document.querySelectorAll('.btn-preset').forEach(btn => btn.classList.remove('active'));
+    }
+
+    function updateView() {
+      const showChart = document.getElementById('toggle-chart-cb')?.checked;
+      if (!showChart) {
+        return;
+      }
+
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const checkedBoxes = Array.from(document.querySelectorAll('.dset-checkbox:checked'));
+      const selectedNames = new Set(checkedBoxes.map(cb => cb.value));
+      const startFilter = document.getElementById('filter-start').value;
+      const stopFilter = document.getElementById('filter-stop').value;
+      const startFilterMs = startFilter ? parseDateMs(startFilter) : null;
+      const stopFilterMs = stopFilter ? parseDateMs(stopFilter + ' 23:59:59') : null;
+
+      const isLight = document.body.classList.contains('light');
+      const paperBg = isLight ? '#ffffff' : '#1e293b';
+      const plotBg = isLight ? '#f8fafc' : '#0f172a';
+      const textColor = isLight ? '#0f172a' : '#f8fafc';
+      const gridColor = isLight ? '#e2e8f0' : '#334155';
+
+      const timelineData = { y: [], x: [], base: [], colors: [], hovertext: [] };
+      const colors = ['#0284c7', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6'];
+
+      const activeDatasets = [];
+      allDatasets.forEach(d => {
+        if (instFilter && d.instrument !== instFilter) return;
+        if (query && !d.name.toLowerCase().includes(query) && !d.instrument.toLowerCase().includes(query) && !d.product.toLowerCase().includes(query)) return;
+        if (!selectedNames.has(d.name)) return;
+
+        const validIntervals = [];
+        d.intervals.forEach(inv => {
+          const s = inv[0];
+          const e = inv[1];
+          const sTime = parseDateMs(s);
+          const eTime = parseDateMs(e);
+          if (isNaN(sTime) || isNaN(eTime)) return;
+
+          if (startFilterMs && eTime < startFilterMs) return;
+          if (stopFilterMs && sTime > stopFilterMs) return;
+
+          const sClamped = startFilterMs ? Math.max(sTime, startFilterMs) : sTime;
+          const eClamped = stopFilterMs ? Math.min(eTime, stopFilterMs) : eTime;
+          if (eClamped <= sClamped) return;
+
+          validIntervals.push({ s, e, sClamped, eClamped });
+        });
+
+        if (validIntervals.length > 0) {
+          activeDatasets.push({ d, validIntervals });
+        }
+      });
+
+      const activeNames = activeDatasets.map(item => item.d.name);
+      activeDatasets.forEach((item, idx) => {
+        const color = colors[idx % colors.length];
+        const d = item.d;
+        item.validIntervals.forEach(inv => {
+          const durMs = Math.max(86400000, inv.eClamped - inv.sClamped);
+          timelineData.y.push(d.name);
+          timelineData.x.push(durMs);
+          timelineData.base.push(new Date(inv.sClamped).toISOString());
+          timelineData.colors.push(color);
+          timelineData.hovertext.push(`<b>${d.name}</b><br>${d.instrument} • ${d.product}<br>From: ${inv.s}<br>To: ${inv.e}<br><i>Click to unselect • Ctrl+Click to open full page</i>`);
+        });
+      });
+
+      const traces = timelineData.y.length ? [{
+        type: 'bar',
+        orientation: 'h',
+        y: timelineData.y,
+        x: timelineData.x,
+        base: timelineData.base,
+        marker: { color: timelineData.colors, line: { width: 0 } },
+        hoverinfo: 'text',
+        hovertext: timelineData.hovertext,
+        showlegend: false
+      }] : [];
+
+      const count = activeNames.length;
+      const barGap = count === 1 ? 0.75 : (count === 2 ? 0.6 : (count <= 4 ? 0.45 : 0.25));
+      const barWidth = count === 1 ? 0.32 : (count === 2 ? 0.45 : (count <= 4 ? 0.6 : 0.75));
+      traces.forEach(t => { t.width = barWidth; });
+      const plotHeight = count === 1 ? 140 : (count === 2 ? 180 : Math.max(220, count * 32 + 80));
+
+      const plotDiv = document.getElementById('timeline-chart');
+      plotDiv.style.height = plotHeight + 'px';
+      plotDiv.style.minHeight = plotHeight + 'px';
+
+      const xAxisConfig = {
+        type: 'date',
+        side: 'bottom',
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      // Determine if "All Time" preset is active
+      const allTimeBtn = document.querySelector('.btn-preset[data-preset="all"]');
+      const isAllTime = Boolean(allTimeBtn && allTimeBtn.classList.contains('active'));
+
+      // Calculate data bounds for currently selected/plotted items
+      let plottedMinMs = Infinity;
+      let plottedMaxMs = -Infinity;
+      for (let i = 0; i < timelineData.base.length; i++) {
+        const s = parseAxisTimeMs(timelineData.base[i]);
+        const dur = Number(timelineData.x[i]) || 0;
+        if (Number.isFinite(s)) {
+          if (s < plottedMinMs) plottedMinMs = s;
+          if ((s + dur) > plottedMaxMs) plottedMaxMs = s + dur;
+        }
+      }
+      const hasPlottedData = Number.isFinite(plottedMinMs) && Number.isFinite(plottedMaxMs) && plottedMaxMs >= plottedMinMs;
+
+      if (isAllTime && hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (startFilter && stopFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', stopFilter + ' 23:59:59'];
+        xAxisConfig.autorange = false;
+      } else if (startFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', formatAxisDate(window._globalMaxTimeMs || Date.now())];
+        xAxisConfig.autorange = false;
+      } else if (hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        xAxisConfig.range = [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)];
+        xAxisConfig.autorange = false;
+      } else {
+        xAxisConfig.autorange = true;
+      }
+
+      const xAxis2Config = {
+        type: 'date',
+        overlaying: 'x',
+        side: 'top',
+        matches: 'x',
+        showgrid: false,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      const yAxisConfig = {
+        type: 'category',
+        categoryorder: 'array',
+        categoryarray: activeNames.slice().reverse(),
+        automargin: true,
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor },
+        fixedrange: true,
+        autorange: true
+      };
+
+      const layout = {
+        height: plotHeight,
+        paper_bgcolor: paperBg,
+        plot_bgcolor: plotBg,
+        font: { color: textColor, size: 11 },
+        margin: { l: 180, r: 30, t: 35, b: 40 },
+        xaxis: xAxisConfig,
+        xaxis2: xAxis2Config,
+        yaxis: yAxisConfig,
+        barmode: 'overlay',
+        bargap: barGap,
+        bargroupgap: 0.1,
+        annotations: count === 0 ? [{
+          text: checkedBoxes.length > 0
+            ? 'No data available for the selected datasets in this date range'
+            : 'Select one or more datasets to view timeline',
+          showarrow: false,
+          font: { size: 13, color: textColor }
+        }] : []
+      };
+
+      Plotly.newPlot('timeline-chart', traces, layout, { responsive: true, displayModeBar: true, displaylogo: false }).then(() => {
+        updatePanButtons('timeline-chart');
+      });
+
+      plotDiv.on('plotly_relayout', function() {
+        updatePanButtons('timeline-chart');
+      });
+
+      // Attach click events on chart points and y-axis ticks
+      plotDiv.on('plotly_click', function(data) {
+        if (!data.points || data.points.length === 0) return;
+        const name = data.points[0].y;
+        const isCtrl = data.event && (data.event.ctrlKey || data.event.metaKey);
+        handleRowClick(name, isCtrl);
+      });
+
+      plotDiv.querySelectorAll('.ytick text').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.style.userSelect = 'none';
+        el.title = 'Click to unselect • Ctrl+Click to open full page';
+        el.onclick = function(e) {
+          e.stopPropagation();
+          const isCtrl = e.ctrlKey || e.metaKey;
+          handleRowClick(el.textContent.trim(), isCtrl);
+        };
+      });
+    }
+
+    function handleRowClick(name, isCtrl) {
+      const d = allDatasets.find(item => item.name === name);
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (isCtrl && d && d.page) {
+        window.open(d.page + q, '_blank');
+        return;
+      }
+      const cb = document.querySelector(`.dset-checkbox[value="${name}"]`);
+      if (cb) {
+        cb.checked = !cb.checked;
+        updateView();
+      }
+    }
+
+    function filterTable() {
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+
+      rows.forEach(r => {
+        const name = (r.getAttribute('data-name') || '').toLowerCase();
+        const inst = r.getAttribute('data-inst') || '';
+        const matchQ = !query || name.includes(query);
+        const matchInst = !instFilter || inst === instFilter;
+        r.style.display = (matchQ && matchInst) ? '' : 'none';
+      });
+
+      updateView();
+      propagateQueryToLinks();
+    }
+
+    function selectAll(state) {
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+      rows.forEach(r => {
+        if (r.style.display !== 'none') {
+          const cb = r.querySelector('.dset-checkbox');
+          if (cb) cb.checked = state;
+        }
+      });
+      document.getElementById('master-cb').checked = state;
+      updateView();
+    }
+
+    function toggleAllCheckboxes(state) {
+      selectAll(state);
+    }
+
+    function parseAxisTimeMs(val) {
+      if (val == null) return NaN;
+      if (typeof val === 'number') return val;
+      if (val instanceof Date) return val.getTime();
+      const s = String(val).trim();
+      if (!s) return NaN;
+      if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+      const iso = s.replace(/\//g, '-').replace(' ', 'T');
+      const isoUtc = (iso.includes('Z') || iso.includes('+')) ? iso : iso + 'Z';
+      let ms = Date.parse(isoUtc);
+      if (!isNaN(ms)) return ms;
+      ms = Date.parse(s);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function formatAxisDate(ms) {
+      const d = new Date(ms);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString();
+    }
+
+    function panTimelineWindow(divId, direction) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv || !plotDiv._fullLayout || !plotDiv._fullLayout.xaxis) return;
+      const rng = plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2) return;
+
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+
+      const span = t1 - t0;
+      if (span <= 0) return;
+
+      const newT0 = t0 + (direction * span);
+      const newT1 = t1 + (direction * span);
+
+      Plotly.relayout(plotDiv, {
+        'xaxis.range': [formatAxisDate(newT0), formatAxisDate(newT1)],
+        'xaxis.autorange': false
+      }).then(() => {
+        updatePanButtons(divId);
+      });
+    }
+
+    function resetTimelineZoom(divId) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        Plotly.relayout(plotDiv, {
+          'xaxis.range': [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)],
+          'xaxis.autorange': false
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      } else {
+        Plotly.relayout(plotDiv, {
+          'xaxis.autorange': true
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      }
+    }
+
+    window._globalMinTimeMs = -720548668000;
+    window._globalMaxTimeMs = 1794178800000;
+
+    function exportPlotAsPng(divId, filename) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      Plotly.downloadImage(plotDiv, {
+        format: 'png',
+        width: 1400,
+        height: Math.max(500, plotDiv.offsetHeight || 500),
+        filename: filename || 'plot.png'
+      });
+    }
+
+    function updatePanButtons(divId) {
+      const plotDiv = document.getElementById(divId);
+      const prevBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', -1)"]`);
+      const nextBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', 1)"]`);
+      if (!plotDiv || !prevBtn || !nextBtn) return;
+      const rng = plotDiv._fullLayout && plotDiv._fullLayout.xaxis && plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2 || !window._globalMinTimeMs || !window._globalMaxTimeMs) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+      const fullSpan = window._globalMaxTimeMs - window._globalMinTimeMs;
+      const currentSpan = t1 - t0;
+      if (currentSpan >= fullSpan - 60000) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      const canPrev = t0 > (window._globalMinTimeMs + 60000);
+      const canNext = t1 < (window._globalMaxTimeMs - 60000);
+      prevBtn.disabled = !canPrev;
+      nextBtn.disabled = !canNext;
+      prevBtn.classList.toggle('disabled', !canPrev);
+      nextBtn.classList.toggle('disabled', !canNext);
+    }
+
+    // Theme initialization
+    const savedTheme = localStorage.getItem('cdaweb_theme') || 'dark';
+    document.body.className = savedTheme;
+    document.getElementById('theme-toggle').textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+    // Propagate URL query params (such as ?view for updog) to relative navigation links
+    function propagateQueryToLinks() {
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (q) {
+        document.querySelectorAll('a[href]').forEach(a => {
+          const href = a.getAttribute('href');
+          if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto:') && !href.includes('?')) {
+            a.setAttribute('href', href + q);
+          }
+        });
+      }
+    }
+
+    // Ensure timeline checkbox is unchecked by default and container is hidden
+    const chartCb = document.getElementById('toggle-chart-cb');
+    if (chartCb) {
+      chartCb.checked = false;
+    }
+    const chartCard = document.getElementById('chart-card-container');
+    if (chartCard) {
+      chartCard.style.display = 'none';
+    }
+
+    enableSortableTable('datasets-table');
+
+    // Initial render
+    updateView();
+    propagateQueryToLinks();
+  </script>
+  <footer class="page-footer">This page was last updated on: 2026-11-17 17:21:02 UTC. For any questions or comments, please contact SPDF support at: <a href="mailto:NASA-SPDF-Support@nasa.gov">NASA-SPDF-Support@nasa.gov</a></footer>
+</body>
+</html>

@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRACERS Inventory Index - CDAWeb</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root, body.dark {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #0284c7;
+      --accent-light: #38bdf8;
+      --success: #10b981;
+      --plot-paper: #1e293b;
+      --plot-bg: #0f172a;
+      --plot-grid: #334155;
+    }
+    body.light {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --accent: #0284c7;
+      --accent-light: #0369a1;
+      --success: #16a34a;
+      --plot-paper: #ffffff;
+      --plot-bg: #f8fafc;
+      --plot-grid: #e2e8f0;
+    }
+    body {
+      margin: 0;
+      padding: 24px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    input[type="date"] {
+      color-scheme: dark;
+    }
+    body.light input[type="date"] {
+      color-scheme: light;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .page-footer { margin: 20px 0 0; color: var(--text-muted); font-size: 12px; text-align: center; }
+    .page-footer a { color: var(--accent-light); }
+    .breadcrumbs { font-size: 14px; margin-bottom: 0; color: var(--text-muted); }
+    .breadcrumbs a { color: var(--accent-light); text-decoration: none; }
+    .breadcrumbs a:hover { text-decoration: underline; }
+    .btn-theme {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-theme:hover { opacity: 0.9; }
+    h1 { margin: 0 0 6px 0; font-size: 28px; }
+    .subtitle { color: var(--text-muted); font-size: 15px; margin: 0 0 20px 0; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .kpi-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 20px; font-weight: 700; color: var(--text); }
+    .controls-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    input[type="text"], input[type="date"], select {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: 13px;
+    }
+    button, .btn-sm {
+      background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block;
+    }
+    button.btn-secondary { background: var(--border); color: var(--text); }
+    button:hover, .btn-sm:hover { opacity: 0.9; }
+    .chart-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th { padding: 10px 12px; background: rgba(125,125,125,0.06); color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .progress-bar { width: 70px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; display: inline-block; }
+    .progress-bar .fill { height: 100%; background: var(--success); }
+    .badge-sm { display: inline-block; padding: 2px 8px; background: rgba(56, 189, 248, 0.15); color: var(--accent-light); border-radius: 4px; font-size: 11px; }
+    .chart-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .pan-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(125,125,125,0.08);
+      padding: 3px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .btn-pan {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-pan:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .btn-pan:disabled, .btn-pan.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .btn-preset {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .btn-preset:hover {
+      opacity: 0.9;
+      color: var(--text);
+    }
+    .btn-preset.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      font-weight: 700;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+    }
+    .xtick text, .ytick text {
+      fill: var(--text) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+      <div class="breadcrumbs">
+        <a href="../inventory_index.html">CDAWeb Inventory</a> &gt;
+        <span>TRACERS Index</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="../TRACERS_Inventory.png" target="_blank" class="btn-theme"> View TRACERS PNG</a>
+        <button class="btn-theme" onclick="exportPlotAsPng('timeline-chart', 'TRACERS_timeline.png')"> Download Plot PNG</button>
+        <button id="theme-toggle" class="btn-theme" onclick="toggleTheme()">☀️ Light Mode</button>
+      </div>
+    </div>
+    <h1>TRACERS Mission Data Inventory</h1>
+    <p class="subtitle">Complete catalog of holdings and availability for TRACERS spacecraft</p>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Datasets</div>
+        <div class="kpi-value">18</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Instruments</div>
+        <div class="kpi-value">2</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total CDF Files</div>
+        <div class="kpi-value">4,714</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Mission Span</div>
+        <div class="kpi-value" style="font-size: 14px;">2025-08-04 &rarr; 2026-10-16</div>
+      </div>
+    </div>
+
+    <div class="controls-card">
+      <input type="text" id="search-box" placeholder="Search datasets..." oninput="filterTable()">
+      <select id="instrument-filter" onchange="filterTable()">
+        <option value="">All Instruments (2)</option>
+        <option value='TRACERS1'>TRACERS1</option><option value='TRACERS2'>TRACERS2</option>
+      </select>
+      <button class="btn-secondary" onclick="selectAll(true)">Select All</button>
+      <button class="btn-secondary" onclick="selectAll(false)">Clear All</button>
+      <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; font-size: 13px; font-weight: 600; padding: 4px 10px; background: rgba(125,125,125,0.08); border-radius: 6px; border: 1px solid var(--border);">
+        <input type="checkbox" id="toggle-chart-cb" autocomplete="off" onchange="toggleChartDisplay(this.checked)">
+        <span> Show Timeline Graph</span>
+      </label>
+      <div style="margin-left: auto; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+        <span style="font-size: 13px; color: var(--text-muted);">Date Range:</span>
+        <input type="date" id="filter-start" value="2025-08-04" oninput="clearPresetHighlight()">
+        <span style="color: var(--text-muted);">&rarr;</span>
+        <input type="date" id="filter-stop" value="2026-10-16" oninput="clearPresetHighlight()">
+        <button onclick="updateView()">Apply</button>
+        <button type="button" class="btn-preset" data-preset="1y" onclick="presetRange('1y')">1 Year</button>
+        <button type="button" class="btn-preset" data-preset="5y" onclick="presetRange('5y')">5 Years</button>
+        <button type="button" class="btn-preset active" data-preset="all" onclick="presetRange('all')">All Time</button>
+      </div>
+    </div>
+
+    <div class="chart-card" id="chart-card-container" style="display: none;">
+      <div class="chart-hint">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <span><strong>Availability Timeline (Selected Items)</strong></span>
+          <div class="pan-controls">
+            <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin: 0 4px;">Time Window:</span>
+            <button type="button" class="btn-pan disabled" disabled title="Pan backward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', -1)">◀ Prev Frame</button>
+            <button type="button" class="btn-pan" title="Reset zoom to full range" onclick="resetTimelineZoom('timeline-chart')">↺ Reset Zoom</button>
+            <button type="button" class="btn-pan disabled" disabled title="Pan forward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', 1)">Next Frame ▶</button>
+            <button type="button" class="btn-pan" title="Reselect all unselected items" onclick="resetAllSelections()">↺ Reset Selection</button>
+            <button type="button" class="btn-pan" title="Download timeline chart as PNG" onclick="exportPlotAsPng('timeline-chart', 'TRACERS_timeline.png')"> PNG</button>
+          </div>
+        </div>
+        <span>💡 Click row/label to unselect • Ctrl+Click to open full dataset page</span>
+      </div>
+      <div id="timeline-chart" style="min-height: 120px; width: 100%;"></div>
+    </div>
+
+    <div class="table-card">
+      <h3 style="margin: 0 0 12px 0;">Available Datasets</h3>
+      <table id="datasets-table">
+        <thead>
+          <tr>
+            <th style="width: 30px;"><input type="checkbox" id="master-cb" checked onchange="toggleAllCheckboxes(this.checked)"></th>
+            <th class="sortable" data-sort-type="text">Dataset ID</th>
+            <th class="sortable" data-sort-type="text">Instrument</th>
+            <th class="sortable" data-sort-type="text">Product</th>
+            <th class="sortable" data-sort-type="date">Time Coverage</th>
+            <th class="sortable" data-sort-type="number">CDF Count</th>
+            <th class="sortable" data-sort-type="number">Coverage</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="datasets-tbody">
+          
+        <tr data-inst="TRACERS1" data-name="TS1_L2_ACE_DEF">
+          <td><input type="checkbox" class="dset-checkbox" value="TS1_L2_ACE_DEF" checked onchange="updateView()"></td>
+          <td><a href="./TS1_L2_ACE_DEF.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">TS1_L2_ACE_DEF</a></td>
+          <td><span class="badge-sm">TRACERS1</span></td>
+          <td style="color: var(--text-muted);">DEF_DIFF-EN-FLUX</td>
+          <td>2025-09-28 &rarr; 2026-10-13</td>
+          <td>195</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 42.27138563646762%;"></div></div>
+              <span style="font-size: 11px;">42.27%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./TS1_L2_ACE_DEF.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TRACERS1" data-name="TS1_L2_ACI_IPD">
+          <td><input type="checkbox" class="dset-checkbox" value="TS1_L2_ACI_IPD" checked onchange="updateView()"></td>
+          <td><a href="./TS1_L2_ACI_IPD.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">TS1_L2_ACI_IPD</a></td>
+          <td><span class="badge-sm">TRACERS1</span></td>
+          <td style="color: var(--text-muted);">IPD_ION-DIST</td>
+          <td>2025-10-02 &rarr; 2025-12-31</td>
+          <td>39</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 15.44958247235394%;"></div></div>
+              <span style="font-size: 11px;">15.45%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./TS1_L2_ACI_IPD.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TRACERS1" data-name="TS1_L2_EFI_EAC">
+          <td><input type="checkbox" class="dset-checkbox" value="TS1_L2_EFI_EAC" checked onchange="updateView()"></td>
+          <td><a href="./TS1_L2_EFI_EAC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">TS1_L2_EFI_EAC</a></td>
+          <td><span class="badge-sm">TRACERS1</span></td>
+          <td style="color: var(--text-muted);">EAC</td>
+          <td>2025-09-26 &rarr; 2026-08-31</td>
+          <td>239</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 56.16529366406703%;"></div></div>
+              <span style="font-size: 11px;">56.17%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./TS1_L2_EFI_EAC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TRACERS1" data-name="TS1_L2_EFI_EHF">
+          <td><input type="checkbox" class="dset-checkbox" value="TS1_L2_EFI_EHF" checked onchange="updateView()"></td>
+          <td><a href="./TS1_L2_EFI_EHF.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">TS1_L2_EFI_EHF</a></td>
+          <td><span class="badge-sm">TRACERS1</span></td>
+          <td style="color: var(--text-muted);">HIGHFREQUENCY</td>
+          <td>2025-09-26 &rarr; 2026-10-14</td>
+          <td>279</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 58.16671954923839%;"></div></div>
+              <span style="font-size: 11px;">58.17%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./TS1_L2_EFI_EHF.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TRACERS1" data-name="TS1_L2_EFI_HSK">
+          <td><input type="checkbox" class="dset-checkbox" value="TS1_L2_EFI_HSK" checked onchange="updateView()"></td>
+          <td><a href="./TS1_L2_EFI_HSK.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">TS1_L2_EFI_HSK</a></td>
+          <td><span class="badge-sm">TRACERS1</span></td>
+          <td style="color: var(--text-muted);">HSK</td>
+          <td>2025-09-26 &rarr; 2026-10-14</td>
+          <td>283</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 60.08211681995793%;"></div></div>
+              <span style="font-size: 11px;">60.08%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./TS1_L2_EFI_HSK.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TRACERS1" data-name="TS1_L2_EFI_VDC">
+          <td><input type="checkbox" class="dset-checkbox" value="TS1_L2_EFI_VDC" checked onchange="updateView()"></td>
+          <td><a href="./TS1_L2_EFI_VDC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">TS1_L2_EFI_VDC</a></td>
+          <td><span class="badge-sm">TRACERS1</span></td>
+          <td style="color: var(--text-muted);">VDC</td>
+          <td>2025-09-26 &rarr; 2026-10-14</td>
+          <td>281</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 60.02053659946633%;"></div></div>
+              <span style="font-size: 11px;">60.02%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./TS1_L2_EFI_VDC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TRACERS1" data-name="TS1_L2_MSC_BAC">
+          <td><input type="checkbox" class="dset-checkbox" value="TS1_L2_MSC_BAC" checked onchange="updateView()"></td>
+          <td><a href="./TS1_L2_MSC_BAC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">TS1_L2_MSC_BAC</a></td>
+          <td><span class="badge-sm">TRACERS1</span></td>
+          <td style="color: var(--text-muted);">BAC</td>
+          <td>2025-09-26 &rarr; 2026-07-14</td>
+          <td>164</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 43.7795020410015%;"></div></div>
+              <span style="font-size: 11px;">43.78%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./TS1_L2_MSC_BAC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TRACERS1" data-name="TS1_L3_ACE_PITCH-ANGLE-DIST">
+          <td><input type="checkbox" class="dset-checkbox" value="TS1_L3_ACE_PITCH-ANGLE-DIST" checked onchange="updateView()"></td>
+          <td><a href="./TS1_L3_ACE_PITCH-ANGLE-DIST.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">TS1_L3_ACE_PITCH-ANGLE-DIST</a></td>
+          <td><span class="badge-sm">TRACERS1</span></td>
+          <td style="color: var(--text-muted);">DEF_PITCH-ANGLE-DIST</td>
+          <td>2026-03-25 &rarr; 2026-10-13</td>
+          <td>188</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 78.99774119127625%;"></div></div>
+              <span style="font-size: 11px;">79.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./TS1_L3_ACE_PITCH-ANGLE-DIST.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TRACERS2" data-name="TS2_L2_ACE_DEF">
+          <td><input type="checkbox" class="dset-checkbox" value="TS2_L2_ACE_DEF" checked onchange="updateView()"></td>
+          <td><a href="./TS2_L2_ACE_DEF.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">TS2_L2_ACE_DEF</a></td>
+          <td><span class="badge-sm">TRACERS2</span></td>
+          <td style="color: var(--text-muted);">DEF_DIFF-EN-FLUX</td>
+          <td>2025-08-13 &rarr; 2026-10-12</td>
+          <td>400</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 91.33031794790949%;"></div></div>
+              <span style="font-size: 11px;">91.33%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./TS2_L2_ACE_DEF.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TRACERS2" data-name="TS2_L2_ACI_IPD">
+          <td><input type="checkbox" class="dset-checkbox" value="TS2_L2_ACI_IPD" checked onchange="updateView()"></td>
+          <td><a href="./TS2_L2_ACI_IPD.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">TS2_L2_ACI_IPD</a></td>
+          <td><span class="badge-sm">TRACERS2</span></td>
+          <td style="color: var(--text-muted);">IPD_ION-DIST</td>
+          <td>2025-08-13 &rarr; 2026-02-27</td>
+          <td>174</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 82.51761323961979%;"></div></div>
+              <span style="font-size: 11px;">82.52%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./TS2_L2_ACI_IPD.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TRACERS2" data-name="TS2_L2_EFI_EAC">
+          <td><input type="checkbox" class="dset-checkbox" value="TS2_L2_EFI_EAC" checked onchange="updateView()"></td>
+          <td><a href="./TS2_L2_EFI_EAC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">TS2_L2_EFI_EAC</a></td>
+          <td><span class="badge-sm">TRACERS2</span></td>
+          <td style="color: var(--text-muted);">EAC</td>
+          <td>2025-08-04 &rarr; 2026-08-31</td>
+          <td>367</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 88.66105926388336%;"></div></div>
+              <span style="font-size: 11px;">88.66%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./TS2_L2_EFI_EAC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TRACERS2" data-name="TS2_L2_EFI_EHF">
+          <td><input type="checkbox" class="dset-checkbox" value="TS2_L2_EFI_EHF" checked onchange="updateView()"></td>
+          <td><a href="./TS2_L2_EFI_EHF.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">TS2_L2_EFI_EHF</a></td>
+          <td><span class="badge-sm">TRACERS2</span></td>
+          <td style="color: var(--text-muted);">HIGHFREQUENCY</td>
+          <td>2025-08-05 &rarr; 2026-10-16</td>
+          <td>412</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 88.10583244704645%;"></div></div>
+              <span style="font-size: 11px;">88.11%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./TS2_L2_EFI_EHF.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TRACERS2" data-name="TS2_L2_EFI_HSK">
+          <td><input type="checkbox" class="dset-checkbox" value="TS2_L2_EFI_HSK" checked onchange="updateView()"></td>
+          <td><a href="./TS2_L2_EFI_HSK.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">TS2_L2_EFI_HSK</a></td>
+          <td><span class="badge-sm">TRACERS2</span></td>
+          <td style="color: var(--text-muted);">HSK</td>
+          <td>2025-08-04 &rarr; 2026-10-16</td>
+          <td>414</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 91.34318366303032%;"></div></div>
+              <span style="font-size: 11px;">91.34%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./TS2_L2_EFI_HSK.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TRACERS2" data-name="TS2_L2_EFI_VDC">
+          <td><input type="checkbox" class="dset-checkbox" value="TS2_L2_EFI_VDC" checked onchange="updateView()"></td>
+          <td><a href="./TS2_L2_EFI_VDC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">TS2_L2_EFI_VDC</a></td>
+          <td><span class="badge-sm">TRACERS2</span></td>
+          <td style="color: var(--text-muted);">VDC</td>
+          <td>2025-08-05 &rarr; 2026-09-01</td>
+          <td>331</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 82.29636073012215%;"></div></div>
+              <span style="font-size: 11px;">82.30%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./TS2_L2_EFI_VDC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TRACERS2" data-name="TS2_L2_MAGIC_BDC-16SPS">
+          <td><input type="checkbox" class="dset-checkbox" value="TS2_L2_MAGIC_BDC-16SPS" checked onchange="updateView()"></td>
+          <td><a href="./TS2_L2_MAGIC_BDC-16SPS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">TS2_L2_MAGIC_BDC-16SPS</a></td>
+          <td><span class="badge-sm">TRACERS2</span></td>
+          <td style="color: var(--text-muted);">BDC-16SPS</td>
+          <td>2025-09-28 &rarr; 2026-04-05</td>
+          <td>123</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 63.10069604897806%;"></div></div>
+              <span style="font-size: 11px;">63.10%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./TS2_L2_MAGIC_BDC-16SPS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TRACERS2" data-name="TS2_L2_MAG_BDC-16SPS">
+          <td><input type="checkbox" class="dset-checkbox" value="TS2_L2_MAG_BDC-16SPS" checked onchange="updateView()"></td>
+          <td><a href="./TS2_L2_MAG_BDC-16SPS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">TS2_L2_MAG_BDC-16SPS</a></td>
+          <td><span class="badge-sm">TRACERS2</span></td>
+          <td style="color: var(--text-muted);">BDC-16SPS</td>
+          <td>2025-09-26 &rarr; 2026-06-03</td>
+          <td>149</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 53.10895982615449%;"></div></div>
+              <span style="font-size: 11px;">53.11%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./TS2_L2_MAG_BDC-16SPS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TRACERS2" data-name="TS2_L2_MSC_BAC">
+          <td><input type="checkbox" class="dset-checkbox" value="TS2_L2_MSC_BAC" checked onchange="updateView()"></td>
+          <td><a href="./TS2_L2_MSC_BAC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">TS2_L2_MSC_BAC</a></td>
+          <td><span class="badge-sm">TRACERS2</span></td>
+          <td style="color: var(--text-muted);">BAC</td>
+          <td>2025-08-04 &rarr; 2026-06-08</td>
+          <td>284</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 87.55756779325885%;"></div></div>
+              <span style="font-size: 11px;">87.56%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./TS2_L2_MSC_BAC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TRACERS2" data-name="TS2_L3_ACE_PITCH-ANGLE-DIST">
+          <td><input type="checkbox" class="dset-checkbox" value="TS2_L3_ACE_PITCH-ANGLE-DIST" checked onchange="updateView()"></td>
+          <td><a href="./TS2_L3_ACE_PITCH-ANGLE-DIST.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">TS2_L3_ACE_PITCH-ANGLE-DIST</a></td>
+          <td><span class="badge-sm">TRACERS2</span></td>
+          <td style="color: var(--text-muted);">DEF_PITCH-ANGLE-DIST</td>
+          <td>2025-08-22 &rarr; 2026-10-12</td>
+          <td>392</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 91.93036514224079%;"></div></div>
+              <span style="font-size: 11px;">91.93%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./TS2_L3_ACE_PITCH-ANGLE-DIST.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const allDatasets = [{"name": "TS1_L2_ACE_DEF", "instrument": "TRACERS1", "product": "DEF_DIFF-EN-FLUX", "cdf_count": 195, "active_days": 160.27501157407409, "coverage_pct": 42.27138563646762, "earliest": "2025-09-28", "latest": "2026-10-13", "intervals": [["2025-09-28 21:34:01", "2025-09-28 21:49:00"], ["2025-10-15 23:58:01", "2025-10-16 00:09:59"], ["2026-03-25 23:25:08", "2026-03-26 00:09:10"], ["2026-03-27 21:59:00", "2026-03-27 22:49:39"], ["2026-03-31 20:53:51", "2026-04-01 20:13:03"], ["2026-04-08 20:35:08", "2026-05-13 20:27:36"], ["2026-05-14 23:03:55", "2026-06-03 05:17:48"], ["2026-06-05 22:31:44", "2026-06-22 07:34:01"], ["2026-06-23 19:52:27", "2026-06-30 14:55:11"], ["2026-07-01 20:46:18", "2026-09-22 21:44:18"], ["2026-09-24 10:08:10", "2026-10-13 01:20:25"]], "page": "./TS1_L2_ACE_DEF.html"}, {"name": "TS1_L2_ACI_IPD", "instrument": "TRACERS1", "product": "IPD_ION-DIST", "cdf_count": 39, "active_days": 13.922847222222222, "coverage_pct": 15.44958247235394, "earliest": "2025-10-02", "latest": "2025-12-31", "intervals": [["2025-10-02 20:26:00", "2025-10-02 20:46:00"], ["2025-10-04 01:24:00", "2025-10-04 01:44:00"], ["2025-10-07 21:07:49", "2025-10-08 23:12:00"], ["2025-10-12 20:19:56", "2025-10-13 01:22:36"], ["2025-10-18 21:09:45", "2025-10-18 21:22:45"], ["2025-10-20 02:04:41", "2025-10-20 02:20:41"], ["2025-10-21 19:55:00", "2025-10-21 20:11:00"], ["2025-11-04 10:29:59", "2025-11-08 11:10:23"], ["2025-11-17 05:47:59", "2025-11-22 13:15:06"], ["2025-12-09 23:12:00", "2025-12-16 00:23:00"], ["2025-12-18 21:08:00", "2025-12-18 21:33:00"], ["2025-12-20 03:44:00", "2025-12-25 16:02:00"], ["2025-12-28 14:27:08", "2025-12-30 02:13:13"], ["2025-12-31 19:49:59", "2025-12-31 23:15:51"]], "page": "./TS1_L2_ACI_IPD.html"}, {"name": "TS1_L2_EFI_EAC", "instrument": "TRACERS1", "product": "EAC", "cdf_count": 239, "active_days": 190.91627314814815, "coverage_pct": 56.16529366406703, "earliest": "2025-09-26", "latest": "2026-08-31", "intervals": [["2025-09-26 01:54:01", "2025-09-26 02:13:01"], ["2025-09-27 21:21:01", "2025-09-27 21:40:01"], ["2025-12-11 21:40:22", "2025-12-11 22:14:01"], ["2025-12-16 01:33:49", "2025-12-16 10:02:01"], ["2025-12-18 21:08:15", "2025-12-18 21:14:05"], ["2025-12-20 03:44:15", "2025-12-25 16:02:01"], ["2025-12-28 14:33:14", "2025-12-30 02:13:14"], ["2025-12-31 19:49:59", "2026-01-13 16:37:18"], ["2026-01-15 05:30:31", "2026-03-17 02:14:34"], ["2026-03-25 23:25:23", "2026-03-28 03:17:30"], ["2026-03-31 20:54:07", "2026-04-03 01:01:00"], ["2026-04-08 14:12:10", "2026-05-13 20:27:36"], ["2026-05-14 23:03:55", "2026-06-03 05:17:47"], ["2026-06-05 22:32:22", "2026-06-11 20:43:28"], ["2026-06-14 20:23:22", "2026-06-22 07:33:54"], ["2026-06-23 19:52:46", "2026-06-30 09:24:31"], ["2026-07-01 23:56:51", "2026-07-11 20:39:59"], ["2026-07-14 22:18:30", "2026-08-31 23:56:47"]], "page": "./TS1_L2_EFI_EAC.html"}, {"name": "TS1_L2_EFI_EHF", "instrument": "TRACERS1", "product": "HIGHFREQUENCY", "cdf_count": 279, "active_days": 223.18832175925925, "coverage_pct": 58.16671954923839, "earliest": "2025-09-26", "latest": "2026-10-14", "intervals": [["2025-09-26 01:54:33", "2025-09-26 02:12:41"], ["2025-09-27 21:21:33", "2025-09-27 21:39:41"], ["2025-12-11 21:40:34", "2025-12-11 22:13:38"], ["2025-12-16 01:33:50", "2025-12-16 10:01:38"], ["2025-12-18 21:08:15", "2025-12-18 21:13:35"], ["2025-12-20 03:50:07", "2025-12-25 16:01:30"], ["2025-12-27 20:50:05", "2025-12-30 02:12:36"], ["2025-12-31 18:06:06", "2026-01-13 16:36:48"], ["2026-01-15 05:30:31", "2026-02-12 20:29:36"], ["2026-02-14 02:51:10", "2026-03-17 02:10:01"], ["2026-03-25 23:25:30", "2026-03-28 01:55:36"], ["2026-03-31 20:54:13", "2026-04-03 01:00:34"], ["2026-04-08 14:12:10", "2026-05-13 20:27:06"], ["2026-05-14 23:04:05", "2026-06-03 05:17:17"], ["2026-06-06 00:04:08", "2026-06-11 20:43:06"], ["2026-06-15 09:10:41", "2026-06-22 07:24:58"], ["2026-06-23 23:00:02", "2026-06-30 14:54:49"], ["2026-07-01 22:23:30", "2026-07-02 03:56:04"], ["2026-07-03 07:07:15", "2026-07-03 18:31:28"], ["2026-07-04 21:13:46", "2026-07-11 20:39:30"], ["2026-07-15 03:09:25", "2026-09-22 21:37:47"], ["2026-09-24 19:41:04", "2026-10-14 18:49:02"]], "page": "./TS1_L2_EFI_EHF.html"}, {"name": "TS1_L2_EFI_HSK", "instrument": "TRACERS1", "product": "HSK", "cdf_count": 283, "active_days": 230.6358101851852, "coverage_pct": 60.08211681995793, "earliest": "2025-09-26", "latest": "2026-10-14", "intervals": [["2025-09-26 01:54:01", "2025-09-26 02:13:01"], ["2025-09-27 21:21:01", "2025-09-27 21:40:01"], ["2025-12-11 21:40:18", "2025-12-11 22:14:01"], ["2025-12-16 01:33:49", "2025-12-16 10:02:01"], ["2025-12-18 21:08:15", "2025-12-18 21:33:01"], ["2025-12-20 03:44:15", "2025-12-25 18:53:35"], ["2025-12-27 19:30:00", "2025-12-30 03:27:27"], ["2025-12-31 18:03:03", "2026-01-13 16:54:39"], ["2026-01-15 05:30:31", "2026-03-17 02:15:01"], ["2026-03-25 23:25:02", "2026-03-28 03:17:30"], ["2026-03-31 20:53:46", "2026-04-03 01:01:00"], ["2026-04-08 14:12:10", "2026-05-13 20:27:36"], ["2026-05-14 23:03:55", "2026-06-03 05:17:48"], ["2026-06-05 22:31:40", "2026-06-11 20:43:28"], ["2026-06-14 20:22:46", "2026-06-22 07:34:07"], ["2026-06-23 19:52:23", "2026-06-30 14:55:11"], ["2026-07-01 22:23:20", "2026-07-11 20:39:59"], ["2026-07-14 22:18:30", "2026-09-22 21:44:21"], ["2026-09-24 19:40:58", "2026-10-14 22:43:26"]], "page": "./TS1_L2_EFI_HSK.html"}, {"name": "TS1_L2_EFI_VDC", "instrument": "TRACERS1", "product": "VDC", "cdf_count": 281, "active_days": 230.39934027777778, "coverage_pct": 60.02053659946633, "earliest": "2025-09-26", "latest": "2026-10-14", "intervals": [["2025-09-26 01:54:01", "2025-09-26 02:13:01"], ["2025-09-27 21:21:01", "2025-09-27 21:40:01"], ["2025-12-11 21:40:17", "2025-12-11 22:14:01"], ["2025-12-16 01:33:49", "2025-12-16 10:02:01"], ["2025-12-18 21:08:30", "2025-12-18 21:33:01"], ["2025-12-20 03:49:50", "2025-12-25 18:53:24"], ["2025-12-27 19:29:59", "2025-12-30 02:13:14"], ["2025-12-31 18:08:13", "2026-01-13 16:54:39"], ["2026-01-15 05:30:31", "2026-02-12 20:40:47"], ["2026-02-14 00:00:01", "2026-03-17 02:14:48"], ["2026-03-25 23:24:57", "2026-03-28 03:17:30"], ["2026-03-31 20:53:40", "2026-04-03 01:01:00"], ["2026-04-08 14:12:10", "2026-05-13 20:27:36"], ["2026-05-14 23:03:55", "2026-06-03 05:17:48"], ["2026-06-06 00:03:53", "2026-06-11 20:43:28"], ["2026-06-14 20:22:56", "2026-06-22 07:34:01"], ["2026-06-23 19:52:37", "2026-06-30 14:55:11"], ["2026-07-01 22:23:20", "2026-07-11 20:39:59"], ["2026-07-14 22:18:30", "2026-09-22 21:44:10"], ["2026-09-24 19:40:58", "2026-10-14 22:43:14"]], "page": "./TS1_L2_EFI_VDC.html"}, {"name": "TS1_L2_MSC_BAC", "instrument": "TRACERS1", "product": "BAC", "cdf_count": 164, "active_days": 127.77155092592592, "coverage_pct": 43.7795020410015, "earliest": "2025-09-26", "latest": "2026-07-14", "intervals": [["2025-09-26 01:54:01", "2025-09-26 02:13:00"], ["2025-09-27 21:21:01", "2025-09-27 21:40:00"], ["2025-12-11 21:40:16", "2025-12-11 22:14:00"], ["2025-12-16 01:33:49", "2025-12-16 10:02:00"], ["2025-12-18 21:08:15", "2025-12-18 21:33:00"], ["2025-12-20 03:44:15", "2025-12-25 18:53:34"], ["2025-12-28 14:27:23", "2025-12-30 03:27:26"], ["2025-12-31 19:49:59", "2026-01-13 16:54:38"], ["2026-01-15 05:41:48", "2026-03-17 02:14:33"], ["2026-03-25 23:25:23", "2026-03-28 03:17:30"], ["2026-03-31 20:54:07", "2026-04-03 01:01:00"], ["2026-04-08 14:12:10", "2026-05-13 20:27:36"], ["2026-05-14 23:03:55", "2026-05-31 23:59:51"], ["2026-07-01 23:56:51", "2026-07-11 20:39:58"], ["2026-07-14 22:18:30", "2026-07-14 22:21:33"]], "page": "./TS1_L2_MSC_BAC.html"}, {"name": "TS1_L3_ACE_PITCH-ANGLE-DIST", "instrument": "TRACERS1", "product": "DEF_PITCH-ANGLE-DIST", "cdf_count": 188, "active_days": 158.8487037037037, "coverage_pct": 78.99774119127625, "earliest": "2026-03-25", "latest": "2026-10-13", "intervals": [["2026-03-25 23:25:08", "2026-03-26 00:09:10"], ["2026-03-27 21:59:00", "2026-03-27 22:49:39"], ["2026-03-31 20:53:51", "2026-04-01 20:13:03"], ["2026-04-08 20:35:08", "2026-05-13 20:27:36"], ["2026-05-14 23:03:55", "2026-06-03 05:17:48"], ["2026-06-05 22:31:44", "2026-06-11 20:43:28"], ["2026-06-14 12:19:49", "2026-06-22 07:34:01"], ["2026-06-23 19:52:27", "2026-06-30 14:55:11"], ["2026-07-01 20:46:18", "2026-07-11 20:41:50"], ["2026-07-14 01:26:42", "2026-09-22 21:44:18"], ["2026-09-24 10:08:10", "2026-10-13 01:20:25"]], "page": "./TS1_L3_ACE_PITCH-ANGLE-DIST.html"}, {"name": "TS2_L2_ACE_DEF", "instrument": "TRACERS2", "product": "DEF_DIFF-EN-FLUX", "cdf_count": 400, "active_days": 388.0967592592593, "coverage_pct": 91.33031794790949, "earliest": "2025-08-13", "latest": "2026-10-12", "intervals": [["2025-08-13 20:59:59", "2025-08-15 04:39:56"], ["2025-08-16 17:10:05", "2025-09-07 21:20:49"], ["2025-09-11 00:10:01", "2025-09-15 08:09:53"], ["2025-09-18 01:30:02", "2025-09-21 23:39:57"], ["2025-09-24 14:10:04", "2025-09-24 14:55:05"], ["2025-09-26 00:00:01", "2025-10-20 05:59:55"], ["2025-10-21 19:50:00", "2025-10-23 19:09:59"], ["2025-11-06 00:00:00", "2025-12-13 12:20:25"], ["2025-12-18 14:09:59", "2026-10-12 19:29:58"]], "page": "./TS2_L2_ACE_DEF.html"}, {"name": "TS2_L2_ACI_IPD", "instrument": "TRACERS2", "product": "IPD_ION-DIST", "cdf_count": 174, "active_days": 162.77717592592592, "coverage_pct": 82.51761323961979, "earliest": "2025-08-13", "latest": "2026-02-27", "intervals": [["2025-08-13 20:59:59", "2025-08-15 04:39:31"], ["2025-08-16 17:10:20", "2025-09-07 21:20:34"], ["2025-09-11 00:10:02", "2025-09-15 08:09:50"], ["2025-09-18 01:30:08", "2025-09-21 23:39:28"], ["2025-09-24 14:10:01", "2025-09-24 14:54:37"], ["2025-09-26 00:00:24", "2025-10-20 05:59:49"], ["2025-10-21 19:50:28", "2025-10-23 19:09:53"], ["2025-11-06 00:00:18", "2025-12-13 12:20:03"], ["2025-12-18 14:09:59", "2026-02-27 03:19:30"]], "page": "./TS2_L2_ACI_IPD.html"}, {"name": "TS2_L2_EFI_EAC", "instrument": "TRACERS2", "product": "EAC", "cdf_count": 367, "active_days": 347.58916666666664, "coverage_pct": 88.66105926388336, "earliest": "2025-08-04", "latest": "2026-08-31", "intervals": [["2025-08-04 22:57:34", "2025-08-15 04:39:19"], ["2025-08-16 17:10:15", "2025-09-07 21:20:45"], ["2025-09-11 13:33:12", "2025-09-15 08:09:15"], ["2025-09-18 01:30:19", "2025-09-21 23:39:47"], ["2025-09-24 14:10:11", "2025-09-24 14:54:59"], ["2025-09-26 00:00:03", "2025-10-20 05:59:48"], ["2025-10-21 19:50:52", "2025-10-23 19:09:27"], ["2025-11-06 00:00:52", "2025-12-13 12:20:12"], ["2025-12-18 14:25:03", "2026-08-31 23:58:59"]], "page": "./TS2_L2_EFI_EAC.html"}, {"name": "TS2_L2_EFI_EHF", "instrument": "TRACERS2", "product": "HIGHFREQUENCY", "cdf_count": 412, "active_days": 385.25233796296294, "coverage_pct": 88.10583244704645, "earliest": "2025-08-05", "latest": "2026-10-16", "intervals": [["2025-08-05 00:25:03", "2025-08-15 04:31:11"], ["2025-08-16 17:12:31", "2025-09-07 20:48:31"], ["2025-09-11 13:33:19", "2025-09-15 08:02:07"], ["2025-09-18 01:30:39", "2025-09-21 23:33:19"], ["2025-09-24 14:12:31", "2025-09-24 14:46:23"], ["2025-09-26 00:04:31", "2025-10-20 05:49:34"], ["2025-10-22 05:31:58", "2025-10-23 17:34:54"], ["2025-11-06 00:30:05", "2025-12-13 11:54:07"], ["2025-12-18 14:57:47", "2026-10-16 06:40:43"]], "page": "./TS2_L2_EFI_EHF.html"}, {"name": "TS2_L2_EFI_HSK", "instrument": "TRACERS2", "product": "HSK", "cdf_count": 414, "active_days": 399.4763888888889, "coverage_pct": 91.34318366303032, "earliest": "2025-08-04", "latest": "2026-10-16", "intervals": [["2025-08-04 22:56:31", "2025-08-15 04:39:59"], ["2025-08-16 17:10:00", "2025-09-07 21:20:51"], ["2025-09-11 00:10:00", "2025-09-15 08:09:59"], ["2025-09-18 01:30:00", "2025-09-21 23:39:59"], ["2025-09-24 14:10:00", "2025-09-24 14:55:09"], ["2025-09-26 00:00:00", "2025-10-20 05:59:59"], ["2025-10-21 19:50:00", "2025-10-23 19:09:59"], ["2025-11-06 00:00:00", "2025-12-13 12:20:26"], ["2025-12-18 14:10:00", "2026-10-16 06:59:59"]], "page": "./TS2_L2_EFI_HSK.html"}, {"name": "TS2_L2_EFI_VDC", "instrument": "TRACERS2", "product": "VDC", "cdf_count": 331, "active_days": 322.60172453703706, "coverage_pct": 82.29636073012215, "earliest": "2025-08-05", "latest": "2026-09-01", "intervals": [["2025-08-05 00:00:14", "2025-08-07 00:00:14"], ["2025-08-11 00:00:14", "2025-08-15 00:00:14"], ["2025-08-20 01:25:18", "2025-08-24 00:00:14"], ["2025-09-11 13:33:02", "2025-09-14 23:19:58"], ["2025-09-18 01:29:50", "2025-09-19 22:59:58"], ["2025-09-26 00:00:14", "2025-10-17 00:00:14"], ["2025-10-19 00:00:14", "2025-10-20 00:00:14"], ["2025-10-22 04:59:58", "2025-10-23 19:09:50"], ["2025-11-07 00:00:14", "2025-12-13 12:20:14"], ["2025-12-18 14:09:59", "2026-09-01 00:00:13"]], "page": "./TS2_L2_EFI_VDC.html"}, {"name": "TS2_L2_MAGIC_BDC-16SPS", "instrument": "TRACERS2", "product": "BDC-16SPS", "cdf_count": 123, "active_days": 119.26030092592593, "coverage_pct": 63.10069604897806, "earliest": "2025-09-28", "latest": "2026-04-05", "intervals": [["2025-09-28 00:00:07", "2025-10-01 00:00:06"], ["2025-10-06 00:00:04", "2025-10-20 05:59:52"], ["2025-10-22 04:59:59", "2025-10-23 00:00:07"], ["2025-11-09 00:02:50", "2025-11-09 23:59:53"], ["2025-11-14 00:00:00", "2025-11-23 00:00:05"], ["2025-11-28 00:00:03", "2025-12-10 00:00:00"], ["2025-12-12 00:00:07", "2025-12-13 00:00:07"], ["2025-12-18 14:23:59", "2026-01-04 00:00:02"], ["2026-01-06 00:00:01", "2026-01-08 23:56:40"], ["2026-01-13 00:00:07", "2026-01-16 00:00:06"], ["2026-01-18 00:00:05", "2026-01-20 00:00:04"], ["2026-01-23 00:00:04", "2026-01-28 00:00:02"], ["2026-01-30 00:00:01", "2026-01-31 00:00:01"], ["2026-02-04 00:00:00", "2026-03-04 20:59:19"], ["2026-03-06 00:00:06", "2026-04-05 00:00:05"]], "page": "./TS2_L2_MAGIC_BDC-16SPS.html"}, {"name": "TS2_L2_MAG_BDC-16SPS", "instrument": "TRACERS2", "product": "BDC-16SPS", "cdf_count": 149, "active_days": 132.93564814814815, "coverage_pct": 53.10895982615449, "earliest": "2025-09-26", "latest": "2026-06-03", "intervals": [["2025-09-26 15:36:40", "2025-09-28 00:00:00"], ["2025-09-29 04:31:39", "2025-10-02 00:00:07"], ["2025-10-06 00:46:00", "2025-10-15 23:35:56"], ["2025-10-18 00:00:02", "2025-10-20 00:00:01"], ["2025-10-22 04:59:52", "2025-10-23 19:09:52"], ["2025-11-06 19:29:09", "2025-11-10 19:29:59"], ["2025-11-12 00:05:49", "2025-11-22 22:49:59"], ["2025-11-25 00:20:08", "2025-11-26 23:16:15"], ["2025-11-29 00:51:46", "2025-12-13 12:20:24"], ["2025-12-21 00:33:24", "2025-12-31 23:03:32"], ["2026-03-01 00:00:02", "2026-03-03 22:56:55"], ["2026-03-05 01:39:53", "2026-03-10 23:49:25"], ["2026-03-13 01:24:06", "2026-03-27 20:39:54"], ["2026-03-29 00:09:40", "2026-06-03 22:59:18"]], "page": "./TS2_L2_MAG_BDC-16SPS.html"}, {"name": "TS2_L2_MSC_BAC", "instrument": "TRACERS2", "product": "BAC", "cdf_count": 284, "active_days": 269.71505787037034, "coverage_pct": 87.55756779325885, "earliest": "2025-08-04", "latest": "2026-06-08", "intervals": [["2025-08-04 22:57:34", "2025-08-15 04:39:19"], ["2025-08-16 17:10:15", "2025-09-07 21:20:45"], ["2025-09-11 00:10:21", "2025-09-15 08:09:15"], ["2025-09-18 01:30:19", "2025-09-21 23:39:47"], ["2025-09-24 14:10:11", "2025-09-24 14:54:59"], ["2025-09-26 00:00:03", "2025-10-20 05:59:48"], ["2025-10-21 19:50:52", "2025-10-23 19:09:27"], ["2025-11-06 00:00:52", "2025-12-13 12:20:12"], ["2025-12-18 14:09:59", "2026-06-08 23:59:39"]], "page": "./TS2_L2_MSC_BAC.html"}, {"name": "TS2_L3_ACE_PITCH-ANGLE-DIST", "instrument": "TRACERS2", "product": "DEF_PITCH-ANGLE-DIST", "cdf_count": 392, "active_days": 383.17721064814816, "coverage_pct": 91.93036514224079, "earliest": "2025-08-22", "latest": "2026-10-12", "intervals": [["2025-08-22 00:00:02", "2025-09-07 21:20:49"], ["2025-09-11 00:10:01", "2025-09-15 08:09:53"], ["2025-09-18 01:30:02", "2025-09-21 23:39:57"], ["2025-09-24 14:10:04", "2025-09-24 14:55:05"], ["2025-09-26 00:00:01", "2025-10-20 05:59:55"], ["2025-10-21 19:50:00", "2025-10-23 19:09:59"], ["2025-11-06 00:00:00", "2025-12-13 12:20:25"], ["2025-12-18 14:09:59", "2026-10-12 19:29:58"]], "page": "./TS2_L3_ACE_PITCH-ANGLE-DIST.html"}];
+
+    function parseDateMs(str) {
+      if (!str) return NaN;
+      const s = str.trim();
+      const iso = s.replace(/\//g, '-').replace(' ', 'T') + 'Z';
+      const ms = Date.parse(iso);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function enableSortableTable(tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      table.querySelectorAll('th.sortable').forEach((header, columnIndex) => {
+        header.tabIndex = 0;
+        header.setAttribute('role', 'button');
+        header.setAttribute('aria-sort', 'none');
+        const sortColumn = () => {
+          const ascending = header.getAttribute('aria-sort') !== 'ascending';
+          table.querySelectorAll('th.sortable').forEach(th => th.setAttribute('aria-sort', 'none'));
+          header.setAttribute('aria-sort', ascending ? 'ascending' : 'descending');
+          const rows = Array.from(table.tBodies[0].rows);
+          const type = header.getAttribute('data-sort-type');
+          rows.sort((left, right) => {
+            const a = left.cells[columnIndex].textContent.trim();
+            const b = right.cells[columnIndex].textContent.trim();
+            let comparison;
+            if (type === 'number') comparison = Number(a.replace(/[^0-9.-]/g, '')) - Number(b.replace(/[^0-9.-]/g, ''));
+            else if (type === 'date') comparison = parseDateMs(a.split('→')[0].trim()) - parseDateMs(b.split('→')[0].trim());
+            else comparison = a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+            return ascending ? comparison : -comparison;
+          });
+          rows.forEach(row => table.tBodies[0].appendChild(row));
+        };
+        header.addEventListener('click', sortColumn);
+        header.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); sortColumn(); }
+        });
+      });
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+      const newTheme = isDark ? 'light' : 'dark';
+      document.body.className = newTheme;
+      localStorage.setItem('cdaweb_theme', newTheme);
+      document.getElementById('theme-toggle').textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      updateView();
+    }
+
+    function toggleChartDisplay(show) {
+      const chartCard = document.getElementById('chart-card-container');
+      if (chartCard) {
+        chartCard.style.display = show ? 'block' : 'none';
+      }
+      if (show) {
+        updateView();
+        setTimeout(() => {
+          const plotDiv = document.getElementById('timeline-chart');
+          if (plotDiv) {
+            Plotly.Plots.resize(plotDiv);
+          }
+        }, 50);
+      }
+    }
+
+    function resetAllSelections() {
+      document.querySelectorAll('.dset-checkbox').forEach(cb => {
+        cb.checked = true;
+      });
+      const masterCb = document.getElementById('master-cb');
+      if (masterCb) masterCb.checked = true;
+      updateView();
+    }
+
+    function presetRange(type) {
+      document.querySelectorAll('.btn-preset').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-preset') === type);
+      });
+      if (type === 'all') {
+        if (window._globalMinTimeMs) {
+          document.getElementById('filter-start').value = formatAxisDate(window._globalMinTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-start').value = '';
+        }
+        if (window._globalMaxTimeMs) {
+          document.getElementById('filter-stop').value = formatAxisDate(window._globalMaxTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-stop').value = '';
+        }
+        updateView();
+        return;
+      }
+      const now = new Date();
+      const endStr = now.toISOString().split('T')[0];
+      let startStr = '';
+      if (type === '1y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 1);
+        startStr = d.toISOString().split('T')[0];
+      } else if (type === '5y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 5);
+        startStr = d.toISOString().split('T')[0];
+      }
+      document.getElementById('filter-start').value = startStr;
+      document.getElementById('filter-stop').value = endStr;
+      updateView();
+    }
+
+    function clearPresetHighlight() {
+      document.querySelectorAll('.btn-preset').forEach(btn => btn.classList.remove('active'));
+    }
+
+    function updateView() {
+      const showChart = document.getElementById('toggle-chart-cb')?.checked;
+      if (!showChart) {
+        return;
+      }
+
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const checkedBoxes = Array.from(document.querySelectorAll('.dset-checkbox:checked'));
+      const selectedNames = new Set(checkedBoxes.map(cb => cb.value));
+      const startFilter = document.getElementById('filter-start').value;
+      const stopFilter = document.getElementById('filter-stop').value;
+      const startFilterMs = startFilter ? parseDateMs(startFilter) : null;
+      const stopFilterMs = stopFilter ? parseDateMs(stopFilter + ' 23:59:59') : null;
+
+      const isLight = document.body.classList.contains('light');
+      const paperBg = isLight ? '#ffffff' : '#1e293b';
+      const plotBg = isLight ? '#f8fafc' : '#0f172a';
+      const textColor = isLight ? '#0f172a' : '#f8fafc';
+      const gridColor = isLight ? '#e2e8f0' : '#334155';
+
+      const timelineData = { y: [], x: [], base: [], colors: [], hovertext: [] };
+      const colors = ['#0284c7', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6'];
+
+      const activeDatasets = [];
+      allDatasets.forEach(d => {
+        if (instFilter && d.instrument !== instFilter) return;
+        if (query && !d.name.toLowerCase().includes(query) && !d.instrument.toLowerCase().includes(query) && !d.product.toLowerCase().includes(query)) return;
+        if (!selectedNames.has(d.name)) return;
+
+        const validIntervals = [];
+        d.intervals.forEach(inv => {
+          const s = inv[0];
+          const e = inv[1];
+          const sTime = parseDateMs(s);
+          const eTime = parseDateMs(e);
+          if (isNaN(sTime) || isNaN(eTime)) return;
+
+          if (startFilterMs && eTime < startFilterMs) return;
+          if (stopFilterMs && sTime > stopFilterMs) return;
+
+          const sClamped = startFilterMs ? Math.max(sTime, startFilterMs) : sTime;
+          const eClamped = stopFilterMs ? Math.min(eTime, stopFilterMs) : eTime;
+          if (eClamped <= sClamped) return;
+
+          validIntervals.push({ s, e, sClamped, eClamped });
+        });
+
+        if (validIntervals.length > 0) {
+          activeDatasets.push({ d, validIntervals });
+        }
+      });
+
+      const activeNames = activeDatasets.map(item => item.d.name);
+      activeDatasets.forEach((item, idx) => {
+        const color = colors[idx % colors.length];
+        const d = item.d;
+        item.validIntervals.forEach(inv => {
+          const durMs = Math.max(86400000, inv.eClamped - inv.sClamped);
+          timelineData.y.push(d.name);
+          timelineData.x.push(durMs);
+          timelineData.base.push(new Date(inv.sClamped).toISOString());
+          timelineData.colors.push(color);
+          timelineData.hovertext.push(`<b>${d.name}</b><br>${d.instrument} • ${d.product}<br>From: ${inv.s}<br>To: ${inv.e}<br><i>Click to unselect • Ctrl+Click to open full page</i>`);
+        });
+      });
+
+      const traces = timelineData.y.length ? [{
+        type: 'bar',
+        orientation: 'h',
+        y: timelineData.y,
+        x: timelineData.x,
+        base: timelineData.base,
+        marker: { color: timelineData.colors, line: { width: 0 } },
+        hoverinfo: 'text',
+        hovertext: timelineData.hovertext,
+        showlegend: false
+      }] : [];
+
+      const count = activeNames.length;
+      const barGap = count === 1 ? 0.75 : (count === 2 ? 0.6 : (count <= 4 ? 0.45 : 0.25));
+      const barWidth = count === 1 ? 0.32 : (count === 2 ? 0.45 : (count <= 4 ? 0.6 : 0.75));
+      traces.forEach(t => { t.width = barWidth; });
+      const plotHeight = count === 1 ? 140 : (count === 2 ? 180 : Math.max(220, count * 32 + 80));
+
+      const plotDiv = document.getElementById('timeline-chart');
+      plotDiv.style.height = plotHeight + 'px';
+      plotDiv.style.minHeight = plotHeight + 'px';
+
+      const xAxisConfig = {
+        type: 'date',
+        side: 'bottom',
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      // Determine if "All Time" preset is active
+      const allTimeBtn = document.querySelector('.btn-preset[data-preset="all"]');
+      const isAllTime = Boolean(allTimeBtn && allTimeBtn.classList.contains('active'));
+
+      // Calculate data bounds for currently selected/plotted items
+      let plottedMinMs = Infinity;
+      let plottedMaxMs = -Infinity;
+      for (let i = 0; i < timelineData.base.length; i++) {
+        const s = parseAxisTimeMs(timelineData.base[i]);
+        const dur = Number(timelineData.x[i]) || 0;
+        if (Number.isFinite(s)) {
+          if (s < plottedMinMs) plottedMinMs = s;
+          if ((s + dur) > plottedMaxMs) plottedMaxMs = s + dur;
+        }
+      }
+      const hasPlottedData = Number.isFinite(plottedMinMs) && Number.isFinite(plottedMaxMs) && plottedMaxMs >= plottedMinMs;
+
+      if (isAllTime && hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (startFilter && stopFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', stopFilter + ' 23:59:59'];
+        xAxisConfig.autorange = false;
+      } else if (startFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', formatAxisDate(window._globalMaxTimeMs || Date.now())];
+        xAxisConfig.autorange = false;
+      } else if (hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        xAxisConfig.range = [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)];
+        xAxisConfig.autorange = false;
+      } else {
+        xAxisConfig.autorange = true;
+      }
+
+      const xAxis2Config = {
+        type: 'date',
+        overlaying: 'x',
+        side: 'top',
+        matches: 'x',
+        showgrid: false,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      const yAxisConfig = {
+        type: 'category',
+        categoryorder: 'array',
+        categoryarray: activeNames.slice().reverse(),
+        automargin: true,
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor },
+        fixedrange: true,
+        autorange: true
+      };
+
+      const layout = {
+        height: plotHeight,
+        paper_bgcolor: paperBg,
+        plot_bgcolor: plotBg,
+        font: { color: textColor, size: 11 },
+        margin: { l: 180, r: 30, t: 35, b: 40 },
+        xaxis: xAxisConfig,
+        xaxis2: xAxis2Config,
+        yaxis: yAxisConfig,
+        barmode: 'overlay',
+        bargap: barGap,
+        bargroupgap: 0.1,
+        annotations: count === 0 ? [{
+          text: checkedBoxes.length > 0
+            ? 'No data available for the selected datasets in this date range'
+            : 'Select one or more datasets to view timeline',
+          showarrow: false,
+          font: { size: 13, color: textColor }
+        }] : []
+      };
+
+      Plotly.newPlot('timeline-chart', traces, layout, { responsive: true, displayModeBar: true, displaylogo: false }).then(() => {
+        updatePanButtons('timeline-chart');
+      });
+
+      plotDiv.on('plotly_relayout', function() {
+        updatePanButtons('timeline-chart');
+      });
+
+      // Attach click events on chart points and y-axis ticks
+      plotDiv.on('plotly_click', function(data) {
+        if (!data.points || data.points.length === 0) return;
+        const name = data.points[0].y;
+        const isCtrl = data.event && (data.event.ctrlKey || data.event.metaKey);
+        handleRowClick(name, isCtrl);
+      });
+
+      plotDiv.querySelectorAll('.ytick text').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.style.userSelect = 'none';
+        el.title = 'Click to unselect • Ctrl+Click to open full page';
+        el.onclick = function(e) {
+          e.stopPropagation();
+          const isCtrl = e.ctrlKey || e.metaKey;
+          handleRowClick(el.textContent.trim(), isCtrl);
+        };
+      });
+    }
+
+    function handleRowClick(name, isCtrl) {
+      const d = allDatasets.find(item => item.name === name);
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (isCtrl && d && d.page) {
+        window.open(d.page + q, '_blank');
+        return;
+      }
+      const cb = document.querySelector(`.dset-checkbox[value="${name}"]`);
+      if (cb) {
+        cb.checked = !cb.checked;
+        updateView();
+      }
+    }
+
+    function filterTable() {
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+
+      rows.forEach(r => {
+        const name = (r.getAttribute('data-name') || '').toLowerCase();
+        const inst = r.getAttribute('data-inst') || '';
+        const matchQ = !query || name.includes(query);
+        const matchInst = !instFilter || inst === instFilter;
+        r.style.display = (matchQ && matchInst) ? '' : 'none';
+      });
+
+      updateView();
+      propagateQueryToLinks();
+    }
+
+    function selectAll(state) {
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+      rows.forEach(r => {
+        if (r.style.display !== 'none') {
+          const cb = r.querySelector('.dset-checkbox');
+          if (cb) cb.checked = state;
+        }
+      });
+      document.getElementById('master-cb').checked = state;
+      updateView();
+    }
+
+    function toggleAllCheckboxes(state) {
+      selectAll(state);
+    }
+
+    function parseAxisTimeMs(val) {
+      if (val == null) return NaN;
+      if (typeof val === 'number') return val;
+      if (val instanceof Date) return val.getTime();
+      const s = String(val).trim();
+      if (!s) return NaN;
+      if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+      const iso = s.replace(/\//g, '-').replace(' ', 'T');
+      const isoUtc = (iso.includes('Z') || iso.includes('+')) ? iso : iso + 'Z';
+      let ms = Date.parse(isoUtc);
+      if (!isNaN(ms)) return ms;
+      ms = Date.parse(s);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function formatAxisDate(ms) {
+      const d = new Date(ms);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString();
+    }
+
+    function panTimelineWindow(divId, direction) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv || !plotDiv._fullLayout || !plotDiv._fullLayout.xaxis) return;
+      const rng = plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2) return;
+
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+
+      const span = t1 - t0;
+      if (span <= 0) return;
+
+      const newT0 = t0 + (direction * span);
+      const newT1 = t1 + (direction * span);
+
+      Plotly.relayout(plotDiv, {
+        'xaxis.range': [formatAxisDate(newT0), formatAxisDate(newT1)],
+        'xaxis.autorange': false
+      }).then(() => {
+        updatePanButtons(divId);
+      });
+    }
+
+    function resetTimelineZoom(divId) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        Plotly.relayout(plotDiv, {
+          'xaxis.range': [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)],
+          'xaxis.autorange': false
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      } else {
+        Plotly.relayout(plotDiv, {
+          'xaxis.autorange': true
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      }
+    }
+
+    window._globalMinTimeMs = 1754348191000;
+    window._globalMaxTimeMs = 1792133999000;
+
+    function exportPlotAsPng(divId, filename) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      Plotly.downloadImage(plotDiv, {
+        format: 'png',
+        width: 1400,
+        height: Math.max(500, plotDiv.offsetHeight || 500),
+        filename: filename || 'plot.png'
+      });
+    }
+
+    function updatePanButtons(divId) {
+      const plotDiv = document.getElementById(divId);
+      const prevBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', -1)"]`);
+      const nextBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', 1)"]`);
+      if (!plotDiv || !prevBtn || !nextBtn) return;
+      const rng = plotDiv._fullLayout && plotDiv._fullLayout.xaxis && plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2 || !window._globalMinTimeMs || !window._globalMaxTimeMs) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+      const fullSpan = window._globalMaxTimeMs - window._globalMinTimeMs;
+      const currentSpan = t1 - t0;
+      if (currentSpan >= fullSpan - 60000) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      const canPrev = t0 > (window._globalMinTimeMs + 60000);
+      const canNext = t1 < (window._globalMaxTimeMs - 60000);
+      prevBtn.disabled = !canPrev;
+      nextBtn.disabled = !canNext;
+      prevBtn.classList.toggle('disabled', !canPrev);
+      nextBtn.classList.toggle('disabled', !canNext);
+    }
+
+    // Theme initialization
+    const savedTheme = localStorage.getItem('cdaweb_theme') || 'dark';
+    document.body.className = savedTheme;
+    document.getElementById('theme-toggle').textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+    // Propagate URL query params (such as ?view for updog) to relative navigation links
+    function propagateQueryToLinks() {
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (q) {
+        document.querySelectorAll('a[href]').forEach(a => {
+          const href = a.getAttribute('href');
+          if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto:') && !href.includes('?')) {
+            a.setAttribute('href', href + q);
+          }
+        });
+      }
+    }
+
+    // Ensure timeline checkbox is unchecked by default and container is hidden
+    const chartCb = document.getElementById('toggle-chart-cb');
+    if (chartCb) {
+      chartCb.checked = false;
+    }
+    const chartCard = document.getElementById('chart-card-container');
+    if (chartCard) {
+      chartCard.style.display = 'none';
+    }
+
+    enableSortableTable('datasets-table');
+
+    // Initial render
+    updateView();
+    propagateQueryToLinks();
+  </script>
+  <footer class="page-footer">This page was last updated on: 2026-11-17 17:21:45 UTC. For any questions or comments, please contact SPDF support at: <a href="mailto:NASA-SPDF-Support@nasa.gov">NASA-SPDF-Support@nasa.gov</a></footer>
+</body>
+</html>

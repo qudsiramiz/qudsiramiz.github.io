@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DARN Inventory Index - CDAWeb</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root, body.dark {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #0284c7;
+      --accent-light: #38bdf8;
+      --success: #10b981;
+      --plot-paper: #1e293b;
+      --plot-bg: #0f172a;
+      --plot-grid: #334155;
+    }
+    body.light {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --accent: #0284c7;
+      --accent-light: #0369a1;
+      --success: #16a34a;
+      --plot-paper: #ffffff;
+      --plot-bg: #f8fafc;
+      --plot-grid: #e2e8f0;
+    }
+    body {
+      margin: 0;
+      padding: 24px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    input[type="date"] {
+      color-scheme: dark;
+    }
+    body.light input[type="date"] {
+      color-scheme: light;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .page-footer { margin: 20px 0 0; color: var(--text-muted); font-size: 12px; text-align: center; }
+    .page-footer a { color: var(--accent-light); }
+    .breadcrumbs { font-size: 14px; margin-bottom: 0; color: var(--text-muted); }
+    .breadcrumbs a { color: var(--accent-light); text-decoration: none; }
+    .breadcrumbs a:hover { text-decoration: underline; }
+    .btn-theme {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-theme:hover { opacity: 0.9; }
+    h1 { margin: 0 0 6px 0; font-size: 28px; }
+    .subtitle { color: var(--text-muted); font-size: 15px; margin: 0 0 20px 0; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .kpi-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 20px; font-weight: 700; color: var(--text); }
+    .controls-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    input[type="text"], input[type="date"], select {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: 13px;
+    }
+    button, .btn-sm {
+      background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block;
+    }
+    button.btn-secondary { background: var(--border); color: var(--text); }
+    button:hover, .btn-sm:hover { opacity: 0.9; }
+    .chart-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th { padding: 10px 12px; background: rgba(125,125,125,0.06); color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .progress-bar { width: 70px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; display: inline-block; }
+    .progress-bar .fill { height: 100%; background: var(--success); }
+    .badge-sm { display: inline-block; padding: 2px 8px; background: rgba(56, 189, 248, 0.15); color: var(--accent-light); border-radius: 4px; font-size: 11px; }
+    .chart-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .pan-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(125,125,125,0.08);
+      padding: 3px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .btn-pan {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-pan:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .btn-pan:disabled, .btn-pan.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .btn-preset {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .btn-preset:hover {
+      opacity: 0.9;
+      color: var(--text);
+    }
+    .btn-preset.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      font-weight: 700;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+    }
+    .xtick text, .ytick text {
+      fill: var(--text) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+      <div class="breadcrumbs">
+        <a href="./inventory_index.html">CDAWeb Inventory</a> &gt;
+        <span>DARN Index</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="./DARN_Inventory.png" target="_blank" class="btn-theme"> View DARN PNG</a>
+        <button class="btn-theme" onclick="exportPlotAsPng('timeline-chart', 'DARN_timeline.png')"> Download Plot PNG</button>
+        <button id="theme-toggle" class="btn-theme" onclick="toggleTheme()">☀️ Light Mode</button>
+      </div>
+    </div>
+    <h1>DARN Mission Data Inventory</h1>
+    <p class="subtitle">Complete catalog of holdings and availability for DARN spacecraft</p>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Datasets</div>
+        <div class="kpi-value">7</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Instruments</div>
+        <div class="kpi-value">7</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total CDF Files</div>
+        <div class="kpi-value">12,256</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Mission Span</div>
+        <div class="kpi-value" style="font-size: 14px;">1992-07-20 &rarr; 2001-09-20</div>
+      </div>
+    </div>
+
+    <div class="controls-card">
+      <input type="text" id="search-box" placeholder="Search datasets..." oninput="filterTable()">
+      <select id="instrument-filter" onchange="filterTable()">
+        <option value="">All Instruments (7)</option>
+        <option value='GBAY'>GBAY</option><option value='HANK'>HANK</option><option value='ICEW'>ICEW</option><option value='KAPU'>KAPU</option><option value='PACE'>PACE</option><option value='PYKK'>PYKK</option><option value='SASK'>SASK</option>
+      </select>
+      <button class="btn-secondary" onclick="selectAll(true)">Select All</button>
+      <button class="btn-secondary" onclick="selectAll(false)">Clear All</button>
+      <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; font-size: 13px; font-weight: 600; padding: 4px 10px; background: rgba(125,125,125,0.08); border-radius: 6px; border: 1px solid var(--border);">
+        <input type="checkbox" id="toggle-chart-cb" autocomplete="off" onchange="toggleChartDisplay(this.checked)">
+        <span> Show Timeline Graph</span>
+      </label>
+      <div style="margin-left: auto; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+        <span style="font-size: 13px; color: var(--text-muted);">Date Range:</span>
+        <input type="date" id="filter-start" value="1992-07-20" oninput="clearPresetHighlight()">
+        <span style="color: var(--text-muted);">&rarr;</span>
+        <input type="date" id="filter-stop" value="2001-09-20" oninput="clearPresetHighlight()">
+        <button onclick="updateView()">Apply</button>
+        <button type="button" class="btn-preset" data-preset="1y" onclick="presetRange('1y')">1 Year</button>
+        <button type="button" class="btn-preset" data-preset="5y" onclick="presetRange('5y')">5 Years</button>
+        <button type="button" class="btn-preset active" data-preset="all" onclick="presetRange('all')">All Time</button>
+      </div>
+    </div>
+
+    <div class="chart-card" id="chart-card-container" style="display: none;">
+      <div class="chart-hint">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <span><strong>Availability Timeline (Selected Items)</strong></span>
+          <div class="pan-controls">
+            <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin: 0 4px;">Time Window:</span>
+            <button type="button" class="btn-pan disabled" disabled title="Pan backward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', -1)">◀ Prev Frame</button>
+            <button type="button" class="btn-pan" title="Reset zoom to full range" onclick="resetTimelineZoom('timeline-chart')">↺ Reset Zoom</button>
+            <button type="button" class="btn-pan disabled" disabled title="Pan forward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', 1)">Next Frame ▶</button>
+            <button type="button" class="btn-pan" title="Reselect all unselected items" onclick="resetAllSelections()">↺ Reset Selection</button>
+            <button type="button" class="btn-pan" title="Download timeline chart as PNG" onclick="exportPlotAsPng('timeline-chart', 'DARN_timeline.png')"> PNG</button>
+          </div>
+        </div>
+        <span>💡 Click row/label to unselect • Ctrl+Click to open full dataset page</span>
+      </div>
+      <div id="timeline-chart" style="min-height: 120px; width: 100%;"></div>
+    </div>
+
+    <div class="table-card">
+      <h3 style="margin: 0 0 12px 0;">Available Datasets</h3>
+      <table id="datasets-table">
+        <thead>
+          <tr>
+            <th style="width: 30px;"><input type="checkbox" id="master-cb" checked onchange="toggleAllCheckboxes(this.checked)"></th>
+            <th class="sortable" data-sort-type="text">Dataset ID</th>
+            <th class="sortable" data-sort-type="text">Instrument</th>
+            <th class="sortable" data-sort-type="text">Product</th>
+            <th class="sortable" data-sort-type="date">Time Coverage</th>
+            <th class="sortable" data-sort-type="number">CDF Count</th>
+            <th class="sortable" data-sort-type="number">Coverage</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="datasets-tbody">
+          
+        <tr data-inst="GBAY" data-name="DN_K0_GBAY">
+          <td><input type="checkbox" class="dset-checkbox" value="DN_K0_GBAY" checked onchange="updateView()"></td>
+          <td><a href="./darn_inventory/DN_K0_GBAY.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DN_K0_GBAY</a></td>
+          <td><span class="badge-sm">GBAY</span></td>
+          <td style="color: var(--text-muted);">GBAY</td>
+          <td>1992-07-20 &rarr; 1999-11-04</td>
+          <td>1,830</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 63.70532224267356%;"></div></div>
+              <span style="font-size: 11px;">63.71%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./darn_inventory/DN_K0_GBAY.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="HANK" data-name="DN_K0_HANK">
+          <td><input type="checkbox" class="dset-checkbox" value="DN_K0_HANK" checked onchange="updateView()"></td>
+          <td><a href="./darn_inventory/DN_K0_HANK.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DN_K0_HANK</a></td>
+          <td><span class="badge-sm">HANK</span></td>
+          <td style="color: var(--text-muted);">HANK</td>
+          <td>1996-07-01 &rarr; 2001-08-05</td>
+          <td>1,662</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 84.89809216421767%;"></div></div>
+              <span style="font-size: 11px;">84.90%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./darn_inventory/DN_K0_HANK.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="ICEW" data-name="DN_K0_ICEW">
+          <td><input type="checkbox" class="dset-checkbox" value="DN_K0_ICEW" checked onchange="updateView()"></td>
+          <td><a href="./darn_inventory/DN_K0_ICEW.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DN_K0_ICEW</a></td>
+          <td><span class="badge-sm">ICEW</span></td>
+          <td style="color: var(--text-muted);">ICEW</td>
+          <td>1994-08-28 &rarr; 1999-11-03</td>
+          <td>1,339</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 65.1567785707336%;"></div></div>
+              <span style="font-size: 11px;">65.16%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./darn_inventory/DN_K0_ICEW.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="KAPU" data-name="DN_K0_KAPU">
+          <td><input type="checkbox" class="dset-checkbox" value="DN_K0_KAPU" checked onchange="updateView()"></td>
+          <td><a href="./darn_inventory/DN_K0_KAPU.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DN_K0_KAPU</a></td>
+          <td><span class="badge-sm">KAPU</span></td>
+          <td style="color: var(--text-muted);">KAPU</td>
+          <td>1994-08-28 &rarr; 1999-11-04</td>
+          <td>1,651</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 80.8825434836662%;"></div></div>
+              <span style="font-size: 11px;">80.88%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./darn_inventory/DN_K0_KAPU.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="PACE" data-name="DN_K0_PACE">
+          <td><input type="checkbox" class="dset-checkbox" value="DN_K0_PACE" checked onchange="updateView()"></td>
+          <td><a href="./darn_inventory/DN_K0_PACE.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DN_K0_PACE</a></td>
+          <td><span class="badge-sm">PACE</span></td>
+          <td style="color: var(--text-muted);">PACE</td>
+          <td>1992-12-04 &rarr; 2001-09-20</td>
+          <td>2,552</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 75.0086622237719%;"></div></div>
+              <span style="font-size: 11px;">75.01%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./darn_inventory/DN_K0_PACE.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="PYKK" data-name="DN_K0_PYKK">
+          <td><input type="checkbox" class="dset-checkbox" value="DN_K0_PYKK" checked onchange="updateView()"></td>
+          <td><a href="./darn_inventory/DN_K0_PYKK.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DN_K0_PYKK</a></td>
+          <td><span class="badge-sm">PYKK</span></td>
+          <td style="color: var(--text-muted);">PYKK</td>
+          <td>1996-07-01 &rarr; 2001-05-16</td>
+          <td>1,625</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 87.5870046663954%;"></div></div>
+              <span style="font-size: 11px;">87.59%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./darn_inventory/DN_K0_PYKK.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="SASK" data-name="DN_K0_SASK">
+          <td><input type="checkbox" class="dset-checkbox" value="DN_K0_SASK" checked onchange="updateView()"></td>
+          <td><a href="./darn_inventory/DN_K0_SASK.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DN_K0_SASK</a></td>
+          <td><span class="badge-sm">SASK</span></td>
+          <td style="color: var(--text-muted);">SASK</td>
+          <td>1994-07-02 &rarr; 1999-11-04</td>
+          <td>1,597</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 80.52436957669131%;"></div></div>
+              <span style="font-size: 11px;">80.52%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./darn_inventory/DN_K0_SASK.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const allDatasets = [{"name": "DN_K0_GBAY", "instrument": "GBAY", "product": "GBAY", "cdf_count": 1830, "active_days": 1697.1066435185185, "coverage_pct": 63.70532224267356, "earliest": "1992-07-20", "latest": "1999-11-04", "intervals": [["1992-07-20 00:02:06", "1992-08-17 16:59:46"], ["1992-08-21 00:01:02", "1992-11-06 17:23:18"], ["1992-11-09 17:12:36", "1992-11-25 23:59:18"], ["1992-11-30 18:40:00", "1992-12-03 10:01:28"], ["1992-12-04 17:01:40", "1992-12-08 10:02:12"], ["1992-12-10 00:02:08", "1992-12-11 10:00:58"], ["1992-12-12 17:01:22", "1992-12-14 10:00:40"], ["1992-12-15 17:07:46", "1992-12-22 20:17:12"], ["1992-12-28 17:29:12", "1993-01-15 17:49:43"], ["1993-01-18 15:17:34", "1993-01-18 17:27:06"], ["1993-01-26 14:03:13", "1993-03-03 05:34:38"], ["1993-03-04 18:26:47", "1993-03-07 13:51:41"], ["1993-03-09 00:01:34", "1993-03-13 10:43:13"], ["1993-03-16 15:34:25", "1993-04-10 23:59:20"], ["1993-04-12 13:06:38", "1993-06-12 10:13:37"], ["1993-06-13 15:27:47", "1993-06-25 23:59:26"], ["1993-07-03 00:10:47", "1993-07-06 23:59:26"], ["1993-07-10 00:09:45", "1993-07-12 23:55:44"], ["1994-04-10 00:02:17", "1994-06-19 06:04:43"], ["1994-06-21 17:16:03", "1994-06-27 14:00:19"], ["1994-08-28 02:01:50", "1994-09-06 23:53:38"], ["1994-09-12 00:01:48", "1994-09-13 23:59:14"], ["1994-09-15 12:06:02", "1994-09-26 23:59:56"], ["1994-10-03 00:02:14", "1994-12-10 19:58:02"], ["1994-12-14 18:07:40", "1995-01-09 23:59:51"], ["1995-01-18 14:35:00", "1995-02-24 20:20:35"], ["1995-03-06 21:55:24", "1995-06-07 03:10:37"], ["1995-06-08 15:25:54", "1995-06-10 04:53:00"], ["1995-06-14 13:39:12", "1995-06-15 20:40:22"], ["1995-07-06 14:44:46", "1995-07-09 00:36:06"], ["1995-07-17 00:00:54", "1995-09-04 00:00:58"], ["1995-09-06 00:03:52", "1995-10-08 23:58:56"], ["1995-10-30 00:02:52", "1995-11-28 02:06:58"], ["1995-11-29 19:35:08", "1995-11-30 02:06:58"], ["1995-12-01 16:33:36", "1995-12-11 03:45:26"], ["1995-12-12 16:44:48", "1996-01-05 00:00:57"], ["1996-01-07 00:02:51", "1996-01-27 23:28:57"], ["1996-01-29 13:28:57", "1996-02-09 20:28:57"], ["1996-02-12 15:00:57", "1996-03-26 00:00:58"], ["1996-03-28 00:02:51", "1996-04-01 08:26:59"], ["1996-04-02 16:16:48", "1996-04-27 17:18:36"], ["1996-04-29 22:44:36", "1996-05-29 11:26:56"], ["1996-05-31 20:08:40", "1996-06-03 14:02:50"], ["1996-06-06 20:26:12", "1996-06-12 00:00:56"], ["1996-06-18 00:00:58", "1996-08-12 17:46:56"], ["1996-08-14 17:52:56", "1996-08-14 18:38:56"], ["1996-08-28 00:06:56", "1996-09-13 00:00:56"], ["1996-09-16 00:32:58", "1996-09-25 23:58:58"], ["1996-09-28 00:10:58", "1997-01-28 19:56:57"], ["1997-01-30 00:00:57", "1997-02-27 23:58:57"], ["1997-03-06 00:00:57", "1997-03-23 23:58:57"], ["1997-03-27 23:05:02", "1997-04-23 23:58:28"], ["1997-04-25 18:19:26", "1997-04-25 23:58:26"], ["1997-04-28 22:49:26", "1997-06-17 07:11:24"], ["1997-06-19 00:28:26", "1997-06-29 23:56:58"], ["1997-07-22 00:52:56", "1997-08-14 06:30:58"], ["1997-08-19 20:48:58", "1997-09-06 03:44:58"], ["1997-09-08 16:28:56", "1997-09-14 23:58:56"], ["1997-09-17 14:18:58", "1997-09-26 23:28:58"], ["1997-09-30 00:06:58", "1997-12-06 23:58:56"], ["1997-12-09 00:18:58", "1997-12-21 21:54:56"], ["1997-12-24 00:00:26", "1997-12-31 23:58:58"], ["1998-01-02 16:18:57", "1998-01-06 23:59:25"], ["1998-01-11 00:24:57", "1998-01-12 23:58:57"], ["1998-01-15 00:06:57", "1998-01-31 23:58:57"], ["1998-02-02 21:42:06", "1998-02-02 22:00:21"], ["1998-02-05 00:02:57", "1998-02-21 23:44:57"], ["1998-02-24 00:08:57", "1998-03-14 23:58:57"], ["1998-03-23 00:00:57", "1998-04-07 21:02:58"], ["1998-04-09 00:00:58", "1998-04-22 23:50:58"], ["1998-04-27 00:00:56", "1998-05-18 20:20:58"], ["1998-05-20 17:36:51", "1998-05-28 23:58:58"], ["1998-06-02 00:00:58", "1998-06-02 23:58:58"], ["1998-06-08 17:26:58", "1998-06-17 08:50:58"], ["1998-06-19 15:20:58", "1998-07-06 11:08:57"], ["1998-09-07 17:12:58", "1998-09-10 23:58:58"], ["1998-09-15 21:30:58", "1998-11-05 18:58:58"], ["1998-11-09 00:02:58", "1998-12-13 23:58:58"], ["1999-01-03 18:45:00", "1999-01-23 23:55:00"], ["1999-01-26 00:03:00", "1999-01-28 23:51:00"], ["1999-01-31 03:49:00", "1999-02-04 15:32:00"], ["1999-02-06 03:55:00", "1999-02-16 12:53:00"], ["1999-02-19 21:21:00", "1999-03-06 14:21:00"], ["1999-03-09 19:58:00", "1999-03-18 23:55:00"], ["1999-03-22 18:33:00", "1999-03-28 04:09:00"], ["1999-03-29 22:47:00", "1999-04-13 03:13:00"], ["1999-06-14 00:09:00", "1999-06-14 08:53:00"], ["1999-07-13 18:23:00", "1999-07-13 18:47:00"], ["1999-07-19 21:29:00", "1999-07-23 07:58:00"], ["1999-07-24 23:51:00", "1999-08-24 07:09:00"], ["1999-08-26 15:07:00", "1999-09-28 08:15:00"], ["1999-10-15 00:01:00", "1999-11-04 23:55:00"]], "page": "./DN_K0_GBAY.html"}, {"name": "DN_K0_HANK", "instrument": "HANK", "product": "HANK", "cdf_count": 1662, "active_days": 1580.8013657407407, "coverage_pct": 84.89809216421767, "earliest": "1996-07-01", "latest": "2001-08-05", "intervals": [["1996-07-01 00:00:49", "1996-07-03 14:04:58"], ["1996-07-04 19:34:57", "1996-12-29 23:58:58"], ["1997-01-01 00:02:52", "1997-01-05 06:00:57"], ["1997-01-06 08:43:09", "1997-01-12 22:48:58"], ["1997-01-14 14:26:44", "1997-02-03 00:00:57"], ["1997-02-04 05:02:57", "1997-03-03 23:18:58"], ["1997-03-05 08:40:56", "1997-04-21 23:00:46"], ["1997-04-27 00:06:58", "1997-05-14 23:58:58"], ["1997-05-31 00:04:58", "1997-06-13 05:58:06"], ["1997-06-17 22:50:58", "1997-06-19 11:54:58"], ["1997-06-20 19:00:06", "1997-07-01 13:04:58"], ["1997-07-02 20:26:52", "1997-12-16 23:58:58"], ["1997-12-20 00:00:56", "1998-01-08 08:20:57"], ["1998-01-12 00:00:58", "1998-01-13 23:54:58"], ["1998-01-16 00:00:58", "1998-01-31 23:58:58"], ["1998-02-03 00:01:01", "1998-02-21 23:42:58"], ["1998-02-24 00:02:57", "1998-02-25 23:58:57"], ["1998-02-28 00:14:57", "1998-03-17 23:58:54"], ["1998-03-21 00:02:58", "1998-04-23 23:58:58"], ["1998-04-27 00:01:04", "1998-05-10 23:25:24"], ["1998-05-14 00:01:00", "1998-06-04 07:04:50"], ["1998-06-08 11:32:58", "1998-06-17 23:30:58"], ["1998-06-23 09:08:58", "1998-07-16 08:25:56"], ["1998-07-20 19:06:58", "1998-10-06 09:56:58"], ["1998-10-07 12:04:54", "1998-10-07 15:44:58"], ["1998-10-19 11:43:36", "1999-01-21 00:01:11"], ["1999-01-22 09:01:24", "1999-01-22 23:58:01"], ["1999-02-07 00:24:57", "1999-02-16 22:05:23"], ["1999-02-20 00:20:13", "1999-03-02 23:48:58"], ["1999-03-07 00:00:47", "1999-05-21 23:58:58"], ["1999-05-26 00:01:04", "1999-06-17 23:59:26"], ["1999-06-21 10:37:32", "1999-06-23 23:52:58"], ["1999-06-26 00:00:56", "1999-06-26 18:48:58"], ["1999-06-29 02:08:58", "1999-07-19 23:58:58"], ["1999-07-22 00:01:04", "1999-07-25 23:58:56"], ["1999-07-28 00:00:46", "1999-08-02 06:16:56"], ["1999-08-09 08:39:08", "1999-08-25 23:58:56"], ["1999-08-28 00:01:00", "1999-09-05 23:54:56"], ["1999-09-13 00:00:54", "2000-02-07 23:59:25"], ["2000-02-09 04:00:42", "2000-02-21 03:59:24"], ["2000-02-23 14:00:34", "2000-02-23 23:59:25"], ["2000-03-01 09:22:57", "2000-03-05 23:58:57"], ["2000-03-09 00:00:56", "2000-03-22 23:59:25"], ["2000-03-25 18:00:31", "2000-04-08 15:00:08"], ["2000-04-11 00:00:42", "2000-04-24 23:58:57"], ["2000-04-29 00:00:58", "2000-05-03 23:48:57"], ["2000-05-08 00:01:04", "2000-05-20 04:32:57"], ["2000-05-21 14:10:58", "2000-06-27 23:42:58"], ["2000-07-02 00:01:26", "2000-07-08 09:42:57"], ["2000-07-14 15:39:08", "2000-07-28 23:58:58"], ["2000-08-01 00:00:36", "2000-10-28 15:00:56"], ["2000-10-30 15:24:58", "2000-11-16 20:51:24"], ["2000-11-18 09:15:40", "2000-12-11 08:57:26"], ["2000-12-13 16:09:24", "2001-02-10 07:58:57"], ["2001-02-13 06:52:56", "2001-02-24 20:14:03"], ["2001-02-26 12:31:25", "2001-03-30 23:58:57"], ["2001-04-02 06:00:46", "2001-04-05 08:41:25"], ["2001-04-07 00:00:51", "2001-05-25 20:35:54"], ["2001-05-27 00:02:58", "2001-07-05 23:59:26"], ["2001-07-09 00:08:57", "2001-08-05 23:58:56"]], "page": "./DN_K0_HANK.html"}, {"name": "DN_K0_ICEW", "instrument": "ICEW", "product": "ICEW", "cdf_count": 1339, "active_days": 1234.0662037037036, "coverage_pct": 65.1567785707336, "earliest": "1994-08-28", "latest": "1999-11-03", "intervals": [["1994-08-28 00:02:02", "1994-09-10 13:17:28"], ["1994-09-12 00:01:18", "1994-09-25 00:00:06"], ["1994-10-04 00:02:04", "1994-10-07 07:26:08"], ["1994-10-11 15:37:36", "1994-10-20 23:59:56"], ["1994-10-24 00:00:52", "1994-10-25 23:59:10"], ["1994-10-28 00:01:44", "1994-12-10 08:00:00"], ["1994-12-12 17:40:48", "1994-12-22 23:59:18"], ["1994-12-25 00:01:58", "1995-01-01 07:59:06"], ["1995-01-02 10:25:56", "1995-01-10 00:00:45"], ["1995-01-16 00:00:56", "1995-03-25 07:59:24"], ["1995-03-27 16:44:01", "1995-03-31 23:52:59"], ["1995-04-02 15:01:45", "1995-07-10 00:00:14"], ["1995-07-17 00:01:56", "1995-07-19 05:30:56"], ["1995-07-24 10:38:54", "1995-08-05 12:58:58"], ["1995-08-07 07:18:56", "1995-08-09 23:58:58"], ["1995-08-13 00:03:30", "1995-08-25 02:00:32"], ["1995-08-28 00:00:48", "1995-09-04 00:00:58"], ["1995-09-06 00:02:52", "1995-10-01 00:01:10"], ["1995-10-02 07:36:44", "1995-10-09 00:00:56"], ["1995-10-30 00:00:28", "1995-11-26 23:58:56"], ["1995-11-30 00:00:50", "1995-12-09 23:19:48"], ["1995-12-11 15:42:16", "1995-12-24 23:57:16"], ["1995-12-26 18:14:40", "1996-03-19 01:24:57"], ["1996-03-23 00:00:50", "1996-08-18 15:16:50"], ["1996-08-27 15:20:56", "1996-09-06 23:58:58"], ["1996-09-09 12:36:58", "1996-09-10 23:59:08"], ["1996-09-12 06:07:44", "1996-09-14 00:00:56"], ["1996-09-16 00:02:52", "1996-10-13 00:00:56"], ["1996-10-17 00:26:12", "1996-12-04 10:34:56"], ["1996-12-05 14:25:58", "1996-12-09 14:37:32"], ["1997-01-07 11:24:59", "1997-01-08 02:02:55"], ["1997-01-16 00:00:59", "1997-01-16 02:04:07"], ["1997-01-21 00:00:59", "1997-01-26 23:58:58"], ["1997-01-30 00:00:59", "1997-01-31 01:58:51"], ["1997-02-03 11:34:58", "1997-02-08 02:01:03"], ["1997-02-10 13:48:51", "1997-02-15 02:01:02"], ["1997-02-17 20:16:27", "1997-02-22 01:58:51"], ["1997-02-24 15:20:51", "1997-02-24 23:50:51"], ["1997-02-26 17:08:58", "1997-02-28 13:09:02"], ["1997-03-05 14:54:57", "1997-03-09 01:58:56"], ["1997-03-10 16:16:57", "1997-03-12 01:58:47"], ["1997-03-18 15:12:17", "1997-03-21 01:58:57"], ["1997-03-27 19:22:57", "1997-03-30 01:58:56"], ["1997-04-03 14:58:57", "1997-04-04 01:58:50"], ["1997-04-07 15:42:57", "1997-04-08 01:58:58"], ["1997-04-10 00:00:58", "1997-04-14 02:00:58"], ["1997-04-24 00:09:03", "1997-04-27 02:03:01"], ["1997-04-28 16:18:58", "1997-04-29 02:02:58"], ["1997-05-01 22:29:00", "1997-05-05 02:02:04"], ["1997-05-12 21:24:58", "1997-05-14 01:58:54"], ["1997-05-16 00:00:58", "1997-05-16 01:58:58"], ["1997-05-21 14:18:58", "1997-05-21 23:58:58"], ["1997-05-23 22:08:58", "1997-05-30 02:58:58"], ["1997-08-01 00:01:00", "1997-08-12 01:58:56"], ["1997-09-08 16:16:58", "1997-09-11 02:07:02"], ["1997-09-20 16:28:58", "1997-09-26 02:02:00"], ["1997-09-30 00:00:58", "1997-10-09 02:07:56"], ["1997-10-15 17:32:56", "1997-11-21 12:48:24"], ["1997-11-23 20:02:44", "1997-12-21 23:59:26"], ["1997-12-24 00:00:24", "1997-12-27 23:56:00"], ["1998-01-01 00:00:54", "1998-01-01 00:06:56"], ["1998-01-02 16:50:57", "1998-01-07 23:58:57"], ["1998-01-11 00:01:02", "1998-01-12 23:58:57"], ["1998-01-15 00:00:57", "1998-01-21 23:58:57"], ["1998-02-06 00:01:03", "1998-02-14 23:56:57"], ["1998-02-17 00:01:03", "1998-02-21 23:58:57"], ["1998-02-24 00:01:00", "1998-02-25 23:58:57"], ["1998-02-28 00:00:49", "1998-03-17 23:58:57"], ["1998-03-22 00:00:57", "1998-03-27 23:58:57"], ["1998-03-31 00:04:57", "1998-04-02 23:58:57"], ["1998-04-10 00:02:52", "1998-04-14 07:28:58"], ["1998-04-15 21:56:58", "1998-04-22 23:42:58"], ["1998-04-27 00:01:00", "1998-05-02 23:58:58"], ["1998-05-09 00:00:56", "1998-05-10 23:56:57"], ["1998-05-14 00:40:58", "1998-05-16 23:56:57"], ["1998-05-20 00:01:00", "1998-05-28 23:52:58"], ["1998-06-01 22:00:58", "1998-06-17 23:24:58"], ["1998-06-23 00:00:50", "1998-06-30 23:26:58"], ["1998-07-05 00:18:58", "1998-07-22 23:58:58"], ["1998-08-10 00:06:58", "1998-08-12 23:58:58"], ["1998-08-17 00:01:02", "1998-08-19 23:58:58"], ["1998-08-22 00:03:16", "1998-09-27 07:51:26"], ["1998-11-22 00:00:26", "1998-11-24 23:59:26"], ["1998-11-28 00:00:58", "1998-12-14 23:58:58"], ["1999-01-01 00:03:00", "1999-04-23 23:55:00"], ["1999-04-26 00:19:00", "1999-05-21 16:37:00"], ["1999-05-23 11:19:00", "1999-06-26 23:55:00"], ["1999-07-01 00:41:00", "1999-07-18 23:55:00"], ["1999-07-21 04:05:00", "1999-07-26 06:37:00"], ["1999-07-28 00:09:00", "1999-08-07 00:17:00"], ["1999-08-08 02:49:00", "1999-08-11 23:41:00"], ["1999-08-15 00:03:00", "1999-09-08 05:31:00"], ["1999-09-11 00:01:00", "1999-09-11 21:57:00"], ["1999-11-01 18:47:00", "1999-11-03 23:55:00"]], "page": "./DN_K0_ICEW.html"}, {"name": "DN_K0_KAPU", "instrument": "KAPU", "product": "KAPU", "cdf_count": 1651, "active_days": 1532.720173611111, "coverage_pct": 80.8825434836662, "earliest": "1994-08-28", "latest": "1999-11-04", "intervals": [["1994-08-28 00:02:10", "1994-08-30 00:00:12"], ["1994-09-01 00:01:24", "1994-09-07 00:00:04"], ["1994-09-12 00:03:08", "1994-09-27 00:00:36"], ["1994-10-03 00:02:02", "1994-10-25 23:59:56"], ["1994-10-28 00:02:04", "1995-01-10 00:00:37"], ["1995-01-15 00:00:48", "1995-07-10 00:00:57"], ["1995-07-17 00:02:52", "1995-08-24 00:00:58"], ["1995-08-26 16:31:28", "1995-09-02 02:22:24"], ["1995-09-06 00:02:52", "1995-10-09 00:00:58"], ["1995-10-30 14:00:20", "1996-07-08 00:00:58"], ["1996-07-10 01:04:58", "1996-07-15 17:42:58"], ["1996-07-22 12:36:58", "1996-08-19 21:52:58"], ["1996-08-27 02:36:56", "1996-08-27 13:04:56"], ["1996-09-04 16:10:56", "1996-09-21 00:06:56"], ["1996-09-23 21:20:58", "1996-10-16 20:08:58"], ["1996-10-18 14:26:58", "1996-10-18 21:36:58"], ["1996-10-21 21:50:48", "1997-02-20 18:52:58"], ["1997-02-24 16:06:58", "1997-03-30 04:36:58"], ["1997-04-01 03:04:58", "1997-04-07 00:56:58"], ["1997-04-11 21:22:58", "1997-04-24 23:57:26"], ["1997-05-10 02:00:58", "1997-05-11 13:08:58"], ["1997-05-17 00:00:58", "1997-05-20 13:02:58"], ["1997-05-22 00:02:57", "1997-07-25 17:02:58"], ["1997-07-28 00:00:58", "1997-10-14 01:28:58"], ["1997-10-15 19:18:56", "1997-12-07 23:58:58"], ["1997-12-09 02:46:58", "1997-12-21 23:43:24"], ["1997-12-24 00:01:26", "1997-12-31 23:58:58"], ["1998-01-02 17:32:57", "1998-01-07 23:59:25"], ["1998-01-11 02:38:57", "1998-01-12 23:56:57"], ["1998-01-15 00:00:57", "1998-01-31 23:12:57"], ["1998-02-03 00:02:57", "1998-02-08 00:06:57"], ["1998-02-09 21:28:57", "1998-02-21 23:58:57"], ["1998-02-24 00:00:59", "1998-02-26 15:40:57"], ["1998-03-01 00:00:53", "1998-03-17 23:58:57"], ["1998-03-23 00:00:57", "1998-04-23 21:04:58"], ["1998-04-25 19:36:58", "1998-05-17 01:34:23"], ["1998-05-19 15:55:28", "1998-05-29 02:20:04"], ["1998-05-31 10:20:26", "1998-06-29 16:38:58"], ["1998-06-30 18:54:58", "1998-07-11 01:37:51"], ["1998-07-16 00:06:58", "1998-08-01 05:30:58"], ["1998-08-03 02:10:58", "1998-10-26 23:58:58"], ["1998-10-29 00:00:58", "1998-11-03 23:58:58"], ["1998-11-07 01:39:34", "1998-11-09 23:58:58"], ["1998-11-13 00:01:26", "1998-12-14 23:58:58"], ["1999-01-01 00:01:00", "1999-01-28 23:41:00"], ["1999-01-31 00:01:00", "1999-05-02 09:07:00"], ["1999-05-04 01:09:00", "1999-05-05 11:37:00"], ["1999-05-08 01:53:00", "1999-05-13 23:55:00"], ["1999-05-18 01:05:00", "1999-05-29 09:45:00"], ["1999-05-31 23:33:00", "1999-06-01 09:47:00"], ["1999-06-05 01:11:00", "1999-06-06 22:08:00"], ["1999-06-09 01:27:00", "1999-06-23 15:03:00"], ["1999-07-03 04:25:00", "1999-07-04 07:43:00"], ["1999-07-09 00:49:00", "1999-07-15 21:17:00"], ["1999-07-17 08:51:00", "1999-07-22 18:09:00"], ["1999-07-26 09:11:00", "1999-07-26 10:51:00"], ["1999-07-28 00:29:00", "1999-07-28 20:39:00"], ["1999-07-30 18:09:00", "1999-08-24 23:17:00"], ["1999-08-28 04:03:00", "1999-08-29 13:55:00"], ["1999-09-01 02:57:00", "1999-09-07 21:45:00"], ["1999-09-09 00:03:00", "1999-10-07 23:59:00"], ["1999-10-14 00:01:00", "1999-11-04 23:55:00"]], "page": "./DN_K0_KAPU.html"}, {"name": "DN_K0_PACE", "instrument": "PACE", "product": "PACE", "cdf_count": 2552, "active_days": 2409.56625, "coverage_pct": 75.0086622237719, "earliest": "1992-12-04", "latest": "2001-09-20", "intervals": [["1992-12-04 00:01:06", "1992-12-14 09:05:04"], ["1992-12-16 00:00:52", "1992-12-31 23:58:58"], ["1993-01-03 00:00:42", "1993-01-10 08:22:51"], ["1993-01-23 00:01:02", "1993-01-31 23:59:06"], ["1993-02-03 00:01:05", "1993-02-03 08:17:36"], ["1993-02-09 00:01:14", "1993-02-09 08:59:37"], ["1993-02-11 00:01:37", "1993-02-13 23:58:32"], ["1993-02-19 00:01:20", "1994-01-02 23:58:55"], ["1994-01-06 00:00:11", "1994-01-11 08:23:12"], ["1994-01-14 00:01:31", "1994-01-17 10:50:22"], ["1994-01-25 00:00:47", "1994-02-04 00:00:03"], ["1994-02-05 10:30:20", "1994-07-22 10:00:10"], ["1994-07-24 00:00:44", "1994-07-29 23:57:48"], ["1994-08-04 00:00:30", "1994-12-04 23:58:04"], ["1994-12-08 00:00:26", "1995-01-18 23:57:46"], ["1995-04-01 00:01:39", "1995-04-30 10:12:03"], ["1995-06-01 00:01:21", "1995-06-30 10:11:36"], ["1995-07-07 00:01:00", "1995-07-19 10:09:00"], ["1995-08-16 06:52:30", "1995-08-24 10:10:58"], ["1995-08-26 00:11:42", "1995-10-05 23:59:59"], ["1995-10-10 00:04:00", "1995-10-11 23:58:15"], ["1995-10-16 00:04:48", "1995-10-16 23:58:09"], ["1995-10-24 00:04:00", "1995-10-25 00:00:00"], ["1995-10-27 00:03:59", "1996-01-01 00:00:00"], ["1996-01-18 00:04:55", "1996-01-19 01:33:48"], ["1996-01-25 00:02:49", "1996-01-31 02:15:59"], ["1996-03-01 00:02:00", "1996-03-09 20:00:00"], ["1996-03-11 00:04:00", "1996-03-15 19:15:59"], ["1996-03-17 00:02:00", "1996-03-22 03:59:43"], ["1996-03-23 16:06:00", "1996-03-27 03:58:00"], ["1996-03-28 08:05:21", "1996-05-06 23:57:59"], ["1996-05-09 00:04:00", "1996-05-23 23:57:39"], ["1996-05-26 00:04:00", "1996-05-30 23:59:24"], ["1996-06-02 00:03:59", "1996-06-24 16:22:42"], ["1996-06-26 00:02:58", "1996-07-29 12:36:00"], ["1996-07-31 00:04:00", "1996-08-09 23:59:59"], ["1996-08-13 00:00:00", "1996-08-30 23:55:04"], ["1996-09-04 00:01:48", "1996-10-07 23:59:59"], ["1996-10-10 00:00:00", "1996-11-09 23:59:48"], ["1996-11-12 00:01:48", "1996-11-12 23:58:00"], ["1996-11-20 00:04:00", "1996-12-02 23:52:00"], ["1997-01-03 00:14:00", "1997-01-09 00:06:00"], ["1997-01-15 00:10:00", "1997-01-23 10:40:00"], ["1997-01-29 19:10:00", "1997-02-22 00:08:00"], ["1997-02-28 00:08:22", "1997-03-07 00:06:00"], ["1997-03-09 00:08:34", "1997-03-26 23:56:00"], ["1997-03-30 00:08:38", "1997-05-29 23:58:00"], ["1997-06-03 00:02:00", "1997-07-02 23:58:00"], ["1997-07-09 00:02:02", "1997-07-22 23:58:00"], ["1997-07-24 03:14:00", "1997-07-24 23:58:00"], ["1997-07-28 00:00:02", "1997-07-29 23:56:00"], ["1997-08-19 00:30:00", "1997-08-21 23:46:00"], ["1997-08-23 03:48:00", "1998-02-03 23:58:00"], ["1998-02-11 00:02:02", "1998-02-17 23:58:00"], ["1998-03-01 21:22:00", "1998-03-07 04:58:00"], ["1998-03-10 11:14:00", "1998-03-20 23:54:00"], ["1998-03-26 00:00:01", "1998-03-26 23:58:17"], ["1998-04-02 00:00:00", "1998-04-02 23:58:00"], ["1998-04-09 00:00:00", "1998-04-11 23:58:00"], ["1998-04-23 00:06:00", "1998-04-25 23:52:46"], ["1998-04-30 00:00:00", "1998-04-30 23:54:00"], ["1998-05-14 00:00:24", "1998-05-14 23:58:00"], ["1998-05-21 00:00:00", "1998-05-28 23:58:00"], ["1998-06-01 00:08:00", "1998-06-02 23:56:00"], ["1998-06-07 19:52:00", "1998-06-09 23:58:00"], ["1998-06-23 00:12:00", "1998-06-28 23:58:00"], ["1998-07-05 00:08:00", "1998-07-06 14:20:00"], ["1998-07-08 10:28:00", "1998-07-10 23:58:00"], ["1998-07-15 00:00:30", "1998-07-15 23:58:00"], ["1998-07-18 16:36:34", "1998-07-21 23:52:00"], ["1998-07-26 00:00:29", "1998-08-05 23:58:00"], ["1998-08-17 09:13:58", "1998-08-19 23:58:00"], ["1998-08-25 00:00:19", "1998-09-21 23:58:00"], ["1998-09-24 14:46:00", "1998-11-05 23:58:00"], ["1998-11-09 00:00:08", "1998-11-29 21:36:00"], ["1998-12-01 00:04:00", "1998-12-31 21:34:00"], ["1999-01-02 00:00:00", "1999-01-08 02:20:00"], ["1999-01-22 16:12:00", "1999-01-23 20:48:00"], ["1999-01-26 00:00:14", "1999-01-28 23:58:00"], ["1999-01-31 08:38:00", "1999-02-08 23:58:00"], ["1999-02-10 06:00:00", "1999-02-11 09:35:00"], ["1999-02-13 20:17:00", "1999-03-09 23:58:00"], ["1999-03-13 00:00:17", "1999-03-14 23:58:00"], ["1999-03-18 00:00:12", "1999-05-12 23:58:00"], ["1999-05-19 00:00:31", "1999-06-09 23:59:51"], ["1999-06-13 00:00:16", "1999-06-13 23:58:00"], ["1999-06-17 00:00:13", "1999-07-04 14:02:00"], ["1999-07-09 10:10:18", "1999-07-11 23:59:39"], ["1999-07-16 11:26:00", "1999-11-25 23:58:00"], ["1999-11-28 00:00:07", "1999-12-04 10:19:00"], ["1999-12-09 00:01:00", "1999-12-09 23:59:00"], ["1999-12-12 02:03:00", "2000-06-15 14:32:00"], ["2000-06-16 18:53:57", "2000-11-08 23:02:04"], ["2000-11-11 05:16:00", "2000-11-17 09:48:58"], ["2000-11-18 19:49:38", "2000-12-12 07:36:49"], ["2000-12-14 23:08:08", "2000-12-24 09:03:00"], ["2000-12-26 00:00:00", "2001-02-03 07:00:00"], ["2001-02-05 22:42:44", "2001-02-21 21:31:00"], ["2001-02-23 04:01:35", "2001-06-10 23:56:00"], ["2001-06-16 00:00:01", "2001-07-26 10:37:00"], ["2001-07-27 14:33:44", "2001-08-06 14:50:00"], ["2001-09-04 15:43:00", "2001-09-06 09:52:00"], ["2001-09-12 18:22:00", "2001-09-12 23:59:00"], ["2001-09-16 08:35:37", "2001-09-20 09:14:02"]], "page": "./DN_K0_PACE.html"}, {"name": "DN_K0_PYKK", "instrument": "PYKK", "product": "PYKK", "cdf_count": 1625, "active_days": 1559.3869675925926, "coverage_pct": 87.5870046663954, "earliest": "1996-07-01", "latest": "2001-05-16", "intervals": [["1996-07-01 00:00:48", "1996-11-29 08:30:58"], ["1996-12-02 10:38:20", "1996-12-29 23:58:58"], ["1997-01-01 00:02:52", "1997-01-26 07:16:05"], ["1997-01-27 09:26:57", "1997-02-23 04:04:59"], ["1997-02-24 13:54:57", "1997-04-19 03:34:58"], ["1997-04-21 11:10:57", "1997-04-22 02:02:52"], ["1997-04-25 18:09:50", "1997-04-26 04:02:58"], ["1997-05-21 19:46:00", "1997-05-23 10:24:30"], ["1997-05-27 04:00:45", "1997-06-20 02:56:24"], ["1997-06-23 13:02:58", "1997-08-25 09:42:26"], ["1997-08-27 00:09:12", "1997-12-16 23:58:58"], ["1997-12-20 00:00:54", "1998-01-07 23:58:57"], ["1998-01-11 00:02:58", "1998-01-13 23:58:58"], ["1998-01-16 00:00:58", "1998-01-18 02:56:57"], ["1998-01-19 09:08:01", "1998-02-21 23:58:57"], ["1998-02-24 00:01:05", "1998-02-25 23:58:58"], ["1998-02-27 17:24:57", "1998-03-17 23:58:57"], ["1998-03-21 00:01:03", "1998-04-23 23:58:58"], ["1998-04-27 00:01:04", "1998-05-05 07:56:58"], ["1998-05-06 16:54:02", "1998-05-10 23:58:58"], ["1998-05-14 00:02:58", "1998-06-04 08:32:54"], ["1998-06-08 10:06:58", "1998-12-18 00:00:32"], ["1998-12-21 09:38:44", "1999-01-22 23:00:33"], ["1999-02-08 00:00:57", "1999-03-02 23:05:07"], ["1999-03-06 01:00:06", "1999-05-21 23:02:07"], ["1999-05-26 01:03:09", "1999-06-23 23:05:10"], ["1999-06-26 00:00:52", "1999-06-26 23:58:57"], ["1999-06-29 01:02:59", "1999-07-19 23:05:10"], ["1999-07-22 00:00:54", "1999-07-25 23:58:58"], ["1999-07-28 00:00:32", "1999-08-05 23:05:08"], ["1999-08-08 00:02:48", "1999-08-25 23:58:56"], ["1999-08-28 00:02:56", "1999-10-20 04:58:56"], ["1999-10-21 19:00:24", "2000-01-12 23:59:49"], ["2000-01-15 00:00:25", "2000-02-11 18:32:25"], ["2000-02-14 00:02:57", "2000-02-21 04:00:12"], ["2000-02-23 14:01:25", "2000-02-23 23:59:25"], ["2000-03-01 08:54:53", "2000-03-05 23:58:57"], ["2000-03-09 00:00:53", "2000-03-21 23:59:23"], ["2000-03-28 00:00:28", "2000-03-28 17:38:25"], ["2000-03-31 00:00:57", "2000-04-03 11:33:25"], ["2000-04-05 04:02:46", "2000-04-08 14:59:52"], ["2000-04-11 00:00:40", "2000-04-11 15:00:10"], ["2000-04-13 00:00:58", "2000-04-24 23:58:53"], ["2000-04-29 00:00:57", "2000-05-20 04:46:58"], ["2000-05-21 07:04:57", "2000-06-30 05:26:50"], ["2000-07-01 19:26:38", "2000-07-15 10:12:58"], ["2000-07-17 01:08:56", "2000-11-09 01:38:56"], ["2000-11-10 04:06:56", "2001-02-16 08:54:57"], ["2001-02-19 20:00:48", "2001-03-30 23:58:57"], ["2001-04-02 06:00:46", "2001-04-05 08:01:25"], ["2001-04-07 00:01:03", "2001-05-16 09:16:58"]], "page": "./DN_K0_PYKK.html"}, {"name": "DN_K0_SASK", "instrument": "SASK", "product": "SASK", "cdf_count": 1597, "active_days": 1571.4297916666667, "coverage_pct": 80.52436957669131, "earliest": "1994-07-02", "latest": "1999-11-04", "intervals": [["1994-07-02 12:00:52", "1995-01-09 23:59:40"], ["1995-01-16 00:01:26", "1995-04-21 20:24:58"], ["1995-04-24 16:42:15", "1995-07-09 23:58:56"], ["1995-07-17 00:02:44", "1995-09-04 00:00:58"], ["1995-09-06 00:02:52", "1995-09-16 23:58:56"], ["1995-09-18 20:02:52", "1995-10-09 00:00:58"], ["1995-10-30 00:00:26", "1995-12-09 22:49:16"], ["1995-12-12 00:00:48", "1995-12-16 00:42:58"], ["1995-12-17 16:21:16", "1996-06-28 15:13:27"], ["1996-07-03 00:00:38", "1996-07-07 14:50:41"], ["1996-07-10 17:12:56", "1996-07-27 23:54:58"], ["1996-07-30 00:00:58", "1996-08-19 23:59:58"], ["1996-08-27 00:01:14", "1996-08-31 22:18:58"], ["1996-09-02 00:21:02", "1996-09-26 23:57:08"], ["1996-09-30 13:26:58", "1996-10-08 19:08:58"], ["1996-10-12 14:14:26", "1996-10-15 23:58:28"], ["1996-10-18 13:12:58", "1996-11-02 00:21:00"], ["1996-11-04 14:39:00", "1996-12-19 23:48:58"], ["1997-01-14 00:01:00", "1997-01-20 00:22:59"], ["1997-01-23 13:38:57", "1997-02-02 23:58:58"], ["1997-02-05 00:32:57", "1997-02-21 14:08:57"], ["1997-02-24 14:21:12", "1997-02-26 01:57:51"], ["1997-02-28 00:00:42", "1997-02-28 17:40:59"], ["1997-03-05 12:02:57", "1997-03-08 17:21:26"], ["1997-03-10 13:18:58", "1997-03-19 16:38:57"], ["1997-03-21 00:04:58", "1997-05-20 19:00:57"], ["1997-05-22 00:02:58", "1997-07-21 21:12:58"], ["1997-07-23 00:42:58", "1997-12-21 23:59:24"], ["1997-12-24 00:00:26", "1998-01-07 18:49:25"], ["1998-01-11 00:12:57", "1998-01-12 23:38:57"], ["1998-01-15 00:18:57", "1998-02-19 14:04:57"], ["1998-03-04 16:10:57", "1998-03-17 23:58:57"], ["1998-03-23 00:08:57", "1998-04-22 23:26:57"], ["1998-04-25 04:30:54", "1998-04-25 23:30:54"], ["1998-04-27 16:22:58", "1998-05-17 19:31:30"], ["1998-05-19 13:49:32", "1998-07-10 19:26:58"], ["1998-07-12 03:34:16", "1998-12-14 23:58:58"], ["1999-01-01 00:01:00", "1999-01-21 16:49:00"], ["1999-01-27 01:49:00", "1999-01-27 14:35:00"], ["1999-01-28 17:05:00", "1999-01-28 18:50:00"], ["1999-01-31 00:17:00", "1999-01-31 22:59:00"], ["1999-02-02 01:31:00", "1999-02-13 23:09:00"], ["1999-02-21 01:31:00", "1999-02-24 23:55:00"], ["1999-03-01 00:01:00", "1999-03-01 23:53:00"], ["1999-03-04 04:07:00", "1999-03-04 08:08:00"], ["1999-03-06 01:42:00", "1999-03-06 16:27:00"], ["1999-03-08 02:21:00", "1999-03-09 23:55:00"], ["1999-03-19 00:03:00", "1999-04-15 23:55:00"], ["1999-04-18 05:43:00", "1999-04-18 07:10:00"], ["1999-04-20 00:25:00", "1999-04-22 21:01:00"], ["1999-04-24 00:41:00", "1999-04-24 06:22:00"], ["1999-04-26 04:33:00", "1999-04-26 07:40:00"], ["1999-04-28 00:43:00", "1999-05-15 12:31:00"], ["1999-05-18 08:47:00", "1999-05-18 16:55:00"], ["1999-05-20 14:23:00", "1999-05-20 22:47:00"], ["1999-05-27 03:37:00", "1999-06-09 23:33:00"], ["1999-06-13 00:21:00", "1999-06-23 11:42:00"], ["1999-06-26 02:47:00", "1999-06-26 23:55:00"], ["1999-06-29 06:00:00", "1999-07-11 11:37:00"], ["1999-07-15 00:49:00", "1999-07-18 14:43:00"], ["1999-07-22 02:53:00", "1999-07-25 23:55:00"], ["1999-07-28 02:09:00", "1999-08-05 13:17:00"], ["1999-08-08 10:39:00", "1999-08-11 08:17:00"], ["1999-08-15 01:03:00", "1999-08-25 23:49:00"], ["1999-08-28 00:33:00", "1999-08-29 20:37:00"], ["1999-08-31 00:01:00", "1999-09-04 23:55:00"], ["1999-09-14 00:03:00", "1999-09-24 13:57:00"], ["1999-09-25 23:59:00", "1999-10-04 23:55:00"], ["1999-10-06 02:17:00", "1999-10-18 05:35:00"], ["1999-10-22 00:07:00", "1999-11-04 23:55:00"]], "page": "./DN_K0_SASK.html"}];
+
+    function parseDateMs(str) {
+      if (!str) return NaN;
+      const s = str.trim();
+      const iso = s.replace(/\//g, '-').replace(' ', 'T') + 'Z';
+      const ms = Date.parse(iso);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function enableSortableTable(tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      table.querySelectorAll('th.sortable').forEach((header, columnIndex) => {
+        header.tabIndex = 0;
+        header.setAttribute('role', 'button');
+        header.setAttribute('aria-sort', 'none');
+        const sortColumn = () => {
+          const ascending = header.getAttribute('aria-sort') !== 'ascending';
+          table.querySelectorAll('th.sortable').forEach(th => th.setAttribute('aria-sort', 'none'));
+          header.setAttribute('aria-sort', ascending ? 'ascending' : 'descending');
+          const rows = Array.from(table.tBodies[0].rows);
+          const type = header.getAttribute('data-sort-type');
+          rows.sort((left, right) => {
+            const a = left.cells[columnIndex].textContent.trim();
+            const b = right.cells[columnIndex].textContent.trim();
+            let comparison;
+            if (type === 'number') comparison = Number(a.replace(/[^0-9.-]/g, '')) - Number(b.replace(/[^0-9.-]/g, ''));
+            else if (type === 'date') comparison = parseDateMs(a.split('→')[0].trim()) - parseDateMs(b.split('→')[0].trim());
+            else comparison = a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+            return ascending ? comparison : -comparison;
+          });
+          rows.forEach(row => table.tBodies[0].appendChild(row));
+        };
+        header.addEventListener('click', sortColumn);
+        header.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); sortColumn(); }
+        });
+      });
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+      const newTheme = isDark ? 'light' : 'dark';
+      document.body.className = newTheme;
+      localStorage.setItem('cdaweb_theme', newTheme);
+      document.getElementById('theme-toggle').textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      updateView();
+    }
+
+    function toggleChartDisplay(show) {
+      const chartCard = document.getElementById('chart-card-container');
+      if (chartCard) {
+        chartCard.style.display = show ? 'block' : 'none';
+      }
+      if (show) {
+        updateView();
+        setTimeout(() => {
+          const plotDiv = document.getElementById('timeline-chart');
+          if (plotDiv) {
+            Plotly.Plots.resize(plotDiv);
+          }
+        }, 50);
+      }
+    }
+
+    function resetAllSelections() {
+      document.querySelectorAll('.dset-checkbox').forEach(cb => {
+        cb.checked = true;
+      });
+      const masterCb = document.getElementById('master-cb');
+      if (masterCb) masterCb.checked = true;
+      updateView();
+    }
+
+    function presetRange(type) {
+      document.querySelectorAll('.btn-preset').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-preset') === type);
+      });
+      if (type === 'all') {
+        if (window._globalMinTimeMs) {
+          document.getElementById('filter-start').value = formatAxisDate(window._globalMinTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-start').value = '';
+        }
+        if (window._globalMaxTimeMs) {
+          document.getElementById('filter-stop').value = formatAxisDate(window._globalMaxTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-stop').value = '';
+        }
+        updateView();
+        return;
+      }
+      const now = new Date();
+      const endStr = now.toISOString().split('T')[0];
+      let startStr = '';
+      if (type === '1y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 1);
+        startStr = d.toISOString().split('T')[0];
+      } else if (type === '5y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 5);
+        startStr = d.toISOString().split('T')[0];
+      }
+      document.getElementById('filter-start').value = startStr;
+      document.getElementById('filter-stop').value = endStr;
+      updateView();
+    }
+
+    function clearPresetHighlight() {
+      document.querySelectorAll('.btn-preset').forEach(btn => btn.classList.remove('active'));
+    }
+
+    function updateView() {
+      const showChart = document.getElementById('toggle-chart-cb')?.checked;
+      if (!showChart) {
+        return;
+      }
+
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const checkedBoxes = Array.from(document.querySelectorAll('.dset-checkbox:checked'));
+      const selectedNames = new Set(checkedBoxes.map(cb => cb.value));
+      const startFilter = document.getElementById('filter-start').value;
+      const stopFilter = document.getElementById('filter-stop').value;
+      const startFilterMs = startFilter ? parseDateMs(startFilter) : null;
+      const stopFilterMs = stopFilter ? parseDateMs(stopFilter + ' 23:59:59') : null;
+
+      const isLight = document.body.classList.contains('light');
+      const paperBg = isLight ? '#ffffff' : '#1e293b';
+      const plotBg = isLight ? '#f8fafc' : '#0f172a';
+      const textColor = isLight ? '#0f172a' : '#f8fafc';
+      const gridColor = isLight ? '#e2e8f0' : '#334155';
+
+      const timelineData = { y: [], x: [], base: [], colors: [], hovertext: [] };
+      const colors = ['#0284c7', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6'];
+
+      const activeDatasets = [];
+      allDatasets.forEach(d => {
+        if (instFilter && d.instrument !== instFilter) return;
+        if (query && !d.name.toLowerCase().includes(query) && !d.instrument.toLowerCase().includes(query) && !d.product.toLowerCase().includes(query)) return;
+        if (!selectedNames.has(d.name)) return;
+
+        const validIntervals = [];
+        d.intervals.forEach(inv => {
+          const s = inv[0];
+          const e = inv[1];
+          const sTime = parseDateMs(s);
+          const eTime = parseDateMs(e);
+          if (isNaN(sTime) || isNaN(eTime)) return;
+
+          if (startFilterMs && eTime < startFilterMs) return;
+          if (stopFilterMs && sTime > stopFilterMs) return;
+
+          const sClamped = startFilterMs ? Math.max(sTime, startFilterMs) : sTime;
+          const eClamped = stopFilterMs ? Math.min(eTime, stopFilterMs) : eTime;
+          if (eClamped <= sClamped) return;
+
+          validIntervals.push({ s, e, sClamped, eClamped });
+        });
+
+        if (validIntervals.length > 0) {
+          activeDatasets.push({ d, validIntervals });
+        }
+      });
+
+      const activeNames = activeDatasets.map(item => item.d.name);
+      activeDatasets.forEach((item, idx) => {
+        const color = colors[idx % colors.length];
+        const d = item.d;
+        item.validIntervals.forEach(inv => {
+          const durMs = Math.max(86400000, inv.eClamped - inv.sClamped);
+          timelineData.y.push(d.name);
+          timelineData.x.push(durMs);
+          timelineData.base.push(new Date(inv.sClamped).toISOString());
+          timelineData.colors.push(color);
+          timelineData.hovertext.push(`<b>${d.name}</b><br>${d.instrument} • ${d.product}<br>From: ${inv.s}<br>To: ${inv.e}<br><i>Click to unselect • Ctrl+Click to open full page</i>`);
+        });
+      });
+
+      const traces = timelineData.y.length ? [{
+        type: 'bar',
+        orientation: 'h',
+        y: timelineData.y,
+        x: timelineData.x,
+        base: timelineData.base,
+        marker: { color: timelineData.colors, line: { width: 0 } },
+        hoverinfo: 'text',
+        hovertext: timelineData.hovertext,
+        showlegend: false
+      }] : [];
+
+      const count = activeNames.length;
+      const barGap = count === 1 ? 0.75 : (count === 2 ? 0.6 : (count <= 4 ? 0.45 : 0.25));
+      const barWidth = count === 1 ? 0.32 : (count === 2 ? 0.45 : (count <= 4 ? 0.6 : 0.75));
+      traces.forEach(t => { t.width = barWidth; });
+      const plotHeight = count === 1 ? 140 : (count === 2 ? 180 : Math.max(220, count * 32 + 80));
+
+      const plotDiv = document.getElementById('timeline-chart');
+      plotDiv.style.height = plotHeight + 'px';
+      plotDiv.style.minHeight = plotHeight + 'px';
+
+      const xAxisConfig = {
+        type: 'date',
+        side: 'bottom',
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      // Determine if "All Time" preset is active
+      const allTimeBtn = document.querySelector('.btn-preset[data-preset="all"]');
+      const isAllTime = Boolean(allTimeBtn && allTimeBtn.classList.contains('active'));
+
+      // Calculate data bounds for currently selected/plotted items
+      let plottedMinMs = Infinity;
+      let plottedMaxMs = -Infinity;
+      for (let i = 0; i < timelineData.base.length; i++) {
+        const s = parseAxisTimeMs(timelineData.base[i]);
+        const dur = Number(timelineData.x[i]) || 0;
+        if (Number.isFinite(s)) {
+          if (s < plottedMinMs) plottedMinMs = s;
+          if ((s + dur) > plottedMaxMs) plottedMaxMs = s + dur;
+        }
+      }
+      const hasPlottedData = Number.isFinite(plottedMinMs) && Number.isFinite(plottedMaxMs) && plottedMaxMs >= plottedMinMs;
+
+      if (isAllTime && hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (startFilter && stopFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', stopFilter + ' 23:59:59'];
+        xAxisConfig.autorange = false;
+      } else if (startFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', formatAxisDate(window._globalMaxTimeMs || Date.now())];
+        xAxisConfig.autorange = false;
+      } else if (hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        xAxisConfig.range = [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)];
+        xAxisConfig.autorange = false;
+      } else {
+        xAxisConfig.autorange = true;
+      }
+
+      const xAxis2Config = {
+        type: 'date',
+        overlaying: 'x',
+        side: 'top',
+        matches: 'x',
+        showgrid: false,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      const yAxisConfig = {
+        type: 'category',
+        categoryorder: 'array',
+        categoryarray: activeNames.slice().reverse(),
+        automargin: true,
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor },
+        fixedrange: true,
+        autorange: true
+      };
+
+      const layout = {
+        height: plotHeight,
+        paper_bgcolor: paperBg,
+        plot_bgcolor: plotBg,
+        font: { color: textColor, size: 11 },
+        margin: { l: 180, r: 30, t: 35, b: 40 },
+        xaxis: xAxisConfig,
+        xaxis2: xAxis2Config,
+        yaxis: yAxisConfig,
+        barmode: 'overlay',
+        bargap: barGap,
+        bargroupgap: 0.1,
+        annotations: count === 0 ? [{
+          text: checkedBoxes.length > 0
+            ? 'No data available for the selected datasets in this date range'
+            : 'Select one or more datasets to view timeline',
+          showarrow: false,
+          font: { size: 13, color: textColor }
+        }] : []
+      };
+
+      Plotly.newPlot('timeline-chart', traces, layout, { responsive: true, displayModeBar: true, displaylogo: false }).then(() => {
+        updatePanButtons('timeline-chart');
+      });
+
+      plotDiv.on('plotly_relayout', function() {
+        updatePanButtons('timeline-chart');
+      });
+
+      // Attach click events on chart points and y-axis ticks
+      plotDiv.on('plotly_click', function(data) {
+        if (!data.points || data.points.length === 0) return;
+        const name = data.points[0].y;
+        const isCtrl = data.event && (data.event.ctrlKey || data.event.metaKey);
+        handleRowClick(name, isCtrl);
+      });
+
+      plotDiv.querySelectorAll('.ytick text').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.style.userSelect = 'none';
+        el.title = 'Click to unselect • Ctrl+Click to open full page';
+        el.onclick = function(e) {
+          e.stopPropagation();
+          const isCtrl = e.ctrlKey || e.metaKey;
+          handleRowClick(el.textContent.trim(), isCtrl);
+        };
+      });
+    }
+
+    function handleRowClick(name, isCtrl) {
+      const d = allDatasets.find(item => item.name === name);
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (isCtrl && d && d.page) {
+        window.open(d.page + q, '_blank');
+        return;
+      }
+      const cb = document.querySelector(`.dset-checkbox[value="${name}"]`);
+      if (cb) {
+        cb.checked = !cb.checked;
+        updateView();
+      }
+    }
+
+    function filterTable() {
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+
+      rows.forEach(r => {
+        const name = (r.getAttribute('data-name') || '').toLowerCase();
+        const inst = r.getAttribute('data-inst') || '';
+        const matchQ = !query || name.includes(query);
+        const matchInst = !instFilter || inst === instFilter;
+        r.style.display = (matchQ && matchInst) ? '' : 'none';
+      });
+
+      updateView();
+      propagateQueryToLinks();
+    }
+
+    function selectAll(state) {
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+      rows.forEach(r => {
+        if (r.style.display !== 'none') {
+          const cb = r.querySelector('.dset-checkbox');
+          if (cb) cb.checked = state;
+        }
+      });
+      document.getElementById('master-cb').checked = state;
+      updateView();
+    }
+
+    function toggleAllCheckboxes(state) {
+      selectAll(state);
+    }
+
+    function parseAxisTimeMs(val) {
+      if (val == null) return NaN;
+      if (typeof val === 'number') return val;
+      if (val instanceof Date) return val.getTime();
+      const s = String(val).trim();
+      if (!s) return NaN;
+      if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+      const iso = s.replace(/\//g, '-').replace(' ', 'T');
+      const isoUtc = (iso.includes('Z') || iso.includes('+')) ? iso : iso + 'Z';
+      let ms = Date.parse(isoUtc);
+      if (!isNaN(ms)) return ms;
+      ms = Date.parse(s);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function formatAxisDate(ms) {
+      const d = new Date(ms);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString();
+    }
+
+    function panTimelineWindow(divId, direction) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv || !plotDiv._fullLayout || !plotDiv._fullLayout.xaxis) return;
+      const rng = plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2) return;
+
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+
+      const span = t1 - t0;
+      if (span <= 0) return;
+
+      const newT0 = t0 + (direction * span);
+      const newT1 = t1 + (direction * span);
+
+      Plotly.relayout(plotDiv, {
+        'xaxis.range': [formatAxisDate(newT0), formatAxisDate(newT1)],
+        'xaxis.autorange': false
+      }).then(() => {
+        updatePanButtons(divId);
+      });
+    }
+
+    function resetTimelineZoom(divId) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        Plotly.relayout(plotDiv, {
+          'xaxis.range': [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)],
+          'xaxis.autorange': false
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      } else {
+        Plotly.relayout(plotDiv, {
+          'xaxis.autorange': true
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      }
+    }
+
+    window._globalMinTimeMs = 711590526000;
+    window._globalMaxTimeMs = 1000977242000;
+
+    function exportPlotAsPng(divId, filename) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      Plotly.downloadImage(plotDiv, {
+        format: 'png',
+        width: 1400,
+        height: Math.max(500, plotDiv.offsetHeight || 500),
+        filename: filename || 'plot.png'
+      });
+    }
+
+    function updatePanButtons(divId) {
+      const plotDiv = document.getElementById(divId);
+      const prevBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', -1)"]`);
+      const nextBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', 1)"]`);
+      if (!plotDiv || !prevBtn || !nextBtn) return;
+      const rng = plotDiv._fullLayout && plotDiv._fullLayout.xaxis && plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2 || !window._globalMinTimeMs || !window._globalMaxTimeMs) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+      const fullSpan = window._globalMaxTimeMs - window._globalMinTimeMs;
+      const currentSpan = t1 - t0;
+      if (currentSpan >= fullSpan - 60000) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      const canPrev = t0 > (window._globalMinTimeMs + 60000);
+      const canNext = t1 < (window._globalMaxTimeMs - 60000);
+      prevBtn.disabled = !canPrev;
+      nextBtn.disabled = !canNext;
+      prevBtn.classList.toggle('disabled', !canPrev);
+      nextBtn.classList.toggle('disabled', !canNext);
+    }
+
+    // Theme initialization
+    const savedTheme = localStorage.getItem('cdaweb_theme') || 'dark';
+    document.body.className = savedTheme;
+    document.getElementById('theme-toggle').textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+    // Propagate URL query params (such as ?view for updog) to relative navigation links
+    function propagateQueryToLinks() {
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (q) {
+        document.querySelectorAll('a[href]').forEach(a => {
+          const href = a.getAttribute('href');
+          if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto:') && !href.includes('?')) {
+            a.setAttribute('href', href + q);
+          }
+        });
+      }
+    }
+
+    // Ensure timeline checkbox is unchecked by default and container is hidden
+    const chartCb = document.getElementById('toggle-chart-cb');
+    if (chartCb) {
+      chartCb.checked = false;
+    }
+    const chartCard = document.getElementById('chart-card-container');
+    if (chartCard) {
+      chartCard.style.display = 'none';
+    }
+
+    enableSortableTable('datasets-table');
+
+    // Initial render
+    updateView();
+    propagateQueryToLinks();
+  </script>
+  <footer class="page-footer">This page was last updated on: 2026-11-17 17:20:31 UTC. For any questions or comments, please contact SPDF support at: <a href="mailto:NASA-SPDF-Support@nasa.gov">NASA-SPDF-Support@nasa.gov</a></footer>
+</body>
+</html>

@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>REACH Inventory Index - CDAWeb</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root, body.dark {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #0284c7;
+      --accent-light: #38bdf8;
+      --success: #10b981;
+      --plot-paper: #1e293b;
+      --plot-bg: #0f172a;
+      --plot-grid: #334155;
+    }
+    body.light {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --accent: #0284c7;
+      --accent-light: #0369a1;
+      --success: #16a34a;
+      --plot-paper: #ffffff;
+      --plot-bg: #f8fafc;
+      --plot-grid: #e2e8f0;
+    }
+    body {
+      margin: 0;
+      padding: 24px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    input[type="date"] {
+      color-scheme: dark;
+    }
+    body.light input[type="date"] {
+      color-scheme: light;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .page-footer { margin: 20px 0 0; color: var(--text-muted); font-size: 12px; text-align: center; }
+    .page-footer a { color: var(--accent-light); }
+    .breadcrumbs { font-size: 14px; margin-bottom: 0; color: var(--text-muted); }
+    .breadcrumbs a { color: var(--accent-light); text-decoration: none; }
+    .breadcrumbs a:hover { text-decoration: underline; }
+    .btn-theme {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-theme:hover { opacity: 0.9; }
+    h1 { margin: 0 0 6px 0; font-size: 28px; }
+    .subtitle { color: var(--text-muted); font-size: 15px; margin: 0 0 20px 0; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .kpi-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 20px; font-weight: 700; color: var(--text); }
+    .controls-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    input[type="text"], input[type="date"], select {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: 13px;
+    }
+    button, .btn-sm {
+      background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block;
+    }
+    button.btn-secondary { background: var(--border); color: var(--text); }
+    button:hover, .btn-sm:hover { opacity: 0.9; }
+    .chart-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th { padding: 10px 12px; background: rgba(125,125,125,0.06); color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .progress-bar { width: 70px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; display: inline-block; }
+    .progress-bar .fill { height: 100%; background: var(--success); }
+    .badge-sm { display: inline-block; padding: 2px 8px; background: rgba(56, 189, 248, 0.15); color: var(--accent-light); border-radius: 4px; font-size: 11px; }
+    .chart-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .pan-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(125,125,125,0.08);
+      padding: 3px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .btn-pan {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-pan:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .btn-pan:disabled, .btn-pan.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .btn-preset {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .btn-preset:hover {
+      opacity: 0.9;
+      color: var(--text);
+    }
+    .btn-preset.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      font-weight: 700;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+    }
+    .xtick text, .ytick text {
+      fill: var(--text) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+      <div class="breadcrumbs">
+        <a href="./inventory_index.html">CDAWeb Inventory</a> &gt;
+        <span>REACH Index</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="./REACH_Inventory.png" target="_blank" class="btn-theme"> View REACH PNG</a>
+        <button class="btn-theme" onclick="exportPlotAsPng('timeline-chart', 'REACH_timeline.png')"> Download Plot PNG</button>
+        <button id="theme-toggle" class="btn-theme" onclick="toggleTheme()">☀️ Light Mode</button>
+      </div>
+    </div>
+    <h1>REACH Mission Data Inventory</h1>
+    <p class="subtitle">Complete catalog of holdings and availability for REACH spacecraft</p>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Datasets</div>
+        <div class="kpi-value">33</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Instruments</div>
+        <div class="kpi-value">1</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total CDF Files</div>
+        <div class="kpi-value">20,301</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Mission Span</div>
+        <div class="kpi-value" style="font-size: 14px;">2017-02-24 &rarr; 2026-11-07</div>
+      </div>
+    </div>
+
+    <div class="controls-card">
+      <input type="text" id="search-box" placeholder="Search datasets..." oninput="filterTable()">
+      <select id="instrument-filter" onchange="filterTable()">
+        <option value="">All Instruments (1)</option>
+        <option value='DOSIMETER'>DOSIMETER</option>
+      </select>
+      <button class="btn-secondary" onclick="selectAll(true)">Select All</button>
+      <button class="btn-secondary" onclick="selectAll(false)">Clear All</button>
+      <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; font-size: 13px; font-weight: 600; padding: 4px 10px; background: rgba(125,125,125,0.08); border-radius: 6px; border: 1px solid var(--border);">
+        <input type="checkbox" id="toggle-chart-cb" autocomplete="off" onchange="toggleChartDisplay(this.checked)">
+        <span> Show Timeline Graph</span>
+      </label>
+      <div style="margin-left: auto; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+        <span style="font-size: 13px; color: var(--text-muted);">Date Range:</span>
+        <input type="date" id="filter-start" value="2017-02-24" oninput="clearPresetHighlight()">
+        <span style="color: var(--text-muted);">&rarr;</span>
+        <input type="date" id="filter-stop" value="2026-11-07" oninput="clearPresetHighlight()">
+        <button onclick="updateView()">Apply</button>
+        <button type="button" class="btn-preset" data-preset="1y" onclick="presetRange('1y')">1 Year</button>
+        <button type="button" class="btn-preset" data-preset="5y" onclick="presetRange('5y')">5 Years</button>
+        <button type="button" class="btn-preset active" data-preset="all" onclick="presetRange('all')">All Time</button>
+      </div>
+    </div>
+
+    <div class="chart-card" id="chart-card-container" style="display: none;">
+      <div class="chart-hint">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <span><strong>Availability Timeline (Selected Items)</strong></span>
+          <div class="pan-controls">
+            <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin: 0 4px;">Time Window:</span>
+            <button type="button" class="btn-pan disabled" disabled title="Pan backward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', -1)">◀ Prev Frame</button>
+            <button type="button" class="btn-pan" title="Reset zoom to full range" onclick="resetTimelineZoom('timeline-chart')">↺ Reset Zoom</button>
+            <button type="button" class="btn-pan disabled" disabled title="Pan forward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', 1)">Next Frame ▶</button>
+            <button type="button" class="btn-pan" title="Reselect all unselected items" onclick="resetAllSelections()">↺ Reset Selection</button>
+            <button type="button" class="btn-pan" title="Download timeline chart as PNG" onclick="exportPlotAsPng('timeline-chart', 'REACH_timeline.png')"> PNG</button>
+          </div>
+        </div>
+        <span>💡 Click row/label to unselect • Ctrl+Click to open full dataset page</span>
+      </div>
+      <div id="timeline-chart" style="min-height: 120px; width: 100%;"></div>
+    </div>
+
+    <div class="table-card">
+      <h3 style="margin: 0 0 12px 0;">Available Datasets</h3>
+      <table id="datasets-table">
+        <thead>
+          <tr>
+            <th style="width: 30px;"><input type="checkbox" id="master-cb" checked onchange="toggleAllCheckboxes(this.checked)"></th>
+            <th class="sortable" data-sort-type="text">Dataset ID</th>
+            <th class="sortable" data-sort-type="text">Instrument</th>
+            <th class="sortable" data-sort-type="text">Product</th>
+            <th class="sortable" data-sort-type="date">Time Coverage</th>
+            <th class="sortable" data-sort-type="number">CDF Count</th>
+            <th class="sortable" data-sort-type="number">Coverage</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="datasets-tbody">
+          
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-101_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-101_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-101_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-101_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-101_NC</td>
+          <td>2017-04-10 &rarr; 2019-12-12</td>
+          <td>932</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 93.94800243843045%;"></div></div>
+              <span style="font-size: 11px;">93.95%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-101_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-102_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-102_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-102_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-102_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-102_NC</td>
+          <td>2018-03-26 &rarr; 2019-12-12</td>
+          <td>586</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 91.9465299855932%;"></div></div>
+              <span style="font-size: 11px;">91.95%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-102_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-105_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-105_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-105_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-105_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-105_NC</td>
+          <td>2017-02-24 &rarr; 2019-12-12</td>
+          <td>973</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 93.5208409474069%;"></div></div>
+              <span style="font-size: 11px;">93.52%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-105_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-108_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-108_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-108_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-108_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-108_NC</td>
+          <td>2017-12-18 &rarr; 2019-12-12</td>
+          <td>679</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 91.909601442152%;"></div></div>
+              <span style="font-size: 11px;">91.91%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-108_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-113_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-113_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-113_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-113_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-113_NC</td>
+          <td>2017-07-17 &rarr; 2019-12-12</td>
+          <td>833</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 93.40917586480076%;"></div></div>
+              <span style="font-size: 11px;">93.41%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-113_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-114_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-114_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-114_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-114_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-114_NC</td>
+          <td>2018-06-14 &rarr; 2019-12-12</td>
+          <td>520</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 94.175507257483%;"></div></div>
+              <span style="font-size: 11px;">94.18%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-114_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-115_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-115_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-115_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-115_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-115_NC</td>
+          <td>2017-11-21 &rarr; 2019-12-12</td>
+          <td>711</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 93.01014187968548%;"></div></div>
+              <span style="font-size: 11px;">93.01%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-115_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-116_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-116_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-116_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-116_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-116_NC</td>
+          <td>2018-03-06 &rarr; 2019-12-12</td>
+          <td>603</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 91.43045816997551%;"></div></div>
+              <span style="font-size: 11px;">91.43%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-116_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-133_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-133_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-133_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-133_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-133_NC</td>
+          <td>2017-07-27 &rarr; 2019-12-12</td>
+          <td>824</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 93.2496041030238%;"></div></div>
+              <span style="font-size: 11px;">93.25%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-133_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-134_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-134_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-134_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-134_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-134_NC</td>
+          <td>2017-11-21 &rarr; 2019-12-12</td>
+          <td>708</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 92.47100377011469%;"></div></div>
+              <span style="font-size: 11px;">92.47%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-134_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-135_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-135_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-135_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-135_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-135_NC</td>
+          <td>2017-07-28 &rarr; 2019-12-12</td>
+          <td>788</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 89.29150862419587%;"></div></div>
+              <span style="font-size: 11px;">89.29%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-135_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-136_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-136_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-136_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-136_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-136_NC</td>
+          <td>2017-11-09 &rarr; 2019-12-12</td>
+          <td>719</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 92.59182210198188%;"></div></div>
+              <span style="font-size: 11px;">92.59%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-136_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-137_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-137_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-137_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-137_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-137_NC</td>
+          <td>2017-11-20 &rarr; 2019-12-12</td>
+          <td>707</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 92.34160317970797%;"></div></div>
+              <span style="font-size: 11px;">92.34%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-137_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-138_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-138_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-138_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-138_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-138_NC</td>
+          <td>2018-02-13 &rarr; 2019-12-12</td>
+          <td>625</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 91.83048905989611%;"></div></div>
+              <span style="font-size: 11px;">91.83%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-138_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-139_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-139_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-139_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-139_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-139_NC</td>
+          <td>2018-01-31 &rarr; 2019-12-12</td>
+          <td>637</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 91.96848650234197%;"></div></div>
+              <span style="font-size: 11px;">91.97%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-139_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-140_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-140_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-140_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-140_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-140_NC</td>
+          <td>2017-11-21 &rarr; 2019-12-12</td>
+          <td>707</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 92.32237349891605%;"></div></div>
+              <span style="font-size: 11px;">92.32%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-140_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-148_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-148_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-148_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-148_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-148_NC</td>
+          <td>2018-01-22 &rarr; 2019-12-12</td>
+          <td>646</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 91.77416557882215%;"></div></div>
+              <span style="font-size: 11px;">91.77%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-148_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-149_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-149_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-149_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-149_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-149_NC</td>
+          <td>2018-08-30 &rarr; 2019-12-12</td>
+          <td>444</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 93.60389791084802%;"></div></div>
+              <span style="font-size: 11px;">93.60%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-149_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-162_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-162_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-162_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-162_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-162_NC</td>
+          <td>2018-06-14 &rarr; 2019-12-12</td>
+          <td>521</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 94.40225728954395%;"></div></div>
+              <span style="font-size: 11px;">94.40%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-162_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-163_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-163_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-163_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-163_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-163_NC</td>
+          <td>2018-05-15 &rarr; 2019-12-12</td>
+          <td>550</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 94.05703881848952%;"></div></div>
+              <span style="font-size: 11px;">94.06%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-163_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-164_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-164_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-164_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-164_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-164_NC</td>
+          <td>2018-06-21 &rarr; 2019-12-12</td>
+          <td>514</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 94.35635139902982%;"></div></div>
+              <span style="font-size: 11px;">94.36%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-164_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-165_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-165_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-165_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-165_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-165_NC</td>
+          <td>2018-04-20 &rarr; 2019-12-12</td>
+          <td>562</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 91.94052857816143%;"></div></div>
+              <span style="font-size: 11px;">91.94%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-165_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-166_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-166_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-166_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-166_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-166_NC</td>
+          <td>2019-02-06 &rarr; 2019-12-12</td>
+          <td>284</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 91.1187308382833%;"></div></div>
+              <span style="font-size: 11px;">91.12%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-166_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-169_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-169_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-169_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-169_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-169_NC</td>
+          <td>2018-09-11 &rarr; 2019-12-12</td>
+          <td>432</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 93.43679428082713%;"></div></div>
+              <span style="font-size: 11px;">93.44%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-169_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-170_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-170_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-170_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-170_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-170_NC</td>
+          <td>2018-08-15 &rarr; 2019-12-12</td>
+          <td>459</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 93.80486521138658%;"></div></div>
+              <span style="font-size: 11px;">93.80%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-170_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-171_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-171_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-171_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-171_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-171_NC</td>
+          <td>2018-08-20 &rarr; 2019-12-12</td>
+          <td>454</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 93.73896779444551%;"></div></div>
+              <span style="font-size: 11px;">93.74%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-171_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-172_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-172_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-172_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-172_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-172_NC</td>
+          <td>2018-08-23 &rarr; 2019-12-12</td>
+          <td>451</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 93.70200736144317%;"></div></div>
+              <span style="font-size: 11px;">93.70%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-172_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-173_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-173_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-173_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-173_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-173_NC</td>
+          <td>2018-08-27 &rarr; 2019-12-12</td>
+          <td>447</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 93.64576027472916%;"></div></div>
+              <span style="font-size: 11px;">93.65%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-173_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-175_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-175_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-175_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-175_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-175_NC</td>
+          <td>2019-02-06 &rarr; 2019-12-12</td>
+          <td>284</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 91.1188855154203%;"></div></div>
+              <span style="font-size: 11px;">91.12%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-175_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-176_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-176_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-176_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-176_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-176_NC</td>
+          <td>2018-05-15 &rarr; 2019-12-12</td>
+          <td>550</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 94.04299080821032%;"></div></div>
+              <span style="font-size: 11px;">94.04%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-176_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-180_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-180_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-180_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-180_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-180_NC</td>
+          <td>2019-01-29 &rarr; 2019-12-12</td>
+          <td>292</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 91.33561881395968%;"></div></div>
+              <span style="font-size: 11px;">91.34%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-180_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH-VID-181_DOSIMETER-L1C">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH-VID-181_DOSIMETER-L1C" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH-VID-181_DOSIMETER-L1C.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH-VID-181_DOSIMETER-L1C</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">VID-181_NC</td>
+          <td>2018-08-20 &rarr; 2019-12-12</td>
+          <td>454</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 93.73910596102486%;"></div></div>
+              <span style="font-size: 11px;">93.74%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH-VID-181_DOSIMETER-L1C.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DOSIMETER" data-name="REACH_ALL_L1C_PRELIM">
+          <td><input type="checkbox" class="dset-checkbox" value="REACH_ALL_L1C_PRELIM" checked onchange="updateView()"></td>
+          <td><a href="./reach_inventory/REACH_ALL_L1C_PRELIM.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">REACH_ALL_L1C_PRELIM</a></td>
+          <td><span class="badge-sm">DOSIMETER</span></td>
+          <td style="color: var(--text-muted);">PRELIM</td>
+          <td>2022-10-11 &rarr; 2026-11-07</td>
+          <td>1,405</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 92.26013728553852%;"></div></div>
+              <span style="font-size: 11px;">92.26%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./reach_inventory/REACH_ALL_L1C_PRELIM.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const allDatasets = [{"name": "REACH-VID-101_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-101_NC", "cdf_count": 932, "active_days": 917.1819444444444, "coverage_pct": 93.94800243843045, "earliest": "2017-04-10", "latest": "2019-12-12", "intervals": [["2017-04-10 12:58:55", "2017-05-20 19:52:30"], ["2017-05-22 14:11:50", "2018-01-27 11:52:50"], ["2018-01-29 00:13:30", "2018-03-15 16:25:40"], ["2018-03-19 14:38:45", "2018-05-01 18:50:45"], ["2018-05-15 20:43:40", "2018-05-23 01:14:50"], ["2018-05-25 20:59:55", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:15:10"], ["2019-06-05 20:07:05", "2019-12-12 19:21:15"]], "page": "./REACH-VID-101_DOSIMETER-L1C.html"}, {"name": "REACH-VID-102_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-102_NC", "cdf_count": 586, "active_days": 575.8717592592593, "coverage_pct": 91.9465299855932, "earliest": "2018-03-26", "latest": "2019-12-12", "intervals": [["2018-03-26 11:52:45", "2018-05-01 18:50:50"], ["2018-05-15 20:43:35", "2018-05-23 02:15:15"], ["2018-05-25 22:00:20", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:15:20"], ["2019-06-05 20:07:05", "2019-12-12 19:21:25"]], "page": "./REACH-VID-102_DOSIMETER-L1C.html"}, {"name": "REACH-VID-105_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-105_NC", "cdf_count": 973, "active_days": 954.8417245370371, "coverage_pct": 93.5208409474069, "earliest": "2017-02-24", "latest": "2019-12-12", "intervals": [["2017-02-24 19:30:50", "2017-03-02 20:22:45"], ["2017-03-04 02:26:30", "2017-03-04 02:26:50"], ["2017-03-06 17:17:50", "2017-05-20 19:52:30"], ["2017-05-22 14:11:50", "2017-07-19 05:35:25"], ["2017-07-21 20:26:20", "2018-01-27 11:52:50"], ["2018-01-29 00:13:30", "2018-03-15 16:25:40"], ["2018-03-19 14:38:55", "2018-05-01 18:50:55"], ["2018-05-15 20:43:30", "2018-05-23 04:35:10"], ["2018-05-25 20:59:55", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:15:25"], ["2019-06-05 20:07:15", "2019-12-12 19:21:30"]], "page": "./REACH-VID-105_DOSIMETER-L1C.html"}, {"name": "REACH-VID-108_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-108_NC", "cdf_count": 679, "active_days": 665.5155092592593, "coverage_pct": 91.909601442152, "earliest": "2017-12-18", "latest": "2019-12-12", "intervals": [["2017-12-18 17:00:40", "2018-01-27 11:52:45"], ["2018-01-29 00:13:30", "2018-03-15 15:03:25"], ["2018-03-19 14:39:00", "2018-05-01 18:51:00"], ["2018-05-15 20:43:30", "2018-05-23 03:49:40"], ["2018-05-25 20:59:55", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:15:35"], ["2019-06-05 20:07:20", "2019-12-12 19:21:40"]], "page": "./REACH-VID-108_DOSIMETER-L1C.html"}, {"name": "REACH-VID-113_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-113_NC", "cdf_count": 833, "active_days": 820.3767361111111, "coverage_pct": 93.40917586480076, "earliest": "2017-07-17", "latest": "2019-12-12", "intervals": [["2017-07-17 13:05:20", "2018-01-27 11:52:50"], ["2018-01-29 00:13:30", "2018-03-15 15:03:25"], ["2018-03-19 14:39:05", "2018-05-01 18:51:05"], ["2018-05-15 20:43:20", "2018-05-22 21:40:00"], ["2018-05-25 20:59:55", "2018-06-14 20:59:55"], ["2018-06-16 00:00:00", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:15:45"], ["2019-06-05 20:07:25", "2019-12-12 19:21:45"]], "page": "./REACH-VID-113_DOSIMETER-L1C.html"}, {"name": "REACH-VID-114_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-114_NC", "cdf_count": 520, "active_days": 514.1833912037036, "coverage_pct": 94.175507257483, "earliest": "2018-06-14", "latest": "2019-12-12", "intervals": [["2018-06-14 19:44:40", "2018-06-14 20:59:55"], ["2018-06-16 00:00:00", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:15:50"], ["2019-06-05 20:07:30", "2019-12-12 19:21:55"]], "page": "./REACH-VID-114_DOSIMETER-L1C.html"}, {"name": "REACH-VID-115_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-115_NC", "cdf_count": 711, "active_days": 698.6228587962963, "coverage_pct": 93.01014187968548, "earliest": "2017-11-21", "latest": "2019-12-12", "intervals": [["2017-11-21 16:21:20", "2018-01-27 11:52:45"], ["2018-01-29 00:15:40", "2018-05-01 18:51:10"], ["2018-05-15 20:43:10", "2018-05-23 04:35:55"], ["2018-05-25 20:59:55", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:16:00"], ["2019-06-05 20:07:35", "2019-12-12 19:22:00"]], "page": "./REACH-VID-115_DOSIMETER-L1C.html"}, {"name": "REACH-VID-116_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-116_NC", "cdf_count": 603, "active_days": 590.5995949074074, "coverage_pct": 91.43045816997551, "earliest": "2018-03-06", "latest": "2019-12-12", "intervals": [["2018-03-06 20:26:55", "2018-03-15 16:25:40"], ["2018-03-19 14:39:05", "2018-05-01 18:51:15"], ["2018-05-15 20:43:05", "2018-05-23 04:35:50"], ["2018-05-25 20:59:55", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:16:05"], ["2019-06-05 20:07:40", "2019-12-12 19:22:05"]], "page": "./REACH-VID-116_DOSIMETER-L1C.html"}, {"name": "REACH-VID-133_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-133_NC", "cdf_count": 824, "active_days": 809.5667824074075, "coverage_pct": 93.2496041030238, "earliest": "2017-07-27", "latest": "2019-12-12", "intervals": [["2017-07-27 15:14:55", "2018-01-27 11:52:45"], ["2018-01-29 00:13:30", "2018-03-15 15:03:25"], ["2018-03-19 14:39:15", "2018-05-01 18:51:20"], ["2018-05-15 20:42:50", "2018-05-23 04:34:55"], ["2018-05-25 20:59:55", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:16:15"], ["2019-06-05 20:07:45", "2019-12-12 19:22:20"]], "page": "./REACH-VID-133_DOSIMETER-L1C.html"}, {"name": "REACH-VID-134_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-134_NC", "cdf_count": 708, "active_days": 694.5731481481481, "coverage_pct": 92.47100377011469, "earliest": "2017-11-21", "latest": "2019-12-12", "intervals": [["2017-11-21 16:21:55", "2018-01-27 11:52:50"], ["2018-01-29 00:13:30", "2018-03-15 15:03:25"], ["2018-03-19 14:39:15", "2018-05-01 18:51:25"], ["2018-05-15 20:42:40", "2018-05-23 02:16:30"], ["2018-05-25 20:59:55", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:16:20"], ["2019-06-05 20:07:50", "2019-12-12 19:22:25"]], "page": "./REACH-VID-134_DOSIMETER-L1C.html"}, {"name": "REACH-VID-135_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-135_NC", "cdf_count": 788, "active_days": 774.3603009259259, "coverage_pct": 89.29150862419587, "earliest": "2017-07-28", "latest": "2019-12-12", "intervals": [["2017-07-28 13:55:15", "2017-12-05 16:53:45"], ["2018-01-09 19:13:15", "2018-01-27 11:52:50"], ["2018-01-29 00:13:30", "2018-03-15 15:03:25"], ["2018-03-19 14:39:25", "2018-05-01 18:51:20"], ["2018-05-15 20:42:30", "2018-05-22 23:09:55"], ["2018-05-25 20:59:55", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:16:25"], ["2019-06-05 20:07:55", "2019-12-12 19:22:30"]], "page": "./REACH-VID-135_DOSIMETER-L1C.html"}, {"name": "REACH-VID-136_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-136_NC", "cdf_count": 719, "active_days": 706.5185763888888, "coverage_pct": 92.59182210198188, "earliest": "2017-11-09", "latest": "2019-12-12", "intervals": [["2017-11-09 18:15:45", "2018-01-27 11:52:45"], ["2018-01-29 00:13:30", "2018-03-15 15:03:25"], ["2018-03-19 14:39:25", "2018-05-01 18:51:35"], ["2018-05-15 20:42:30", "2018-05-22 23:50:40"], ["2018-05-25 20:59:55", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:16:35"], ["2019-06-05 20:08:00", "2019-12-12 19:22:35"]], "page": "./REACH-VID-136_DOSIMETER-L1C.html"}, {"name": "REACH-VID-137_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-137_NC", "cdf_count": 707, "active_days": 694.5616898148148, "coverage_pct": 92.34160317970797, "earliest": "2017-11-20", "latest": "2019-12-12", "intervals": [["2017-11-20 15:24:20", "2018-01-27 11:52:45"], ["2018-01-29 00:13:30", "2018-03-15 15:03:25"], ["2018-03-19 14:39:35", "2018-05-01 18:51:35"], ["2018-05-15 20:42:20", "2018-05-23 03:19:45"], ["2018-05-26 00:00:00", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:16:35"], ["2019-06-05 20:08:05", "2019-12-12 19:22:40"]], "page": "./REACH-VID-137_DOSIMETER-L1C.html"}, {"name": "REACH-VID-138_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-138_NC", "cdf_count": 625, "active_days": 612.4923032407407, "coverage_pct": 91.83048905989611, "earliest": "2018-02-13", "latest": "2019-12-12", "intervals": [["2018-02-13 19:49:30", "2018-03-15 15:03:25"], ["2018-03-19 14:39:40", "2018-05-01 18:51:35"], ["2018-05-15 20:42:15", "2018-05-23 03:24:40"], ["2018-05-25 20:59:55", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:16:40"], ["2019-06-05 20:08:10", "2019-12-12 19:22:45"]], "page": "./REACH-VID-138_DOSIMETER-L1C.html"}, {"name": "REACH-VID-139_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-139_NC", "cdf_count": 637, "active_days": 625.4394097222222, "coverage_pct": 91.96848650234197, "earliest": "2018-01-31", "latest": "2019-12-12", "intervals": [["2018-01-31 17:58:45", "2018-03-15 15:03:25"], ["2018-03-19 14:39:45", "2018-05-01 18:51:35"], ["2018-05-15 20:42:05", "2018-05-22 17:59:55"], ["2018-05-25 20:59:55", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:16:50"], ["2019-06-05 20:08:15", "2019-12-12 19:22:50"]], "page": "./REACH-VID-139_DOSIMETER-L1C.html"}, {"name": "REACH-VID-140_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-140_NC", "cdf_count": 707, "active_days": 693.457175925926, "coverage_pct": 92.32237349891605, "earliest": "2017-11-21", "latest": "2019-12-12", "intervals": [["2017-11-21 16:21:45", "2018-01-27 11:52:45"], ["2018-01-29 00:13:30", "2018-03-15 15:03:25"], ["2018-03-19 14:39:50", "2018-05-01 18:51:35"], ["2018-05-15 20:42:05", "2018-05-23 00:50:30"], ["2018-05-25 20:59:55", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:16:55"], ["2019-06-05 20:08:20", "2019-12-12 19:22:55"]], "page": "./REACH-VID-140_DOSIMETER-L1C.html"}, {"name": "REACH-VID-148_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-148_NC", "cdf_count": 646, "active_days": 632.4400462962963, "coverage_pct": 91.77416557882215, "earliest": "2018-01-22", "latest": "2019-12-12", "intervals": [["2018-01-22 16:21:00", "2018-01-27 11:52:50"], ["2018-01-29 00:13:30", "2018-03-15 15:03:25"], ["2018-03-19 14:39:55", "2018-05-01 18:51:50"], ["2018-05-15 20:41:50", "2018-05-22 20:40:05"], ["2018-05-25 21:00:00", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:17:00"], ["2019-06-05 20:08:25", "2019-12-12 19:23:05"]], "page": "./REACH-VID-148_DOSIMETER-L1C.html"}, {"name": "REACH-VID-149_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-149_NC", "cdf_count": 444, "active_days": 438.96452546296297, "coverage_pct": 93.60389791084802, "earliest": "2018-08-30", "latest": "2019-12-12", "intervals": [["2018-08-30 20:21:15", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:17:10"], ["2019-06-05 20:08:30", "2019-12-12 19:23:10"]], "page": "./REACH-VID-149_DOSIMETER-L1C.html"}, {"name": "REACH-VID-162_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-162_NC", "cdf_count": 521, "active_days": 515.4252893518518, "coverage_pct": 94.40225728954395, "earliest": "2018-06-14", "latest": "2019-12-12", "intervals": [["2018-06-14 19:40:20", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:17:25"], ["2019-06-05 20:08:40", "2019-12-12 19:23:30"]], "page": "./REACH-VID-162_DOSIMETER-L1C.html"}, {"name": "REACH-VID-163_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-163_NC", "cdf_count": 550, "active_days": 541.717650462963, "coverage_pct": 94.05703881848952, "earliest": "2018-05-15", "latest": "2019-12-12", "intervals": [["2018-05-15 20:41:40", "2018-05-23 04:44:50"], ["2018-05-25 20:59:55", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:17:30"], ["2019-06-05 20:08:45", "2019-12-12 19:23:45"]], "page": "./REACH-VID-163_DOSIMETER-L1C.html"}, {"name": "REACH-VID-164_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-164_NC", "cdf_count": 514, "active_days": 508.7133680555556, "coverage_pct": 94.35635139902982, "earliest": "2018-06-21", "latest": "2019-12-12", "intervals": [["2018-06-21 16:01:25", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:17:30"], ["2019-06-05 20:08:50", "2019-12-12 19:23:50"]], "page": "./REACH-VID-164_DOSIMETER-L1C.html"}, {"name": "REACH-VID-165_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-165_NC", "cdf_count": 562, "active_days": 552.6096643518518, "coverage_pct": 91.94052857816143, "earliest": "2018-04-20", "latest": "2019-12-12", "intervals": [["2018-04-20 18:10:10", "2018-05-01 18:51:50"], ["2018-05-15 20:41:35", "2018-05-23 01:09:45"], ["2018-05-25 20:59:55", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:17:40"], ["2019-06-05 20:08:55", "2019-12-12 19:23:55"]], "page": "./REACH-VID-165_DOSIMETER-L1C.html"}, {"name": "REACH-VID-166_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-166_NC", "cdf_count": 284, "active_days": 281.8097222222222, "coverage_pct": 91.1187308382833, "earliest": "2019-02-06", "latest": "2019-12-12", "intervals": [["2019-02-06 12:44:25", "2019-05-10 12:17:45"], ["2019-06-05 20:08:55", "2019-12-12 19:24:00"]], "page": "./REACH-VID-166_DOSIMETER-L1C.html"}, {"name": "REACH-VID-169_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-169_NC", "cdf_count": 432, "active_days": 427.01296296296294, "coverage_pct": 93.43679428082713, "earliest": "2018-09-11", "latest": "2019-12-12", "intervals": [["2018-09-11 19:13:35", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:17:50"], ["2019-06-05 20:09:00", "2019-12-12 19:24:05"]], "page": "./REACH-VID-169_DOSIMETER-L1C.html"}, {"name": "REACH-VID-170_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-170_NC", "cdf_count": 459, "active_days": 454.2220486111111, "coverage_pct": 93.80486521138658, "earliest": "2018-08-15", "latest": "2019-12-12", "intervals": [["2018-08-15 14:07:10", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:18:00"], ["2019-06-05 20:09:05", "2019-12-12 19:24:10"]], "page": "./REACH-VID-170_DOSIMETER-L1C.html"}, {"name": "REACH-VID-171_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-171_NC", "cdf_count": 454, "active_days": 449.09010416666666, "coverage_pct": 93.73896779444551, "earliest": "2018-08-20", "latest": "2019-12-12", "intervals": [["2018-08-20 17:20:45", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:18:05"], ["2019-06-05 20:09:10", "2019-12-12 19:24:20"]], "page": "./REACH-VID-171_DOSIMETER-L1C.html"}, {"name": "REACH-VID-172_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-172_NC", "cdf_count": 451, "active_days": 446.2725115740741, "coverage_pct": 93.70200736144317, "earliest": "2018-08-23", "latest": "2019-12-12", "intervals": [["2018-08-23 12:58:45", "2018-10-21 02:33:05"], ["2018-10-22 13:43:55", "2019-05-10 12:18:10"], ["2019-06-05 20:09:15", "2019-12-12 19:24:25"]], "page": "./REACH-VID-172_DOSIMETER-L1C.html"}, {"name": "REACH-VID-173_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-173_NC", "cdf_count": 447, "active_days": 442.05237268518516, "coverage_pct": 93.64576027472916, "earliest": "2018-08-27", "latest": "2019-12-12", "intervals": [["2018-08-27 18:16:15", "2018-10-21 02:33:05"], ["2018-10-22 13:43:55", "2019-05-10 12:18:15"], ["2019-06-05 20:09:20", "2019-12-12 19:24:30"]], "page": "./REACH-VID-173_DOSIMETER-L1C.html"}, {"name": "REACH-VID-175_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-175_NC", "cdf_count": 284, "active_days": 281.81035879629627, "coverage_pct": 91.1188855154203, "earliest": "2019-02-06", "latest": "2019-12-12", "intervals": [["2019-02-06 12:44:50", "2019-05-10 12:18:55"], ["2019-06-05 20:09:25", "2019-12-12 19:24:40"]], "page": "./REACH-VID-175_DOSIMETER-L1C.html"}, {"name": "REACH-VID-176_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-176_NC", "cdf_count": 550, "active_days": 541.6375578703704, "coverage_pct": 94.04299080821032, "earliest": "2018-05-15", "latest": "2019-12-12", "intervals": [["2018-05-15 20:41:20", "2018-05-23 01:55:55"], ["2018-05-25 20:59:55", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:19:00"], ["2019-06-05 20:09:30", "2019-12-12 19:24:40"]], "page": "./REACH-VID-176_DOSIMETER-L1C.html"}, {"name": "REACH-VID-180_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-180_NC", "cdf_count": 292, "active_days": 289.54976851851853, "coverage_pct": 91.33561881395968, "earliest": "2019-01-29", "latest": "2019-12-12", "intervals": [["2019-01-29 19:00:10", "2019-05-10 12:19:10"], ["2019-06-05 20:09:30", "2019-12-12 19:25:10"]], "page": "./REACH-VID-180_DOSIMETER-L1C.html"}, {"name": "REACH-VID-181_DOSIMETER-L1C", "instrument": "DOSIMETER", "product": "VID-181_NC", "cdf_count": 454, "active_days": 449.0911458333333, "coverage_pct": 93.73910596102486, "earliest": "2018-08-20", "latest": "2019-12-12", "intervals": [["2018-08-20 17:21:10", "2018-10-21 02:33:05"], ["2018-10-22 13:44:00", "2019-05-10 12:19:15"], ["2019-06-05 20:09:35", "2019-12-12 19:25:20"]], "page": "./REACH-VID-181_DOSIMETER-L1C.html"}, {"name": "REACH_ALL_L1C_PRELIM", "instrument": "DOSIMETER", "product": "PRELIM", "cdf_count": 1405, "active_days": 1372.1099537037037, "coverage_pct": 92.26013728553852, "earliest": "2022-10-11", "latest": "2026-11-07", "intervals": [["2022-10-11 18:45:10", "2022-11-27 08:28:35"], ["2022-11-28 14:30:45", "2023-02-10 23:59:55"], ["2023-02-13 13:40:45", "2023-03-04 15:15:00"], ["2023-03-07 00:00:00", "2023-03-15 16:38:10"], ["2023-03-22 14:55:10", "2024-03-14 08:30:00"], ["2024-03-19 23:58:55", "2024-04-02 00:15:00"], ["2024-04-03 23:58:55", "2024-04-05 23:59:55"], ["2024-05-01 00:00:00", "2025-06-01 11:13:00"], ["2025-06-02 13:35:35", "2025-06-21 23:59:55"], ["2025-06-24 14:59:55", "2025-06-30 01:49:55"], ["2025-07-01 14:02:05", "2025-07-16 07:24:00"], ["2025-07-17 11:59:55", "2025-08-26 15:59:55"], ["2025-08-28 23:14:00", "2025-11-14 23:59:00"], ["2025-11-17 16:00:00", "2026-02-10 23:18:00"], ["2026-02-13 19:26:05", "2026-03-07 09:07:25"], ["2026-04-06 23:00:00", "2026-10-03 02:48:25"], ["2026-10-05 11:59:05", "2026-11-07 00:00:00"]], "page": "./REACH_ALL_L1C_PRELIM.html"}];
+
+    function parseDateMs(str) {
+      if (!str) return NaN;
+      const s = str.trim();
+      const iso = s.replace(/\//g, '-').replace(' ', 'T') + 'Z';
+      const ms = Date.parse(iso);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function enableSortableTable(tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      table.querySelectorAll('th.sortable').forEach((header, columnIndex) => {
+        header.tabIndex = 0;
+        header.setAttribute('role', 'button');
+        header.setAttribute('aria-sort', 'none');
+        const sortColumn = () => {
+          const ascending = header.getAttribute('aria-sort') !== 'ascending';
+          table.querySelectorAll('th.sortable').forEach(th => th.setAttribute('aria-sort', 'none'));
+          header.setAttribute('aria-sort', ascending ? 'ascending' : 'descending');
+          const rows = Array.from(table.tBodies[0].rows);
+          const type = header.getAttribute('data-sort-type');
+          rows.sort((left, right) => {
+            const a = left.cells[columnIndex].textContent.trim();
+            const b = right.cells[columnIndex].textContent.trim();
+            let comparison;
+            if (type === 'number') comparison = Number(a.replace(/[^0-9.-]/g, '')) - Number(b.replace(/[^0-9.-]/g, ''));
+            else if (type === 'date') comparison = parseDateMs(a.split('→')[0].trim()) - parseDateMs(b.split('→')[0].trim());
+            else comparison = a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+            return ascending ? comparison : -comparison;
+          });
+          rows.forEach(row => table.tBodies[0].appendChild(row));
+        };
+        header.addEventListener('click', sortColumn);
+        header.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); sortColumn(); }
+        });
+      });
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+      const newTheme = isDark ? 'light' : 'dark';
+      document.body.className = newTheme;
+      localStorage.setItem('cdaweb_theme', newTheme);
+      document.getElementById('theme-toggle').textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      updateView();
+    }
+
+    function toggleChartDisplay(show) {
+      const chartCard = document.getElementById('chart-card-container');
+      if (chartCard) {
+        chartCard.style.display = show ? 'block' : 'none';
+      }
+      if (show) {
+        updateView();
+        setTimeout(() => {
+          const plotDiv = document.getElementById('timeline-chart');
+          if (plotDiv) {
+            Plotly.Plots.resize(plotDiv);
+          }
+        }, 50);
+      }
+    }
+
+    function resetAllSelections() {
+      document.querySelectorAll('.dset-checkbox').forEach(cb => {
+        cb.checked = true;
+      });
+      const masterCb = document.getElementById('master-cb');
+      if (masterCb) masterCb.checked = true;
+      updateView();
+    }
+
+    function presetRange(type) {
+      document.querySelectorAll('.btn-preset').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-preset') === type);
+      });
+      if (type === 'all') {
+        if (window._globalMinTimeMs) {
+          document.getElementById('filter-start').value = formatAxisDate(window._globalMinTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-start').value = '';
+        }
+        if (window._globalMaxTimeMs) {
+          document.getElementById('filter-stop').value = formatAxisDate(window._globalMaxTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-stop').value = '';
+        }
+        updateView();
+        return;
+      }
+      const now = new Date();
+      const endStr = now.toISOString().split('T')[0];
+      let startStr = '';
+      if (type === '1y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 1);
+        startStr = d.toISOString().split('T')[0];
+      } else if (type === '5y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 5);
+        startStr = d.toISOString().split('T')[0];
+      }
+      document.getElementById('filter-start').value = startStr;
+      document.getElementById('filter-stop').value = endStr;
+      updateView();
+    }
+
+    function clearPresetHighlight() {
+      document.querySelectorAll('.btn-preset').forEach(btn => btn.classList.remove('active'));
+    }
+
+    function updateView() {
+      const showChart = document.getElementById('toggle-chart-cb')?.checked;
+      if (!showChart) {
+        return;
+      }
+
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const checkedBoxes = Array.from(document.querySelectorAll('.dset-checkbox:checked'));
+      const selectedNames = new Set(checkedBoxes.map(cb => cb.value));
+      const startFilter = document.getElementById('filter-start').value;
+      const stopFilter = document.getElementById('filter-stop').value;
+      const startFilterMs = startFilter ? parseDateMs(startFilter) : null;
+      const stopFilterMs = stopFilter ? parseDateMs(stopFilter + ' 23:59:59') : null;
+
+      const isLight = document.body.classList.contains('light');
+      const paperBg = isLight ? '#ffffff' : '#1e293b';
+      const plotBg = isLight ? '#f8fafc' : '#0f172a';
+      const textColor = isLight ? '#0f172a' : '#f8fafc';
+      const gridColor = isLight ? '#e2e8f0' : '#334155';
+
+      const timelineData = { y: [], x: [], base: [], colors: [], hovertext: [] };
+      const colors = ['#0284c7', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6'];
+
+      const activeDatasets = [];
+      allDatasets.forEach(d => {
+        if (instFilter && d.instrument !== instFilter) return;
+        if (query && !d.name.toLowerCase().includes(query) && !d.instrument.toLowerCase().includes(query) && !d.product.toLowerCase().includes(query)) return;
+        if (!selectedNames.has(d.name)) return;
+
+        const validIntervals = [];
+        d.intervals.forEach(inv => {
+          const s = inv[0];
+          const e = inv[1];
+          const sTime = parseDateMs(s);
+          const eTime = parseDateMs(e);
+          if (isNaN(sTime) || isNaN(eTime)) return;
+
+          if (startFilterMs && eTime < startFilterMs) return;
+          if (stopFilterMs && sTime > stopFilterMs) return;
+
+          const sClamped = startFilterMs ? Math.max(sTime, startFilterMs) : sTime;
+          const eClamped = stopFilterMs ? Math.min(eTime, stopFilterMs) : eTime;
+          if (eClamped <= sClamped) return;
+
+          validIntervals.push({ s, e, sClamped, eClamped });
+        });
+
+        if (validIntervals.length > 0) {
+          activeDatasets.push({ d, validIntervals });
+        }
+      });
+
+      const activeNames = activeDatasets.map(item => item.d.name);
+      activeDatasets.forEach((item, idx) => {
+        const color = colors[idx % colors.length];
+        const d = item.d;
+        item.validIntervals.forEach(inv => {
+          const durMs = Math.max(86400000, inv.eClamped - inv.sClamped);
+          timelineData.y.push(d.name);
+          timelineData.x.push(durMs);
+          timelineData.base.push(new Date(inv.sClamped).toISOString());
+          timelineData.colors.push(color);
+          timelineData.hovertext.push(`<b>${d.name}</b><br>${d.instrument} • ${d.product}<br>From: ${inv.s}<br>To: ${inv.e}<br><i>Click to unselect • Ctrl+Click to open full page</i>`);
+        });
+      });
+
+      const traces = timelineData.y.length ? [{
+        type: 'bar',
+        orientation: 'h',
+        y: timelineData.y,
+        x: timelineData.x,
+        base: timelineData.base,
+        marker: { color: timelineData.colors, line: { width: 0 } },
+        hoverinfo: 'text',
+        hovertext: timelineData.hovertext,
+        showlegend: false
+      }] : [];
+
+      const count = activeNames.length;
+      const barGap = count === 1 ? 0.75 : (count === 2 ? 0.6 : (count <= 4 ? 0.45 : 0.25));
+      const barWidth = count === 1 ? 0.32 : (count === 2 ? 0.45 : (count <= 4 ? 0.6 : 0.75));
+      traces.forEach(t => { t.width = barWidth; });
+      const plotHeight = count === 1 ? 140 : (count === 2 ? 180 : Math.max(220, count * 32 + 80));
+
+      const plotDiv = document.getElementById('timeline-chart');
+      plotDiv.style.height = plotHeight + 'px';
+      plotDiv.style.minHeight = plotHeight + 'px';
+
+      const xAxisConfig = {
+        type: 'date',
+        side: 'bottom',
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      // Determine if "All Time" preset is active
+      const allTimeBtn = document.querySelector('.btn-preset[data-preset="all"]');
+      const isAllTime = Boolean(allTimeBtn && allTimeBtn.classList.contains('active'));
+
+      // Calculate data bounds for currently selected/plotted items
+      let plottedMinMs = Infinity;
+      let plottedMaxMs = -Infinity;
+      for (let i = 0; i < timelineData.base.length; i++) {
+        const s = parseAxisTimeMs(timelineData.base[i]);
+        const dur = Number(timelineData.x[i]) || 0;
+        if (Number.isFinite(s)) {
+          if (s < plottedMinMs) plottedMinMs = s;
+          if ((s + dur) > plottedMaxMs) plottedMaxMs = s + dur;
+        }
+      }
+      const hasPlottedData = Number.isFinite(plottedMinMs) && Number.isFinite(plottedMaxMs) && plottedMaxMs >= plottedMinMs;
+
+      if (isAllTime && hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (startFilter && stopFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', stopFilter + ' 23:59:59'];
+        xAxisConfig.autorange = false;
+      } else if (startFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', formatAxisDate(window._globalMaxTimeMs || Date.now())];
+        xAxisConfig.autorange = false;
+      } else if (hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        xAxisConfig.range = [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)];
+        xAxisConfig.autorange = false;
+      } else {
+        xAxisConfig.autorange = true;
+      }
+
+      const xAxis2Config = {
+        type: 'date',
+        overlaying: 'x',
+        side: 'top',
+        matches: 'x',
+        showgrid: false,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      const yAxisConfig = {
+        type: 'category',
+        categoryorder: 'array',
+        categoryarray: activeNames.slice().reverse(),
+        automargin: true,
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor },
+        fixedrange: true,
+        autorange: true
+      };
+
+      const layout = {
+        height: plotHeight,
+        paper_bgcolor: paperBg,
+        plot_bgcolor: plotBg,
+        font: { color: textColor, size: 11 },
+        margin: { l: 180, r: 30, t: 35, b: 40 },
+        xaxis: xAxisConfig,
+        xaxis2: xAxis2Config,
+        yaxis: yAxisConfig,
+        barmode: 'overlay',
+        bargap: barGap,
+        bargroupgap: 0.1,
+        annotations: count === 0 ? [{
+          text: checkedBoxes.length > 0
+            ? 'No data available for the selected datasets in this date range'
+            : 'Select one or more datasets to view timeline',
+          showarrow: false,
+          font: { size: 13, color: textColor }
+        }] : []
+      };
+
+      Plotly.newPlot('timeline-chart', traces, layout, { responsive: true, displayModeBar: true, displaylogo: false }).then(() => {
+        updatePanButtons('timeline-chart');
+      });
+
+      plotDiv.on('plotly_relayout', function() {
+        updatePanButtons('timeline-chart');
+      });
+
+      // Attach click events on chart points and y-axis ticks
+      plotDiv.on('plotly_click', function(data) {
+        if (!data.points || data.points.length === 0) return;
+        const name = data.points[0].y;
+        const isCtrl = data.event && (data.event.ctrlKey || data.event.metaKey);
+        handleRowClick(name, isCtrl);
+      });
+
+      plotDiv.querySelectorAll('.ytick text').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.style.userSelect = 'none';
+        el.title = 'Click to unselect • Ctrl+Click to open full page';
+        el.onclick = function(e) {
+          e.stopPropagation();
+          const isCtrl = e.ctrlKey || e.metaKey;
+          handleRowClick(el.textContent.trim(), isCtrl);
+        };
+      });
+    }
+
+    function handleRowClick(name, isCtrl) {
+      const d = allDatasets.find(item => item.name === name);
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (isCtrl && d && d.page) {
+        window.open(d.page + q, '_blank');
+        return;
+      }
+      const cb = document.querySelector(`.dset-checkbox[value="${name}"]`);
+      if (cb) {
+        cb.checked = !cb.checked;
+        updateView();
+      }
+    }
+
+    function filterTable() {
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+
+      rows.forEach(r => {
+        const name = (r.getAttribute('data-name') || '').toLowerCase();
+        const inst = r.getAttribute('data-inst') || '';
+        const matchQ = !query || name.includes(query);
+        const matchInst = !instFilter || inst === instFilter;
+        r.style.display = (matchQ && matchInst) ? '' : 'none';
+      });
+
+      updateView();
+      propagateQueryToLinks();
+    }
+
+    function selectAll(state) {
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+      rows.forEach(r => {
+        if (r.style.display !== 'none') {
+          const cb = r.querySelector('.dset-checkbox');
+          if (cb) cb.checked = state;
+        }
+      });
+      document.getElementById('master-cb').checked = state;
+      updateView();
+    }
+
+    function toggleAllCheckboxes(state) {
+      selectAll(state);
+    }
+
+    function parseAxisTimeMs(val) {
+      if (val == null) return NaN;
+      if (typeof val === 'number') return val;
+      if (val instanceof Date) return val.getTime();
+      const s = String(val).trim();
+      if (!s) return NaN;
+      if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+      const iso = s.replace(/\//g, '-').replace(' ', 'T');
+      const isoUtc = (iso.includes('Z') || iso.includes('+')) ? iso : iso + 'Z';
+      let ms = Date.parse(isoUtc);
+      if (!isNaN(ms)) return ms;
+      ms = Date.parse(s);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function formatAxisDate(ms) {
+      const d = new Date(ms);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString();
+    }
+
+    function panTimelineWindow(divId, direction) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv || !plotDiv._fullLayout || !plotDiv._fullLayout.xaxis) return;
+      const rng = plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2) return;
+
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+
+      const span = t1 - t0;
+      if (span <= 0) return;
+
+      const newT0 = t0 + (direction * span);
+      const newT1 = t1 + (direction * span);
+
+      Plotly.relayout(plotDiv, {
+        'xaxis.range': [formatAxisDate(newT0), formatAxisDate(newT1)],
+        'xaxis.autorange': false
+      }).then(() => {
+        updatePanButtons(divId);
+      });
+    }
+
+    function resetTimelineZoom(divId) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        Plotly.relayout(plotDiv, {
+          'xaxis.range': [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)],
+          'xaxis.autorange': false
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      } else {
+        Plotly.relayout(plotDiv, {
+          'xaxis.autorange': true
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      }
+    }
+
+    window._globalMinTimeMs = 1487964650000;
+    window._globalMaxTimeMs = 1794009600000;
+
+    function exportPlotAsPng(divId, filename) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      Plotly.downloadImage(plotDiv, {
+        format: 'png',
+        width: 1400,
+        height: Math.max(500, plotDiv.offsetHeight || 500),
+        filename: filename || 'plot.png'
+      });
+    }
+
+    function updatePanButtons(divId) {
+      const plotDiv = document.getElementById(divId);
+      const prevBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', -1)"]`);
+      const nextBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', 1)"]`);
+      if (!plotDiv || !prevBtn || !nextBtn) return;
+      const rng = plotDiv._fullLayout && plotDiv._fullLayout.xaxis && plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2 || !window._globalMinTimeMs || !window._globalMaxTimeMs) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+      const fullSpan = window._globalMaxTimeMs - window._globalMinTimeMs;
+      const currentSpan = t1 - t0;
+      if (currentSpan >= fullSpan - 60000) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      const canPrev = t0 > (window._globalMinTimeMs + 60000);
+      const canNext = t1 < (window._globalMaxTimeMs - 60000);
+      prevBtn.disabled = !canPrev;
+      nextBtn.disabled = !canNext;
+      prevBtn.classList.toggle('disabled', !canPrev);
+      nextBtn.classList.toggle('disabled', !canNext);
+    }
+
+    // Theme initialization
+    const savedTheme = localStorage.getItem('cdaweb_theme') || 'dark';
+    document.body.className = savedTheme;
+    document.getElementById('theme-toggle').textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+    // Propagate URL query params (such as ?view for updog) to relative navigation links
+    function propagateQueryToLinks() {
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (q) {
+        document.querySelectorAll('a[href]').forEach(a => {
+          const href = a.getAttribute('href');
+          if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto:') && !href.includes('?')) {
+            a.setAttribute('href', href + q);
+          }
+        });
+      }
+    }
+
+    // Ensure timeline checkbox is unchecked by default and container is hidden
+    const chartCb = document.getElementById('toggle-chart-cb');
+    if (chartCb) {
+      chartCb.checked = false;
+    }
+    const chartCard = document.getElementById('chart-card-container');
+    if (chartCard) {
+      chartCard.style.display = 'none';
+    }
+
+    enableSortableTable('datasets-table');
+
+    // Initial render
+    updateView();
+    propagateQueryToLinks();
+  </script>
+  <footer class="page-footer">This page was last updated on: 2026-11-17 17:21:41 UTC. For any questions or comments, please contact SPDF support at: <a href="mailto:NASA-SPDF-Support@nasa.gov">NASA-SPDF-Support@nasa.gov</a></footer>
+</body>
+</html>

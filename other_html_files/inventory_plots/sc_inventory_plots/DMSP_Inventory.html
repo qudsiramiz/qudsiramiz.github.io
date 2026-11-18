@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DMSP Inventory Index - CDAWeb</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root, body.dark {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #0284c7;
+      --accent-light: #38bdf8;
+      --success: #10b981;
+      --plot-paper: #1e293b;
+      --plot-bg: #0f172a;
+      --plot-grid: #334155;
+    }
+    body.light {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --accent: #0284c7;
+      --accent-light: #0369a1;
+      --success: #16a34a;
+      --plot-paper: #ffffff;
+      --plot-bg: #f8fafc;
+      --plot-grid: #e2e8f0;
+    }
+    body {
+      margin: 0;
+      padding: 24px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    input[type="date"] {
+      color-scheme: dark;
+    }
+    body.light input[type="date"] {
+      color-scheme: light;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .page-footer { margin: 20px 0 0; color: var(--text-muted); font-size: 12px; text-align: center; }
+    .page-footer a { color: var(--accent-light); }
+    .breadcrumbs { font-size: 14px; margin-bottom: 0; color: var(--text-muted); }
+    .breadcrumbs a { color: var(--accent-light); text-decoration: none; }
+    .breadcrumbs a:hover { text-decoration: underline; }
+    .btn-theme {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-theme:hover { opacity: 0.9; }
+    h1 { margin: 0 0 6px 0; font-size: 28px; }
+    .subtitle { color: var(--text-muted); font-size: 15px; margin: 0 0 20px 0; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .kpi-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 20px; font-weight: 700; color: var(--text); }
+    .controls-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    input[type="text"], input[type="date"], select {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: 13px;
+    }
+    button, .btn-sm {
+      background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block;
+    }
+    button.btn-secondary { background: var(--border); color: var(--text); }
+    button:hover, .btn-sm:hover { opacity: 0.9; }
+    .chart-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th { padding: 10px 12px; background: rgba(125,125,125,0.06); color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .progress-bar { width: 70px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; display: inline-block; }
+    .progress-bar .fill { height: 100%; background: var(--success); }
+    .badge-sm { display: inline-block; padding: 2px 8px; background: rgba(56, 189, 248, 0.15); color: var(--accent-light); border-radius: 4px; font-size: 11px; }
+    .chart-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .pan-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(125,125,125,0.08);
+      padding: 3px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .btn-pan {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-pan:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .btn-pan:disabled, .btn-pan.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .btn-preset {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .btn-preset:hover {
+      opacity: 0.9;
+      color: var(--text);
+    }
+    .btn-preset.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      font-weight: 700;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+    }
+    .xtick text, .ytick text {
+      fill: var(--text) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+      <div class="breadcrumbs">
+        <a href="./inventory_index.html">CDAWeb Inventory</a> &gt;
+        <span>DMSP Index</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="./DMSP_Inventory.png" target="_blank" class="btn-theme"> View DMSP PNG</a>
+        <button class="btn-theme" onclick="exportPlotAsPng('timeline-chart', 'DMSP_timeline.png')"> Download Plot PNG</button>
+        <button id="theme-toggle" class="btn-theme" onclick="toggleTheme()">☀️ Light Mode</button>
+      </div>
+    </div>
+    <h1>DMSP Mission Data Inventory</h1>
+    <p class="subtitle">Complete catalog of holdings and availability for DMSP spacecraft</p>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Datasets</div>
+        <div class="kpi-value">19</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Instruments</div>
+        <div class="kpi-value">13</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total CDF Files</div>
+        <div class="kpi-value">198,741</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Mission Span</div>
+        <div class="kpi-value" style="font-size: 14px;">1983-01-01 &rarr; 2025-08-02</div>
+      </div>
+    </div>
+
+    <div class="controls-card">
+      <input type="text" id="search-box" placeholder="Search datasets..." oninput="filterTable()">
+      <select id="instrument-filter" onchange="filterTable()">
+        <option value="">All Instruments (13)</option>
+        <option value='DMSPF06'>DMSPF06</option><option value='DMSPF07'>DMSPF07</option><option value='DMSPF08'>DMSPF08</option><option value='DMSPF09'>DMSPF09</option><option value='DMSPF12'>DMSPF12</option><option value='DMSPF13'>DMSPF13</option><option value='DMSPF14'>DMSPF14</option><option value='DMSPF15'>DMSPF15</option><option value='DMSPF16'>DMSPF16</option><option value='DMSPF17'>DMSPF17</option><option value='DMSPF18'>DMSPF18</option><option value='Particles (space)'>Particles (space)</option><option value='Plasma and Solar Wind'>Plasma and Solar Wind</option>
+      </select>
+      <button class="btn-secondary" onclick="selectAll(true)">Select All</button>
+      <button class="btn-secondary" onclick="selectAll(false)">Clear All</button>
+      <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; font-size: 13px; font-weight: 600; padding: 4px 10px; background: rgba(125,125,125,0.08); border-radius: 6px; border: 1px solid var(--border);">
+        <input type="checkbox" id="toggle-chart-cb" autocomplete="off" onchange="toggleChartDisplay(this.checked)">
+        <span> Show Timeline Graph</span>
+      </label>
+      <div style="margin-left: auto; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+        <span style="font-size: 13px; color: var(--text-muted);">Date Range:</span>
+        <input type="date" id="filter-start" value="1983-01-01" oninput="clearPresetHighlight()">
+        <span style="color: var(--text-muted);">&rarr;</span>
+        <input type="date" id="filter-stop" value="2025-08-02" oninput="clearPresetHighlight()">
+        <button onclick="updateView()">Apply</button>
+        <button type="button" class="btn-preset" data-preset="1y" onclick="presetRange('1y')">1 Year</button>
+        <button type="button" class="btn-preset" data-preset="5y" onclick="presetRange('5y')">5 Years</button>
+        <button type="button" class="btn-preset active" data-preset="all" onclick="presetRange('all')">All Time</button>
+      </div>
+    </div>
+
+    <div class="chart-card" id="chart-card-container" style="display: none;">
+      <div class="chart-hint">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <span><strong>Availability Timeline (Selected Items)</strong></span>
+          <div class="pan-controls">
+            <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin: 0 4px;">Time Window:</span>
+            <button type="button" class="btn-pan disabled" disabled title="Pan backward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', -1)">◀ Prev Frame</button>
+            <button type="button" class="btn-pan" title="Reset zoom to full range" onclick="resetTimelineZoom('timeline-chart')">↺ Reset Zoom</button>
+            <button type="button" class="btn-pan disabled" disabled title="Pan forward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', 1)">Next Frame ▶</button>
+            <button type="button" class="btn-pan" title="Reselect all unselected items" onclick="resetAllSelections()">↺ Reset Selection</button>
+            <button type="button" class="btn-pan" title="Download timeline chart as PNG" onclick="exportPlotAsPng('timeline-chart', 'DMSP_timeline.png')"> PNG</button>
+          </div>
+        </div>
+        <span>💡 Click row/label to unselect • Ctrl+Click to open full dataset page</span>
+      </div>
+      <div id="timeline-chart" style="min-height: 120px; width: 100%;"></div>
+    </div>
+
+    <div class="table-card">
+      <h3 style="margin: 0 0 12px 0;">Available Datasets</h3>
+      <table id="datasets-table">
+        <thead>
+          <tr>
+            <th style="width: 30px;"><input type="checkbox" id="master-cb" checked onchange="toggleAllCheckboxes(this.checked)"></th>
+            <th class="sortable" data-sort-type="text">Dataset ID</th>
+            <th class="sortable" data-sort-type="text">Instrument</th>
+            <th class="sortable" data-sort-type="text">Product</th>
+            <th class="sortable" data-sort-type="date">Time Coverage</th>
+            <th class="sortable" data-sort-type="number">CDF Count</th>
+            <th class="sortable" data-sort-type="number">Coverage</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="datasets-tbody">
+          
+        <tr data-inst="DMSPF06" data-name="DMSP-F06_SSJ_PRECIPITATING-ELECTRONS-IONS">
+          <td><input type="checkbox" class="dset-checkbox" value="DMSP-F06_SSJ_PRECIPITATING-ELECTRONS-IONS" checked onchange="updateView()"></td>
+          <td><a href="./dmsp_inventory/DMSP-F06_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DMSP-F06_SSJ_PRECIPITATING-ELECTRONS-IONS</a></td>
+          <td><span class="badge-sm">DMSPF06</span></td>
+          <td style="color: var(--text-muted);">PRECIPITATING-ELECTRONS-IONS</td>
+          <td>1987-01-01 &rarr; 1987-07-21</td>
+          <td>97</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 48.01924894683082%;"></div></div>
+              <span style="font-size: 11px;">48.02%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./dmsp_inventory/DMSP-F06_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DMSPF07" data-name="DMSP-F07_SSJ_PRECIPITATING-ELECTRONS-IONS">
+          <td><input type="checkbox" class="dset-checkbox" value="DMSP-F07_SSJ_PRECIPITATING-ELECTRONS-IONS" checked onchange="updateView()"></td>
+          <td><a href="./dmsp_inventory/DMSP-F07_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DMSP-F07_SSJ_PRECIPITATING-ELECTRONS-IONS</a></td>
+          <td><span class="badge-sm">DMSPF07</span></td>
+          <td style="color: var(--text-muted);">PRECIPITATING-ELECTRONS-IONS</td>
+          <td>1987-01-01 &rarr; 1987-12-19</td>
+          <td>180</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 50.990912908893115%;"></div></div>
+              <span style="font-size: 11px;">50.99%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./dmsp_inventory/DMSP-F07_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DMSPF08" data-name="DMSP-F08_SSJ_PRECIPITATING-ELECTRONS-IONS">
+          <td><input type="checkbox" class="dset-checkbox" value="DMSP-F08_SSJ_PRECIPITATING-ELECTRONS-IONS" checked onchange="updateView()"></td>
+          <td><a href="./dmsp_inventory/DMSP-F08_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DMSP-F08_SSJ_PRECIPITATING-ELECTRONS-IONS</a></td>
+          <td><span class="badge-sm">DMSPF08</span></td>
+          <td style="color: var(--text-muted);">PRECIPITATING-ELECTRONS-IONS</td>
+          <td>1987-06-25 &rarr; 1987-12-27</td>
+          <td>86</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 46.236026871517005%;"></div></div>
+              <span style="font-size: 11px;">46.24%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./dmsp_inventory/DMSP-F08_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DMSPF09" data-name="DMSP-F09_SSJ_PRECIPITATING-ELECTRONS-IONS">
+          <td><input type="checkbox" class="dset-checkbox" value="DMSP-F09_SSJ_PRECIPITATING-ELECTRONS-IONS" checked onchange="updateView()"></td>
+          <td><a href="./dmsp_inventory/DMSP-F09_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DMSP-F09_SSJ_PRECIPITATING-ELECTRONS-IONS</a></td>
+          <td><span class="badge-sm">DMSPF09</span></td>
+          <td style="color: var(--text-muted);">PRECIPITATING-ELECTRONS-IONS</td>
+          <td>1988-03-24 &rarr; 1988-07-12</td>
+          <td>19</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 17.116920787133047%;"></div></div>
+              <span style="font-size: 11px;">17.12%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./dmsp_inventory/DMSP-F09_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DMSPF12" data-name="DMSP-F12_SSJ_PRECIPITATING-ELECTRONS-IONS">
+          <td><input type="checkbox" class="dset-checkbox" value="DMSP-F12_SSJ_PRECIPITATING-ELECTRONS-IONS" checked onchange="updateView()"></td>
+          <td><a href="./dmsp_inventory/DMSP-F12_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DMSP-F12_SSJ_PRECIPITATING-ELECTRONS-IONS</a></td>
+          <td><span class="badge-sm">DMSPF12</span></td>
+          <td style="color: var(--text-muted);">PRECIPITATING-ELECTRONS-IONS</td>
+          <td>2000-12-28 &rarr; 2002-07-27</td>
+          <td>127</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 22.010144305036917%;"></div></div>
+              <span style="font-size: 11px;">22.01%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./dmsp_inventory/DMSP-F12_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DMSPF13" data-name="DMSP-F13_SSJ_PRECIPITATING-ELECTRONS-IONS">
+          <td><input type="checkbox" class="dset-checkbox" value="DMSP-F13_SSJ_PRECIPITATING-ELECTRONS-IONS" checked onchange="updateView()"></td>
+          <td><a href="./dmsp_inventory/DMSP-F13_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DMSP-F13_SSJ_PRECIPITATING-ELECTRONS-IONS</a></td>
+          <td><span class="badge-sm">DMSPF13</span></td>
+          <td style="color: var(--text-muted);">PRECIPITATING-ELECTRONS-IONS</td>
+          <td>2000-01-01 &rarr; 2007-12-30</td>
+          <td>2,919</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.93037407887002%;"></div></div>
+              <span style="font-size: 11px;">99.93%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./dmsp_inventory/DMSP-F13_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DMSPF14" data-name="DMSP-F14_SSJ_PRECIPITATING-ELECTRONS-IONS">
+          <td><input type="checkbox" class="dset-checkbox" value="DMSP-F14_SSJ_PRECIPITATING-ELECTRONS-IONS" checked onchange="updateView()"></td>
+          <td><a href="./dmsp_inventory/DMSP-F14_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DMSP-F14_SSJ_PRECIPITATING-ELECTRONS-IONS</a></td>
+          <td><span class="badge-sm">DMSPF14</span></td>
+          <td style="color: var(--text-muted);">PRECIPITATING-ELECTRONS-IONS</td>
+          <td>2000-12-28 &rarr; 2005-09-29</td>
+          <td>1,011</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 58.20312638731055%;"></div></div>
+              <span style="font-size: 11px;">58.20%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./dmsp_inventory/DMSP-F14_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DMSPF15" data-name="DMSP-F15_SSJ_PRECIPITATING-ELECTRONS-IONS">
+          <td><input type="checkbox" class="dset-checkbox" value="DMSP-F15_SSJ_PRECIPITATING-ELECTRONS-IONS" checked onchange="updateView()"></td>
+          <td><a href="./dmsp_inventory/DMSP-F15_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DMSP-F15_SSJ_PRECIPITATING-ELECTRONS-IONS</a></td>
+          <td><span class="badge-sm">DMSPF15</span></td>
+          <td style="color: var(--text-muted);">PRECIPITATING-ELECTRONS-IONS</td>
+          <td>2000-12-28 &rarr; 2009-03-24</td>
+          <td>2,360</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 78.43046508018561%;"></div></div>
+              <span style="font-size: 11px;">78.43%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./dmsp_inventory/DMSP-F15_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DMSPF16" data-name="DMSP-F16_SSIES-3_THERMAL-PLASMA">
+          <td><input type="checkbox" class="dset-checkbox" value="DMSP-F16_SSIES-3_THERMAL-PLASMA" checked onchange="updateView()"></td>
+          <td><a href="./dmsp_inventory/DMSP-F16_SSIES-3_THERMAL-PLASMA.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DMSP-F16_SSIES-3_THERMAL-PLASMA</a></td>
+          <td><span class="badge-sm">DMSPF16</span></td>
+          <td style="color: var(--text-muted);">THERMAL-PLASMA-CDF</td>
+          <td>2003-10-25 &rarr; 2025-08-01</td>
+          <td>77,998</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 66.41877205880351%;"></div></div>
+              <span style="font-size: 11px;">66.42%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./dmsp_inventory/DMSP-F16_SSIES-3_THERMAL-PLASMA.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DMSPF16" data-name="DMSP-F16_SSJ_PRECIPITATING-ELECTRONS-IONS">
+          <td><input type="checkbox" class="dset-checkbox" value="DMSP-F16_SSJ_PRECIPITATING-ELECTRONS-IONS" checked onchange="updateView()"></td>
+          <td><a href="./dmsp_inventory/DMSP-F16_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DMSP-F16_SSJ_PRECIPITATING-ELECTRONS-IONS</a></td>
+          <td><span class="badge-sm">DMSPF16</span></td>
+          <td style="color: var(--text-muted);">PRECIPITATING-ELECTRONS-IONS</td>
+          <td>2003-10-29 &rarr; 2014-12-31</td>
+          <td>3,450</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 84.51641546365597%;"></div></div>
+              <span style="font-size: 11px;">84.52%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./dmsp_inventory/DMSP-F16_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DMSPF16" data-name="DMSP-F16_SSM_MAGNETOMETER">
+          <td><input type="checkbox" class="dset-checkbox" value="DMSP-F16_SSM_MAGNETOMETER" checked onchange="updateView()"></td>
+          <td><a href="./dmsp_inventory/DMSP-F16_SSM_MAGNETOMETER.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DMSP-F16_SSM_MAGNETOMETER</a></td>
+          <td><span class="badge-sm">DMSPF16</span></td>
+          <td style="color: var(--text-muted);">MAGNETOMETER</td>
+          <td>2009-01-01 &rarr; 2014-12-30</td>
+          <td>2,183</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.67921211567315%;"></div></div>
+              <span style="font-size: 11px;">99.68%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./dmsp_inventory/DMSP-F16_SSM_MAGNETOMETER.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DMSPF17" data-name="DMSP-F17_SSIES-3_THERMAL-PLASMA">
+          <td><input type="checkbox" class="dset-checkbox" value="DMSP-F17_SSIES-3_THERMAL-PLASMA" checked onchange="updateView()"></td>
+          <td><a href="./dmsp_inventory/DMSP-F17_SSIES-3_THERMAL-PLASMA.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DMSP-F17_SSIES-3_THERMAL-PLASMA</a></td>
+          <td><span class="badge-sm">DMSPF17</span></td>
+          <td style="color: var(--text-muted);">THERMAL-PLASMA-CDF</td>
+          <td>2006-11-08 &rarr; 2025-08-02</td>
+          <td>54,332</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 50.91518156080568%;"></div></div>
+              <span style="font-size: 11px;">50.92%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./dmsp_inventory/DMSP-F17_SSIES-3_THERMAL-PLASMA.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DMSPF17" data-name="DMSP-F17_SSJ_PRECIPITATING-ELECTRONS-IONS">
+          <td><input type="checkbox" class="dset-checkbox" value="DMSP-F17_SSJ_PRECIPITATING-ELECTRONS-IONS" checked onchange="updateView()"></td>
+          <td><a href="./dmsp_inventory/DMSP-F17_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DMSP-F17_SSJ_PRECIPITATING-ELECTRONS-IONS</a></td>
+          <td><span class="badge-sm">DMSPF17</span></td>
+          <td style="color: var(--text-muted);">PRECIPITATING-ELECTRONS-IONS</td>
+          <td>2009-01-01 &rarr; 2014-12-31</td>
+          <td>1,972</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 90.00352288192607%;"></div></div>
+              <span style="font-size: 11px;">90.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./dmsp_inventory/DMSP-F17_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DMSPF17" data-name="DMSP-F17_SSM_MAGNETOMETER">
+          <td><input type="checkbox" class="dset-checkbox" value="DMSP-F17_SSM_MAGNETOMETER" checked onchange="updateView()"></td>
+          <td><a href="./dmsp_inventory/DMSP-F17_SSM_MAGNETOMETER.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DMSP-F17_SSM_MAGNETOMETER</a></td>
+          <td><span class="badge-sm">DMSPF17</span></td>
+          <td style="color: var(--text-muted);">MAGNETOMETER</td>
+          <td>2009-01-01 &rarr; 2014-12-30</td>
+          <td>2,186</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.81619683227738%;"></div></div>
+              <span style="font-size: 11px;">99.82%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./dmsp_inventory/DMSP-F17_SSM_MAGNETOMETER.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DMSPF18" data-name="DMSP-F18_SSIES-3_THERMAL-PLASMA">
+          <td><input type="checkbox" class="dset-checkbox" value="DMSP-F18_SSIES-3_THERMAL-PLASMA" checked onchange="updateView()"></td>
+          <td><a href="./dmsp_inventory/DMSP-F18_SSIES-3_THERMAL-PLASMA.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DMSP-F18_SSIES-3_THERMAL-PLASMA</a></td>
+          <td><span class="badge-sm">DMSPF18</span></td>
+          <td style="color: var(--text-muted);">THERMAL-PLASMA-CDF</td>
+          <td>2009-10-22 &rarr; 2025-08-01</td>
+          <td>46,182</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 54.49950095161598%;"></div></div>
+              <span style="font-size: 11px;">54.50%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./dmsp_inventory/DMSP-F18_SSIES-3_THERMAL-PLASMA.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DMSPF18" data-name="DMSP-F18_SSJ_PRECIPITATING-ELECTRONS-IONS">
+          <td><input type="checkbox" class="dset-checkbox" value="DMSP-F18_SSJ_PRECIPITATING-ELECTRONS-IONS" checked onchange="updateView()"></td>
+          <td><a href="./dmsp_inventory/DMSP-F18_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DMSP-F18_SSJ_PRECIPITATING-ELECTRONS-IONS</a></td>
+          <td><span class="badge-sm">DMSPF18</span></td>
+          <td style="color: var(--text-muted);">PRECIPITATING-ELECTRONS-IONS</td>
+          <td>2009-10-24 &rarr; 2014-12-31</td>
+          <td>1,814</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 95.72448631708984%;"></div></div>
+              <span style="font-size: 11px;">95.72%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./dmsp_inventory/DMSP-F18_SSJ_PRECIPITATING-ELECTRONS-IONS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DMSPF18" data-name="DMSP-F18_SSM_MAGNETOMETER">
+          <td><input type="checkbox" class="dset-checkbox" value="DMSP-F18_SSM_MAGNETOMETER" checked onchange="updateView()"></td>
+          <td><a href="./dmsp_inventory/DMSP-F18_SSM_MAGNETOMETER.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DMSP-F18_SSM_MAGNETOMETER</a></td>
+          <td><span class="badge-sm">DMSPF18</span></td>
+          <td style="color: var(--text-muted);">MAGNETOMETER</td>
+          <td>2010-01-01 &rarr; 2014-12-30</td>
+          <td>1,823</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.88925545338189%;"></div></div>
+              <span style="font-size: 11px;">99.89%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./dmsp_inventory/DMSP-F18_SSM_MAGNETOMETER.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="Plasma and Solar Wind" data-name="DMSP_R0_SSIES">
+          <td><input type="checkbox" class="dset-checkbox" value="DMSP_R0_SSIES" checked onchange="updateView()"></td>
+          <td><a href="./dmsp_inventory/DMSP_R0_SSIES.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DMSP_R0_SSIES</a></td>
+          <td><span class="badge-sm">Plasma and Solar Wind</span></td>
+          <td style="color: var(--text-muted);">DMSP_R0_SSIES</td>
+          <td>1983-01-01 &rarr; 1983-01-01</td>
+          <td>1</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./dmsp_inventory/DMSP_R0_SSIES.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="Particles (space)" data-name="DMSP_R0_SSJ4">
+          <td><input type="checkbox" class="dset-checkbox" value="DMSP_R0_SSJ4" checked onchange="updateView()"></td>
+          <td><a href="./dmsp_inventory/DMSP_R0_SSJ4.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DMSP_R0_SSJ4</a></td>
+          <td><span class="badge-sm">Particles (space)</span></td>
+          <td style="color: var(--text-muted);">DMSP_R0_SSJ4</td>
+          <td>1983-01-01 &rarr; 1983-01-01</td>
+          <td>1</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./dmsp_inventory/DMSP_R0_SSJ4.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const allDatasets = [{"name": "DMSP-F06_SSJ_PRECIPITATING-ELECTRONS-IONS", "instrument": "DMSPF06", "product": "PRECIPITATING-ELECTRONS-IONS", "cdf_count": 97, "active_days": 96.99887731481482, "coverage_pct": 48.01924894683082, "earliest": "1987-01-01", "latest": "1987-07-21", "intervals": [["1987-01-01 00:00:00", "1987-01-01 23:59:59"], ["1987-01-11 00:00:00", "1987-01-15 23:59:59"], ["1987-01-28 00:00:00", "1987-01-28 23:59:59"], ["1987-03-24 00:00:00", "1987-03-24 23:59:59"], ["1987-04-01 00:00:00", "1987-04-01 23:59:59"], ["1987-04-18 00:00:00", "1987-07-21 23:59:59"]], "page": "./DMSP-F06_SSJ_PRECIPITATING-ELECTRONS-IONS.html"}, {"name": "DMSP-F07_SSJ_PRECIPITATING-ELECTRONS-IONS", "instrument": "DMSPF07", "product": "PRECIPITATING-ELECTRONS-IONS", "cdf_count": 180, "active_days": 179.99791666666667, "coverage_pct": 50.990912908893115, "earliest": "1987-01-01", "latest": "1987-12-19", "intervals": [["1987-01-01 00:00:00", "1987-01-01 23:59:59"], ["1987-01-08 00:00:00", "1987-01-08 23:59:59"], ["1987-01-20 00:00:00", "1987-01-20 23:59:59"], ["1987-03-24 00:00:00", "1987-03-24 23:59:59"], ["1987-04-01 00:00:00", "1987-04-01 23:59:59"], ["1987-04-16 00:00:00", "1987-04-26 23:59:59"], ["1987-04-30 00:00:00", "1987-10-14 23:59:59"], ["1987-11-10 00:00:00", "1987-11-14 23:59:59"], ["1987-12-19 00:00:00", "1987-12-19 23:59:59"]], "page": "./DMSP-F07_SSJ_PRECIPITATING-ELECTRONS-IONS.html"}, {"name": "DMSP-F08_SSJ_PRECIPITATING-ELECTRONS-IONS", "instrument": "DMSPF08", "product": "PRECIPITATING-ELECTRONS-IONS", "cdf_count": 86, "active_days": 85.99900462962962, "coverage_pct": 46.236026871517005, "earliest": "1987-06-25", "latest": "1987-12-27", "intervals": [["1987-06-25 00:00:00", "1987-06-26 23:59:59"], ["1987-07-07 00:00:00", "1987-07-14 23:59:59"], ["1987-07-22 00:00:00", "1987-08-24 23:59:59"], ["1987-09-29 00:00:00", "1987-11-02 23:59:59"], ["1987-11-11 00:00:00", "1987-11-11 23:59:59"], ["1987-11-15 00:00:00", "1987-11-15 23:59:59"], ["1987-11-21 00:00:00", "1987-11-22 23:59:59"], ["1987-11-28 00:00:00", "1987-11-29 23:59:59"], ["1987-12-06 00:00:00", "1987-12-08 23:59:59"], ["1987-12-24 00:00:00", "1987-12-27 23:59:59"]], "page": "./DMSP-F08_SSJ_PRECIPITATING-ELECTRONS-IONS.html"}, {"name": "DMSP-F09_SSJ_PRECIPITATING-ELECTRONS-IONS", "instrument": "DMSPF09", "product": "PRECIPITATING-ELECTRONS-IONS", "cdf_count": 19, "active_days": 18.99978009259259, "coverage_pct": 17.116920787133047, "earliest": "1988-03-24", "latest": "1988-07-12", "intervals": [["1988-03-24 00:00:00", "1988-03-24 23:59:59"], ["1988-03-27 00:00:00", "1988-04-05 23:59:59"], ["1988-04-09 00:00:00", "1988-04-09 23:59:59"], ["1988-04-12 00:00:00", "1988-04-17 23:59:59"], ["1988-04-21 00:00:00", "1988-04-21 23:59:59"], ["1988-04-25 00:00:00", "1988-04-28 23:59:59"], ["1988-05-03 00:00:00", "1988-05-03 23:59:59"], ["1988-07-10 00:00:00", "1988-07-12 23:59:59"]], "page": "./DMSP-F09_SSJ_PRECIPITATING-ELECTRONS-IONS.html"}, {"name": "DMSP-F12_SSJ_PRECIPITATING-ELECTRONS-IONS", "instrument": "DMSPF12", "product": "PRECIPITATING-ELECTRONS-IONS", "cdf_count": 127, "active_days": 126.99853009259259, "coverage_pct": 22.010144305036917, "earliest": "2000-12-28", "latest": "2002-07-27", "intervals": [["2000-12-28 00:00:00", "2001-01-01 23:59:59"], ["2001-02-07 00:00:00", "2001-02-15 23:59:59"], ["2001-02-20 00:00:00", "2001-02-23 23:59:59"], ["2001-02-26 00:00:00", "2001-03-02 23:59:59"], ["2001-03-13 00:00:00", "2001-03-22 23:59:59"], ["2001-03-25 00:00:00", "2001-03-29 23:59:59"], ["2001-04-02 00:00:00", "2001-04-04 23:59:59"], ["2001-04-10 00:00:00", "2001-04-12 23:59:59"], ["2001-04-16 00:00:00", "2001-04-19 23:59:59"], ["2001-04-22 00:00:00", "2001-04-26 23:59:59"], ["2001-06-18 00:00:00", "2001-07-12 23:59:59"], ["2001-07-16 00:00:00", "2001-07-21 23:59:59"], ["2001-07-31 00:00:00", "2001-08-02 23:59:59"], ["2001-08-06 00:00:00", "2001-08-08 23:59:59"], ["2001-08-11 00:00:00", "2001-08-13 23:59:59"], ["2001-08-17 00:00:00", "2001-08-26 23:59:59"], ["2001-08-29 00:00:00", "2001-08-30 23:59:59"], ["2001-09-05 00:00:00", "2001-09-11 23:59:59"], ["2001-09-14 00:00:00", "2001-09-15 23:59:59"], ["2001-09-18 00:00:00", "2001-09-20 23:59:59"], ["2001-09-24 00:00:00", "2001-09-29 23:59:59"], ["2001-10-02 00:00:00", "2001-10-02 23:59:59"], ["2001-10-06 00:00:00", "2001-10-06 23:59:59"], ["2001-10-10 00:00:00", "2001-10-10 23:59:59"], ["2001-12-01 00:00:00", "2001-12-01 23:59:59"], ["2002-01-04 00:00:00", "2002-01-04 23:59:59"], ["2002-01-15 00:00:00", "2002-01-15 23:59:59"], ["2002-01-18 00:00:00", "2002-01-18 23:59:59"], ["2002-01-31 00:00:00", "2002-02-04 23:59:59"], ["2002-02-19 00:00:00", "2002-02-19 23:59:59"], ["2002-02-28 00:00:00", "2002-02-28 23:59:59"], ["2002-03-28 00:00:00", "2002-03-29 23:59:59"], ["2002-05-25 00:00:00", "2002-05-25 23:59:59"], ["2002-07-03 00:00:00", "2002-07-03 23:59:59"], ["2002-07-11 00:00:00", "2002-07-11 23:59:59"], ["2002-07-27 00:00:00", "2002-07-27 23:59:59"]], "page": "./DMSP-F12_SSJ_PRECIPITATING-ELECTRONS-IONS.html"}, {"name": "DMSP-F13_SSJ_PRECIPITATING-ELECTRONS-IONS", "instrument": "DMSPF13", "product": "PRECIPITATING-ELECTRONS-IONS", "cdf_count": 2919, "active_days": 2918.966215277778, "coverage_pct": 99.93037407887002, "earliest": "2000-01-01", "latest": "2007-12-30", "intervals": [["2000-01-01 00:00:00", "2007-06-17 23:59:59"], ["2007-06-20 00:00:00", "2007-12-30 23:59:59"]], "page": "./DMSP-F13_SSJ_PRECIPITATING-ELECTRONS-IONS.html"}, {"name": "DMSP-F14_SSJ_PRECIPITATING-ELECTRONS-IONS", "instrument": "DMSPF14", "product": "PRECIPITATING-ELECTRONS-IONS", "cdf_count": 1011, "active_days": 1010.9882986111111, "coverage_pct": 58.20312638731055, "earliest": "2000-12-28", "latest": "2005-09-29", "intervals": [["2000-12-28 00:00:00", "2000-12-31 23:59:59"], ["2001-07-10 00:00:00", "2001-07-25 23:59:59"], ["2001-07-29 00:00:00", "2001-07-31 23:59:59"], ["2001-08-04 00:00:00", "2001-08-11 23:59:59"], ["2001-08-14 00:00:00", "2001-08-16 23:59:59"], ["2001-08-19 00:00:00", "2001-08-20 23:59:59"], ["2001-08-23 00:00:00", "2001-08-23 23:59:59"], ["2001-08-26 00:00:00", "2001-08-28 23:59:59"], ["2001-09-02 00:00:00", "2001-09-14 23:59:59"], ["2001-09-18 00:00:00", "2001-09-19 23:59:59"], ["2001-09-22 00:00:00", "2001-09-22 23:59:59"], ["2001-09-25 00:00:00", "2001-10-07 23:59:59"], ["2001-10-11 00:00:00", "2001-10-15 23:59:59"], ["2001-10-18 00:00:00", "2001-10-24 23:59:59"], ["2001-10-28 00:00:00", "2001-10-28 23:59:59"], ["2001-10-31 00:00:00", "2001-11-06 23:59:59"], ["2001-11-10 00:00:00", "2001-11-13 23:59:59"], ["2001-11-16 00:00:00", "2001-12-04 23:59:59"], ["2001-12-09 00:00:00", "2001-12-10 23:59:59"], ["2001-12-13 00:00:00", "2001-12-17 23:59:59"], ["2001-12-20 00:00:00", "2001-12-21 23:59:59"], ["2001-12-27 00:00:00", "2001-12-30 23:59:59"], ["2002-01-02 00:00:00", "2002-01-04 23:59:59"], ["2002-01-07 00:00:00", "2002-01-13 23:59:59"], ["2002-01-16 00:00:00", "2002-01-17 23:59:59"], ["2002-01-20 00:00:00", "2002-01-20 23:59:59"], ["2002-01-25 00:00:00", "2002-01-27 23:59:59"], ["2002-01-30 00:00:00", "2002-02-04 23:59:59"], ["2002-02-07 00:00:00", "2002-02-13 23:59:59"], ["2002-02-16 00:00:00", "2002-03-07 23:59:59"], ["2002-03-10 00:00:00", "2002-03-11 23:59:59"], ["2002-03-18 00:00:00", "2002-03-27 23:59:59"], ["2002-03-30 00:00:00", "2002-03-31 23:59:59"], ["2002-04-03 00:00:00", "2002-04-06 23:59:59"], ["2002-04-09 00:00:00", "2002-04-19 23:59:59"], ["2002-04-24 00:00:00", "2002-05-16 23:59:59"], ["2002-05-20 00:00:00", "2002-05-22 23:59:59"], ["2002-05-25 00:00:00", "2002-06-03 23:59:59"], ["2002-06-07 00:00:00", "2002-06-23 23:59:59"], ["2002-06-27 00:00:00", "2002-06-27 23:59:59"], ["2002-06-30 00:00:00", "2002-07-11 23:59:59"], ["2002-07-15 00:00:00", "2002-08-02 23:59:59"], ["2002-08-05 00:00:00", "2002-09-01 23:59:59"], ["2002-09-04 00:00:00", "2002-09-06 23:59:59"], ["2002-09-12 00:00:00", "2002-09-19 23:59:59"], ["2002-09-23 00:00:00", "2002-10-01 23:59:59"], ["2002-10-06 00:00:00", "2002-10-09 23:59:59"], ["2002-10-12 00:00:00", "2002-10-25 23:59:59"], ["2002-10-28 00:00:00", "2002-10-28 23:59:59"], ["2002-11-02 00:00:00", "2002-11-12 23:59:59"], ["2002-11-15 00:00:00", "2002-11-23 23:59:59"], ["2002-11-26 00:00:00", "2002-11-26 23:59:59"], ["2002-12-03 00:00:00", "2002-12-22 23:59:59"], ["2002-12-25 00:00:00", "2002-12-27 23:59:59"], ["2002-12-31 00:00:00", "2003-01-02 23:59:59"], ["2003-01-06 00:00:00", "2003-01-09 23:59:59"], ["2003-01-12 00:00:00", "2003-01-13 23:59:59"], ["2003-01-16 00:00:00", "2003-01-24 23:59:59"], ["2003-01-27 00:00:00", "2003-02-05 23:59:59"], ["2003-02-10 00:00:00", "2003-02-15 23:59:59"], ["2003-02-18 00:00:00", "2003-02-19 23:59:59"], ["2003-02-22 00:00:00", "2003-03-04 23:59:59"], ["2003-03-07 00:00:00", "2003-03-11 23:59:59"], ["2003-03-14 00:00:00", "2003-03-20 23:59:59"], ["2003-03-23 00:00:00", "2003-03-31 23:59:59"], ["2003-04-03 00:00:00", "2003-04-11 23:59:59"], ["2003-04-17 00:00:00", "2003-04-20 23:59:59"], ["2003-04-23 00:00:00", "2003-04-25 23:59:59"], ["2003-04-29 00:00:00", "2003-05-28 23:59:59"], ["2003-05-31 00:00:00", "2003-06-02 23:59:59"], ["2003-06-05 00:00:00", "2003-06-17 23:59:59"], ["2003-06-24 00:00:00", "2003-06-26 23:59:59"], ["2003-06-29 00:00:00", "2003-07-02 23:59:59"], ["2003-07-06 00:00:00", "2003-07-09 23:59:59"], ["2003-07-12 00:00:00", "2003-08-19 23:59:59"], ["2003-08-23 00:00:00", "2003-08-24 23:59:59"], ["2003-08-27 00:00:00", "2003-08-27 23:59:59"], ["2003-08-30 00:00:00", "2003-09-03 23:59:59"], ["2003-09-06 00:00:00", "2003-10-05 23:59:59"], ["2003-10-08 00:00:00", "2003-10-13 23:59:59"], ["2003-10-17 00:00:00", "2003-10-28 23:59:59"], ["2003-10-31 00:00:00", "2003-11-16 23:59:59"], ["2003-11-19 00:00:00", "2003-11-30 23:59:59"], ["2003-12-03 00:00:00", "2003-12-16 23:59:59"], ["2003-12-21 00:00:00", "2003-12-23 23:59:59"], ["2003-12-27 00:00:00", "2004-01-13 23:59:59"], ["2004-01-16 00:00:00", "2004-01-18 23:59:59"], ["2004-01-21 00:00:00", "2004-01-23 23:59:59"], ["2004-01-29 00:00:00", "2004-02-17 23:59:59"], ["2004-02-24 00:00:00", "2004-03-29 23:59:59"], ["2004-04-01 00:00:00", "2004-04-05 23:59:59"], ["2004-04-09 00:00:00", "2004-04-10 23:59:59"], ["2004-04-13 00:00:00", "2004-04-16 23:59:59"], ["2004-04-19 00:00:00", "2004-04-26 23:59:59"], ["2004-04-29 00:00:00", "2004-05-28 23:59:59"], ["2004-05-31 00:00:00", "2004-05-31 23:59:59"], ["2004-06-03 00:00:00", "2004-06-18 23:59:59"], ["2004-06-21 00:00:00", "2004-07-05 23:59:59"], ["2004-07-08 00:00:00", "2004-08-14 23:59:59"], ["2004-08-18 00:00:00", "2004-08-20 23:59:59"], ["2004-08-23 00:00:00", "2004-09-24 23:59:59"], ["2004-09-28 00:00:00", "2004-11-09 23:59:59"], ["2004-11-13 00:00:00", "2004-12-01 23:59:59"], ["2004-12-05 00:00:00", "2004-12-07 23:59:59"], ["2004-12-11 00:00:00", "2004-12-14 23:59:59"], ["2004-12-18 00:00:00", "2004-12-21 23:59:59"], ["2004-12-24 00:00:00", "2005-01-26 23:59:59"], ["2005-01-29 00:00:00", "2005-02-03 23:59:59"], ["2005-02-06 00:00:00", "2005-02-13 23:59:59"], ["2005-02-17 00:00:00", "2005-02-25 23:59:59"], ["2005-02-28 00:00:00", "2005-03-09 23:59:59"], ["2005-03-12 00:00:00", "2005-03-24 23:59:59"], ["2005-03-27 00:00:00", "2005-03-27 23:59:59"], ["2005-03-30 00:00:00", "2005-04-09 23:59:59"], ["2005-04-12 00:00:00", "2005-05-01 23:59:59"], ["2005-05-05 00:00:00", "2005-05-06 23:59:59"], ["2005-05-09 00:00:00", "2005-05-13 23:59:59"], ["2005-05-16 00:00:00", "2005-05-23 23:59:59"], ["2005-05-26 00:00:00", "2005-05-26 23:59:59"], ["2005-05-31 00:00:00", "2005-06-25 23:59:59"], ["2005-06-28 00:00:00", "2005-07-01 23:59:59"], ["2005-07-04 00:00:00", "2005-07-06 23:59:59"], ["2005-07-11 00:00:00", "2005-07-24 23:59:59"], ["2005-07-27 00:00:00", "2005-09-10 23:59:59"], ["2005-09-13 00:00:00", "2005-09-14 23:59:59"], ["2005-09-19 00:00:00", "2005-09-29 23:59:59"]], "page": "./DMSP-F14_SSJ_PRECIPITATING-ELECTRONS-IONS.html"}, {"name": "DMSP-F15_SSJ_PRECIPITATING-ELECTRONS-IONS", "instrument": "DMSPF15", "product": "PRECIPITATING-ELECTRONS-IONS", "cdf_count": 2360, "active_days": 2359.972685185185, "coverage_pct": 78.43046508018561, "earliest": "2000-12-28", "latest": "2009-03-24", "intervals": [["2000-12-28 00:00:00", "2001-01-01 23:59:59"], ["2001-03-05 00:00:00", "2001-03-05 23:59:59"], ["2001-07-10 00:00:00", "2001-08-01 23:59:59"], ["2001-08-04 00:00:00", "2001-08-29 23:59:59"], ["2001-09-02 00:00:00", "2001-10-01 23:59:59"], ["2001-10-05 00:00:00", "2001-10-25 23:59:59"], ["2001-10-28 00:00:00", "2001-11-05 23:59:59"], ["2001-11-10 00:00:00", "2001-11-12 23:59:59"], ["2001-11-16 00:00:00", "2001-12-21 23:59:59"], ["2001-12-27 00:00:00", "2001-12-31 23:59:59"], ["2003-01-01 00:00:00", "2005-09-02 23:59:59"], ["2005-09-09 00:00:00", "2008-05-06 23:59:59"], ["2008-05-31 00:00:00", "2009-03-13 23:59:59"], ["2009-03-16 00:00:00", "2009-03-16 23:59:59"], ["2009-03-19 00:00:00", "2009-03-24 23:59:59"]], "page": "./DMSP-F15_SSJ_PRECIPITATING-ELECTRONS-IONS.html"}, {"name": "DMSP-F16_SSIES-3_THERMAL-PLASMA", "instrument": "DMSPF16", "product": "THERMAL-PLASMA-CDF", "cdf_count": 77998, "active_days": 5281.448611111111, "coverage_pct": 66.41877205880351, "earliest": "2003-10-25", "latest": "2025-08-01", "intervals": [["2003-10-25 05:41:12", "2014-12-31 22:28:23"], ["2022-01-01 01:16:11", "2022-03-23 14:34:08"], ["2022-03-24 17:19:16", "2023-01-02 14:58:31"], ["2023-01-03 21:07:12", "2024-05-16 22:23:14"], ["2024-05-21 00:53:05", "2025-05-26 16:50:05"], ["2025-05-28 21:28:05", "2025-05-31 08:53:30"], ["2025-06-02 13:31:30", "2025-06-02 18:41:52"], ["2025-06-03 23:28:54", "2025-06-07 06:58:52"], ["2025-06-08 18:56:02", "2025-07-03 14:52:14"], ["2025-07-07 00:21:59", "2025-07-29 02:19:19"], ["2025-07-30 05:15:07", "2025-08-01 23:27:59"]], "page": "./DMSP-F16_SSIES-3_THERMAL-PLASMA.html"}, {"name": "DMSP-F16_SSJ_PRECIPITATING-ELECTRONS-IONS", "instrument": "DMSPF16", "product": "PRECIPITATING-ELECTRONS-IONS", "cdf_count": 3450, "active_days": 3449.9600694444443, "coverage_pct": 84.51641546365597, "earliest": "2003-10-29", "latest": "2014-12-31", "intervals": [["2003-10-29 00:00:00", "2003-10-29 23:59:59"], ["2003-11-07 00:00:00", "2003-11-07 23:59:59"], ["2003-11-28 00:00:00", "2004-01-14 23:59:59"], ["2004-03-04 00:00:00", "2008-05-06 23:59:59"], ["2008-05-31 00:00:00", "2008-07-30 23:59:59"], ["2008-08-05 00:00:00", "2008-08-21 23:59:59"], ["2008-08-25 00:00:00", "2008-10-13 23:59:59"], ["2008-10-17 00:00:00", "2008-10-17 23:59:59"], ["2008-10-23 00:00:00", "2008-10-23 23:59:59"], ["2008-10-27 00:00:00", "2008-10-27 23:59:59"], ["2008-10-30 00:00:00", "2008-10-30 23:59:59"], ["2008-11-03 00:00:00", "2008-11-03 23:59:59"], ["2008-12-17 00:00:00", "2008-12-17 23:59:59"], ["2009-01-01 00:00:00", "2010-03-20 23:59:59"], ["2010-03-23 00:00:00", "2010-04-07 23:59:59"], ["2010-04-10 00:00:00", "2010-04-12 23:59:59"], ["2010-04-15 00:00:00", "2010-06-18 23:59:59"], ["2010-06-22 00:00:00", "2010-07-19 23:59:59"], ["2010-07-23 00:00:00", "2010-08-02 23:59:59"], ["2010-08-06 00:00:00", "2010-09-13 23:59:59"], ["2010-09-16 00:00:00", "2010-09-24 23:59:59"], ["2010-09-27 00:00:00", "2010-09-29 23:59:59"], ["2010-10-02 00:00:00", "2010-10-07 23:59:59"], ["2010-10-10 00:00:00", "2010-11-28 23:59:59"], ["2010-12-01 00:00:00", "2011-01-02 23:59:59"], ["2011-01-05 00:00:00", "2011-01-12 23:59:59"], ["2011-01-15 00:00:00", "2011-01-16 23:59:59"], ["2011-01-25 00:00:00", "2011-01-29 23:59:59"], ["2011-02-02 00:00:00", "2011-02-07 23:59:59"], ["2011-02-10 00:00:00", "2011-02-17 23:59:59"], ["2011-02-20 00:00:00", "2011-02-24 23:59:59"], ["2011-02-27 00:00:00", "2011-02-27 23:59:59"], ["2011-03-04 00:00:00", "2011-03-08 23:59:59"], ["2011-03-12 00:00:00", "2011-04-09 23:59:59"], ["2011-04-12 00:00:00", "2011-04-23 23:59:59"], ["2011-04-26 00:00:00", "2011-05-04 23:59:59"], ["2011-05-07 00:00:00", "2011-06-07 23:59:59"], ["2011-06-19 00:00:00", "2011-06-19 23:59:59"], ["2011-06-30 00:00:00", "2011-06-30 23:59:59"], ["2011-07-06 00:00:00", "2011-07-08 23:59:59"], ["2011-07-14 00:00:00", "2011-07-16 23:59:59"], ["2011-07-19 00:00:00", "2011-10-23 23:59:59"], ["2011-10-27 00:00:00", "2012-02-03 23:59:59"], ["2012-02-06 00:00:00", "2012-02-08 23:59:59"], ["2012-02-11 00:00:00", "2012-02-19 23:59:59"], ["2012-02-22 00:00:00", "2012-03-05 23:59:59"], ["2012-03-08 00:00:00", "2012-04-17 23:59:59"], ["2012-04-20 00:00:00", "2012-04-25 23:59:59"], ["2012-04-28 00:00:00", "2012-06-01 23:59:59"], ["2012-06-04 00:00:00", "2012-06-10 23:59:59"], ["2012-06-13 00:00:00", "2012-06-29 23:59:59"], ["2012-07-02 00:00:00", "2012-07-23 23:59:59"], ["2012-07-28 00:00:00", "2012-08-14 23:59:59"], ["2012-08-17 00:00:00", "2012-09-01 23:59:59"], ["2012-09-04 00:00:00", "2012-09-22 23:59:59"], ["2012-09-25 00:00:00", "2012-09-30 23:59:59"], ["2012-10-04 00:00:00", "2012-10-04 23:59:59"], ["2012-10-15 00:00:00", "2012-10-15 23:59:59"], ["2012-10-19 00:00:00", "2012-11-12 23:59:59"], ["2012-11-16 00:00:00", "2012-11-18 23:59:59"], ["2012-11-22 00:00:00", "2012-12-09 23:59:59"], ["2012-12-13 00:00:00", "2012-12-16 23:59:59"], ["2012-12-19 00:00:00", "2013-01-02 23:59:59"], ["2013-01-08 00:00:00", "2013-01-08 23:59:59"], ["2013-01-12 00:00:00", "2013-01-30 23:59:59"], ["2013-02-04 00:00:00", "2013-02-12 23:59:59"], ["2013-02-15 00:00:00", "2013-02-17 23:59:59"], ["2013-02-21 00:00:00", "2013-03-18 23:59:59"], ["2013-03-26 00:00:00", "2013-03-28 23:59:59"], ["2013-03-31 00:00:00", "2013-03-31 23:59:59"], ["2013-04-03 00:00:00", "2013-04-05 23:59:59"], ["2013-04-09 00:00:00", "2013-04-26 23:59:59"], ["2013-04-29 00:00:00", "2013-05-05 23:59:59"], ["2013-05-10 00:00:00", "2013-05-16 23:59:59"], ["2013-05-19 00:00:00", "2013-05-25 23:59:59"], ["2013-05-28 00:00:00", "2013-09-26 23:59:59"], ["2013-09-29 00:00:00", "2013-10-02 23:59:59"], ["2013-10-05 00:00:00", "2013-10-28 23:59:59"], ["2013-11-03 00:00:00", "2013-11-14 23:59:59"], ["2013-11-17 00:00:00", "2014-02-17 23:59:59"], ["2014-02-20 00:00:00", "2014-03-18 23:59:59"], ["2014-03-21 00:00:00", "2014-05-26 23:59:59"], ["2014-05-29 00:00:00", "2014-07-14 23:59:59"], ["2014-07-17 00:00:00", "2014-07-23 23:59:59"], ["2014-07-26 00:00:00", "2014-08-06 23:59:59"], ["2014-08-09 00:00:00", "2014-08-11 23:59:59"], ["2014-08-14 00:00:00", "2014-12-31 23:59:59"]], "page": "./DMSP-F16_SSJ_PRECIPITATING-ELECTRONS-IONS.html"}, {"name": "DMSP-F16_SSM_MAGNETOMETER", "instrument": "DMSPF16", "product": "MAGNETOMETER", "cdf_count": 2183, "active_days": 2182.9747337962963, "coverage_pct": 99.67921211567315, "earliest": "2009-01-01", "latest": "2014-12-30", "intervals": [["2009-01-01 00:00:00", "2014-12-30 23:59:59"]], "page": "./DMSP-F16_SSM_MAGNETOMETER.html"}, {"name": "DMSP-F17_SSIES-3_THERMAL-PLASMA", "instrument": "DMSPF17", "product": "THERMAL-PLASMA-CDF", "cdf_count": 54332, "active_days": 3483.261724537037, "coverage_pct": 50.91518156080568, "earliest": "2006-11-08", "latest": "2025-08-02", "intervals": [["2006-11-08 17:33:48", "2009-12-31 23:11:46"], ["2012-01-01 01:14:27", "2014-12-31 22:55:30"], ["2022-01-01 00:29:43", "2022-03-23 15:36:44"], ["2022-03-24 17:39:53", "2025-07-03 14:46:21"], ["2025-07-07 00:14:27", "2025-08-02 00:49:47"]], "page": "./DMSP-F17_SSIES-3_THERMAL-PLASMA.html"}, {"name": "DMSP-F17_SSJ_PRECIPITATING-ELECTRONS-IONS", "instrument": "DMSPF17", "product": "PRECIPITATING-ELECTRONS-IONS", "cdf_count": 1972, "active_days": 1971.9771759259258, "coverage_pct": 90.00352288192607, "earliest": "2009-01-01", "latest": "2014-12-31", "intervals": [["2009-01-01 00:00:00", "2010-05-08 23:59:59"], ["2010-05-11 00:00:00", "2010-05-22 23:59:59"], ["2010-05-25 00:00:00", "2010-06-17 23:59:59"], ["2010-06-20 00:00:00", "2010-07-03 23:59:59"], ["2010-07-08 00:00:00", "2010-07-08 23:59:59"], ["2010-07-11 00:00:00", "2010-07-14 23:59:59"], ["2010-07-18 00:00:00", "2010-07-30 23:59:59"], ["2010-08-02 00:00:00", "2010-09-04 23:59:59"], ["2010-09-07 00:00:00", "2010-11-27 23:59:59"], ["2010-11-30 00:00:00", "2011-05-17 23:59:59"], ["2011-05-20 00:00:00", "2011-08-19 23:59:59"], ["2011-08-22 00:00:00", "2011-08-30 23:59:59"], ["2011-09-02 00:00:00", "2011-10-04 23:59:59"], ["2011-10-07 00:00:00", "2012-01-28 23:59:59"], ["2012-01-31 00:00:00", "2012-02-03 23:59:59"], ["2012-02-06 00:00:00", "2012-06-03 23:59:59"], ["2012-06-07 00:00:00", "2012-06-07 23:59:59"], ["2012-06-11 00:00:00", "2012-08-07 23:59:59"], ["2012-08-10 00:00:00", "2012-08-14 23:59:59"], ["2012-08-17 00:00:00", "2012-09-09 23:59:59"], ["2012-09-12 00:00:00", "2012-09-29 23:59:59"], ["2012-10-02 00:00:00", "2012-10-02 23:59:59"], ["2012-10-05 00:00:00", "2012-10-06 23:59:59"], ["2012-10-16 00:00:00", "2012-11-05 23:59:59"], ["2012-11-10 00:00:00", "2012-12-15 23:59:59"], ["2012-12-18 00:00:00", "2012-12-31 23:59:59"], ["2013-01-03 00:00:00", "2013-01-12 23:59:59"], ["2013-01-15 00:00:00", "2013-02-24 23:59:59"], ["2013-02-28 00:00:00", "2013-05-08 23:59:59"], ["2013-05-11 00:00:00", "2013-08-18 23:59:59"], ["2013-08-22 00:00:00", "2014-04-02 23:59:59"], ["2014-04-06 00:00:00", "2014-07-30 23:59:59"], ["2014-08-02 00:00:00", "2014-08-03 23:59:59"], ["2014-08-06 00:00:00", "2014-08-25 23:59:59"], ["2014-08-28 00:00:00", "2014-08-30 23:59:59"], ["2014-09-02 00:00:00", "2014-12-31 23:59:59"]], "page": "./DMSP-F17_SSJ_PRECIPITATING-ELECTRONS-IONS.html"}, {"name": "DMSP-F17_SSM_MAGNETOMETER", "instrument": "DMSPF17", "product": "MAGNETOMETER", "cdf_count": 2186, "active_days": 2185.974699074074, "coverage_pct": 99.81619683227738, "earliest": "2009-01-01", "latest": "2014-12-30", "intervals": [["2009-01-01 00:00:00", "2014-12-30 23:59:59"]], "page": "./DMSP-F17_SSM_MAGNETOMETER.html"}, {"name": "DMSP-F18_SSIES-3_THERMAL-PLASMA", "instrument": "DMSPF18", "product": "THERMAL-PLASMA-CDF", "cdf_count": 46182, "active_days": 3140.417337962963, "coverage_pct": 54.49950095161598, "earliest": "2009-10-22", "latest": "2025-08-01", "intervals": [["2009-10-22 16:31:30", "2014-12-31 23:09:00"], ["2022-01-01 01:29:51", "2022-03-23 14:47:47"], ["2022-03-24 17:51:02", "2025-08-01 23:23:56"]], "page": "./DMSP-F18_SSIES-3_THERMAL-PLASMA.html"}, {"name": "DMSP-F18_SSJ_PRECIPITATING-ELECTRONS-IONS", "instrument": "DMSPF18", "product": "PRECIPITATING-ELECTRONS-IONS", "cdf_count": 1814, "active_days": 1813.9790046296296, "coverage_pct": 95.72448631708984, "earliest": "2009-10-24", "latest": "2014-12-31", "intervals": [["2009-10-24 00:00:00", "2009-10-24 23:59:59"], ["2009-12-11 00:00:00", "2010-06-07 23:59:59"], ["2010-06-11 00:00:00", "2010-07-19 23:59:59"], ["2010-07-22 00:00:00", "2010-10-17 23:59:59"], ["2010-10-20 00:00:00", "2014-12-31 23:59:59"]], "page": "./DMSP-F18_SSJ_PRECIPITATING-ELECTRONS-IONS.html"}, {"name": "DMSP-F18_SSM_MAGNETOMETER", "instrument": "DMSPF18", "product": "MAGNETOMETER", "cdf_count": 1823, "active_days": 1822.9789004629629, "coverage_pct": 99.88925545338189, "earliest": "2010-01-01", "latest": "2014-12-30", "intervals": [["2010-01-01 00:00:00", "2014-12-30 23:59:59"]], "page": "./DMSP-F18_SSM_MAGNETOMETER.html"}, {"name": "DMSP_R0_SSIES", "instrument": "Plasma and Solar Wind", "product": "DMSP_R0_SSIES", "cdf_count": 1, "active_days": 0.041666666666666664, "coverage_pct": 100.0, "earliest": "1983-01-01", "latest": "1983-01-01", "intervals": [["1983-01-01 00:00:00", "1983-01-01 01:00:00"]], "page": "./DMSP_R0_SSIES.html"}, {"name": "DMSP_R0_SSJ4", "instrument": "Particles (space)", "product": "DMSP_R0_SSJ4", "cdf_count": 1, "active_days": 0.041666666666666664, "coverage_pct": 100.0, "earliest": "1983-01-01", "latest": "1983-01-01", "intervals": [["1983-01-01 00:00:00", "1983-01-01 01:00:00"]], "page": "./DMSP_R0_SSJ4.html"}];
+
+    function parseDateMs(str) {
+      if (!str) return NaN;
+      const s = str.trim();
+      const iso = s.replace(/\//g, '-').replace(' ', 'T') + 'Z';
+      const ms = Date.parse(iso);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function enableSortableTable(tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      table.querySelectorAll('th.sortable').forEach((header, columnIndex) => {
+        header.tabIndex = 0;
+        header.setAttribute('role', 'button');
+        header.setAttribute('aria-sort', 'none');
+        const sortColumn = () => {
+          const ascending = header.getAttribute('aria-sort') !== 'ascending';
+          table.querySelectorAll('th.sortable').forEach(th => th.setAttribute('aria-sort', 'none'));
+          header.setAttribute('aria-sort', ascending ? 'ascending' : 'descending');
+          const rows = Array.from(table.tBodies[0].rows);
+          const type = header.getAttribute('data-sort-type');
+          rows.sort((left, right) => {
+            const a = left.cells[columnIndex].textContent.trim();
+            const b = right.cells[columnIndex].textContent.trim();
+            let comparison;
+            if (type === 'number') comparison = Number(a.replace(/[^0-9.-]/g, '')) - Number(b.replace(/[^0-9.-]/g, ''));
+            else if (type === 'date') comparison = parseDateMs(a.split('→')[0].trim()) - parseDateMs(b.split('→')[0].trim());
+            else comparison = a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+            return ascending ? comparison : -comparison;
+          });
+          rows.forEach(row => table.tBodies[0].appendChild(row));
+        };
+        header.addEventListener('click', sortColumn);
+        header.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); sortColumn(); }
+        });
+      });
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+      const newTheme = isDark ? 'light' : 'dark';
+      document.body.className = newTheme;
+      localStorage.setItem('cdaweb_theme', newTheme);
+      document.getElementById('theme-toggle').textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      updateView();
+    }
+
+    function toggleChartDisplay(show) {
+      const chartCard = document.getElementById('chart-card-container');
+      if (chartCard) {
+        chartCard.style.display = show ? 'block' : 'none';
+      }
+      if (show) {
+        updateView();
+        setTimeout(() => {
+          const plotDiv = document.getElementById('timeline-chart');
+          if (plotDiv) {
+            Plotly.Plots.resize(plotDiv);
+          }
+        }, 50);
+      }
+    }
+
+    function resetAllSelections() {
+      document.querySelectorAll('.dset-checkbox').forEach(cb => {
+        cb.checked = true;
+      });
+      const masterCb = document.getElementById('master-cb');
+      if (masterCb) masterCb.checked = true;
+      updateView();
+    }
+
+    function presetRange(type) {
+      document.querySelectorAll('.btn-preset').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-preset') === type);
+      });
+      if (type === 'all') {
+        if (window._globalMinTimeMs) {
+          document.getElementById('filter-start').value = formatAxisDate(window._globalMinTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-start').value = '';
+        }
+        if (window._globalMaxTimeMs) {
+          document.getElementById('filter-stop').value = formatAxisDate(window._globalMaxTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-stop').value = '';
+        }
+        updateView();
+        return;
+      }
+      const now = new Date();
+      const endStr = now.toISOString().split('T')[0];
+      let startStr = '';
+      if (type === '1y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 1);
+        startStr = d.toISOString().split('T')[0];
+      } else if (type === '5y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 5);
+        startStr = d.toISOString().split('T')[0];
+      }
+      document.getElementById('filter-start').value = startStr;
+      document.getElementById('filter-stop').value = endStr;
+      updateView();
+    }
+
+    function clearPresetHighlight() {
+      document.querySelectorAll('.btn-preset').forEach(btn => btn.classList.remove('active'));
+    }
+
+    function updateView() {
+      const showChart = document.getElementById('toggle-chart-cb')?.checked;
+      if (!showChart) {
+        return;
+      }
+
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const checkedBoxes = Array.from(document.querySelectorAll('.dset-checkbox:checked'));
+      const selectedNames = new Set(checkedBoxes.map(cb => cb.value));
+      const startFilter = document.getElementById('filter-start').value;
+      const stopFilter = document.getElementById('filter-stop').value;
+      const startFilterMs = startFilter ? parseDateMs(startFilter) : null;
+      const stopFilterMs = stopFilter ? parseDateMs(stopFilter + ' 23:59:59') : null;
+
+      const isLight = document.body.classList.contains('light');
+      const paperBg = isLight ? '#ffffff' : '#1e293b';
+      const plotBg = isLight ? '#f8fafc' : '#0f172a';
+      const textColor = isLight ? '#0f172a' : '#f8fafc';
+      const gridColor = isLight ? '#e2e8f0' : '#334155';
+
+      const timelineData = { y: [], x: [], base: [], colors: [], hovertext: [] };
+      const colors = ['#0284c7', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6'];
+
+      const activeDatasets = [];
+      allDatasets.forEach(d => {
+        if (instFilter && d.instrument !== instFilter) return;
+        if (query && !d.name.toLowerCase().includes(query) && !d.instrument.toLowerCase().includes(query) && !d.product.toLowerCase().includes(query)) return;
+        if (!selectedNames.has(d.name)) return;
+
+        const validIntervals = [];
+        d.intervals.forEach(inv => {
+          const s = inv[0];
+          const e = inv[1];
+          const sTime = parseDateMs(s);
+          const eTime = parseDateMs(e);
+          if (isNaN(sTime) || isNaN(eTime)) return;
+
+          if (startFilterMs && eTime < startFilterMs) return;
+          if (stopFilterMs && sTime > stopFilterMs) return;
+
+          const sClamped = startFilterMs ? Math.max(sTime, startFilterMs) : sTime;
+          const eClamped = stopFilterMs ? Math.min(eTime, stopFilterMs) : eTime;
+          if (eClamped <= sClamped) return;
+
+          validIntervals.push({ s, e, sClamped, eClamped });
+        });
+
+        if (validIntervals.length > 0) {
+          activeDatasets.push({ d, validIntervals });
+        }
+      });
+
+      const activeNames = activeDatasets.map(item => item.d.name);
+      activeDatasets.forEach((item, idx) => {
+        const color = colors[idx % colors.length];
+        const d = item.d;
+        item.validIntervals.forEach(inv => {
+          const durMs = Math.max(86400000, inv.eClamped - inv.sClamped);
+          timelineData.y.push(d.name);
+          timelineData.x.push(durMs);
+          timelineData.base.push(new Date(inv.sClamped).toISOString());
+          timelineData.colors.push(color);
+          timelineData.hovertext.push(`<b>${d.name}</b><br>${d.instrument} • ${d.product}<br>From: ${inv.s}<br>To: ${inv.e}<br><i>Click to unselect • Ctrl+Click to open full page</i>`);
+        });
+      });
+
+      const traces = timelineData.y.length ? [{
+        type: 'bar',
+        orientation: 'h',
+        y: timelineData.y,
+        x: timelineData.x,
+        base: timelineData.base,
+        marker: { color: timelineData.colors, line: { width: 0 } },
+        hoverinfo: 'text',
+        hovertext: timelineData.hovertext,
+        showlegend: false
+      }] : [];
+
+      const count = activeNames.length;
+      const barGap = count === 1 ? 0.75 : (count === 2 ? 0.6 : (count <= 4 ? 0.45 : 0.25));
+      const barWidth = count === 1 ? 0.32 : (count === 2 ? 0.45 : (count <= 4 ? 0.6 : 0.75));
+      traces.forEach(t => { t.width = barWidth; });
+      const plotHeight = count === 1 ? 140 : (count === 2 ? 180 : Math.max(220, count * 32 + 80));
+
+      const plotDiv = document.getElementById('timeline-chart');
+      plotDiv.style.height = plotHeight + 'px';
+      plotDiv.style.minHeight = plotHeight + 'px';
+
+      const xAxisConfig = {
+        type: 'date',
+        side: 'bottom',
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      // Determine if "All Time" preset is active
+      const allTimeBtn = document.querySelector('.btn-preset[data-preset="all"]');
+      const isAllTime = Boolean(allTimeBtn && allTimeBtn.classList.contains('active'));
+
+      // Calculate data bounds for currently selected/plotted items
+      let plottedMinMs = Infinity;
+      let plottedMaxMs = -Infinity;
+      for (let i = 0; i < timelineData.base.length; i++) {
+        const s = parseAxisTimeMs(timelineData.base[i]);
+        const dur = Number(timelineData.x[i]) || 0;
+        if (Number.isFinite(s)) {
+          if (s < plottedMinMs) plottedMinMs = s;
+          if ((s + dur) > plottedMaxMs) plottedMaxMs = s + dur;
+        }
+      }
+      const hasPlottedData = Number.isFinite(plottedMinMs) && Number.isFinite(plottedMaxMs) && plottedMaxMs >= plottedMinMs;
+
+      if (isAllTime && hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (startFilter && stopFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', stopFilter + ' 23:59:59'];
+        xAxisConfig.autorange = false;
+      } else if (startFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', formatAxisDate(window._globalMaxTimeMs || Date.now())];
+        xAxisConfig.autorange = false;
+      } else if (hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        xAxisConfig.range = [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)];
+        xAxisConfig.autorange = false;
+      } else {
+        xAxisConfig.autorange = true;
+      }
+
+      const xAxis2Config = {
+        type: 'date',
+        overlaying: 'x',
+        side: 'top',
+        matches: 'x',
+        showgrid: false,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      const yAxisConfig = {
+        type: 'category',
+        categoryorder: 'array',
+        categoryarray: activeNames.slice().reverse(),
+        automargin: true,
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor },
+        fixedrange: true,
+        autorange: true
+      };
+
+      const layout = {
+        height: plotHeight,
+        paper_bgcolor: paperBg,
+        plot_bgcolor: plotBg,
+        font: { color: textColor, size: 11 },
+        margin: { l: 180, r: 30, t: 35, b: 40 },
+        xaxis: xAxisConfig,
+        xaxis2: xAxis2Config,
+        yaxis: yAxisConfig,
+        barmode: 'overlay',
+        bargap: barGap,
+        bargroupgap: 0.1,
+        annotations: count === 0 ? [{
+          text: checkedBoxes.length > 0
+            ? 'No data available for the selected datasets in this date range'
+            : 'Select one or more datasets to view timeline',
+          showarrow: false,
+          font: { size: 13, color: textColor }
+        }] : []
+      };
+
+      Plotly.newPlot('timeline-chart', traces, layout, { responsive: true, displayModeBar: true, displaylogo: false }).then(() => {
+        updatePanButtons('timeline-chart');
+      });
+
+      plotDiv.on('plotly_relayout', function() {
+        updatePanButtons('timeline-chart');
+      });
+
+      // Attach click events on chart points and y-axis ticks
+      plotDiv.on('plotly_click', function(data) {
+        if (!data.points || data.points.length === 0) return;
+        const name = data.points[0].y;
+        const isCtrl = data.event && (data.event.ctrlKey || data.event.metaKey);
+        handleRowClick(name, isCtrl);
+      });
+
+      plotDiv.querySelectorAll('.ytick text').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.style.userSelect = 'none';
+        el.title = 'Click to unselect • Ctrl+Click to open full page';
+        el.onclick = function(e) {
+          e.stopPropagation();
+          const isCtrl = e.ctrlKey || e.metaKey;
+          handleRowClick(el.textContent.trim(), isCtrl);
+        };
+      });
+    }
+
+    function handleRowClick(name, isCtrl) {
+      const d = allDatasets.find(item => item.name === name);
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (isCtrl && d && d.page) {
+        window.open(d.page + q, '_blank');
+        return;
+      }
+      const cb = document.querySelector(`.dset-checkbox[value="${name}"]`);
+      if (cb) {
+        cb.checked = !cb.checked;
+        updateView();
+      }
+    }
+
+    function filterTable() {
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+
+      rows.forEach(r => {
+        const name = (r.getAttribute('data-name') || '').toLowerCase();
+        const inst = r.getAttribute('data-inst') || '';
+        const matchQ = !query || name.includes(query);
+        const matchInst = !instFilter || inst === instFilter;
+        r.style.display = (matchQ && matchInst) ? '' : 'none';
+      });
+
+      updateView();
+      propagateQueryToLinks();
+    }
+
+    function selectAll(state) {
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+      rows.forEach(r => {
+        if (r.style.display !== 'none') {
+          const cb = r.querySelector('.dset-checkbox');
+          if (cb) cb.checked = state;
+        }
+      });
+      document.getElementById('master-cb').checked = state;
+      updateView();
+    }
+
+    function toggleAllCheckboxes(state) {
+      selectAll(state);
+    }
+
+    function parseAxisTimeMs(val) {
+      if (val == null) return NaN;
+      if (typeof val === 'number') return val;
+      if (val instanceof Date) return val.getTime();
+      const s = String(val).trim();
+      if (!s) return NaN;
+      if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+      const iso = s.replace(/\//g, '-').replace(' ', 'T');
+      const isoUtc = (iso.includes('Z') || iso.includes('+')) ? iso : iso + 'Z';
+      let ms = Date.parse(isoUtc);
+      if (!isNaN(ms)) return ms;
+      ms = Date.parse(s);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function formatAxisDate(ms) {
+      const d = new Date(ms);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString();
+    }
+
+    function panTimelineWindow(divId, direction) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv || !plotDiv._fullLayout || !plotDiv._fullLayout.xaxis) return;
+      const rng = plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2) return;
+
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+
+      const span = t1 - t0;
+      if (span <= 0) return;
+
+      const newT0 = t0 + (direction * span);
+      const newT1 = t1 + (direction * span);
+
+      Plotly.relayout(plotDiv, {
+        'xaxis.range': [formatAxisDate(newT0), formatAxisDate(newT1)],
+        'xaxis.autorange': false
+      }).then(() => {
+        updatePanButtons(divId);
+      });
+    }
+
+    function resetTimelineZoom(divId) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        Plotly.relayout(plotDiv, {
+          'xaxis.range': [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)],
+          'xaxis.autorange': false
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      } else {
+        Plotly.relayout(plotDiv, {
+          'xaxis.autorange': true
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      }
+    }
+
+    window._globalMinTimeMs = 410227200000;
+    window._globalMaxTimeMs = 1754095787000;
+
+    function exportPlotAsPng(divId, filename) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      Plotly.downloadImage(plotDiv, {
+        format: 'png',
+        width: 1400,
+        height: Math.max(500, plotDiv.offsetHeight || 500),
+        filename: filename || 'plot.png'
+      });
+    }
+
+    function updatePanButtons(divId) {
+      const plotDiv = document.getElementById(divId);
+      const prevBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', -1)"]`);
+      const nextBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', 1)"]`);
+      if (!plotDiv || !prevBtn || !nextBtn) return;
+      const rng = plotDiv._fullLayout && plotDiv._fullLayout.xaxis && plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2 || !window._globalMinTimeMs || !window._globalMaxTimeMs) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+      const fullSpan = window._globalMaxTimeMs - window._globalMinTimeMs;
+      const currentSpan = t1 - t0;
+      if (currentSpan >= fullSpan - 60000) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      const canPrev = t0 > (window._globalMinTimeMs + 60000);
+      const canNext = t1 < (window._globalMaxTimeMs - 60000);
+      prevBtn.disabled = !canPrev;
+      nextBtn.disabled = !canNext;
+      prevBtn.classList.toggle('disabled', !canPrev);
+      nextBtn.classList.toggle('disabled', !canNext);
+    }
+
+    // Theme initialization
+    const savedTheme = localStorage.getItem('cdaweb_theme') || 'dark';
+    document.body.className = savedTheme;
+    document.getElementById('theme-toggle').textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+    // Propagate URL query params (such as ?view for updog) to relative navigation links
+    function propagateQueryToLinks() {
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (q) {
+        document.querySelectorAll('a[href]').forEach(a => {
+          const href = a.getAttribute('href');
+          if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto:') && !href.includes('?')) {
+            a.setAttribute('href', href + q);
+          }
+        });
+      }
+    }
+
+    // Ensure timeline checkbox is unchecked by default and container is hidden
+    const chartCb = document.getElementById('toggle-chart-cb');
+    if (chartCb) {
+      chartCb.checked = false;
+    }
+    const chartCard = document.getElementById('chart-card-container');
+    if (chartCard) {
+      chartCard.style.display = 'none';
+    }
+
+    enableSortableTable('datasets-table');
+
+    // Initial render
+    updateView();
+    propagateQueryToLinks();
+  </script>
+  <footer class="page-footer">This page was last updated on: 2026-11-17 17:21:51 UTC. For any questions or comments, please contact SPDF support at: <a href="mailto:NASA-SPDF-Support@nasa.gov">NASA-SPDF-Support@nasa.gov</a></footer>
+</body>
+</html>

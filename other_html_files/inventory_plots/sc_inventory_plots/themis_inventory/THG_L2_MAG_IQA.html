@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>THG_L2_MAG_IQA - CDAWeb Inventory</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root, body.dark {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #0284c7;
+      --accent-light: #38bdf8;
+      --success: #10b981;
+    }
+    body.light {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --accent: #0284c7;
+      --accent-light: #0369a1;
+      --success: #16a34a;
+    }
+    body {
+      margin: 0;
+      padding: 24px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    input[type="date"] {
+      color-scheme: dark;
+    }
+    body.light input[type="date"] {
+      color-scheme: light;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .breadcrumbs { font-size: 14px; margin-bottom: 0; color: var(--text-muted); }
+    .breadcrumbs a { color: var(--accent-light); text-decoration: none; }
+    .breadcrumbs a:hover { text-decoration: underline; }
+    .dataset-navigation { font-size: 13px; color: var(--text-muted); }
+    .dataset-navigation select { margin-left: 6px; max-width: 340px; color: var(--text); background: var(--card-bg); border: 1px solid var(--border); border-radius: 4px; padding: 4px; }
+    .page-footer { margin: 20px 0 0; color: var(--text-muted); font-size: 12px; text-align: center; }
+    .page-footer a { color: var(--accent-light); }
+    .btn-theme {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-theme:hover { opacity: 0.9; }
+    .badge { display: inline-block; padding: 4px 10px; background: rgba(2, 132, 199, 0.2); color: var(--accent-light); border-radius: 9999px; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+    h1 { margin: 0 0 6px 0; font-size: 26px; }
+    .subtitle { color: var(--text-muted); font-size: 15px; margin: 0 0 20px 0; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .kpi-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 18px; font-weight: 700; color: var(--text); }
+    .kpi-overall { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+    .chart-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th { padding: 8px 12px; background: rgba(255,255,255,0.03); color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+    code { color: var(--accent-light); font-family: monospace; }
+    .pan-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(125,125,125,0.08);
+      padding: 3px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .btn-pan {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-pan:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .btn-pan:disabled, .btn-pan.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .btn-preset {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .btn-preset:hover {
+      opacity: 0.9;
+      color: var(--text);
+    }
+    .btn-preset.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      font-weight: 700;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+    }
+    .xtick text, .ytick text {
+      fill: var(--text) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+      <div class="breadcrumbs">
+        <a href="../inventory_index.html">CDAWeb Inventory</a> &gt;
+        <a href="./themis_index.html">THEMIS Index</a> &gt;
+        <span>THG_L2_MAG_IQA</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <label class="dataset-navigation">Dataset: <select onchange="navigateToDataset(this.value)"><option value="THAPRED_OR_SSC.html">THAPRED_OR_SSC</option><option value="THA_L1_STATE.html">THA_L1_STATE</option><option value="THA_L2_EFI.html">THA_L2_EFI</option><option value="THA_L2_EFP.html">THA_L2_EFP</option><option value="THA_L2_EFW.html">THA_L2_EFW</option><option value="THA_L2_ESA.html">THA_L2_ESA</option><option value="THA_L2_FBK.html">THA_L2_FBK</option><option value="THA_L2_FFT.html">THA_L2_FFT</option><option value="THA_L2_FGM.html">THA_L2_FGM</option><option value="THA_L2_FIT.html">THA_L2_FIT</option><option value="THA_L2_GMOM.html">THA_L2_GMOM</option><option value="THA_L2_MOM.html">THA_L2_MOM</option><option value="THA_L2_SCM.html">THA_L2_SCM</option><option value="THA_L2_SST.html">THA_L2_SST</option><option value="THA_OR_SSC.html">THA_OR_SSC</option><option value="THBPRED_OR_SSC.html">THBPRED_OR_SSC</option><option value="THB_HELIO1HR_POSITION.html">THB_HELIO1HR_POSITION</option><option value="THB_L1_STATE.html">THB_L1_STATE</option><option value="THB_L2_EFI.html">THB_L2_EFI</option><option value="THB_L2_EFP.html">THB_L2_EFP</option><option value="THB_L2_EFW.html">THB_L2_EFW</option><option value="THB_L2_ESA.html">THB_L2_ESA</option><option value="THB_L2_FBK.html">THB_L2_FBK</option><option value="THB_L2_FFT.html">THB_L2_FFT</option><option value="THB_L2_FGM.html">THB_L2_FGM</option><option value="THB_L2_FIT.html">THB_L2_FIT</option><option value="THB_L2_GMOM.html">THB_L2_GMOM</option><option value="THB_L2_MERGED.html">THB_L2_MERGED</option><option value="THB_L2_MOM.html">THB_L2_MOM</option><option value="THB_L2_SCM.html">THB_L2_SCM</option><option value="THB_L2_SST.html">THB_L2_SST</option><option value="THB_OR_SSC.html">THB_OR_SSC</option><option value="THCPRED_OR_SSC.html">THCPRED_OR_SSC</option><option value="THC_HELIO1HR_POSITION.html">THC_HELIO1HR_POSITION</option><option value="THC_L1_STATE.html">THC_L1_STATE</option><option value="THC_L2_EFI.html">THC_L2_EFI</option><option value="THC_L2_EFP.html">THC_L2_EFP</option><option value="THC_L2_EFW.html">THC_L2_EFW</option><option value="THC_L2_ESA.html">THC_L2_ESA</option><option value="THC_L2_FBK.html">THC_L2_FBK</option><option value="THC_L2_FFT.html">THC_L2_FFT</option><option value="THC_L2_FGM.html">THC_L2_FGM</option><option value="THC_L2_FIT.html">THC_L2_FIT</option><option value="THC_L2_GMOM.html">THC_L2_GMOM</option><option value="THC_L2_MERGED.html">THC_L2_MERGED</option><option value="THC_L2_MOM.html">THC_L2_MOM</option><option value="THC_L2_SCM.html">THC_L2_SCM</option><option value="THC_L2_SST.html">THC_L2_SST</option><option value="THC_OR_SSC.html">THC_OR_SSC</option><option value="THDPRED_OR_SSC.html">THDPRED_OR_SSC</option><option value="THD_L1_STATE.html">THD_L1_STATE</option><option value="THD_L2_EFI.html">THD_L2_EFI</option><option value="THD_L2_EFP.html">THD_L2_EFP</option><option value="THD_L2_EFW.html">THD_L2_EFW</option><option value="THD_L2_ESA.html">THD_L2_ESA</option><option value="THD_L2_FBK.html">THD_L2_FBK</option><option value="THD_L2_FFT.html">THD_L2_FFT</option><option value="THD_L2_FGM.html">THD_L2_FGM</option><option value="THD_L2_FIT.html">THD_L2_FIT</option><option value="THD_L2_GMOM.html">THD_L2_GMOM</option><option value="THD_L2_MOM.html">THD_L2_MOM</option><option value="THD_L2_SCM.html">THD_L2_SCM</option><option value="THD_L2_SST.html">THD_L2_SST</option><option value="THD_OR_SSC.html">THD_OR_SSC</option><option value="THEMIS_R0_EFI.html">THEMIS_R0_EFI</option><option value="THEMIS_R0_GIFWALK.html">THEMIS_R0_GIFWALK</option><option value="THEMIS_R0_GMAG.html">THEMIS_R0_GMAG</option><option value="THEPRED_OR_SSC.html">THEPRED_OR_SSC</option><option value="THE_L1_STATE.html">THE_L1_STATE</option><option value="THE_L2_EFI.html">THE_L2_EFI</option><option value="THE_L2_EFP.html">THE_L2_EFP</option><option value="THE_L2_EFW.html">THE_L2_EFW</option><option value="THE_L2_ESA.html">THE_L2_ESA</option><option value="THE_L2_FBK.html">THE_L2_FBK</option><option value="THE_L2_FFT.html">THE_L2_FFT</option><option value="THE_L2_FGM.html">THE_L2_FGM</option><option value="THE_L2_FIT.html">THE_L2_FIT</option><option value="THE_L2_GMOM.html">THE_L2_GMOM</option><option value="THE_L2_MOM.html">THE_L2_MOM</option><option value="THE_L2_SCM.html">THE_L2_SCM</option><option value="THE_L2_SST.html">THE_L2_SST</option><option value="THE_OR_SSC.html">THE_OR_SSC</option><option value="THG_L1_ASK.html">THG_L1_ASK</option><option value="THG_L2_MAG_ABK.html">THG_L2_MAG_ABK</option><option value="THG_L2_MAG_AKUL.html">THG_L2_MAG_AKUL</option><option value="THG_L2_MAG_AMD.html">THG_L2_MAG_AMD</option><option value="THG_L2_MAG_AMER.html">THG_L2_MAG_AMER</option><option value="THG_L2_MAG_AMK.html">THG_L2_MAG_AMK</option><option value="THG_L2_MAG_AND.html">THG_L2_MAG_AND</option><option value="THG_L2_MAG_ARCT.html">THG_L2_MAG_ARCT</option><option value="THG_L2_MAG_ATHA.html">THG_L2_MAG_ATHA</option><option value="THG_L2_MAG_ATU.html">THG_L2_MAG_ATU</option><option value="THG_L2_MAG_BBG.html">THG_L2_MAG_BBG</option><option value="THG_L2_MAG_BENN.html">THG_L2_MAG_BENN</option><option value="THG_L2_MAG_BETT.html">THG_L2_MAG_BETT</option><option value="THG_L2_MAG_BFE.html">THG_L2_MAG_BFE</option><option value="THG_L2_MAG_BJN.html">THG_L2_MAG_BJN</option><option value="THG_L2_MAG_BLC.html">THG_L2_MAG_BLC</option><option value="THG_L2_MAG_BMLS.html">THG_L2_MAG_BMLS</option><option value="THG_L2_MAG_BOU.html">THG_L2_MAG_BOU</option><option value="THG_L2_MAG_BRN.html">THG_L2_MAG_BRN</option><option value="THG_L2_MAG_BRW.html">THG_L2_MAG_BRW</option><option value="THG_L2_MAG_BSL.html">THG_L2_MAG_BSL</option><option value="THG_L2_MAG_CBB.html">THG_L2_MAG_CBB</option><option value="THG_L2_MAG_CCNV.html">THG_L2_MAG_CCNV</option><option value="THG_L2_MAG_CDRT.html">THG_L2_MAG_CDRT</option><option value="THG_L2_MAG_CHBG.html">THG_L2_MAG_CHBG</option><option value="THG_L2_MAG_CHBR.html">THG_L2_MAG_CHBR</option><option value="THG_L2_MAG_CIGO.html">THG_L2_MAG_CIGO</option><option value="THG_L2_MAG_CMO.html">THG_L2_MAG_CMO</option><option value="THG_L2_MAG_COL.html">THG_L2_MAG_COL</option><option value="THG_L2_MAG_CRVR.html">THG_L2_MAG_CRVR</option><option value="THG_L2_MAG_DAT.html">THG_L2_MAG_DAT</option><option value="THG_L2_MAG_DBO.html">THG_L2_MAG_DBO</option><option value="THG_L2_MAG_DCT.html">THG_L2_MAG_DCT</option><option value="THG_L2_MAG_DED.html">THG_L2_MAG_DED</option><option value="THG_L2_MAG_DHE.html">THG_L2_MAG_DHE</option><option value="THG_L2_MAG_DIK.html">THG_L2_MAG_DIK</option><option value="THG_L2_MAG_DMA.html">THG_L2_MAG_DMA</option><option value="THG_L2_MAG_DME.html">THG_L2_MAG_DME</option><option value="THG_L2_MAG_DMH.html">THG_L2_MAG_DMH</option><option value="THG_L2_MAG_DMO.html">THG_L2_MAG_DMO</option><option value="THG_L2_MAG_DNB.html">THG_L2_MAG_DNB</option><option value="THG_L2_MAG_DOB.html">THG_L2_MAG_DOB</option><option value="THG_L2_MAG_DOH.html">THG_L2_MAG_DOH</option><option value="THG_L2_MAG_DON.html">THG_L2_MAG_DON</option><option value="THG_L2_MAG_DRBY.html">THG_L2_MAG_DRBY</option><option value="THG_L2_MAG_DSH.html">THG_L2_MAG_DSH</option><option value="THG_L2_MAG_DTX.html">THG_L2_MAG_DTX</option><option value="THG_L2_MAG_DVA.html">THG_L2_MAG_DVA</option><option value="THG_L2_MAG_EAGL.html">THG_L2_MAG_EAGL</option><option value="THG_L2_MAG_EKAT.html">THG_L2_MAG_EKAT</option><option value="THG_L2_MAG_FCC.html">THG_L2_MAG_FCC</option><option value="THG_L2_MAG_FHB.html">THG_L2_MAG_FHB</option><option value="THG_L2_MAG_FRD.html">THG_L2_MAG_FRD</option><option value="THG_L2_MAG_FRN.html">THG_L2_MAG_FRN</option><option value="THG_L2_MAG_FSIM.html">THG_L2_MAG_FSIM</option><option value="THG_L2_MAG_FSJ.html">THG_L2_MAG_FSJ</option><option value="THG_L2_MAG_FSMI.html">THG_L2_MAG_FSMI</option><option value="THG_L2_MAG_FTN.html">THG_L2_MAG_FTN</option><option value="THG_L2_MAG_FYKN.html">THG_L2_MAG_FYKN</option><option value="THG_L2_MAG_FYTS.html">THG_L2_MAG_FYTS</option><option value="THG_L2_MAG_GAKO.html">THG_L2_MAG_GAKO</option><option value="THG_L2_MAG_GBAY.html">THG_L2_MAG_GBAY</option><option value="THG_L2_MAG_GDH.html">THG_L2_MAG_GDH</option><option value="THG_L2_MAG_GHB.html">THG_L2_MAG_GHB</option><option value="THG_L2_MAG_GILL.html">THG_L2_MAG_GILL</option><option value="THG_L2_MAG_GJOA.html">THG_L2_MAG_GJOA</option><option value="THG_L2_MAG_GLYN.html">THG_L2_MAG_GLYN</option><option value="THG_L2_MAG_GUA.html">THG_L2_MAG_GUA</option><option value="THG_L2_MAG_HAN.html">THG_L2_MAG_HAN</option><option value="THG_L2_MAG_HLMS.html">THG_L2_MAG_HLMS</option><option value="THG_L2_MAG_HOMR.html">THG_L2_MAG_HOMR</option><option value="THG_L2_MAG_HON.html">THG_L2_MAG_HON</option><option value="THG_L2_MAG_HOP.html">THG_L2_MAG_HOP</option><option value="THG_L2_MAG_HOTS.html">THG_L2_MAG_HOTS</option><option value="THG_L2_MAG_HOV.html">THG_L2_MAG_HOV</option><option value="THG_L2_MAG_HRIS.html">THG_L2_MAG_HRIS</option><option value="THG_L2_MAG_HRP.html">THG_L2_MAG_HRP</option><option value="THG_L2_MAG_IGLO.html">THG_L2_MAG_IGLO</option><option value="THG_L2_MAG_INUK.html">THG_L2_MAG_INUK</option><option value="THG_L2_MAG_INUV.html">THG_L2_MAG_INUV</option><option value="THG_L2_MAG_IQA.html" selected>THG_L2_MAG_IQA</option><option value="THG_L2_MAG_IVA.html">THG_L2_MAG_IVA</option><option value="THG_L2_MAG_JAN.html">THG_L2_MAG_JAN</option><option value="THG_L2_MAG_JCK.html">THG_L2_MAG_JCK</option><option value="THG_L2_MAG_KAKO.html">THG_L2_MAG_KAKO</option><option value="THG_L2_MAG_KAPU.html">THG_L2_MAG_KAPU</option><option value="THG_L2_MAG_KAR.html">THG_L2_MAG_KAR</option><option value="THG_L2_MAG_KENA.html">THG_L2_MAG_KENA</option><option value="THG_L2_MAG_KEV.html">THG_L2_MAG_KEV</option><option value="THG_L2_MAG_KIAN.html">THG_L2_MAG_KIAN</option><option value="THG_L2_MAG_KIL.html">THG_L2_MAG_KIL</option><option value="THG_L2_MAG_KJPK.html">THG_L2_MAG_KJPK</option><option value="THG_L2_MAG_KODK.html">THG_L2_MAG_KODK</option><option value="THG_L2_MAG_KUUJ.html">THG_L2_MAG_KUUJ</option><option value="THG_L2_MAG_KUV.html">THG_L2_MAG_KUV</option><option value="THG_L2_MAG_LARG.html">THG_L2_MAG_LARG</option><option value="THG_L2_MAG_LCL.html">THG_L2_MAG_LCL</option><option value="THG_L2_MAG_LETH.html">THG_L2_MAG_LETH</option><option value="THG_L2_MAG_LOYS.html">THG_L2_MAG_LOYS</option><option value="THG_L2_MAG_LOZ.html">THG_L2_MAG_LOZ</option><option value="THG_L2_MAG_LREL.html">THG_L2_MAG_LREL</option><option value="THG_L2_MAG_LRES.html">THG_L2_MAG_LRES</option><option value="THG_L2_MAG_LRG.html">THG_L2_MAG_LRG</option><option value="THG_L2_MAG_LRV.html">THG_L2_MAG_LRV</option><option value="THG_L2_MAG_LYFD.html">THG_L2_MAG_LYFD</option><option value="THG_L2_MAG_LYR.html">THG_L2_MAG_LYR</option><option value="THG_L2_MAG_MAS.html">THG_L2_MAG_MAS</option><option value="THG_L2_MAG_MCGR.html">THG_L2_MAG_MCGR</option><option value="THG_L2_MAG_MEA.html">THG_L2_MAG_MEA</option><option value="THG_L2_MAG_MEK.html">THG_L2_MAG_MEK</option><option value="THG_L2_MAG_MUO.html">THG_L2_MAG_MUO</option><option value="THG_L2_MAG_NAIN.html">THG_L2_MAG_NAIN</option><option value="THG_L2_MAG_NAL.html">THG_L2_MAG_NAL</option><option value="THG_L2_MAG_NAQ.html">THG_L2_MAG_NAQ</option><option value="THG_L2_MAG_NEW.html">THG_L2_MAG_NEW</option><option value="THG_L2_MAG_NOR.html">THG_L2_MAG_NOR</option><option value="THG_L2_MAG_NRD.html">THG_L2_MAG_NRD</option><option value="THG_L2_MAG_NRSQ.html">THG_L2_MAG_NRSQ</option><option value="THG_L2_MAG_NUR.html">THG_L2_MAG_NUR</option><option value="THG_L2_MAG_OTT.html">THG_L2_MAG_OTT</option><option value="THG_L2_MAG_OUJ.html">THG_L2_MAG_OUJ</option><option value="THG_L2_MAG_PANG.html">THG_L2_MAG_PANG</option><option value="THG_L2_MAG_PBK.html">THG_L2_MAG_PBK</option><option value="THG_L2_MAG_PBLO.html">THG_L2_MAG_PBLO</option><option value="THG_L2_MAG_PCEL.html">THG_L2_MAG_PCEL</option><option value="THG_L2_MAG_PEL.html">THG_L2_MAG_PEL</option><option value="THG_L2_MAG_PG0.html">THG_L2_MAG_PG0</option><option value="THG_L2_MAG_PG1.html">THG_L2_MAG_PG1</option><option value="THG_L2_MAG_PG2.html">THG_L2_MAG_PG2</option><option value="THG_L2_MAG_PG3.html">THG_L2_MAG_PG3</option><option value="THG_L2_MAG_PG4.html">THG_L2_MAG_PG4</option><option value="THG_L2_MAG_PG5.html">THG_L2_MAG_PG5</option><option value="THG_L2_MAG_PGEO.html">THG_L2_MAG_PGEO</option><option value="THG_L2_MAG_PINA.html">THG_L2_MAG_PINA</option><option value="THG_L2_MAG_PINE.html">THG_L2_MAG_PINE</option><option value="THG_L2_MAG_PKS.html">THG_L2_MAG_PKS</option><option value="THG_L2_MAG_POKR.html">THG_L2_MAG_POKR</option><option value="THG_L2_MAG_PTRS.html">THG_L2_MAG_PTRS</option><option value="THG_L2_MAG_PUVR.html">THG_L2_MAG_PUVR</option><option value="THG_L2_MAG_RADI.html">THG_L2_MAG_RADI</option><option value="THG_L2_MAG_RAN.html">THG_L2_MAG_RAN</option><option value="THG_L2_MAG_RANK.html">THG_L2_MAG_RANK</option><option value="THG_L2_MAG_RBAY.html">THG_L2_MAG_RBAY</option><option value="THG_L2_MAG_REDR.html">THG_L2_MAG_REDR</option><option value="THG_L2_MAG_RICH.html">THG_L2_MAG_RICH</option><option value="THG_L2_MAG_RMUS.html">THG_L2_MAG_RMUS</option><option value="THG_L2_MAG_ROE.html">THG_L2_MAG_ROE</option><option value="THG_L2_MAG_ROTH.html">THG_L2_MAG_ROTH</option><option value="THG_L2_MAG_RVK.html">THG_L2_MAG_RVK</option><option value="THG_L2_MAG_SALU.html">THG_L2_MAG_SALU</option><option value="THG_L2_MAG_SATX.html">THG_L2_MAG_SATX</option><option value="THG_L2_MAG_SCHF.html">THG_L2_MAG_SCHF</option><option value="THG_L2_MAG_SCO.html">THG_L2_MAG_SCO</option><option value="THG_L2_MAG_SEPT.html">THG_L2_MAG_SEPT</option><option value="THG_L2_MAG_SHU.html">THG_L2_MAG_SHU</option><option value="THG_L2_MAG_SIT.html">THG_L2_MAG_SIT</option><option value="THG_L2_MAG_SJG.html">THG_L2_MAG_SJG</option><option value="THG_L2_MAG_SKT.html">THG_L2_MAG_SKT</option><option value="THG_L2_MAG_SNAP.html">THG_L2_MAG_SNAP</option><option value="THG_L2_MAG_SNKQ.html">THG_L2_MAG_SNKQ</option><option value="THG_L2_MAG_SOL.html">THG_L2_MAG_SOL</option><option value="THG_L2_MAG_SOR.html">THG_L2_MAG_SOR</option><option value="THG_L2_MAG_STF.html">THG_L2_MAG_STF</option><option value="THG_L2_MAG_STFD.html">THG_L2_MAG_STFD</option><option value="THG_L2_MAG_STFL.html">THG_L2_MAG_STFL</option><option value="THG_L2_MAG_STJ.html">THG_L2_MAG_STJ</option><option value="THG_L2_MAG_SUM.html">THG_L2_MAG_SUM</option><option value="THG_L2_MAG_SVS.html">THG_L2_MAG_SVS</option><option value="THG_L2_MAG_SWNO.html">THG_L2_MAG_SWNO</option><option value="THG_L2_MAG_TAB.html">THG_L2_MAG_TAB</option><option value="THG_L2_MAG_TAR.html">THG_L2_MAG_TAR</option><option value="THG_L2_MAG_TDC.html">THG_L2_MAG_TDC</option><option value="THG_L2_MAG_THL.html">THG_L2_MAG_THL</option><option value="THG_L2_MAG_TIK.html">THG_L2_MAG_TIK</option><option value="THG_L2_MAG_TOOL.html">THG_L2_MAG_TOOL</option><option value="THG_L2_MAG_TPAS.html">THG_L2_MAG_TPAS</option><option value="THG_L2_MAG_TRAP.html">THG_L2_MAG_TRAP</option><option value="THG_L2_MAG_TRO.html">THG_L2_MAG_TRO</option><option value="THG_L2_MAG_TUC.html">THG_L2_MAG_TUC</option><option value="THG_L2_MAG_UKIA.html">THG_L2_MAG_UKIA</option><option value="THG_L2_MAG_UMQ.html">THG_L2_MAG_UMQ</option><option value="THG_L2_MAG_UPN.html">THG_L2_MAG_UPN</option><option value="THG_L2_MAG_VIC.html">THG_L2_MAG_VIC</option><option value="THG_L2_MAG_VIZ.html">THG_L2_MAG_VIZ</option><option value="THG_L2_MAG_VLDR.html">THG_L2_MAG_VLDR</option><option value="THG_L2_MAG_WHIT.html">THG_L2_MAG_WHIT</option><option value="THG_L2_MAG_WHS.html">THG_L2_MAG_WHS</option><option value="THG_L2_MAG_WLPS.html">THG_L2_MAG_WLPS</option><option value="THG_L2_MAG_WRTH.html">THG_L2_MAG_WRTH</option><option value="THG_L2_MAG_YKC.html">THG_L2_MAG_YKC</option><option value="THG_L2_MAG_YKNF.html">THG_L2_MAG_YKNF</option></select></label>
+        <a href="../THEMIS_Inventory.png" target="_blank" class="btn-theme"> THEMIS PNG</a>
+        <button class="btn-theme" onclick="exportPlotAsPng('dataset-timeline-plot', 'THG_L2_MAG_IQA_plot.png')"> Download Plot PNG</button>
+        <button id="theme-toggle" class="btn-theme" onclick="toggleTheme()">☀️ Light Mode</button>
+      </div>
+    </div>
+    <div>
+      <span class="badge">THEMIS &bull; THG</span>
+      <h1>THG_L2_MAG_IQA</h1>
+      <p class="subtitle">IQA</p>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">CDF Files</div>
+        <div id="kpi-cdf-files" class="kpi-value">3</div>
+        <div id="kpi-cdf-files-overall" class="kpi-overall"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Active Days</div>
+        <div id="kpi-active-days" class="kpi-value">3.00</div>
+        <div id="kpi-active-days-overall" class="kpi-overall"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Coverage</div>
+        <div id="kpi-coverage" class="kpi-value" style="color: var(--success);">100.00%</div>
+        <div id="kpi-coverage-overall" class="kpi-overall"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Earliest Start</div>
+        <div id="kpi-earliest-start" class="kpi-value" style="font-size: 14px;">2007-01-01 00:00 UTC</div>
+        <div id="kpi-earliest-start-overall" class="kpi-overall"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Latest Stop</div>
+        <div id="kpi-latest-stop" class="kpi-value" style="font-size: 14px;">2007-01-04 00:00 UTC</div>
+        <div id="kpi-latest-stop-overall" class="kpi-overall"></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+        <span style="font-size: 14px; font-weight: 600;">Data Availability Timeline</span>
+        <div class="pan-controls">
+          <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin: 0 4px;">Time Window:</span>
+          <button type="button" class="btn-pan disabled" disabled title="Pan backward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('dataset-timeline-plot', -1)">◀ Prev Frame</button>
+          <button type="button" class="btn-pan" title="Reset zoom to full range" onclick="resetTimelineZoom('dataset-timeline-plot')">↺ Reset Zoom</button>
+          <button type="button" class="btn-pan disabled" disabled title="Pan forward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('dataset-timeline-plot', 1)">Next Frame ▶</button>
+          <button type="button" class="btn-pan" title="Download timeline chart as PNG" onclick="exportPlotAsPng('dataset-timeline-plot', 'THG_L2_MAG_IQA_plot.png')"> PNG</button>
+        </div>
+      </div>
+      <div id="dataset-timeline-plot" style="min-height: 180px; width: 100%;"></div>
+    </div>
+    <div class="table-card">
+      <h3 style="margin: 0 0 12px 0; font-size: 16px;">Intervals &amp; Coverage Bounds</h3>
+      <div style="max-height: 400px; overflow-y: auto;">
+        <table>
+          <thead>
+            <tr><th>Start Time (UTC)</th><th>Stop Time (UTC)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>2007-01-01 00:00:00 UTC</code></td><td><code>2007-01-04 00:00:00 UTC</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+    <footer class="page-footer">This page was last updated on: 2026-11-17 17:24:49 UTC. For any questions or comments, please contact SPDF support at: <a href="mailto:NASA-SPDF-Support@nasa.gov">NASA-SPDF-Support@nasa.gov</a></footer>
+  </div>
+
+  <script>
+    function navigateToDataset(path) {
+      const query = window.location.search || '';
+      window.location.href = path + query;
+    }
+    const plotIntervals = [["2007-01-01T00:00:00Z", 259200000, "2007-01-04T00:00:00Z"]];
+    const fileIntervals = [["2007-01-01T00:00:00Z", "2007-01-02T00:00:00Z"], ["2007-01-02T00:00:00Z", "2007-01-03T00:00:00Z"], ["2007-01-03T00:00:00Z", "2007-01-04T00:00:00Z"]];
+    const overallKpis = {
+      cdfFiles: 3,
+      activeDays: 3.0000000000,
+      coverage: 100.0000000000,
+      earliest: "2007-01-01 00:00 UTC",
+      latest: "2007-01-04 00:00 UTC"
+    };
+
+    window._globalMinTimeMs = 1167609600000;
+    window._globalMaxTimeMs = 1167868800000;
+
+    function parseAxisTimeMs(val) {
+      if (val == null) return NaN;
+      if (typeof val === 'number') return val;
+      if (val instanceof Date) return val.getTime();
+      const s = String(val).trim();
+      if (!s) return NaN;
+      if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+      const iso = s.replace(/\//g, '-').replace(' ', 'T');
+      const isoUtc = (iso.includes('Z') || iso.includes('+')) ? iso : iso + 'Z';
+      let ms = Date.parse(isoUtc);
+      if (!isNaN(ms)) return ms;
+      ms = Date.parse(s);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function formatAxisDate(ms) {
+      const d = new Date(ms);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString();
+    }
+
+    function formatKpiDate(ms) {
+      if (!Number.isFinite(ms)) return 'No data';
+      return new Date(ms).toISOString().replace('.000Z', ' UTC');
+    }
+
+    function getThemeColors() {
+      const isLight = document.body.classList.contains('light');
+      return {
+        textColor: isLight ? '#0f172a' : '#f8fafc',
+        gridColor: isLight ? '#cbd5e1' : '#334155'
+      };
+    }
+
+    // Single vectorized trace — one bar per interval in parallel arrays.
+    // Avoids creating N trace objects in the DOM when a dataset has many gaps.
+    const traces = [{
+      type: 'bar',
+      orientation: 'h',
+      y: plotIntervals.map(() => 'THG_L2_MAG_IQA'),
+      x: plotIntervals.map(inv => inv[1]),
+      base: plotIntervals.map(inv => inv[0]),
+      marker: { color: '#0284c7', line: { width: 0 } },
+      hoverinfo: 'text',
+      hovertext: plotIntervals.map(inv =>
+        `<b>THG_L2_MAG_IQA</b><br>From: ${inv[0].replace('T', ' ').replace('Z', ' UTC')}<br>To: ${inv[2].replace('T', ' ').replace('Z', ' UTC')}<br>Duration: ${(inv[1] / 86400000).toFixed(2)} days`
+      ),
+      showlegend: false
+    }];
+
+    function renderPlot() {
+      const colors = getThemeColors();
+      let xRange = undefined;
+      let autorange = true;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        const span = Math.max(86400000, window._globalMaxTimeMs - window._globalMinTimeMs);
+        const pad = Math.max(86400000, span * 0.02);
+        xRange = [formatAxisDate(window._globalMinTimeMs - pad), formatAxisDate(window._globalMaxTimeMs + pad)];
+        autorange = false;
+      }
+      const layout = {
+        height: 190,
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent',
+        font: { color: colors.textColor, size: 11 },
+        margin: { l: 140, r: 30, t: 35, b: 40 },
+        xaxis: {
+          type: 'date',
+          side: 'bottom',
+          range: xRange,
+          autorange: autorange,
+          gridcolor: colors.gridColor,
+          tickcolor: colors.gridColor,
+          tickfont: { color: colors.textColor, size: 11 },
+          showline: true,
+          linecolor: colors.gridColor
+        },
+        xaxis2: {
+          type: 'date',
+          overlaying: 'x',
+          side: 'top',
+          matches: 'x',
+          title: { text: 'Time (UTC)', font: { color: colors.textColor, size: 11 } },
+          showgrid: false,
+          tickcolor: colors.gridColor,
+          tickfont: { color: colors.textColor, size: 11 },
+          showline: true,
+          linecolor: colors.gridColor
+        },
+        yaxis: {
+          type: 'category',
+          fixedrange: true,
+          automargin: true,
+          gridcolor: colors.gridColor,
+          tickcolor: colors.gridColor,
+          tickfont: { color: '#0284c7', size: 12 },
+          showline: true,
+          linecolor: colors.gridColor
+        },
+        dragmode: 'zoom',
+        barmode: 'overlay',
+        bargap: 0.75
+      };
+      Plotly.react('dataset-timeline-plot', traces, layout, { responsive: true, displayModeBar: true, displaylogo: false });
+    }
+
+    const savedTheme = localStorage.getItem('cdaweb_theme') || 'dark';
+    document.body.className = savedTheme;
+    const themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+      themeBtn.textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+    }
+
+    function mergeVisibleIntervals(intervals) {
+      if (!intervals.length) return [];
+      const sorted = intervals.slice().sort((a, b) => a[0] - b[0]);
+      const merged = [sorted[0].slice()];
+      for (let i = 1; i < sorted.length; i++) {
+        const prior = merged[merged.length - 1];
+        if (sorted[i][0] <= prior[1]) prior[1] = Math.max(prior[1], sorted[i][1]);
+        else merged.push(sorted[i].slice());
+      }
+      return merged;
+    }
+
+    function updateVisibleKpis(range) {
+      const fullRange = !range || range.length !== 2;
+      let startMs = fullRange ? null : parseAxisTimeMs(range[0]);
+      let stopMs = fullRange ? null : parseAxisTimeMs(range[1]);
+      if (!fullRange && (!Number.isFinite(startMs) || !Number.isFinite(stopMs))) return;
+      if (!fullRange && startMs > stopMs) { const tmp = startMs; startMs = stopMs; stopMs = tmp; }
+
+      const clippedIntervals = [];
+      const visibleFiles = new Set();
+      fileIntervals.forEach((interval, index) => {
+        const start = parseAxisTimeMs(interval[0]);
+        const stop = parseAxisTimeMs(interval[1]);
+        if (!Number.isFinite(start) || !Number.isFinite(stop)) return;
+        const clippedStart = startMs === null ? start : Math.max(start, startMs);
+        const clippedStop = stopMs === null ? stop : Math.min(stop, stopMs);
+        if (clippedStop > clippedStart) {
+          clippedIntervals.push([clippedStart, clippedStop]);
+          visibleFiles.add(index);
+        }
+      });
+      const merged = mergeVisibleIntervals(clippedIntervals);
+      const activeMs = merged.reduce((total, interval) => total + interval[1] - interval[0], 0);
+      const earliest = merged.length ? merged[0][0] : NaN;
+      const latest = merged.length ? merged[merged.length - 1][1] : NaN;
+      const spanMs = startMs !== null && stopMs !== null
+        ? Math.max(0, stopMs - startMs)
+        : Math.max(0, latest - earliest);
+      const kpis = fullRange ? overallKpis : {
+        cdfFiles: visibleFiles.size,
+        activeDays: activeMs / 86400000,
+        coverage: spanMs ? Math.min(100, (activeMs / spanMs) * 100) : 0,
+        earliest: formatKpiDate(earliest),
+        latest: formatKpiDate(latest)
+      };
+      const values = {
+        'kpi-cdf-files': Number(kpis.cdfFiles).toLocaleString(),
+        'kpi-active-days': Number(kpis.activeDays).toFixed(2),
+        'kpi-coverage': Number(kpis.coverage).toFixed(2) + '%',
+        'kpi-earliest-start': kpis.earliest,
+        'kpi-latest-stop': kpis.latest
+      };
+      Object.entries(values).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+      });
+      const overallValues = {
+        'kpi-cdf-files-overall': overallKpis.cdfFiles.toLocaleString() + ' overall',
+        'kpi-active-days-overall': overallKpis.activeDays.toFixed(2) + ' days overall',
+        'kpi-coverage-overall': overallKpis.coverage.toFixed(2) + '% overall',
+        'kpi-earliest-start-overall': 'Overall: ' + overallKpis.earliest,
+        'kpi-latest-stop-overall': 'Overall: ' + overallKpis.latest
+      };
+      Object.entries(overallValues).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = fullRange ? '' : value;
+      });
+    }
+
+    renderPlot();
+    const datasetPlotDiv = document.getElementById('dataset-timeline-plot');
+    if (datasetPlotDiv) {
+      datasetPlotDiv.on('plotly_relayout', eventData => {
+        if (eventData['xaxis.autorange']) {
+          resetTimelineZoom('dataset-timeline-plot');
+          return;
+        }
+        const range = eventData['xaxis.range'] || (
+          eventData['xaxis.range[0]'] !== undefined
+            ? [eventData['xaxis.range[0]'], eventData['xaxis.range[1]']]
+            : null
+        );
+        updateVisibleKpis(range);
+        updatePanButtons('dataset-timeline-plot');
+      });
+      datasetPlotDiv.on('plotly_doubleclick', () => {
+        resetTimelineZoom('dataset-timeline-plot');
+        return false;
+      });
+    }
+    updateVisibleKpis(null);
+
+    function panTimelineWindow(divId, direction) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv || !plotDiv._fullLayout || !plotDiv._fullLayout.xaxis) return;
+      const rng = plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2) return;
+
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+
+      const span = t1 - t0;
+      if (span <= 0) return;
+
+      const newT0 = t0 + (direction * span);
+      const newT1 = t1 + (direction * span);
+
+      Plotly.relayout(plotDiv, {
+        'xaxis.range': [formatAxisDate(newT0), formatAxisDate(newT1)],
+        'xaxis.autorange': false
+      }).then(() => {
+        updatePanButtons(divId);
+      });
+    }
+
+    function resetTimelineZoom(divId) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        const span = Math.max(86400000, window._globalMaxTimeMs - window._globalMinTimeMs);
+        const pad = Math.max(86400000, span * 0.02);
+        Plotly.relayout(plotDiv, {
+          'xaxis.range': [
+            formatAxisDate(window._globalMinTimeMs - pad),
+            formatAxisDate(window._globalMaxTimeMs + pad)
+          ],
+          'xaxis.autorange': false
+        }).then(() => {
+          updateVisibleKpis(null);
+          updatePanButtons(divId);
+        });
+      } else {
+        Plotly.relayout(plotDiv, {
+          'xaxis.autorange': true
+        }).then(() => {
+          updateVisibleKpis(null);
+          updatePanButtons(divId);
+        });
+      }
+    }
+
+    function exportPlotAsPng(divId, filename) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      Plotly.downloadImage(plotDiv, {
+        format: 'png',
+        width: 1200,
+        height: 400,
+        filename: filename || 'plot.png'
+      });
+    }
+
+    function updatePanButtons(divId) {
+      const plotDiv = document.getElementById(divId);
+      const prevBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', -1)"]`);
+      const nextBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', 1)"]`);
+      if (!plotDiv || !prevBtn || !nextBtn) return;
+      const rng = plotDiv._fullLayout && plotDiv._fullLayout.xaxis && plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2 || !window._globalMinTimeMs || !window._globalMaxTimeMs) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+      const fullSpan = window._globalMaxTimeMs - window._globalMinTimeMs;
+      const currentSpan = t1 - t0;
+      if (currentSpan >= fullSpan - 60000) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      const canPrev = t0 > (window._globalMinTimeMs + 60000);
+      const canNext = t1 < (window._globalMaxTimeMs - 60000);
+      prevBtn.disabled = !canPrev;
+      nextBtn.disabled = !canNext;
+      prevBtn.classList.toggle('disabled', !canPrev);
+      nextBtn.classList.toggle('disabled', !canNext);
+    }
+
+    const plotDivEl = document.getElementById('dataset-timeline-plot');
+    if (plotDivEl) {
+      plotDivEl.on('plotly_relayout', () => updatePanButtons('dataset-timeline-plot'));
+    }
+    setTimeout(() => updatePanButtons('dataset-timeline-plot'), 300);
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+      const newTheme = isDark ? 'light' : 'dark';
+      document.body.className = newTheme;
+      localStorage.setItem('cdaweb_theme', newTheme);
+      document.getElementById('theme-toggle').textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      renderPlot();
+    }
+
+    // Propagate URL query params (such as ?view for updog) to relative navigation links
+    (function() {
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (q) {
+        document.querySelectorAll('a[href]').forEach(a => {
+          const href = a.getAttribute('href');
+          if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto:') && !href.includes('?')) {
+            a.setAttribute('href', href + q);
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

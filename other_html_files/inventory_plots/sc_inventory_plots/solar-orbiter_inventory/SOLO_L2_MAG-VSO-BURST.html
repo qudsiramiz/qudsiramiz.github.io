@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SOLO_L2_MAG-VSO-BURST - CDAWeb Inventory</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root, body.dark {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #0284c7;
+      --accent-light: #38bdf8;
+      --success: #10b981;
+    }
+    body.light {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --accent: #0284c7;
+      --accent-light: #0369a1;
+      --success: #16a34a;
+    }
+    body {
+      margin: 0;
+      padding: 24px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    input[type="date"] {
+      color-scheme: dark;
+    }
+    body.light input[type="date"] {
+      color-scheme: light;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .breadcrumbs { font-size: 14px; margin-bottom: 0; color: var(--text-muted); }
+    .breadcrumbs a { color: var(--accent-light); text-decoration: none; }
+    .breadcrumbs a:hover { text-decoration: underline; }
+    .dataset-navigation { font-size: 13px; color: var(--text-muted); }
+    .dataset-navigation select { margin-left: 6px; max-width: 340px; color: var(--text); background: var(--card-bg); border: 1px solid var(--border); border-radius: 4px; padding: 4px; }
+    .page-footer { margin: 20px 0 0; color: var(--text-muted); font-size: 12px; text-align: center; }
+    .page-footer a { color: var(--accent-light); }
+    .btn-theme {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-theme:hover { opacity: 0.9; }
+    .badge { display: inline-block; padding: 4px 10px; background: rgba(2, 132, 199, 0.2); color: var(--accent-light); border-radius: 9999px; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+    h1 { margin: 0 0 6px 0; font-size: 26px; }
+    .subtitle { color: var(--text-muted); font-size: 15px; margin: 0 0 20px 0; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .kpi-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 18px; font-weight: 700; color: var(--text); }
+    .kpi-overall { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+    .chart-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th { padding: 8px 12px; background: rgba(255,255,255,0.03); color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+    code { color: var(--accent-light); font-family: monospace; }
+    .pan-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(125,125,125,0.08);
+      padding: 3px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .btn-pan {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-pan:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .btn-pan:disabled, .btn-pan.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .btn-preset {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .btn-preset:hover {
+      opacity: 0.9;
+      color: var(--text);
+    }
+    .btn-preset.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      font-weight: 700;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+    }
+    .xtick text, .ytick text {
+      fill: var(--text) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+      <div class="breadcrumbs">
+        <a href="../inventory_index.html">CDAWeb Inventory</a> &gt;
+        <a href="./solar-orbiter_index.html">SOLAR-ORBITER Index</a> &gt;
+        <span>SOLO_L2_MAG-VSO-BURST</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <label class="dataset-navigation">Dataset: <select onchange="navigateToDataset(this.value)"><option value="SOLO_COHO1HR_MERGED_MAG_PLASMA.html">SOLO_COHO1HR_MERGED_MAG_PLASMA</option><option value="SOLO_HELIO1HR_POSITION.html">SOLO_HELIO1HR_POSITION</option><option value="SOLO_L2_EPD-EPT-ASUN-BURST-ELE-CLOSE.html">SOLO_L2_EPD-EPT-ASUN-BURST-ELE-CLOSE</option><option value="SOLO_L2_EPD-EPT-ASUN-BURST-ION.html">SOLO_L2_EPD-EPT-ASUN-BURST-ION</option><option value="SOLO_L2_EPD-EPT-ASUN-HCAD.html">SOLO_L2_EPD-EPT-ASUN-HCAD</option><option value="SOLO_L2_EPD-EPT-ASUN-RATES.html">SOLO_L2_EPD-EPT-ASUN-RATES</option><option value="SOLO_L2_EPD-EPT-NORTH-BURST-ELE-CLOSE.html">SOLO_L2_EPD-EPT-NORTH-BURST-ELE-CLOSE</option><option value="SOLO_L2_EPD-EPT-NORTH-BURST-ION.html">SOLO_L2_EPD-EPT-NORTH-BURST-ION</option><option value="SOLO_L2_EPD-EPT-NORTH-HCAD.html">SOLO_L2_EPD-EPT-NORTH-HCAD</option><option value="SOLO_L2_EPD-EPT-NORTH-RATES.html">SOLO_L2_EPD-EPT-NORTH-RATES</option><option value="SOLO_L2_EPD-EPT-SOUTH-BURST-ELE-CLOSE.html">SOLO_L2_EPD-EPT-SOUTH-BURST-ELE-CLOSE</option><option value="SOLO_L2_EPD-EPT-SOUTH-BURST-ION.html">SOLO_L2_EPD-EPT-SOUTH-BURST-ION</option><option value="SOLO_L2_EPD-EPT-SOUTH-HCAD.html">SOLO_L2_EPD-EPT-SOUTH-HCAD</option><option value="SOLO_L2_EPD-EPT-SOUTH-RATES.html">SOLO_L2_EPD-EPT-SOUTH-RATES</option><option value="SOLO_L2_EPD-EPT-SUN-BURST-ELE-CLOSE.html">SOLO_L2_EPD-EPT-SUN-BURST-ELE-CLOSE</option><option value="SOLO_L2_EPD-EPT-SUN-BURST-ION.html">SOLO_L2_EPD-EPT-SUN-BURST-ION</option><option value="SOLO_L2_EPD-EPT-SUN-HCAD.html">SOLO_L2_EPD-EPT-SUN-HCAD</option><option value="SOLO_L2_EPD-EPT-SUN-RATES.html">SOLO_L2_EPD-EPT-SUN-RATES</option><option value="SOLO_L2_EPD-HET-ASUN-BURST.html">SOLO_L2_EPD-HET-ASUN-BURST</option><option value="SOLO_L2_EPD-HET-ASUN-RATES.html">SOLO_L2_EPD-HET-ASUN-RATES</option><option value="SOLO_L2_EPD-HET-NORTH-BURST.html">SOLO_L2_EPD-HET-NORTH-BURST</option><option value="SOLO_L2_EPD-HET-NORTH-RATES.html">SOLO_L2_EPD-HET-NORTH-RATES</option><option value="SOLO_L2_EPD-HET-SOUTH-BURST.html">SOLO_L2_EPD-HET-SOUTH-BURST</option><option value="SOLO_L2_EPD-HET-SOUTH-RATES.html">SOLO_L2_EPD-HET-SOUTH-RATES</option><option value="SOLO_L2_EPD-HET-SUN-BURST.html">SOLO_L2_EPD-HET-SUN-BURST</option><option value="SOLO_L2_EPD-HET-SUN-RATES.html">SOLO_L2_EPD-HET-SUN-RATES</option><option value="SOLO_L2_EPD-SIS-A-HEHIST.html">SOLO_L2_EPD-SIS-A-HEHIST</option><option value="SOLO_L2_EPD-SIS-A-RATES-FAST.html">SOLO_L2_EPD-SIS-A-RATES-FAST</option><option value="SOLO_L2_EPD-SIS-A-RATES-MEDIUM.html">SOLO_L2_EPD-SIS-A-RATES-MEDIUM</option><option value="SOLO_L2_EPD-SIS-A-RATES-SLOW.html">SOLO_L2_EPD-SIS-A-RATES-SLOW</option><option value="SOLO_L2_EPD-SIS-B-HEHIST.html">SOLO_L2_EPD-SIS-B-HEHIST</option><option value="SOLO_L2_EPD-SIS-B-RATES-FAST.html">SOLO_L2_EPD-SIS-B-RATES-FAST</option><option value="SOLO_L2_EPD-SIS-B-RATES-MEDIUM.html">SOLO_L2_EPD-SIS-B-RATES-MEDIUM</option><option value="SOLO_L2_EPD-SIS-B-RATES-SLOW.html">SOLO_L2_EPD-SIS-B-RATES-SLOW</option><option value="SOLO_L2_EPD-STEP-BURST.html">SOLO_L2_EPD-STEP-BURST</option><option value="SOLO_L2_EPD-STEP-HCAD.html">SOLO_L2_EPD-STEP-HCAD</option><option value="SOLO_L2_EPD-STEP-MAIN.html">SOLO_L2_EPD-STEP-MAIN</option><option value="SOLO_L2_EPD-STEP-RATES.html">SOLO_L2_EPD-STEP-RATES</option><option value="SOLO_L2_MAG-RTN-BURST.html">SOLO_L2_MAG-RTN-BURST</option><option value="SOLO_L2_MAG-RTN-LL.html">SOLO_L2_MAG-RTN-LL</option><option value="SOLO_L2_MAG-RTN-LL-1-MINUTE.html">SOLO_L2_MAG-RTN-LL-1-MINUTE</option><option value="SOLO_L2_MAG-RTN-NORMAL.html">SOLO_L2_MAG-RTN-NORMAL</option><option value="SOLO_L2_MAG-RTN-NORMAL-1-MINUTE.html">SOLO_L2_MAG-RTN-NORMAL-1-MINUTE</option><option value="SOLO_L2_MAG-SRF-BURST.html">SOLO_L2_MAG-SRF-BURST</option><option value="SOLO_L2_MAG-SRF-LL.html">SOLO_L2_MAG-SRF-LL</option><option value="SOLO_L2_MAG-SRF-NORMAL.html">SOLO_L2_MAG-SRF-NORMAL</option><option value="SOLO_L2_MAG-VSO-BURST.html" selected>SOLO_L2_MAG-VSO-BURST</option><option value="SOLO_L2_MAG-VSO-NORMAL.html">SOLO_L2_MAG-VSO-NORMAL</option><option value="SOLO_L2_MAG-VSO-NORMAL-1-MINUTE.html">SOLO_L2_MAG-VSO-NORMAL-1-MINUTE</option><option value="SOLO_L2_RPW-HFR-SURV.html">SOLO_L2_RPW-HFR-SURV</option><option value="SOLO_L2_RPW-LFR-SURV-ASM.html">SOLO_L2_RPW-LFR-SURV-ASM</option><option value="SOLO_L2_RPW-LFR-SURV-BP1.html">SOLO_L2_RPW-LFR-SURV-BP1</option><option value="SOLO_L2_RPW-LFR-SURV-BP2.html">SOLO_L2_RPW-LFR-SURV-BP2</option><option value="SOLO_L2_RPW-LFR-SURV-CWF-B.html">SOLO_L2_RPW-LFR-SURV-CWF-B</option><option value="SOLO_L2_RPW-LFR-SURV-CWF-E.html">SOLO_L2_RPW-LFR-SURV-CWF-E</option><option value="SOLO_L2_RPW-TDS-SURV-HIST1D.html">SOLO_L2_RPW-TDS-SURV-HIST1D</option><option value="SOLO_L2_RPW-TDS-SURV-HIST2D.html">SOLO_L2_RPW-TDS-SURV-HIST2D</option><option value="SOLO_L2_RPW-TDS-SURV-STAT.html">SOLO_L2_RPW-TDS-SURV-STAT</option><option value="SOLO_L2_SWA-EAS-PAD-DEF.html">SOLO_L2_SWA-EAS-PAD-DEF</option><option value="SOLO_L2_SWA-EAS-PAD-DNF.html">SOLO_L2_SWA-EAS-PAD-DNF</option><option value="SOLO_L2_SWA-EAS-PAD-PSD.html">SOLO_L2_SWA-EAS-PAD-PSD</option><option value="SOLO_L2_SWA-EAS1-EFLUX.html">SOLO_L2_SWA-EAS1-EFLUX</option><option value="SOLO_L2_SWA-EAS1-HIRES3D-DEF.html">SOLO_L2_SWA-EAS1-HIRES3D-DEF</option><option value="SOLO_L2_SWA-EAS1-HIRES3D-DNF.html">SOLO_L2_SWA-EAS1-HIRES3D-DNF</option><option value="SOLO_L2_SWA-EAS1-HIRES3D-PSD.html">SOLO_L2_SWA-EAS1-HIRES3D-PSD</option><option value="SOLO_L2_SWA-EAS1-NM3D-DEF.html">SOLO_L2_SWA-EAS1-NM3D-DEF</option><option value="SOLO_L2_SWA-EAS1-NM3D-DNF.html">SOLO_L2_SWA-EAS1-NM3D-DNF</option><option value="SOLO_L2_SWA-EAS1-NM3D-PSD.html">SOLO_L2_SWA-EAS1-NM3D-PSD</option><option value="SOLO_L2_SWA-EAS1-SS-DEF.html">SOLO_L2_SWA-EAS1-SS-DEF</option><option value="SOLO_L2_SWA-EAS1-SS-DNF.html">SOLO_L2_SWA-EAS1-SS-DNF</option><option value="SOLO_L2_SWA-EAS1-SS-PSD.html">SOLO_L2_SWA-EAS1-SS-PSD</option><option value="SOLO_L2_SWA-EAS1-TM3D-DEF.html">SOLO_L2_SWA-EAS1-TM3D-DEF</option><option value="SOLO_L2_SWA-EAS1-TM3D-DNF.html">SOLO_L2_SWA-EAS1-TM3D-DNF</option><option value="SOLO_L2_SWA-EAS1-TM3D-PSD.html">SOLO_L2_SWA-EAS1-TM3D-PSD</option><option value="SOLO_L2_SWA-EAS2-EFLUX.html">SOLO_L2_SWA-EAS2-EFLUX</option><option value="SOLO_L2_SWA-EAS2-HIRES3D-DEF.html">SOLO_L2_SWA-EAS2-HIRES3D-DEF</option><option value="SOLO_L2_SWA-EAS2-HIRES3D-DNF.html">SOLO_L2_SWA-EAS2-HIRES3D-DNF</option><option value="SOLO_L2_SWA-EAS2-HIRES3D-PSD.html">SOLO_L2_SWA-EAS2-HIRES3D-PSD</option><option value="SOLO_L2_SWA-EAS2-NM3D-DEF.html">SOLO_L2_SWA-EAS2-NM3D-DEF</option><option value="SOLO_L2_SWA-EAS2-NM3D-DNF.html">SOLO_L2_SWA-EAS2-NM3D-DNF</option><option value="SOLO_L2_SWA-EAS2-NM3D-PSD.html">SOLO_L2_SWA-EAS2-NM3D-PSD</option><option value="SOLO_L2_SWA-EAS2-SS-DEF.html">SOLO_L2_SWA-EAS2-SS-DEF</option><option value="SOLO_L2_SWA-EAS2-SS-DNF.html">SOLO_L2_SWA-EAS2-SS-DNF</option><option value="SOLO_L2_SWA-EAS2-SS-PSD.html">SOLO_L2_SWA-EAS2-SS-PSD</option><option value="SOLO_L2_SWA-EAS2-TM3D-DEF.html">SOLO_L2_SWA-EAS2-TM3D-DEF</option><option value="SOLO_L2_SWA-EAS2-TM3D-DNF.html">SOLO_L2_SWA-EAS2-TM3D-DNF</option><option value="SOLO_L2_SWA-EAS2-TM3D-PSD.html">SOLO_L2_SWA-EAS2-TM3D-PSD</option><option value="SOLO_L2_SWA-HIS-HK.html">SOLO_L2_SWA-HIS-HK</option><option value="SOLO_L2_SWA-HIS-PHA.html">SOLO_L2_SWA-HIS-PHA</option><option value="SOLO_L2_SWA-HIS-RATES.html">SOLO_L2_SWA-HIS-RATES</option><option value="SOLO_L2_SWA-PAS-EFLUX.html">SOLO_L2_SWA-PAS-EFLUX</option><option value="SOLO_L2_SWA-PAS-GRND-MOM.html">SOLO_L2_SWA-PAS-GRND-MOM</option><option value="SOLO_L2_SWA-PAS-VDF.html">SOLO_L2_SWA-PAS-VDF</option><option value="SOLO_L3_EPD-EPT-1DAY.html">SOLO_L3_EPD-EPT-1DAY</option><option value="SOLO_L3_EPD-EPT-1HOUR.html">SOLO_L3_EPD-EPT-1HOUR</option><option value="SOLO_L3_EPD-EPT-1MIN.html">SOLO_L3_EPD-EPT-1MIN</option><option value="SOLO_L3_MULTI-MAG-RPW-SCM-MERGED-RTN-256.html">SOLO_L3_MULTI-MAG-RPW-SCM-MERGED-RTN-256</option><option value="SOLO_L3_MULTI-MAG-RPW-SCM-MERGED-RTN-4096.html">SOLO_L3_MULTI-MAG-RPW-SCM-MERGED-RTN-4096</option><option value="SOLO_L3_MULTI-MAG-RPW-SCM-MERGED-SRF-256.html">SOLO_L3_MULTI-MAG-RPW-SCM-MERGED-SRF-256</option><option value="SOLO_L3_MULTI-MAG-RPW-SCM-MERGED-SRF-4096.html">SOLO_L3_MULTI-MAG-RPW-SCM-MERGED-SRF-4096</option><option value="SOLO_L3_RPW-BIA-DENSITY.html">SOLO_L3_RPW-BIA-DENSITY</option><option value="SOLO_L3_RPW-BIA-DENSITY-10-SECONDS.html">SOLO_L3_RPW-BIA-DENSITY-10-SECONDS</option><option value="SOLO_L3_RPW-BIA-EFIELD.html">SOLO_L3_RPW-BIA-EFIELD</option><option value="SOLO_L3_RPW-BIA-EFIELD-10-SECONDS.html">SOLO_L3_RPW-BIA-EFIELD-10-SECONDS</option><option value="SOLO_L3_RPW-BIA-SCPOT.html">SOLO_L3_RPW-BIA-SCPOT</option><option value="SOLO_L3_RPW-BIA-SCPOT-10-SECONDS.html">SOLO_L3_RPW-BIA-SCPOT-10-SECONDS</option><option value="SOLO_L3_RPW-BIA-VHT.html">SOLO_L3_RPW-BIA-VHT</option><option value="SOLO_L3_RPW-HFR-SURV-FLUX.html">SOLO_L3_RPW-HFR-SURV-FLUX</option><option value="SOLO_L3_RPW-TNR-FP.html">SOLO_L3_RPW-TNR-FP</option><option value="SOLO_L3_RPW-TNR-SURV-FLUX.html">SOLO_L3_RPW-TNR-SURV-FLUX</option><option value="SOLO_L3_SWA-EAS-NMPAD-PSD.html">SOLO_L3_SWA-EAS-NMPAD-PSD</option><option value="SOLO_L3_SWA-HIS-COMP-10MIN.html">SOLO_L3_SWA-HIS-COMP-10MIN</option><option value="SOLO_LL02_EPD-EPT-ASUN-RATES.html">SOLO_LL02_EPD-EPT-ASUN-RATES</option><option value="SOLO_LL02_EPD-EPT-NORTH-RATES.html">SOLO_LL02_EPD-EPT-NORTH-RATES</option><option value="SOLO_LL02_EPD-EPT-SOUTH-RATES.html">SOLO_LL02_EPD-EPT-SOUTH-RATES</option><option value="SOLO_LL02_EPD-EPT-SUN-RATES.html">SOLO_LL02_EPD-EPT-SUN-RATES</option><option value="SOLO_LL02_EPD-HET-ASUN-RATES.html">SOLO_LL02_EPD-HET-ASUN-RATES</option><option value="SOLO_LL02_EPD-HET-NORTH-RATES.html">SOLO_LL02_EPD-HET-NORTH-RATES</option><option value="SOLO_LL02_EPD-HET-SOUTH-RATES.html">SOLO_LL02_EPD-HET-SOUTH-RATES</option><option value="SOLO_LL02_EPD-HET-SUN-RATES.html">SOLO_LL02_EPD-HET-SUN-RATES</option><option value="SOLO_LL02_EPD-SIS-A-RATES.html">SOLO_LL02_EPD-SIS-A-RATES</option><option value="SOLO_LL02_EPD-SIS-B-RATES.html">SOLO_LL02_EPD-SIS-B-RATES</option><option value="SOLO_LL02_EPD-STEP-RATES.html">SOLO_LL02_EPD-STEP-RATES</option><option value="SOLO_LL02_MAG.html">SOLO_LL02_MAG</option><option value="SOLO_LL02_RPW-SBM1.html">SOLO_LL02_RPW-SBM1</option><option value="SOLO_LL02_RPW-TNR.html">SOLO_LL02_RPW-TNR</option><option value="SOLO_LL02_SWA-EAS-SS.html">SOLO_LL02_SWA-EAS-SS</option><option value="SOLO_LL02_SWA-HIS-RAT.html">SOLO_LL02_SWA-HIS-RAT</option><option value="SOLO_LL02_SWA-PAS-MOM.html">SOLO_LL02_SWA-PAS-MOM</option></select></label>
+        <a href="../SOLAR-ORBITER_Inventory.png" target="_blank" class="btn-theme"> SOLAR-ORBITER PNG</a>
+        <button class="btn-theme" onclick="exportPlotAsPng('dataset-timeline-plot', 'SOLO_L2_MAG-VSO-BURST_plot.png')"> Download Plot PNG</button>
+        <button id="theme-toggle" class="btn-theme" onclick="toggleTheme()">☀️ Light Mode</button>
+      </div>
+    </div>
+    <div>
+      <span class="badge">SOLAR-ORBITER &bull; MAG</span>
+      <h1>SOLO_L2_MAG-VSO-BURST</h1>
+      <p class="subtitle">VSO-BURST</p>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">CDF Files</div>
+        <div id="kpi-cdf-files" class="kpi-value">12</div>
+        <div id="kpi-cdf-files-overall" class="kpi-overall"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Active Days</div>
+        <div id="kpi-active-days" class="kpi-value">12.00</div>
+        <div id="kpi-active-days-overall" class="kpi-overall"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Coverage</div>
+        <div id="kpi-coverage" class="kpi-value" style="color: var(--success);">0.79%</div>
+        <div id="kpi-coverage-overall" class="kpi-overall"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Earliest Start</div>
+        <div id="kpi-earliest-start" class="kpi-value" style="font-size: 14px;">2020-12-26 00:00 UTC</div>
+        <div id="kpi-earliest-start-overall" class="kpi-overall"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Latest Stop</div>
+        <div id="kpi-latest-stop" class="kpi-value" style="font-size: 14px;">2025-02-19 23:59 UTC</div>
+        <div id="kpi-latest-stop-overall" class="kpi-overall"></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+        <span style="font-size: 14px; font-weight: 600;">Data Availability Timeline</span>
+        <div class="pan-controls">
+          <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin: 0 4px;">Time Window:</span>
+          <button type="button" class="btn-pan disabled" disabled title="Pan backward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('dataset-timeline-plot', -1)">◀ Prev Frame</button>
+          <button type="button" class="btn-pan" title="Reset zoom to full range" onclick="resetTimelineZoom('dataset-timeline-plot')">↺ Reset Zoom</button>
+          <button type="button" class="btn-pan disabled" disabled title="Pan forward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('dataset-timeline-plot', 1)">Next Frame ▶</button>
+          <button type="button" class="btn-pan" title="Download timeline chart as PNG" onclick="exportPlotAsPng('dataset-timeline-plot', 'SOLO_L2_MAG-VSO-BURST_plot.png')"> PNG</button>
+        </div>
+      </div>
+      <div id="dataset-timeline-plot" style="min-height: 180px; width: 100%;"></div>
+    </div>
+    <div class="table-card">
+      <h3 style="margin: 0 0 12px 0; font-size: 16px;">Intervals &amp; Coverage Bounds</h3>
+      <div style="max-height: 400px; overflow-y: auto;">
+        <table>
+          <thead>
+            <tr><th>Start Time (UTC)</th><th>Stop Time (UTC)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>2020-12-26 00:00:00 UTC</code></td><td><code>2020-12-28 23:59:59 UTC</code></td></tr><tr><td><code>2021-08-08 00:00:00 UTC</code></td><td><code>2021-08-10 23:59:59 UTC</code></td></tr><tr><td><code>2022-09-03 00:00:00 UTC</code></td><td><code>2022-09-05 23:59:59 UTC</code></td></tr><tr><td><code>2025-02-17 00:00:00 UTC</code></td><td><code>2025-02-19 23:59:59 UTC</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+    <footer class="page-footer">This page was last updated on: 2026-11-17 17:22:29 UTC. For any questions or comments, please contact SPDF support at: <a href="mailto:NASA-SPDF-Support@nasa.gov">NASA-SPDF-Support@nasa.gov</a></footer>
+  </div>
+
+  <script>
+    function navigateToDataset(path) {
+      const query = window.location.search || '';
+      window.location.href = path + query;
+    }
+    const plotIntervals = [["2020-12-26T00:00:00Z", 259199000, "2020-12-28T23:59:59Z"], ["2021-08-08T00:00:00Z", 259199000, "2021-08-10T23:59:59Z"], ["2022-09-03T00:00:00Z", 259199000, "2022-09-05T23:59:59Z"], ["2025-02-17T00:00:00Z", 259199000, "2025-02-19T23:59:59Z"]];
+    const fileIntervals = [["2020-12-26T00:00:00Z", "2020-12-26T23:59:57Z"], ["2020-12-27T00:00:01Z", "2020-12-27T23:59:58Z"], ["2020-12-28T00:00:01Z", "2020-12-28T23:59:59Z"], ["2021-08-08T00:00:00Z", "2021-08-08T23:59:59Z"], ["2021-08-09T00:00:00Z", "2021-08-09T23:59:59Z"], ["2021-08-10T00:00:00Z", "2021-08-10T23:59:59Z"], ["2022-09-03T00:00:00Z", "2022-09-03T23:59:59Z"], ["2022-09-04T00:00:00Z", "2022-09-04T23:59:59Z"], ["2022-09-05T00:00:00Z", "2022-09-05T23:59:59Z"], ["2025-02-17T00:00:00Z", "2025-02-17T23:59:59Z"], ["2025-02-18T00:00:00Z", "2025-02-18T23:59:59Z"], ["2025-02-19T00:00:00Z", "2025-02-19T23:59:59Z"]];
+    const overallKpis = {
+      cdfFiles: 12,
+      activeDays: 11.9998032407,
+      coverage: 0.7910219731,
+      earliest: "2020-12-26 00:00 UTC",
+      latest: "2025-02-19 23:59 UTC"
+    };
+
+    window._globalMinTimeMs = 1608940800000;
+    window._globalMaxTimeMs = 1740009599000;
+
+    function parseAxisTimeMs(val) {
+      if (val == null) return NaN;
+      if (typeof val === 'number') return val;
+      if (val instanceof Date) return val.getTime();
+      const s = String(val).trim();
+      if (!s) return NaN;
+      if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+      const iso = s.replace(/\//g, '-').replace(' ', 'T');
+      const isoUtc = (iso.includes('Z') || iso.includes('+')) ? iso : iso + 'Z';
+      let ms = Date.parse(isoUtc);
+      if (!isNaN(ms)) return ms;
+      ms = Date.parse(s);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function formatAxisDate(ms) {
+      const d = new Date(ms);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString();
+    }
+
+    function formatKpiDate(ms) {
+      if (!Number.isFinite(ms)) return 'No data';
+      return new Date(ms).toISOString().replace('.000Z', ' UTC');
+    }
+
+    function getThemeColors() {
+      const isLight = document.body.classList.contains('light');
+      return {
+        textColor: isLight ? '#0f172a' : '#f8fafc',
+        gridColor: isLight ? '#cbd5e1' : '#334155'
+      };
+    }
+
+    // Single vectorized trace — one bar per interval in parallel arrays.
+    // Avoids creating N trace objects in the DOM when a dataset has many gaps.
+    const traces = [{
+      type: 'bar',
+      orientation: 'h',
+      y: plotIntervals.map(() => 'SOLO_L2_MAG-VSO-BURST'),
+      x: plotIntervals.map(inv => inv[1]),
+      base: plotIntervals.map(inv => inv[0]),
+      marker: { color: '#0284c7', line: { width: 0 } },
+      hoverinfo: 'text',
+      hovertext: plotIntervals.map(inv =>
+        `<b>SOLO_L2_MAG-VSO-BURST</b><br>From: ${inv[0].replace('T', ' ').replace('Z', ' UTC')}<br>To: ${inv[2].replace('T', ' ').replace('Z', ' UTC')}<br>Duration: ${(inv[1] / 86400000).toFixed(2)} days`
+      ),
+      showlegend: false
+    }];
+
+    function renderPlot() {
+      const colors = getThemeColors();
+      let xRange = undefined;
+      let autorange = true;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        const span = Math.max(86400000, window._globalMaxTimeMs - window._globalMinTimeMs);
+        const pad = Math.max(86400000, span * 0.02);
+        xRange = [formatAxisDate(window._globalMinTimeMs - pad), formatAxisDate(window._globalMaxTimeMs + pad)];
+        autorange = false;
+      }
+      const layout = {
+        height: 190,
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent',
+        font: { color: colors.textColor, size: 11 },
+        margin: { l: 140, r: 30, t: 35, b: 40 },
+        xaxis: {
+          type: 'date',
+          side: 'bottom',
+          range: xRange,
+          autorange: autorange,
+          gridcolor: colors.gridColor,
+          tickcolor: colors.gridColor,
+          tickfont: { color: colors.textColor, size: 11 },
+          showline: true,
+          linecolor: colors.gridColor
+        },
+        xaxis2: {
+          type: 'date',
+          overlaying: 'x',
+          side: 'top',
+          matches: 'x',
+          title: { text: 'Time (UTC)', font: { color: colors.textColor, size: 11 } },
+          showgrid: false,
+          tickcolor: colors.gridColor,
+          tickfont: { color: colors.textColor, size: 11 },
+          showline: true,
+          linecolor: colors.gridColor
+        },
+        yaxis: {
+          type: 'category',
+          fixedrange: true,
+          automargin: true,
+          gridcolor: colors.gridColor,
+          tickcolor: colors.gridColor,
+          tickfont: { color: '#0284c7', size: 12 },
+          showline: true,
+          linecolor: colors.gridColor
+        },
+        dragmode: 'zoom',
+        barmode: 'overlay',
+        bargap: 0.75
+      };
+      Plotly.react('dataset-timeline-plot', traces, layout, { responsive: true, displayModeBar: true, displaylogo: false });
+    }
+
+    const savedTheme = localStorage.getItem('cdaweb_theme') || 'dark';
+    document.body.className = savedTheme;
+    const themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+      themeBtn.textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+    }
+
+    function mergeVisibleIntervals(intervals) {
+      if (!intervals.length) return [];
+      const sorted = intervals.slice().sort((a, b) => a[0] - b[0]);
+      const merged = [sorted[0].slice()];
+      for (let i = 1; i < sorted.length; i++) {
+        const prior = merged[merged.length - 1];
+        if (sorted[i][0] <= prior[1]) prior[1] = Math.max(prior[1], sorted[i][1]);
+        else merged.push(sorted[i].slice());
+      }
+      return merged;
+    }
+
+    function updateVisibleKpis(range) {
+      const fullRange = !range || range.length !== 2;
+      let startMs = fullRange ? null : parseAxisTimeMs(range[0]);
+      let stopMs = fullRange ? null : parseAxisTimeMs(range[1]);
+      if (!fullRange && (!Number.isFinite(startMs) || !Number.isFinite(stopMs))) return;
+      if (!fullRange && startMs > stopMs) { const tmp = startMs; startMs = stopMs; stopMs = tmp; }
+
+      const clippedIntervals = [];
+      const visibleFiles = new Set();
+      fileIntervals.forEach((interval, index) => {
+        const start = parseAxisTimeMs(interval[0]);
+        const stop = parseAxisTimeMs(interval[1]);
+        if (!Number.isFinite(start) || !Number.isFinite(stop)) return;
+        const clippedStart = startMs === null ? start : Math.max(start, startMs);
+        const clippedStop = stopMs === null ? stop : Math.min(stop, stopMs);
+        if (clippedStop > clippedStart) {
+          clippedIntervals.push([clippedStart, clippedStop]);
+          visibleFiles.add(index);
+        }
+      });
+      const merged = mergeVisibleIntervals(clippedIntervals);
+      const activeMs = merged.reduce((total, interval) => total + interval[1] - interval[0], 0);
+      const earliest = merged.length ? merged[0][0] : NaN;
+      const latest = merged.length ? merged[merged.length - 1][1] : NaN;
+      const spanMs = startMs !== null && stopMs !== null
+        ? Math.max(0, stopMs - startMs)
+        : Math.max(0, latest - earliest);
+      const kpis = fullRange ? overallKpis : {
+        cdfFiles: visibleFiles.size,
+        activeDays: activeMs / 86400000,
+        coverage: spanMs ? Math.min(100, (activeMs / spanMs) * 100) : 0,
+        earliest: formatKpiDate(earliest),
+        latest: formatKpiDate(latest)
+      };
+      const values = {
+        'kpi-cdf-files': Number(kpis.cdfFiles).toLocaleString(),
+        'kpi-active-days': Number(kpis.activeDays).toFixed(2),
+        'kpi-coverage': Number(kpis.coverage).toFixed(2) + '%',
+        'kpi-earliest-start': kpis.earliest,
+        'kpi-latest-stop': kpis.latest
+      };
+      Object.entries(values).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+      });
+      const overallValues = {
+        'kpi-cdf-files-overall': overallKpis.cdfFiles.toLocaleString() + ' overall',
+        'kpi-active-days-overall': overallKpis.activeDays.toFixed(2) + ' days overall',
+        'kpi-coverage-overall': overallKpis.coverage.toFixed(2) + '% overall',
+        'kpi-earliest-start-overall': 'Overall: ' + overallKpis.earliest,
+        'kpi-latest-stop-overall': 'Overall: ' + overallKpis.latest
+      };
+      Object.entries(overallValues).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = fullRange ? '' : value;
+      });
+    }
+
+    renderPlot();
+    const datasetPlotDiv = document.getElementById('dataset-timeline-plot');
+    if (datasetPlotDiv) {
+      datasetPlotDiv.on('plotly_relayout', eventData => {
+        if (eventData['xaxis.autorange']) {
+          resetTimelineZoom('dataset-timeline-plot');
+          return;
+        }
+        const range = eventData['xaxis.range'] || (
+          eventData['xaxis.range[0]'] !== undefined
+            ? [eventData['xaxis.range[0]'], eventData['xaxis.range[1]']]
+            : null
+        );
+        updateVisibleKpis(range);
+        updatePanButtons('dataset-timeline-plot');
+      });
+      datasetPlotDiv.on('plotly_doubleclick', () => {
+        resetTimelineZoom('dataset-timeline-plot');
+        return false;
+      });
+    }
+    updateVisibleKpis(null);
+
+    function panTimelineWindow(divId, direction) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv || !plotDiv._fullLayout || !plotDiv._fullLayout.xaxis) return;
+      const rng = plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2) return;
+
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+
+      const span = t1 - t0;
+      if (span <= 0) return;
+
+      const newT0 = t0 + (direction * span);
+      const newT1 = t1 + (direction * span);
+
+      Plotly.relayout(plotDiv, {
+        'xaxis.range': [formatAxisDate(newT0), formatAxisDate(newT1)],
+        'xaxis.autorange': false
+      }).then(() => {
+        updatePanButtons(divId);
+      });
+    }
+
+    function resetTimelineZoom(divId) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        const span = Math.max(86400000, window._globalMaxTimeMs - window._globalMinTimeMs);
+        const pad = Math.max(86400000, span * 0.02);
+        Plotly.relayout(plotDiv, {
+          'xaxis.range': [
+            formatAxisDate(window._globalMinTimeMs - pad),
+            formatAxisDate(window._globalMaxTimeMs + pad)
+          ],
+          'xaxis.autorange': false
+        }).then(() => {
+          updateVisibleKpis(null);
+          updatePanButtons(divId);
+        });
+      } else {
+        Plotly.relayout(plotDiv, {
+          'xaxis.autorange': true
+        }).then(() => {
+          updateVisibleKpis(null);
+          updatePanButtons(divId);
+        });
+      }
+    }
+
+    function exportPlotAsPng(divId, filename) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      Plotly.downloadImage(plotDiv, {
+        format: 'png',
+        width: 1200,
+        height: 400,
+        filename: filename || 'plot.png'
+      });
+    }
+
+    function updatePanButtons(divId) {
+      const plotDiv = document.getElementById(divId);
+      const prevBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', -1)"]`);
+      const nextBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', 1)"]`);
+      if (!plotDiv || !prevBtn || !nextBtn) return;
+      const rng = plotDiv._fullLayout && plotDiv._fullLayout.xaxis && plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2 || !window._globalMinTimeMs || !window._globalMaxTimeMs) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+      const fullSpan = window._globalMaxTimeMs - window._globalMinTimeMs;
+      const currentSpan = t1 - t0;
+      if (currentSpan >= fullSpan - 60000) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      const canPrev = t0 > (window._globalMinTimeMs + 60000);
+      const canNext = t1 < (window._globalMaxTimeMs - 60000);
+      prevBtn.disabled = !canPrev;
+      nextBtn.disabled = !canNext;
+      prevBtn.classList.toggle('disabled', !canPrev);
+      nextBtn.classList.toggle('disabled', !canNext);
+    }
+
+    const plotDivEl = document.getElementById('dataset-timeline-plot');
+    if (plotDivEl) {
+      plotDivEl.on('plotly_relayout', () => updatePanButtons('dataset-timeline-plot'));
+    }
+    setTimeout(() => updatePanButtons('dataset-timeline-plot'), 300);
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+      const newTheme = isDark ? 'light' : 'dark';
+      document.body.className = newTheme;
+      localStorage.setItem('cdaweb_theme', newTheme);
+      document.getElementById('theme-toggle').textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      renderPlot();
+    }
+
+    // Propagate URL query params (such as ?view for updog) to relative navigation links
+    (function() {
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (q) {
+        document.querySelectorAll('a[href]').forEach(a => {
+          const href = a.getAttribute('href');
+          if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto:') && !href.includes('?')) {
+            a.setAttribute('href', href + q);
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

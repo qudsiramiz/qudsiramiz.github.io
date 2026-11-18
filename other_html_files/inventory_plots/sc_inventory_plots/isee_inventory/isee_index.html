@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ISEE Inventory Index - CDAWeb</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root, body.dark {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #0284c7;
+      --accent-light: #38bdf8;
+      --success: #10b981;
+      --plot-paper: #1e293b;
+      --plot-bg: #0f172a;
+      --plot-grid: #334155;
+    }
+    body.light {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --accent: #0284c7;
+      --accent-light: #0369a1;
+      --success: #16a34a;
+      --plot-paper: #ffffff;
+      --plot-bg: #f8fafc;
+      --plot-grid: #e2e8f0;
+    }
+    body {
+      margin: 0;
+      padding: 24px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    input[type="date"] {
+      color-scheme: dark;
+    }
+    body.light input[type="date"] {
+      color-scheme: light;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .page-footer { margin: 20px 0 0; color: var(--text-muted); font-size: 12px; text-align: center; }
+    .page-footer a { color: var(--accent-light); }
+    .breadcrumbs { font-size: 14px; margin-bottom: 0; color: var(--text-muted); }
+    .breadcrumbs a { color: var(--accent-light); text-decoration: none; }
+    .breadcrumbs a:hover { text-decoration: underline; }
+    .btn-theme {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-theme:hover { opacity: 0.9; }
+    h1 { margin: 0 0 6px 0; font-size: 28px; }
+    .subtitle { color: var(--text-muted); font-size: 15px; margin: 0 0 20px 0; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .kpi-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 20px; font-weight: 700; color: var(--text); }
+    .controls-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    input[type="text"], input[type="date"], select {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: 13px;
+    }
+    button, .btn-sm {
+      background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block;
+    }
+    button.btn-secondary { background: var(--border); color: var(--text); }
+    button:hover, .btn-sm:hover { opacity: 0.9; }
+    .chart-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th { padding: 10px 12px; background: rgba(125,125,125,0.06); color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .progress-bar { width: 70px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; display: inline-block; }
+    .progress-bar .fill { height: 100%; background: var(--success); }
+    .badge-sm { display: inline-block; padding: 2px 8px; background: rgba(56, 189, 248, 0.15); color: var(--accent-light); border-radius: 4px; font-size: 11px; }
+    .chart-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .pan-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(125,125,125,0.08);
+      padding: 3px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .btn-pan {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-pan:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .btn-pan:disabled, .btn-pan.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .btn-preset {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .btn-preset:hover {
+      opacity: 0.9;
+      color: var(--text);
+    }
+    .btn-preset.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      font-weight: 700;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+    }
+    .xtick text, .ytick text {
+      fill: var(--text) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+      <div class="breadcrumbs">
+        <a href="../inventory_index.html">CDAWeb Inventory</a> &gt;
+        <span>ISEE Index</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="../ISEE_Inventory.png" target="_blank" class="btn-theme"> View ISEE PNG</a>
+        <button class="btn-theme" onclick="exportPlotAsPng('timeline-chart', 'ISEE_timeline.png')"> Download Plot PNG</button>
+        <button id="theme-toggle" class="btn-theme" onclick="toggleTheme()">☀️ Light Mode</button>
+      </div>
+    </div>
+    <h1>ISEE Mission Data Inventory</h1>
+    <p class="subtitle">Complete catalog of holdings and availability for ISEE spacecraft</p>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Datasets</div>
+        <div class="kpi-value">13</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Instruments</div>
+        <div class="kpi-value">3</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total CDF Files</div>
+        <div class="kpi-value">22,904</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Mission Span</div>
+        <div class="kpi-value" style="font-size: 14px;">1977-10-22 &rarr; 2015-12-31</div>
+      </div>
+    </div>
+
+    <div class="controls-card">
+      <input type="text" id="search-box" placeholder="Search datasets..." oninput="filterTable()">
+      <select id="instrument-filter" onchange="filterTable()">
+        <option value="">All Instruments (3)</option>
+        <option value='ISEE1'>ISEE1</option><option value='ISEE2'>ISEE2</option><option value='ISEE3'>ISEE3</option>
+      </select>
+      <button class="btn-secondary" onclick="selectAll(true)">Select All</button>
+      <button class="btn-secondary" onclick="selectAll(false)">Clear All</button>
+      <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; font-size: 13px; font-weight: 600; padding: 4px 10px; background: rgba(125,125,125,0.08); border-radius: 6px; border: 1px solid var(--border);">
+        <input type="checkbox" id="toggle-chart-cb" autocomplete="off" onchange="toggleChartDisplay(this.checked)">
+        <span> Show Timeline Graph</span>
+      </label>
+      <div style="margin-left: auto; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+        <span style="font-size: 13px; color: var(--text-muted);">Date Range:</span>
+        <input type="date" id="filter-start" value="1977-10-22" oninput="clearPresetHighlight()">
+        <span style="color: var(--text-muted);">&rarr;</span>
+        <input type="date" id="filter-stop" value="2015-12-31" oninput="clearPresetHighlight()">
+        <button onclick="updateView()">Apply</button>
+        <button type="button" class="btn-preset" data-preset="1y" onclick="presetRange('1y')">1 Year</button>
+        <button type="button" class="btn-preset" data-preset="5y" onclick="presetRange('5y')">5 Years</button>
+        <button type="button" class="btn-preset active" data-preset="all" onclick="presetRange('all')">All Time</button>
+      </div>
+    </div>
+
+    <div class="chart-card" id="chart-card-container" style="display: none;">
+      <div class="chart-hint">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <span><strong>Availability Timeline (Selected Items)</strong></span>
+          <div class="pan-controls">
+            <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin: 0 4px;">Time Window:</span>
+            <button type="button" class="btn-pan disabled" disabled title="Pan backward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', -1)">◀ Prev Frame</button>
+            <button type="button" class="btn-pan" title="Reset zoom to full range" onclick="resetTimelineZoom('timeline-chart')">↺ Reset Zoom</button>
+            <button type="button" class="btn-pan disabled" disabled title="Pan forward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', 1)">Next Frame ▶</button>
+            <button type="button" class="btn-pan" title="Reselect all unselected items" onclick="resetAllSelections()">↺ Reset Selection</button>
+            <button type="button" class="btn-pan" title="Download timeline chart as PNG" onclick="exportPlotAsPng('timeline-chart', 'ISEE_timeline.png')"> PNG</button>
+          </div>
+        </div>
+        <span>💡 Click row/label to unselect • Ctrl+Click to open full dataset page</span>
+      </div>
+      <div id="timeline-chart" style="min-height: 120px; width: 100%;"></div>
+    </div>
+
+    <div class="table-card">
+      <h3 style="margin: 0 0 12px 0;">Available Datasets</h3>
+      <table id="datasets-table">
+        <thead>
+          <tr>
+            <th style="width: 30px;"><input type="checkbox" id="master-cb" checked onchange="toggleAllCheckboxes(this.checked)"></th>
+            <th class="sortable" data-sort-type="text">Dataset ID</th>
+            <th class="sortable" data-sort-type="text">Instrument</th>
+            <th class="sortable" data-sort-type="text">Product</th>
+            <th class="sortable" data-sort-type="date">Time Coverage</th>
+            <th class="sortable" data-sort-type="number">CDF Count</th>
+            <th class="sortable" data-sort-type="number">Coverage</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="datasets-tbody">
+          
+        <tr data-inst="ISEE3" data-name="ISEE-3_HELIO1HR_POSITION">
+          <td><input type="checkbox" class="dset-checkbox" value="ISEE-3_HELIO1HR_POSITION" checked onchange="updateView()"></td>
+          <td><a href="./ISEE-3_HELIO1HR_POSITION.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ISEE-3_HELIO1HR_POSITION</a></td>
+          <td><span class="badge-sm">ISEE3</span></td>
+          <td style="color: var(--text-muted);">HELIO1HR</td>
+          <td>2014-01-01 &rarr; 2015-12-31</td>
+          <td>1</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ISEE-3_HELIO1HR_POSITION.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="ISEE3" data-name="ISEE-3_MAGPLASMA_2MIN_MAGNETIC_FIELD_PLASMA">
+          <td><input type="checkbox" class="dset-checkbox" value="ISEE-3_MAGPLASMA_2MIN_MAGNETIC_FIELD_PLASMA" checked onchange="updateView()"></td>
+          <td><a href="./ISEE-3_MAGPLASMA_2MIN_MAGNETIC_FIELD_PLASMA.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ISEE-3_MAGPLASMA_2MIN_MAGNETIC_FIELD_PLASMA</a></td>
+          <td><span class="badge-sm">ISEE3</span></td>
+          <td style="color: var(--text-muted);">2MIN_MAGNETIC_FIELD_PLASMA</td>
+          <td>1978-08-13 &rarr; 1982-09-15</td>
+          <td>5</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.9996283905875%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ISEE-3_MAGPLASMA_2MIN_MAGNETIC_FIELD_PLASMA.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="ISEE3" data-name="ISEE-3_MAG_1MIN_MAGNETIC_FIELD">
+          <td><input type="checkbox" class="dset-checkbox" value="ISEE-3_MAG_1MIN_MAGNETIC_FIELD" checked onchange="updateView()"></td>
+          <td><a href="./ISEE-3_MAG_1MIN_MAGNETIC_FIELD.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ISEE-3_MAG_1MIN_MAGNETIC_FIELD</a></td>
+          <td><span class="badge-sm">ISEE3</span></td>
+          <td style="color: var(--text-muted);">1MIN_MAGNETIC_FIELD</td>
+          <td>1978-08-01 &rarr; 1990-12-31</td>
+          <td>26</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 93.29787522319518%;"></div></div>
+              <span style="font-size: 11px;">93.30%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ISEE-3_MAG_1MIN_MAGNETIC_FIELD.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="ISEE1" data-name="ISEE1_4SEC_MFI">
+          <td><input type="checkbox" class="dset-checkbox" value="ISEE1_4SEC_MFI" checked onchange="updateView()"></td>
+          <td><a href="./ISEE1_4SEC_MFI.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ISEE1_4SEC_MFI</a></td>
+          <td><span class="badge-sm">ISEE1</span></td>
+          <td style="color: var(--text-muted);">4SEC_MFI</td>
+          <td>1977-10-22 &rarr; 1987-09-25</td>
+          <td>3,586</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 94.1566544944511%;"></div></div>
+              <span style="font-size: 11px;">94.16%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ISEE1_4SEC_MFI.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="ISEE1" data-name="ISEE1_60SEC_MFI">
+          <td><input type="checkbox" class="dset-checkbox" value="ISEE1_60SEC_MFI" checked onchange="updateView()"></td>
+          <td><a href="./ISEE1_60SEC_MFI.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ISEE1_60SEC_MFI</a></td>
+          <td><span class="badge-sm">ISEE1</span></td>
+          <td style="color: var(--text-muted);">60SEC_MFI</td>
+          <td>1977-10-22 &rarr; 1987-09-26</td>
+          <td>1,516</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.9087898469807%;"></div></div>
+              <span style="font-size: 11px;">99.91%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ISEE1_60SEC_MFI.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="ISEE1" data-name="ISEE1_H1_FPE">
+          <td><input type="checkbox" class="dset-checkbox" value="ISEE1_H1_FPE" checked onchange="updateView()"></td>
+          <td><a href="./ISEE1_H1_FPE.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ISEE1_H1_FPE</a></td>
+          <td><span class="badge-sm">ISEE1</span></td>
+          <td style="color: var(--text-muted);">1MIN_FPE</td>
+          <td>1977-10-29 &rarr; 1979-01-19</td>
+          <td>359</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 51.469308660252885%;"></div></div>
+              <span style="font-size: 11px;">51.47%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ISEE1_H1_FPE.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="ISEE1" data-name="ISEE1_H2_FPE">
+          <td><input type="checkbox" class="dset-checkbox" value="ISEE1_H2_FPE" checked onchange="updateView()"></td>
+          <td><a href="./ISEE1_H2_FPE.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ISEE1_H2_FPE</a></td>
+          <td><span class="badge-sm">ISEE1</span></td>
+          <td style="color: var(--text-muted);">24or48S_FPE</td>
+          <td>1977-10-30 &rarr; 1984-01-30</td>
+          <td>1,027</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 27.251622788813616%;"></div></div>
+              <span style="font-size: 11px;">27.25%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ISEE1_H2_FPE.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="ISEE1" data-name="ISEE1_PWI_SA">
+          <td><input type="checkbox" class="dset-checkbox" value="ISEE1_PWI_SA" checked onchange="updateView()"></td>
+          <td><a href="./ISEE1_PWI_SA.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ISEE1_PWI_SA</a></td>
+          <td><span class="badge-sm">ISEE1</span></td>
+          <td style="color: var(--text-muted);">SA_PWI</td>
+          <td>1977-10-22 &rarr; 1987-09-26</td>
+          <td>3,627</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 96.77106171604999%;"></div></div>
+              <span style="font-size: 11px;">96.77%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ISEE1_PWI_SA.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="ISEE1" data-name="ISEE1_PWI_SA-RAPID-E">
+          <td><input type="checkbox" class="dset-checkbox" value="ISEE1_PWI_SA-RAPID-E" checked onchange="updateView()"></td>
+          <td><a href="./ISEE1_PWI_SA-RAPID-E.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ISEE1_PWI_SA-RAPID-E</a></td>
+          <td><span class="badge-sm">ISEE1</span></td>
+          <td style="color: var(--text-muted);">SA-RAPID-E_PWI</td>
+          <td>1977-10-22 &rarr; 1987-09-26</td>
+          <td>3,627</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 96.64271224221943%;"></div></div>
+              <span style="font-size: 11px;">96.64%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ISEE1_PWI_SA-RAPID-E.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="ISEE1" data-name="ISEE1_PWI_SFR-E">
+          <td><input type="checkbox" class="dset-checkbox" value="ISEE1_PWI_SFR-E" checked onchange="updateView()"></td>
+          <td><a href="./ISEE1_PWI_SFR-E.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ISEE1_PWI_SFR-E</a></td>
+          <td><span class="badge-sm">ISEE1</span></td>
+          <td style="color: var(--text-muted);">SFR-E_PWI</td>
+          <td>1977-10-22 &rarr; 1987-09-26</td>
+          <td>3,627</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 96.4596647274997%;"></div></div>
+              <span style="font-size: 11px;">96.46%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ISEE1_PWI_SFR-E.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="ISEE2" data-name="ISEE2_4SEC_MFI">
+          <td><input type="checkbox" class="dset-checkbox" value="ISEE2_4SEC_MFI" checked onchange="updateView()"></td>
+          <td><a href="./ISEE2_4SEC_MFI.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ISEE2_4SEC_MFI</a></td>
+          <td><span class="badge-sm">ISEE2</span></td>
+          <td style="color: var(--text-muted);">4SEC_MFI</td>
+          <td>1977-10-22 &rarr; 1987-09-26</td>
+          <td>3,618</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 94.71834533043257%;"></div></div>
+              <span style="font-size: 11px;">94.72%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ISEE2_4SEC_MFI.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="ISEE2" data-name="ISEE2_60SEC_MFI">
+          <td><input type="checkbox" class="dset-checkbox" value="ISEE2_60SEC_MFI" checked onchange="updateView()"></td>
+          <td><a href="./ISEE2_60SEC_MFI.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ISEE2_60SEC_MFI</a></td>
+          <td><span class="badge-sm">ISEE2</span></td>
+          <td style="color: var(--text-muted);">60SEC_MFI</td>
+          <td>1977-10-22 &rarr; 1987-09-26</td>
+          <td>1,516</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.93324918452913%;"></div></div>
+              <span style="font-size: 11px;">99.93%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ISEE2_60SEC_MFI.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="ISEE2" data-name="ISEE2_H1_FPE">
+          <td><input type="checkbox" class="dset-checkbox" value="ISEE2_H1_FPE" checked onchange="updateView()"></td>
+          <td><a href="./ISEE2_H1_FPE.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ISEE2_H1_FPE</a></td>
+          <td><span class="badge-sm">ISEE2</span></td>
+          <td style="color: var(--text-muted);">1MIN_FPE</td>
+          <td>1977-10-27 &rarr; 1979-01-19</td>
+          <td>369</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 54.94870726253289%;"></div></div>
+              <span style="font-size: 11px;">54.95%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./ISEE2_H1_FPE.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const allDatasets = [{"name": "ISEE-3_HELIO1HR_POSITION", "instrument": "ISEE3", "product": "HELIO1HR", "cdf_count": 1, "active_days": 729.9583333333334, "coverage_pct": 100.0, "earliest": "2014-01-01", "latest": "2015-12-31", "intervals": [["2014-01-01 00:00:00", "2015-12-31 23:00:00"]], "page": "./ISEE-3_HELIO1HR_POSITION.html"}, {"name": "ISEE-3_MAGPLASMA_2MIN_MAGNETIC_FIELD_PLASMA", "instrument": "ISEE3", "product": "2MIN_MAGNETIC_FIELD_PLASMA", "cdf_count": 5, "active_days": 1494.9930555555557, "coverage_pct": 99.9996283905875, "earliest": "1978-08-13", "latest": "1982-09-15", "intervals": [["1978-08-13 00:00:00", "1982-09-15 23:58:00"]], "page": "./ISEE-3_MAGPLASMA_2MIN_MAGNETIC_FIELD_PLASMA.html"}, {"name": "ISEE-3_MAG_1MIN_MAGNETIC_FIELD", "instrument": "ISEE3", "product": "1MIN_MAGNETIC_FIELD", "cdf_count": 26, "active_days": 4231.990972222222, "coverage_pct": 93.29787522319518, "earliest": "1978-08-01", "latest": "1990-12-31", "intervals": [["1978-08-01 00:00:00", "1982-12-31 23:59:00"], ["1983-11-01 00:00:00", "1990-12-31 23:59:00"]], "page": "./ISEE-3_MAG_1MIN_MAGNETIC_FIELD.html"}, {"name": "ISEE1_4SEC_MFI", "instrument": "ISEE1", "product": "4SEC_MFI", "cdf_count": 3586, "active_days": 3412.9866087962964, "coverage_pct": 94.1566544944511, "earliest": "1977-10-22", "latest": "1987-09-25", "intervals": [["1977-10-22 21:04:19", "1977-12-22 00:43:15"], ["1977-12-25 00:13:16", "1979-04-30 05:51:41"], ["1979-05-02 08:09:52", "1981-03-14 06:58:36"], ["1981-03-15 22:32:04", "1984-10-20 16:23:47"], ["1984-10-22 21:46:27", "1984-11-30 04:16:18"], ["1984-12-02 15:05:43", "1984-12-12 03:54:26"], ["1984-12-14 15:57:55", "1985-04-30 16:55:32"], ["1985-05-02 04:35:00", "1985-12-13 00:03:14"], ["1985-12-20 00:48:49", "1986-02-08 08:42:09"], ["1986-02-15 09:33:37", "1986-04-21 09:17:56"], ["1986-04-23 07:56:01", "1986-04-23 18:26:47"], ["1986-04-25 17:12:04", "1986-04-26 06:15:50"], ["1986-04-28 04:16:06", "1986-06-29 08:58:09"], ["1986-07-01 15:33:12", "1986-08-07 09:35:30"], ["1986-08-08 20:40:02", "1986-08-18 12:41:59"], ["1986-08-20 19:50:56", "1986-11-12 10:46:34"], ["1986-11-14 21:26:11", "1986-11-24 10:01:36"], ["1986-11-26 20:07:34", "1986-12-30 06:27:28"], ["1987-01-01 16:38:02", "1987-03-21 13:49:42"], ["1987-03-23 21:57:02", "1987-04-02 12:38:59"], ["1987-04-07 06:41:03", "1987-04-07 06:51:15"], ["1987-04-09 16:15:06", "1987-04-09 17:03:21"], ["1987-04-12 00:01:35", "1987-04-12 02:44:55"], ["1987-04-14 10:17:20", "1987-04-14 11:22:58"], ["1987-04-16 19:56:28", "1987-08-28 13:50:51"], ["1987-08-31 01:29:40", "1987-09-07 03:14:44"], ["1987-09-09 13:48:12", "1987-09-25 16:10:30"]], "page": "./ISEE1_4SEC_MFI.html"}, {"name": "ISEE1_60SEC_MFI", "instrument": "ISEE1", "product": "60SEC_MFI", "cdf_count": 1516, "active_days": 3622.325, "coverage_pct": 99.9087898469807, "earliest": "1977-10-22", "latest": "1987-09-26", "intervals": [["1977-10-22 14:49:00", "1983-04-03 03:18:00"], ["1983-04-05 12:38:00", "1987-09-26 05:59:00"]], "page": "./ISEE1_60SEC_MFI.html"}, {"name": "ISEE1_H1_FPE", "instrument": "ISEE1", "product": "1MIN_FPE", "cdf_count": 359, "active_days": 229.90086805555555, "coverage_pct": 51.469308660252885, "earliest": "1977-10-29", "latest": "1979-01-19", "intervals": [["1977-10-29 22:50:21", "1977-10-30 03:49:00"], ["1977-10-31 23:15:39", "1977-11-01 12:39:07"], ["1977-11-03 06:05:44", "1977-11-04 01:39:45"], ["1977-11-05 13:30:08", "1977-11-06 09:34:00"], ["1977-11-08 02:00:33", "1977-11-08 18:49:52"], ["1977-11-10 11:05:32", "1977-11-11 03:29:47"], ["1977-11-12 19:40:03", "1977-11-13 14:19:10"], ["1977-11-15 15:50:01", "1977-11-16 02:29:12"], ["1977-11-17 10:45:35", "1977-11-18 12:29:00"], ["1977-11-19 22:30:38", "1977-11-20 19:39:14"], ["1977-11-22 09:05:10", "1977-11-23 05:29:15"], ["1977-11-24 16:55:26", "1977-11-25 12:24:49"], ["1977-11-27 02:50:01", "1977-11-28 00:39:03"], ["1977-11-29 11:35:15", "1977-11-30 08:19:05"], ["1977-12-01 23:00:10", "1977-12-02 18:59:06"], ["1977-12-04 05:45:07", "1977-12-05 04:59:28"], ["1977-12-06 14:30:06", "1977-12-07 17:04:40"], ["1977-12-08 22:05:36", "1977-12-10 05:09:29"], ["1977-12-11 12:20:00", "1977-12-12 11:34:12"], ["1977-12-13 18:30:31", "1977-12-24 10:29:48"], ["1977-12-25 20:05:50", "1978-01-11 01:44:03"], ["1978-01-15 00:25:04", "1978-02-11 20:45:17"], ["1978-02-16 20:09:43", "1978-02-18 23:59:26"], ["1978-02-28 18:41:48", "1978-03-02 23:27:56"], ["1978-03-12 17:33:11", "1978-03-14 22:24:46"], ["1978-03-24 16:38:06", "1978-03-28 01:49:23"], ["1978-03-29 17:49:28", "1978-04-26 13:56:09"], ["1978-04-27 18:11:55", "1978-05-14 17:25:24"], ["1978-05-16 13:34:31", "1978-07-27 08:54:56"], ["1978-07-28 13:50:07", "1978-08-03 04:56:27"], ["1978-08-04 18:15:29", "1978-08-08 06:39:15"], ["1978-08-09 11:53:01", "1978-08-10 13:14:30"], ["1978-08-12 03:55:11", "1978-08-13 00:59:49"], ["1978-08-14 10:40:04", "1978-08-15 12:24:43"], ["1978-08-16 20:25:36", "1978-08-17 17:49:59"], ["1978-08-19 02:20:27", "1978-08-20 03:29:18"], ["1978-08-21 16:09:15", "1978-08-22 11:29:18"], ["1978-08-24 01:30:12", "1978-08-24 19:34:27"], ["1978-08-26 08:30:35", "1978-08-27 03:19:55"], ["1978-08-28 20:05:21", "1978-09-01 01:14:04"], ["1978-09-02 16:05:21", "1978-09-03 10:29:55"], ["1978-09-05 00:30:56", "1978-09-05 18:54:35"], ["1978-09-07 11:55:49", "1978-09-08 05:34:53"], ["1978-09-09 22:00:50", "1978-09-10 13:49:56"], ["1978-09-12 07:20:45", "1978-09-13 02:49:13"], ["1978-09-14 15:05:58", "1978-09-15 09:24:03"], ["1978-09-17 01:40:54", "1978-09-17 18:09:23"], ["1978-09-19 08:20:47", "1978-09-20 04:39:16"], ["1978-09-22 07:44:49", "1978-09-22 13:09:39"], ["1978-09-27 02:38:43", "1978-09-27 06:08:37"], ["1978-09-29 01:20:22", "1978-09-30 03:14:42"], ["1978-10-01 22:30:42", "1978-10-02 03:04:35"], ["1978-10-03 18:15:39", "1978-10-04 13:14:39"], ["1978-10-06 04:15:44", "1978-10-06 22:49:40"], ["1978-10-08 16:30:52", "1978-10-09 05:19:38"], ["1978-10-10 23:33:25", "1978-10-11 16:09:59"], ["1978-10-13 11:16:45", "1978-10-14 01:44:58"], ["1978-10-15 20:36:56", "1978-10-16 11:07:12"], ["1978-10-18 06:45:09", "1978-10-18 16:14:11"], ["1978-10-21 00:00:49", "1978-10-21 08:04:23"], ["1978-10-22 21:30:31", "1978-10-23 17:58:30"], ["1978-10-25 11:20:54", "1978-10-26 01:14:30"], ["1978-10-27 18:15:19", "1978-10-28 12:29:09"], ["1978-10-30 00:35:19", "1978-10-31 03:59:40"], ["1978-11-01 11:50:45", "1978-11-02 05:42:30"], ["1978-11-03 23:20:18", "1978-11-04 18:54:49"], ["1978-11-06 07:40:57", "1978-11-07 02:44:45"], ["1978-11-08 18:30:55", "1978-11-09 12:04:53"], ["1978-11-11 12:17:15", "1978-11-11 18:29:05"], ["1978-11-13 07:30:13", "1978-11-16 16:59:10"], ["1978-11-18 16:30:53", "1978-11-18 23:34:35"], ["1978-11-20 18:30:51", "1978-11-21 12:24:15"], ["1978-11-23 00:02:01", "1978-11-23 23:59:52"], ["1978-11-25 11:00:40", "1978-11-26 07:34:24"], ["1978-11-27 18:40:12", "1978-11-28 18:54:16"], ["1978-11-30 03:48:55", "1978-12-01 00:12:07"], ["1978-12-02 15:53:10", "1978-12-03 12:14:33"], ["1978-12-05 01:34:41", "1978-12-05 21:19:18"], ["1978-12-07 07:30:55", "1978-12-08 09:14:00"], ["1978-12-09 15:50:07", "1978-12-10 18:54:54"], ["1978-12-12 02:26:41", "1978-12-13 11:59:53"], ["1978-12-14 14:20:37", "1978-12-15 13:44:49"], ["1978-12-16 22:40:04", "1978-12-18 02:19:41"], ["1978-12-19 06:05:05", "1978-12-20 08:54:55"], ["1978-12-21 13:45:53", "1978-12-25 04:29:21"], ["1978-12-26 23:52:41", "1979-01-06 20:23:00"], ["1979-01-18 14:12:12", "1979-01-19 15:03:17"]], "page": "./ISEE1_H1_FPE.html"}, {"name": "ISEE1_H2_FPE", "instrument": "ISEE1", "product": "24or48S_FPE", "cdf_count": 1027, "active_days": 622.3823611111111, "coverage_pct": 27.251622788813616, "earliest": "1977-10-30", "latest": "1984-01-30", "intervals": [["1977-10-30 03:55:57", "1977-11-11 23:09:49"], ["1977-11-13 15:04:02", "1977-11-15 03:58:28"], ["1977-11-16 11:34:06", "1977-11-28 00:20:39"], ["1977-11-30 06:21:45", "1977-12-08 21:35:00"], ["1977-12-10 05:21:38", "1977-12-11 00:11:51"], ["1977-12-12 19:00:16", "1977-12-13 18:25:58"], ["1977-12-15 02:24:54", "1977-12-15 20:26:44"], ["1977-12-17 15:51:10", "1977-12-18 12:15:55"], ["1977-12-19 17:09:56", "1977-12-20 05:53:34"], ["1977-12-22 10:50:42", "1977-12-25 20:16:15"], ["1977-12-27 03:17:22", "1977-12-27 16:33:53"], ["1977-12-29 07:47:06", "1977-12-30 08:16:28"], ["1978-01-01 03:23:27", "1978-01-01 12:35:01"], ["1978-01-03 20:39:05", "1978-01-03 23:17:39"], ["1978-01-05 21:47:11", "1978-01-06 07:17:26"], ["1978-01-08 04:16:11", "1978-01-08 12:34:15"], ["1978-06-02 14:30:37", "1978-06-02 19:14:22"], ["1978-06-26 02:07:42", "1978-06-26 04:08:08"], ["1978-07-06 06:26:16", "1978-07-06 20:25:32"], ["1978-07-08 11:35:30", "1978-07-09 05:14:32"], ["1978-07-13 00:30:31", "1978-07-14 03:13:17"], ["1978-07-16 00:04:59", "1978-07-16 04:53:30"], ["1978-07-17 22:24:35", "1978-07-18 22:16:07"], ["1978-07-22 23:13:58", "1978-07-23 01:58:54"], ["1978-07-25 02:46:36", "1978-07-25 19:26:50"], ["1978-07-27 09:05:37", "1978-07-28 13:40:25"], ["1978-08-01 01:13:38", "1978-08-02 02:26:47"], ["1978-08-03 08:05:07", "1978-08-04 18:09:02"], ["1978-08-05 22:53:19", "1978-08-07 02:31:45"], ["1978-08-08 06:44:11", "1978-08-09 02:34:45"], ["1978-08-10 14:23:20", "1978-08-11 20:42:02"], ["1978-08-13 01:09:52", "1978-08-16 13:23:27"], ["1978-08-17 17:55:10", "1978-08-31 07:12:07"], ["1978-09-08 03:30:48", "1978-09-29 01:14:31"], ["1978-09-30 03:20:16", "1978-10-30 00:37:03"], ["1978-10-31 04:04:33", "1978-11-13 06:54:38"], ["1978-11-14 11:13:49", "1978-11-15 05:03:51"], ["1978-11-16 21:19:14", "1978-11-25 05:31:00"], ["1978-11-26 11:02:22", "1978-11-27 12:14:29"], ["1978-11-28 20:10:55", "1978-11-29 23:58:38"], ["1978-12-01 05:45:48", "1978-12-02 12:44:22"], ["1978-12-06 01:50:50", "1978-12-07 02:31:47"], ["1978-12-08 09:19:05", "1978-12-09 15:32:17"], ["1978-12-10 18:56:34", "1978-12-14 02:54:45"], ["1978-12-15 13:43:13", "1978-12-19 02:34:52"], ["1978-12-20 08:57:55", "1978-12-21 15:32:22"], ["1978-12-22 21:47:58", "1978-12-23 18:53:54"], ["1978-12-25 04:30:27", "1978-12-26 09:18:33"], ["1978-12-28 03:09:15", "1978-12-28 16:25:56"], ["1978-12-30 05:03:31", "1978-12-30 23:20:53"], ["1979-01-01 21:30:33", "1979-01-01 22:07:50"], ["1979-07-06 19:51:15", "1979-07-07 06:45:48"], ["1979-07-09 01:13:13", "1979-07-09 05:52:53"], ["1979-07-11 20:53:59", "1979-07-12 02:09:21"], ["1979-07-13 17:12:56", "1979-07-14 04:47:13"], ["1979-07-16 11:38:29", "1979-07-16 20:43:01"], ["1979-07-18 14:33:23", "1979-07-19 11:39:17"], ["1979-07-20 23:00:09", "1979-07-21 14:47:21"], ["1979-07-23 13:58:00", "1979-07-24 05:55:20"], ["1979-07-25 17:05:39", "1979-07-30 14:27:58"], ["1979-08-01 14:37:39", "1979-08-03 02:07:58"], ["1979-08-04 09:38:35", "1979-08-04 23:42:03"], ["1979-08-09 06:52:10", "1979-08-10 04:00:55"], ["1979-08-11 09:36:36", "1979-08-17 06:58:28"], ["1979-08-18 11:55:24", "1979-08-19 00:19:34"], ["1979-08-23 06:02:07", "1979-09-17 19:52:37"], ["1979-09-21 00:00:36", "1979-10-03 01:08:50"], ["1979-10-07 13:12:44", "1979-10-18 09:28:34"], ["1979-10-19 14:08:42", "1979-11-12 19:17:28"], ["1979-11-15 03:31:58", "1979-11-18 16:32:14"], ["1979-11-19 19:32:39", "1979-11-21 06:53:50"], ["1979-11-24 11:47:57", "1979-11-28 07:09:51"], ["1979-11-29 11:30:11", "1979-12-03 06:26:00"], ["1979-12-04 12:16:55", "1979-12-05 14:02:15"], ["1979-12-06 19:08:16", "1979-12-08 01:01:36"], ["1979-12-09 05:29:21", "1979-12-10 07:37:50"], ["1979-12-11 14:20:29", "1979-12-12 17:55:58"], ["1979-12-13 21:04:30", "1979-12-14 23:25:22"], ["1979-12-16 09:50:27", "1979-12-17 12:48:34"], ["1979-12-18 19:48:55", "1979-12-19 17:19:39"], ["1979-12-21 18:08:50", "1979-12-22 05:21:05"], ["1979-12-23 15:37:39", "1979-12-24 16:53:46"], ["1979-12-25 20:09:04", "1979-12-25 20:57:14"], ["1979-12-30 18:12:57", "1979-12-31 19:59:02"], ["1980-06-24 05:15:28", "1980-06-24 14:06:40"], ["1980-07-06 08:54:26", "1980-07-06 20:05:49"], ["1980-07-08 23:44:50", "1980-07-09 07:14:23"], ["1980-07-11 00:41:46", "1980-07-11 17:39:11"], ["1980-07-13 16:00:02", "1980-07-13 16:08:08"], ["1980-07-15 21:33:35", "1980-07-16 09:19:49"], ["1980-07-18 05:01:36", "1980-07-18 08:30:17"], ["1980-07-20 16:25:32", "1980-07-20 17:07:16"], ["1980-07-25 11:02:51", "1980-07-26 09:25:15"], ["1980-07-27 17:49:48", "1980-07-28 12:43:08"], ["1980-07-30 08:39:07", "1980-07-30 20:54:21"], ["1980-08-01 21:12:21", "1980-08-04 10:50:34"], ["1980-08-06 02:27:30", "1980-08-07 10:37:28"], ["1980-08-08 13:32:35", "1980-08-09 20:15:04"], ["1980-08-10 23:32:29", "1980-08-14 17:44:51"], ["1980-08-15 21:37:32", "1980-08-17 01:48:25"], ["1980-08-18 08:07:22", "1980-09-07 08:42:56"], ["1980-09-08 14:27:00", "1980-09-12 11:21:47"], ["1980-09-14 00:55:25", "1980-09-22 08:18:31"], ["1980-09-24 00:14:15", "1980-11-09 02:33:47"], ["1980-11-10 04:47:37", "1980-11-25 09:16:05"], ["1980-11-26 11:21:14", "1980-12-05 07:04:33"], ["1980-12-06 09:45:55", "1980-12-09 23:45:32"], ["1980-12-11 09:30:20", "1980-12-12 11:24:31"], ["1980-12-13 17:01:52", "1980-12-13 23:59:32"], ["1980-12-18 06:17:51", "1980-12-26 15:18:09"], ["1980-12-28 11:55:40", "1980-12-28 22:23:39"], ["1980-12-30 07:44:54", "1980-12-31 05:05:13"], ["1981-01-02 09:47:16", "1981-01-02 17:20:00"], ["1981-01-04 07:20:07", "1981-01-05 03:18:45"], ["1981-01-11 07:40:51", "1981-01-11 20:15:01"], ["1981-07-02 04:45:01", "1981-07-02 21:57:03"], ["1981-07-04 23:07:42", "1981-07-04 23:53:06"], ["1981-07-11 19:09:59", "1981-07-12 10:32:59"], ["1981-07-14 05:31:46", "1981-07-14 16:49:44"], ["1981-07-16 09:46:44", "1981-07-17 11:38:09"], ["1981-07-19 00:18:17", "1981-07-19 13:41:35"], ["1981-07-21 01:37:17", "1981-07-22 04:25:05"], ["1981-07-23 16:45:07", "1981-07-27 02:57:37"], ["1981-07-28 07:07:59", "1981-07-29 09:03:32"], ["1981-07-30 21:11:05", "1981-07-31 17:21:31"], ["1981-08-02 07:23:28", "1981-08-03 06:01:30"], ["1981-08-04 16:15:17", "1981-08-05 21:43:17"], ["1981-08-07 01:54:29", "1981-08-07 22:34:50"], ["1981-08-09 09:40:39", "1981-08-12 23:57:23"], ["1981-08-14 04:48:19", "1981-08-29 17:02:25"], ["1981-08-30 19:57:32", "1981-10-21 16:32:13"], ["1981-10-25 01:40:26", "1981-11-02 14:30:05"], ["1981-11-04 01:33:08", "1981-11-12 04:50:39"], ["1981-11-13 10:22:44", "1981-11-19 07:09:51"], ["1981-11-20 09:59:17", "1981-11-29 23:59:12"], ["1981-12-31 08:16:45", "1981-12-31 23:58:02"], ["1982-01-05 07:33:01", "1982-01-05 21:09:44"], ["1982-01-07 11:56:34", "1982-01-07 19:57:33"], ["1982-01-14 17:46:26", "1982-01-15 13:05:20"], ["1982-01-17 13:41:38", "1982-01-17 14:12:26"], ["1982-07-03 02:32:38", "1982-07-03 03:00:37"], ["1982-07-05 09:46:53", "1982-07-06 00:19:35"], ["1982-07-08 02:49:36", "1982-07-08 04:42:31"], ["1982-07-10 07:04:14", "1982-07-10 11:43:37"], ["1982-07-12 09:31:59", "1982-07-13 01:43:32"], ["1982-07-14 16:02:17", "1982-07-15 17:45:59"], ["1982-07-16 22:53:29", "1982-07-17 10:47:39"], ["1982-07-19 13:24:13", "1982-07-19 14:42:41"], ["1982-07-22 00:43:41", "1982-07-22 14:59:18"], ["1982-07-24 08:57:33", "1982-07-24 15:41:51"], ["1982-07-26 16:00:13", "1982-07-27 21:06:33"], ["1982-07-28 23:28:36", "1982-08-11 07:43:51"], ["1982-08-12 10:07:26", "1982-08-13 00:22:15"], ["1982-08-14 19:43:40", "1982-08-16 02:48:46"], ["1982-08-17 05:54:28", "1982-08-18 09:56:32"], ["1982-08-19 14:14:33", "1982-08-22 04:59:40"], ["1982-08-24 05:50:57", "1982-12-11 11:37:24"], ["1982-12-12 14:32:24", "1982-12-13 13:45:09"], ["1982-12-15 00:35:39", "1982-12-15 22:54:32"], ["1982-12-17 08:42:04", "1982-12-20 23:14:08"], ["1982-12-22 03:52:38", "1982-12-25 17:05:11"], ["1982-12-26 19:58:46", "1982-12-28 03:05:16"], ["1982-12-29 07:32:08", "1982-12-30 11:08:33"], ["1982-12-31 19:40:40", "1983-01-02 00:52:42"], ["1983-01-03 05:11:01", "1983-01-04 08:56:06"], ["1983-01-05 12:40:36", "1983-01-06 12:43:29"], ["1983-01-07 18:48:56", "1983-01-09 02:19:09"], ["1983-01-10 08:30:51", "1983-01-11 08:23:13"], ["1983-01-12 13:25:43", "1983-01-13 15:07:54"], ["1983-01-15 05:27:27", "1983-01-16 05:39:22"], ["1983-01-17 10:54:33", "1983-01-18 15:46:00"], ["1983-01-20 18:13:03", "1983-01-20 18:47:05"], ["1983-01-22 17:22:56", "1983-01-22 21:50:22"], ["1983-01-24 20:49:44", "1983-01-25 10:44:51"], ["1983-01-29 13:14:56", "1983-01-30 10:09:26"], ["1983-02-01 10:01:04", "1983-02-01 11:02:15"], ["1983-02-11 07:40:47", "1983-02-11 10:00:11"], ["1983-06-09 17:34:37", "1983-06-09 17:47:12"], ["1983-07-06 05:21:10", "1983-07-06 11:00:41"], ["1983-07-15 20:55:33", "1983-07-15 23:05:21"], ["1983-07-22 21:35:24", "1983-07-23 10:13:08"], ["1983-07-25 01:28:43", "1983-07-25 08:57:37"], ["1983-07-27 12:01:11", "1983-07-27 23:10:08"], ["1983-07-29 21:27:11", "1983-07-30 12:59:31"], ["1983-08-01 09:28:40", "1983-08-02 03:39:41"], ["1983-08-03 11:59:40", "1983-08-04 07:06:18"], ["1983-08-05 21:54:43", "1983-08-06 19:54:44"], ["1983-08-08 04:24:04", "1983-08-09 02:29:52"], ["1983-08-10 23:12:19", "1983-08-14 04:57:34"], ["1983-08-15 12:43:14", "1983-08-16 10:12:47"], ["1983-08-18 06:50:11", "1983-08-18 20:25:11"], ["1983-08-20 07:14:32", "1983-08-26 07:39:22"], ["1983-08-27 11:21:58", "1983-08-30 22:04:22"], ["1983-09-01 01:01:55", "1983-09-02 08:42:04"], ["1983-09-03 11:56:10", "1983-09-07 08:21:02"], ["1983-09-08 11:13:32", "1983-09-18 01:28:14"], ["1983-09-20 03:17:59", "1983-10-01 10:41:40"], ["1983-10-04 14:48:02", "1983-10-14 01:31:58"], ["1983-10-16 20:07:22", "1983-10-27 17:14:58"], ["1983-10-28 19:38:31", "1983-12-02 14:31:38"], ["1983-12-03 21:19:29", "1983-12-07 05:24:03"], ["1983-12-08 13:24:54", "1983-12-12 02:57:16"], ["1983-12-14 01:31:05", "1983-12-16 19:13:00"], ["1983-12-17 21:29:24", "1983-12-19 04:54:12"], ["1983-12-20 07:06:53", "1983-12-24 00:10:59"], ["1983-12-25 04:33:11", "1984-01-04 19:46:37"], ["1984-01-08 14:45:11", "1984-01-09 19:47:08"], ["1984-01-11 02:41:04", "1984-01-11 20:22:32"], ["1984-01-13 08:52:15", "1984-01-14 07:39:43"], ["1984-01-15 19:11:31", "1984-01-16 18:39:55"], ["1984-01-18 04:13:44", "1984-01-19 09:32:42"], ["1984-01-20 16:20:05", "1984-01-21 10:04:29"], ["1984-01-23 02:46:11", "1984-01-23 17:53:14"], ["1984-01-25 09:07:08", "1984-01-26 09:40:46"], ["1984-01-28 01:44:51", "1984-01-28 20:48:36"], ["1984-01-30 06:51:56", "1984-01-30 23:59:44"]], "page": "./ISEE1_H2_FPE.html"}, {"name": "ISEE1_PWI_SA", "instrument": "ISEE1", "product": "SA_PWI", "cdf_count": 3627, "active_days": 3508.390925925926, "coverage_pct": 96.77106171604999, "earliest": "1977-10-22", "latest": "1987-09-26", "intervals": [["1977-10-22 19:13:19", "1987-09-26 06:07:58"]], "page": "./ISEE1_PWI_SA.html"}, {"name": "ISEE1_PWI_SA-RAPID-E", "instrument": "ISEE1", "product": "SA-RAPID-E_PWI", "cdf_count": 3627, "active_days": 3503.737685185185, "coverage_pct": 96.64271224221943, "earliest": "1977-10-22", "latest": "1987-09-26", "intervals": [["1977-10-22 19:13:19", "1987-09-26 06:07:59"]], "page": "./ISEE1_PWI_SA-RAPID-E.html"}, {"name": "ISEE1_PWI_SFR-E", "instrument": "ISEE1", "product": "SFR-E_PWI", "cdf_count": 3627, "active_days": 3496.9463194444443, "coverage_pct": 96.4596647274997, "earliest": "1977-10-22", "latest": "1987-09-26", "intervals": [["1977-10-22 21:40:38", "1987-09-26 04:43:49"]], "page": "./ISEE1_PWI_SFR-E.html"}, {"name": "ISEE2_4SEC_MFI", "instrument": "ISEE2", "product": "4SEC_MFI", "cdf_count": 3618, "active_days": 3433.945300925926, "coverage_pct": 94.71834533043257, "earliest": "1977-10-22", "latest": "1987-09-26", "intervals": [["1977-10-22 19:54:12", "1978-05-18 16:01:58"], ["1978-05-20 20:50:10", "1979-07-06 15:49:48"], ["1979-07-07 20:55:39", "1982-04-30 17:55:55"], ["1982-05-02 00:01:21", "1983-03-19 22:44:34"], ["1983-03-22 00:48:14", "1984-08-17 12:17:52"], ["1984-08-19 07:32:19", "1984-12-31 22:01:33"], ["1985-01-02 18:41:28", "1985-10-18 20:10:18"], ["1985-10-20 00:46:51", "1986-02-21 22:26:31"], ["1986-02-23 02:21:29", "1986-10-26 00:12:23"], ["1986-10-27 03:28:21", "1987-03-24 04:49:25"], ["1987-03-25 15:06:08", "1987-09-26 06:10:21"]], "page": "./ISEE2_4SEC_MFI.html"}, {"name": "ISEE2_60SEC_MFI", "instrument": "ISEE2", "product": "60SEC_MFI", "cdf_count": 1516, "active_days": 3623.2118055555557, "coverage_pct": 99.93324918452913, "earliest": "1977-10-22", "latest": "1987-09-26", "intervals": [["1977-10-22 14:49:00", "1981-01-20 03:05:00"], ["1981-01-22 12:25:00", "1987-09-26 05:59:00"]], "page": "./ISEE2_60SEC_MFI.html"}, {"name": "ISEE2_H1_FPE", "instrument": "ISEE2", "product": "1MIN_FPE", "cdf_count": 369, "active_days": 246.9689236111111, "coverage_pct": 54.94870726253289, "earliest": "1977-10-27", "latest": "1979-01-19", "intervals": [["1977-10-27 03:00:09", "1977-10-27 16:44:23"], ["1977-10-29 13:35:03", "1977-10-30 03:49:28"], ["1977-11-03 06:44:08", "1977-11-04 01:39:11"], ["1977-11-05 13:30:37", "1977-11-06 07:56:49"], ["1977-11-07 22:50:58", "1977-11-08 18:49:38"], ["1977-11-10 11:15:42", "1977-11-11 03:29:16"], ["1977-11-12 19:40:20", "1977-11-13 14:44:39"], ["1977-11-15 14:39:30", "1977-11-16 01:29:43"], ["1977-11-17 12:33:34", "1977-11-18 13:14:16"], ["1977-11-19 22:20:42", "1977-11-20 19:44:14"], ["1977-11-22 09:00:17", "1977-11-23 05:29:27"], ["1977-11-24 16:50:06", "1977-11-27 23:49:10"], ["1977-11-29 11:40:01", "1977-11-30 08:24:07"], ["1977-12-01 23:00:58", "1977-12-02 19:04:03"], ["1977-12-04 07:30:30", "1977-12-05 05:04:03"], ["1977-12-06 14:35:05", "1977-12-07 17:04:27"], ["1977-12-08 22:00:57", "1977-12-10 05:09:57"], ["1977-12-11 12:15:12", "1977-12-12 11:39:59"], ["1977-12-13 18:30:04", "1977-12-24 10:29:12"], ["1977-12-25 20:10:15", "1978-02-18 23:38:57"], ["1978-02-28 19:52:48", "1978-03-02 22:39:25"], ["1978-03-12 17:21:22", "1978-03-14 22:28:57"], ["1978-03-24 17:13:12", "1978-03-26 21:23:03"], ["1978-03-29 17:00:38", "1978-06-19 19:10:44"], ["1978-06-21 02:53:23", "1978-07-27 08:59:10"], ["1978-07-28 14:00:13", "1978-08-03 04:55:35"], ["1978-08-04 18:15:32", "1978-08-08 06:34:24"], ["1978-08-09 11:52:51", "1978-08-10 13:44:31"], ["1978-08-12 03:55:10", "1978-08-13 00:54:20"], ["1978-08-14 11:00:59", "1978-08-15 12:19:14"], ["1978-08-16 21:15:59", "1978-08-17 17:44:51"], ["1978-08-19 02:25:18", "1978-08-20 03:29:51"], ["1978-08-21 16:05:54", "1978-08-22 11:24:16"], ["1978-08-24 01:30:07", "1978-08-24 19:29:29"], ["1978-08-26 08:25:08", "1978-08-29 15:19:27"], ["1978-08-31 07:15:42", "1978-09-01 01:19:38"], ["1978-09-02 16:00:54", "1978-09-03 10:29:41"], ["1978-09-05 00:20:32", "1978-09-05 18:49:36"], ["1978-09-07 10:45:40", "1978-09-08 05:34:53"], ["1978-09-09 21:13:38", "1978-09-10 13:49:42"], ["1978-09-12 07:20:21", "1978-09-13 02:49:14"], ["1978-09-14 14:15:53", "1978-09-15 09:19:08"], ["1978-09-17 01:35:12", "1978-09-17 18:09:36"], ["1978-09-19 08:46:39", "1978-09-20 04:34:11"], ["1978-09-21 18:50:30", "1978-09-22 12:49:02"], ["1978-09-27 02:06:41", "1978-09-27 05:31:41"], ["1978-09-29 01:15:09", "1978-09-30 03:09:51"], ["1978-10-01 12:04:54", "1978-10-02 02:54:04"], ["1978-10-03 17:53:07", "1978-10-04 12:44:46"], ["1978-10-06 04:00:01", "1978-10-06 22:49:42"], ["1978-10-08 16:02:57", "1978-10-09 04:26:53"], ["1978-10-10 22:35:09", "1978-10-11 14:54:03"], ["1978-10-13 10:25:43", "1978-10-13 21:13:22"], ["1978-10-15 19:01:08", "1978-10-15 23:59:09"], ["1978-10-18 05:00:57", "1978-10-18 20:19:43"], ["1978-10-20 14:57:11", "1978-10-21 04:31:16"], ["1978-10-22 21:01:44", "1978-10-23 14:50:15"], ["1978-10-25 10:55:07", "1978-10-26 00:29:53"], ["1978-10-27 19:02:39", "1978-10-28 12:19:32"], ["1978-10-30 00:35:11", "1978-10-31 04:04:23"], ["1978-11-01 12:26:02", "1978-11-02 05:26:49"], ["1978-11-04 07:45:32", "1978-11-04 18:29:22"], ["1978-11-06 16:33:20", "1978-11-06 20:59:14"], ["1978-11-08 13:15:51", "1978-11-08 21:27:01"], ["1978-11-13 10:23:28", "1978-11-16 19:29:21"], ["1978-11-18 06:46:12", "1978-11-18 23:29:05"], ["1978-11-20 17:30:09", "1978-11-21 11:09:11"], ["1978-11-22 21:50:14", "1978-11-23 19:54:02"], ["1978-11-25 01:01:04", "1978-11-25 23:44:21"], ["1978-11-27 19:52:24", "1978-11-28 17:49:41"], ["1978-11-30 02:20:20", "1978-12-01 00:29:56"], ["1978-12-02 13:59:36", "1978-12-03 05:43:24"], ["1978-12-05 01:09:03", "1978-12-05 23:34:15"], ["1978-12-07 08:15:18", "1978-12-08 08:39:59"], ["1978-12-09 16:25:14", "1978-12-10 18:29:02"], ["1978-12-12 03:24:52", "1978-12-13 11:26:06"], ["1978-12-14 14:50:30", "1978-12-15 13:34:36"], ["1978-12-16 21:30:03", "1978-12-17 19:29:55"], ["1978-12-19 05:02:10", "1978-12-25 05:54:36"], ["1978-12-26 21:33:00", "1979-01-19 13:53:17"]], "page": "./ISEE2_H1_FPE.html"}];
+
+    function parseDateMs(str) {
+      if (!str) return NaN;
+      const s = str.trim();
+      const iso = s.replace(/\//g, '-').replace(' ', 'T') + 'Z';
+      const ms = Date.parse(iso);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function enableSortableTable(tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      table.querySelectorAll('th.sortable').forEach((header, columnIndex) => {
+        header.tabIndex = 0;
+        header.setAttribute('role', 'button');
+        header.setAttribute('aria-sort', 'none');
+        const sortColumn = () => {
+          const ascending = header.getAttribute('aria-sort') !== 'ascending';
+          table.querySelectorAll('th.sortable').forEach(th => th.setAttribute('aria-sort', 'none'));
+          header.setAttribute('aria-sort', ascending ? 'ascending' : 'descending');
+          const rows = Array.from(table.tBodies[0].rows);
+          const type = header.getAttribute('data-sort-type');
+          rows.sort((left, right) => {
+            const a = left.cells[columnIndex].textContent.trim();
+            const b = right.cells[columnIndex].textContent.trim();
+            let comparison;
+            if (type === 'number') comparison = Number(a.replace(/[^0-9.-]/g, '')) - Number(b.replace(/[^0-9.-]/g, ''));
+            else if (type === 'date') comparison = parseDateMs(a.split('→')[0].trim()) - parseDateMs(b.split('→')[0].trim());
+            else comparison = a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+            return ascending ? comparison : -comparison;
+          });
+          rows.forEach(row => table.tBodies[0].appendChild(row));
+        };
+        header.addEventListener('click', sortColumn);
+        header.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); sortColumn(); }
+        });
+      });
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+      const newTheme = isDark ? 'light' : 'dark';
+      document.body.className = newTheme;
+      localStorage.setItem('cdaweb_theme', newTheme);
+      document.getElementById('theme-toggle').textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      updateView();
+    }
+
+    function toggleChartDisplay(show) {
+      const chartCard = document.getElementById('chart-card-container');
+      if (chartCard) {
+        chartCard.style.display = show ? 'block' : 'none';
+      }
+      if (show) {
+        updateView();
+        setTimeout(() => {
+          const plotDiv = document.getElementById('timeline-chart');
+          if (plotDiv) {
+            Plotly.Plots.resize(plotDiv);
+          }
+        }, 50);
+      }
+    }
+
+    function resetAllSelections() {
+      document.querySelectorAll('.dset-checkbox').forEach(cb => {
+        cb.checked = true;
+      });
+      const masterCb = document.getElementById('master-cb');
+      if (masterCb) masterCb.checked = true;
+      updateView();
+    }
+
+    function presetRange(type) {
+      document.querySelectorAll('.btn-preset').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-preset') === type);
+      });
+      if (type === 'all') {
+        if (window._globalMinTimeMs) {
+          document.getElementById('filter-start').value = formatAxisDate(window._globalMinTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-start').value = '';
+        }
+        if (window._globalMaxTimeMs) {
+          document.getElementById('filter-stop').value = formatAxisDate(window._globalMaxTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-stop').value = '';
+        }
+        updateView();
+        return;
+      }
+      const now = new Date();
+      const endStr = now.toISOString().split('T')[0];
+      let startStr = '';
+      if (type === '1y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 1);
+        startStr = d.toISOString().split('T')[0];
+      } else if (type === '5y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 5);
+        startStr = d.toISOString().split('T')[0];
+      }
+      document.getElementById('filter-start').value = startStr;
+      document.getElementById('filter-stop').value = endStr;
+      updateView();
+    }
+
+    function clearPresetHighlight() {
+      document.querySelectorAll('.btn-preset').forEach(btn => btn.classList.remove('active'));
+    }
+
+    function updateView() {
+      const showChart = document.getElementById('toggle-chart-cb')?.checked;
+      if (!showChart) {
+        return;
+      }
+
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const checkedBoxes = Array.from(document.querySelectorAll('.dset-checkbox:checked'));
+      const selectedNames = new Set(checkedBoxes.map(cb => cb.value));
+      const startFilter = document.getElementById('filter-start').value;
+      const stopFilter = document.getElementById('filter-stop').value;
+      const startFilterMs = startFilter ? parseDateMs(startFilter) : null;
+      const stopFilterMs = stopFilter ? parseDateMs(stopFilter + ' 23:59:59') : null;
+
+      const isLight = document.body.classList.contains('light');
+      const paperBg = isLight ? '#ffffff' : '#1e293b';
+      const plotBg = isLight ? '#f8fafc' : '#0f172a';
+      const textColor = isLight ? '#0f172a' : '#f8fafc';
+      const gridColor = isLight ? '#e2e8f0' : '#334155';
+
+      const timelineData = { y: [], x: [], base: [], colors: [], hovertext: [] };
+      const colors = ['#0284c7', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6'];
+
+      const activeDatasets = [];
+      allDatasets.forEach(d => {
+        if (instFilter && d.instrument !== instFilter) return;
+        if (query && !d.name.toLowerCase().includes(query) && !d.instrument.toLowerCase().includes(query) && !d.product.toLowerCase().includes(query)) return;
+        if (!selectedNames.has(d.name)) return;
+
+        const validIntervals = [];
+        d.intervals.forEach(inv => {
+          const s = inv[0];
+          const e = inv[1];
+          const sTime = parseDateMs(s);
+          const eTime = parseDateMs(e);
+          if (isNaN(sTime) || isNaN(eTime)) return;
+
+          if (startFilterMs && eTime < startFilterMs) return;
+          if (stopFilterMs && sTime > stopFilterMs) return;
+
+          const sClamped = startFilterMs ? Math.max(sTime, startFilterMs) : sTime;
+          const eClamped = stopFilterMs ? Math.min(eTime, stopFilterMs) : eTime;
+          if (eClamped <= sClamped) return;
+
+          validIntervals.push({ s, e, sClamped, eClamped });
+        });
+
+        if (validIntervals.length > 0) {
+          activeDatasets.push({ d, validIntervals });
+        }
+      });
+
+      const activeNames = activeDatasets.map(item => item.d.name);
+      activeDatasets.forEach((item, idx) => {
+        const color = colors[idx % colors.length];
+        const d = item.d;
+        item.validIntervals.forEach(inv => {
+          const durMs = Math.max(86400000, inv.eClamped - inv.sClamped);
+          timelineData.y.push(d.name);
+          timelineData.x.push(durMs);
+          timelineData.base.push(new Date(inv.sClamped).toISOString());
+          timelineData.colors.push(color);
+          timelineData.hovertext.push(`<b>${d.name}</b><br>${d.instrument} • ${d.product}<br>From: ${inv.s}<br>To: ${inv.e}<br><i>Click to unselect • Ctrl+Click to open full page</i>`);
+        });
+      });
+
+      const traces = timelineData.y.length ? [{
+        type: 'bar',
+        orientation: 'h',
+        y: timelineData.y,
+        x: timelineData.x,
+        base: timelineData.base,
+        marker: { color: timelineData.colors, line: { width: 0 } },
+        hoverinfo: 'text',
+        hovertext: timelineData.hovertext,
+        showlegend: false
+      }] : [];
+
+      const count = activeNames.length;
+      const barGap = count === 1 ? 0.75 : (count === 2 ? 0.6 : (count <= 4 ? 0.45 : 0.25));
+      const barWidth = count === 1 ? 0.32 : (count === 2 ? 0.45 : (count <= 4 ? 0.6 : 0.75));
+      traces.forEach(t => { t.width = barWidth; });
+      const plotHeight = count === 1 ? 140 : (count === 2 ? 180 : Math.max(220, count * 32 + 80));
+
+      const plotDiv = document.getElementById('timeline-chart');
+      plotDiv.style.height = plotHeight + 'px';
+      plotDiv.style.minHeight = plotHeight + 'px';
+
+      const xAxisConfig = {
+        type: 'date',
+        side: 'bottom',
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      // Determine if "All Time" preset is active
+      const allTimeBtn = document.querySelector('.btn-preset[data-preset="all"]');
+      const isAllTime = Boolean(allTimeBtn && allTimeBtn.classList.contains('active'));
+
+      // Calculate data bounds for currently selected/plotted items
+      let plottedMinMs = Infinity;
+      let plottedMaxMs = -Infinity;
+      for (let i = 0; i < timelineData.base.length; i++) {
+        const s = parseAxisTimeMs(timelineData.base[i]);
+        const dur = Number(timelineData.x[i]) || 0;
+        if (Number.isFinite(s)) {
+          if (s < plottedMinMs) plottedMinMs = s;
+          if ((s + dur) > plottedMaxMs) plottedMaxMs = s + dur;
+        }
+      }
+      const hasPlottedData = Number.isFinite(plottedMinMs) && Number.isFinite(plottedMaxMs) && plottedMaxMs >= plottedMinMs;
+
+      if (isAllTime && hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (startFilter && stopFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', stopFilter + ' 23:59:59'];
+        xAxisConfig.autorange = false;
+      } else if (startFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', formatAxisDate(window._globalMaxTimeMs || Date.now())];
+        xAxisConfig.autorange = false;
+      } else if (hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        xAxisConfig.range = [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)];
+        xAxisConfig.autorange = false;
+      } else {
+        xAxisConfig.autorange = true;
+      }
+
+      const xAxis2Config = {
+        type: 'date',
+        overlaying: 'x',
+        side: 'top',
+        matches: 'x',
+        showgrid: false,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      const yAxisConfig = {
+        type: 'category',
+        categoryorder: 'array',
+        categoryarray: activeNames.slice().reverse(),
+        automargin: true,
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor },
+        fixedrange: true,
+        autorange: true
+      };
+
+      const layout = {
+        height: plotHeight,
+        paper_bgcolor: paperBg,
+        plot_bgcolor: plotBg,
+        font: { color: textColor, size: 11 },
+        margin: { l: 180, r: 30, t: 35, b: 40 },
+        xaxis: xAxisConfig,
+        xaxis2: xAxis2Config,
+        yaxis: yAxisConfig,
+        barmode: 'overlay',
+        bargap: barGap,
+        bargroupgap: 0.1,
+        annotations: count === 0 ? [{
+          text: checkedBoxes.length > 0
+            ? 'No data available for the selected datasets in this date range'
+            : 'Select one or more datasets to view timeline',
+          showarrow: false,
+          font: { size: 13, color: textColor }
+        }] : []
+      };
+
+      Plotly.newPlot('timeline-chart', traces, layout, { responsive: true, displayModeBar: true, displaylogo: false }).then(() => {
+        updatePanButtons('timeline-chart');
+      });
+
+      plotDiv.on('plotly_relayout', function() {
+        updatePanButtons('timeline-chart');
+      });
+
+      // Attach click events on chart points and y-axis ticks
+      plotDiv.on('plotly_click', function(data) {
+        if (!data.points || data.points.length === 0) return;
+        const name = data.points[0].y;
+        const isCtrl = data.event && (data.event.ctrlKey || data.event.metaKey);
+        handleRowClick(name, isCtrl);
+      });
+
+      plotDiv.querySelectorAll('.ytick text').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.style.userSelect = 'none';
+        el.title = 'Click to unselect • Ctrl+Click to open full page';
+        el.onclick = function(e) {
+          e.stopPropagation();
+          const isCtrl = e.ctrlKey || e.metaKey;
+          handleRowClick(el.textContent.trim(), isCtrl);
+        };
+      });
+    }
+
+    function handleRowClick(name, isCtrl) {
+      const d = allDatasets.find(item => item.name === name);
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (isCtrl && d && d.page) {
+        window.open(d.page + q, '_blank');
+        return;
+      }
+      const cb = document.querySelector(`.dset-checkbox[value="${name}"]`);
+      if (cb) {
+        cb.checked = !cb.checked;
+        updateView();
+      }
+    }
+
+    function filterTable() {
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+
+      rows.forEach(r => {
+        const name = (r.getAttribute('data-name') || '').toLowerCase();
+        const inst = r.getAttribute('data-inst') || '';
+        const matchQ = !query || name.includes(query);
+        const matchInst = !instFilter || inst === instFilter;
+        r.style.display = (matchQ && matchInst) ? '' : 'none';
+      });
+
+      updateView();
+      propagateQueryToLinks();
+    }
+
+    function selectAll(state) {
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+      rows.forEach(r => {
+        if (r.style.display !== 'none') {
+          const cb = r.querySelector('.dset-checkbox');
+          if (cb) cb.checked = state;
+        }
+      });
+      document.getElementById('master-cb').checked = state;
+      updateView();
+    }
+
+    function toggleAllCheckboxes(state) {
+      selectAll(state);
+    }
+
+    function parseAxisTimeMs(val) {
+      if (val == null) return NaN;
+      if (typeof val === 'number') return val;
+      if (val instanceof Date) return val.getTime();
+      const s = String(val).trim();
+      if (!s) return NaN;
+      if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+      const iso = s.replace(/\//g, '-').replace(' ', 'T');
+      const isoUtc = (iso.includes('Z') || iso.includes('+')) ? iso : iso + 'Z';
+      let ms = Date.parse(isoUtc);
+      if (!isNaN(ms)) return ms;
+      ms = Date.parse(s);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function formatAxisDate(ms) {
+      const d = new Date(ms);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString();
+    }
+
+    function panTimelineWindow(divId, direction) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv || !plotDiv._fullLayout || !plotDiv._fullLayout.xaxis) return;
+      const rng = plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2) return;
+
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+
+      const span = t1 - t0;
+      if (span <= 0) return;
+
+      const newT0 = t0 + (direction * span);
+      const newT1 = t1 + (direction * span);
+
+      Plotly.relayout(plotDiv, {
+        'xaxis.range': [formatAxisDate(newT0), formatAxisDate(newT1)],
+        'xaxis.autorange': false
+      }).then(() => {
+        updatePanButtons(divId);
+      });
+    }
+
+    function resetTimelineZoom(divId) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        Plotly.relayout(plotDiv, {
+          'xaxis.range': [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)],
+          'xaxis.autorange': false
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      } else {
+        Plotly.relayout(plotDiv, {
+          'xaxis.autorange': true
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      }
+    }
+
+    window._globalMinTimeMs = 246379740000;
+    window._globalMaxTimeMs = 1451602800000;
+
+    function exportPlotAsPng(divId, filename) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      Plotly.downloadImage(plotDiv, {
+        format: 'png',
+        width: 1400,
+        height: Math.max(500, plotDiv.offsetHeight || 500),
+        filename: filename || 'plot.png'
+      });
+    }
+
+    function updatePanButtons(divId) {
+      const plotDiv = document.getElementById(divId);
+      const prevBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', -1)"]`);
+      const nextBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', 1)"]`);
+      if (!plotDiv || !prevBtn || !nextBtn) return;
+      const rng = plotDiv._fullLayout && plotDiv._fullLayout.xaxis && plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2 || !window._globalMinTimeMs || !window._globalMaxTimeMs) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+      const fullSpan = window._globalMaxTimeMs - window._globalMinTimeMs;
+      const currentSpan = t1 - t0;
+      if (currentSpan >= fullSpan - 60000) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      const canPrev = t0 > (window._globalMinTimeMs + 60000);
+      const canNext = t1 < (window._globalMaxTimeMs - 60000);
+      prevBtn.disabled = !canPrev;
+      nextBtn.disabled = !canNext;
+      prevBtn.classList.toggle('disabled', !canPrev);
+      nextBtn.classList.toggle('disabled', !canNext);
+    }
+
+    // Theme initialization
+    const savedTheme = localStorage.getItem('cdaweb_theme') || 'dark';
+    document.body.className = savedTheme;
+    document.getElementById('theme-toggle').textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+    // Propagate URL query params (such as ?view for updog) to relative navigation links
+    function propagateQueryToLinks() {
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (q) {
+        document.querySelectorAll('a[href]').forEach(a => {
+          const href = a.getAttribute('href');
+          if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto:') && !href.includes('?')) {
+            a.setAttribute('href', href + q);
+          }
+        });
+      }
+    }
+
+    // Ensure timeline checkbox is unchecked by default and container is hidden
+    const chartCb = document.getElementById('toggle-chart-cb');
+    if (chartCb) {
+      chartCb.checked = false;
+    }
+    const chartCard = document.getElementById('chart-card-container');
+    if (chartCard) {
+      chartCard.style.display = 'none';
+    }
+
+    enableSortableTable('datasets-table');
+
+    // Initial render
+    updateView();
+    propagateQueryToLinks();
+  </script>
+  <footer class="page-footer">This page was last updated on: 2026-11-17 17:20:54 UTC. For any questions or comments, please contact SPDF support at: <a href="mailto:NASA-SPDF-Support@nasa.gov">NASA-SPDF-Support@nasa.gov</a></footer>
+</body>
+</html>

@@ -1,0 +1,1284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DE Inventory Index - CDAWeb</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root, body.dark {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #0284c7;
+      --accent-light: #38bdf8;
+      --success: #10b981;
+      --plot-paper: #1e293b;
+      --plot-bg: #0f172a;
+      --plot-grid: #334155;
+    }
+    body.light {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --accent: #0284c7;
+      --accent-light: #0369a1;
+      --success: #16a34a;
+      --plot-paper: #ffffff;
+      --plot-bg: #f8fafc;
+      --plot-grid: #e2e8f0;
+    }
+    body {
+      margin: 0;
+      padding: 24px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    input[type="date"] {
+      color-scheme: dark;
+    }
+    body.light input[type="date"] {
+      color-scheme: light;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .page-footer { margin: 20px 0 0; color: var(--text-muted); font-size: 12px; text-align: center; }
+    .page-footer a { color: var(--accent-light); }
+    .breadcrumbs { font-size: 14px; margin-bottom: 0; color: var(--text-muted); }
+    .breadcrumbs a { color: var(--accent-light); text-decoration: none; }
+    .breadcrumbs a:hover { text-decoration: underline; }
+    .btn-theme {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-theme:hover { opacity: 0.9; }
+    h1 { margin: 0 0 6px 0; font-size: 28px; }
+    .subtitle { color: var(--text-muted); font-size: 15px; margin: 0 0 20px 0; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .kpi-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 20px; font-weight: 700; color: var(--text); }
+    .controls-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    input[type="text"], input[type="date"], select {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: 13px;
+    }
+    button, .btn-sm {
+      background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block;
+    }
+    button.btn-secondary { background: var(--border); color: var(--text); }
+    button:hover, .btn-sm:hover { opacity: 0.9; }
+    .chart-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th { padding: 10px 12px; background: rgba(125,125,125,0.06); color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .progress-bar { width: 70px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; display: inline-block; }
+    .progress-bar .fill { height: 100%; background: var(--success); }
+    .badge-sm { display: inline-block; padding: 2px 8px; background: rgba(56, 189, 248, 0.15); color: var(--accent-light); border-radius: 4px; font-size: 11px; }
+    .chart-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .pan-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(125,125,125,0.08);
+      padding: 3px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .btn-pan {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-pan:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .btn-pan:disabled, .btn-pan.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .btn-preset {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .btn-preset:hover {
+      opacity: 0.9;
+      color: var(--text);
+    }
+    .btn-preset.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      font-weight: 700;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+    }
+    .xtick text, .ytick text {
+      fill: var(--text) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+      <div class="breadcrumbs">
+        <a href="../inventory_index.html">CDAWeb Inventory</a> &gt;
+        <span>DE Index</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="../DE_Inventory.png" target="_blank" class="btn-theme"> View DE PNG</a>
+        <button class="btn-theme" onclick="exportPlotAsPng('timeline-chart', 'DE_timeline.png')"> Download Plot PNG</button>
+        <button id="theme-toggle" class="btn-theme" onclick="toggleTheme()">☀️ Light Mode</button>
+      </div>
+    </div>
+    <h1>DE Mission Data Inventory</h1>
+    <p class="subtitle">Complete catalog of holdings and availability for DE spacecraft</p>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Datasets</div>
+        <div class="kpi-value">32</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Instruments</div>
+        <div class="kpi-value">3</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total CDF Files</div>
+        <div class="kpi-value">90,807</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Mission Span</div>
+        <div class="kpi-value" style="font-size: 14px;">1981-08-03 &rarr; 1991-12-20</div>
+      </div>
+    </div>
+
+    <div class="controls-card">
+      <input type="text" id="search-box" placeholder="Search datasets..." oninput="filterTable()">
+      <select id="instrument-filter" onchange="filterTable()">
+        <option value="">All Instruments (3)</option>
+        <option value='DE1'>DE1</option><option value='DE2'>DE2</option><option value='Particles (space)'>Particles (space)</option>
+      </select>
+      <button class="btn-secondary" onclick="selectAll(true)">Select All</button>
+      <button class="btn-secondary" onclick="selectAll(false)">Clear All</button>
+      <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; font-size: 13px; font-weight: 600; padding: 4px 10px; background: rgba(125,125,125,0.08); border-radius: 6px; border: 1px solid var(--border);">
+        <input type="checkbox" id="toggle-chart-cb" autocomplete="off" onchange="toggleChartDisplay(this.checked)">
+        <span> Show Timeline Graph</span>
+      </label>
+      <div style="margin-left: auto; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+        <span style="font-size: 13px; color: var(--text-muted);">Date Range:</span>
+        <input type="date" id="filter-start" value="1981-08-03" oninput="clearPresetHighlight()">
+        <span style="color: var(--text-muted);">&rarr;</span>
+        <input type="date" id="filter-stop" value="1991-12-20" oninput="clearPresetHighlight()">
+        <button onclick="updateView()">Apply</button>
+        <button type="button" class="btn-preset" data-preset="1y" onclick="presetRange('1y')">1 Year</button>
+        <button type="button" class="btn-preset" data-preset="5y" onclick="presetRange('5y')">5 Years</button>
+        <button type="button" class="btn-preset active" data-preset="all" onclick="presetRange('all')">All Time</button>
+      </div>
+    </div>
+
+    <div class="chart-card" id="chart-card-container" style="display: none;">
+      <div class="chart-hint">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <span><strong>Availability Timeline (Selected Items)</strong></span>
+          <div class="pan-controls">
+            <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin: 0 4px;">Time Window:</span>
+            <button type="button" class="btn-pan disabled" disabled title="Pan backward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', -1)">◀ Prev Frame</button>
+            <button type="button" class="btn-pan" title="Reset zoom to full range" onclick="resetTimelineZoom('timeline-chart')">↺ Reset Zoom</button>
+            <button type="button" class="btn-pan disabled" disabled title="Pan forward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', 1)">Next Frame ▶</button>
+            <button type="button" class="btn-pan" title="Reselect all unselected items" onclick="resetAllSelections()">↺ Reset Selection</button>
+            <button type="button" class="btn-pan" title="Download timeline chart as PNG" onclick="exportPlotAsPng('timeline-chart', 'DE_timeline.png')"> PNG</button>
+          </div>
+        </div>
+        <span>💡 Click row/label to unselect • Ctrl+Click to open full dataset page</span>
+      </div>
+      <div id="timeline-chart" style="min-height: 120px; width: 100%;"></div>
+    </div>
+
+    <div class="table-card">
+      <h3 style="margin: 0 0 12px 0;">Available Datasets</h3>
+      <table id="datasets-table">
+        <thead>
+          <tr>
+            <th style="width: 30px;"><input type="checkbox" id="master-cb" checked onchange="toggleAllCheckboxes(this.checked)"></th>
+            <th class="sortable" data-sort-type="text">Dataset ID</th>
+            <th class="sortable" data-sort-type="text">Instrument</th>
+            <th class="sortable" data-sort-type="text">Product</th>
+            <th class="sortable" data-sort-type="date">Time Coverage</th>
+            <th class="sortable" data-sort-type="number">CDF Count</th>
+            <th class="sortable" data-sort-type="number">Coverage</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="datasets-tbody">
+          
+        <tr data-inst="DE1" data-name="DE1_1MIN_RIMS">
+          <td><input type="checkbox" class="dset-checkbox" value="DE1_1MIN_RIMS" checked onchange="updateView()"></td>
+          <td><a href="./DE1_1MIN_RIMS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE1_1MIN_RIMS</a></td>
+          <td><span class="badge-sm">DE1</span></td>
+          <td style="color: var(--text-muted);">PLASMA_1MIN_CDF</td>
+          <td>1981-10-07 &rarr; 1984-12-30</td>
+          <td>39</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 94.4823379366047%;"></div></div>
+              <span style="font-size: 11px;">94.48%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE1_1MIN_RIMS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE1" data-name="DE1_62MS_MAGA-GMS">
+          <td><input type="checkbox" class="dset-checkbox" value="DE1_62MS_MAGA-GMS" checked onchange="updateView()"></td>
+          <td><a href="./DE1_62MS_MAGA-GMS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE1_62MS_MAGA-GMS</a></td>
+          <td><span class="badge-sm">DE1</span></td>
+          <td style="color: var(--text-muted);">62MS_MAGAGMS_CDAWEB</td>
+          <td>1981-09-15 &rarr; 1991-12-20</td>
+          <td>2,899</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 95.14631992640552%;"></div></div>
+              <span style="font-size: 11px;">95.15%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE1_62MS_MAGA-GMS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE1" data-name="DE1_6SEC_MAGAGMS">
+          <td><input type="checkbox" class="dset-checkbox" value="DE1_6SEC_MAGAGMS" checked onchange="updateView()"></td>
+          <td><a href="./DE1_6SEC_MAGAGMS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE1_6SEC_MAGAGMS</a></td>
+          <td><span class="badge-sm">DE1</span></td>
+          <td style="color: var(--text-muted);">6SEC_MAGAGMS_CDAWEB</td>
+          <td>1981-09-15 &rarr; 1991-02-18</td>
+          <td>3,096</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 70.0668930570778%;"></div></div>
+              <span style="font-size: 11px;">70.07%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE1_6SEC_MAGAGMS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE1" data-name="DE1_PWI_LFC-SPECTRA">
+          <td><input type="checkbox" class="dset-checkbox" value="DE1_PWI_LFC-SPECTRA" checked onchange="updateView()"></td>
+          <td><a href="./DE1_PWI_LFC-SPECTRA.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE1_PWI_LFC-SPECTRA</a></td>
+          <td><span class="badge-sm">DE1</span></td>
+          <td style="color: var(--text-muted);">LFC-SPECTRA_CDAWEB</td>
+          <td>1981-09-16 &rarr; 1984-06-28</td>
+          <td>984</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 86.9037793693025%;"></div></div>
+              <span style="font-size: 11px;">86.90%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE1_PWI_LFC-SPECTRA.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE1" data-name="DE1_PWI_OR-AT">
+          <td><input type="checkbox" class="dset-checkbox" value="DE1_PWI_OR-AT" checked onchange="updateView()"></td>
+          <td><a href="./DE1_PWI_OR-AT.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE1_PWI_OR-AT</a></td>
+          <td><span class="badge-sm">DE1</span></td>
+          <td style="color: var(--text-muted);">OR-AT_CDAWEB</td>
+          <td>1981-09-16 &rarr; 1984-06-28</td>
+          <td>985</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 87.56877979411416%;"></div></div>
+              <span style="font-size: 11px;">87.57%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE1_PWI_OR-AT.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE1" data-name="DE1_PWI_SFC-SPECTRA">
+          <td><input type="checkbox" class="dset-checkbox" value="DE1_PWI_SFC-SPECTRA" checked onchange="updateView()"></td>
+          <td><a href="./DE1_PWI_SFC-SPECTRA.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE1_PWI_SFC-SPECTRA</a></td>
+          <td><span class="badge-sm">DE1</span></td>
+          <td style="color: var(--text-muted);">SFC-SPECTRA_CDAWEB</td>
+          <td>1981-09-16 &rarr; 1984-06-28</td>
+          <td>984</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 86.913810037785%;"></div></div>
+              <span style="font-size: 11px;">86.91%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE1_PWI_SFC-SPECTRA.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_62MS_VEFIMAGB">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_62MS_VEFIMAGB" checked onchange="updateView()"></td>
+          <td><a href="./DE2_62MS_VEFIMAGB.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_62MS_VEFIMAGB</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">62MS_VEFIMAGB_CDAWEB</td>
+          <td>1981-08-15 &rarr; 1983-02-16</td>
+          <td>541</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 84.0181282674854%;"></div></div>
+              <span style="font-size: 11px;">84.02%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_62MS_VEFIMAGB.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_AC500MS_VEFI">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_AC500MS_VEFI" checked onchange="updateView()"></td>
+          <td><a href="./DE2_AC500MS_VEFI.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_AC500MS_VEFI</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">AC500MS_VEFI_CDAWEB</td>
+          <td>1981-08-10 &rarr; 1983-02-16</td>
+          <td>538</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 82.4798016440029%;"></div></div>
+              <span style="font-size: 11px;">82.48%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_AC500MS_VEFI.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_DCA500MS_VEFI">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_DCA500MS_VEFI" checked onchange="updateView()"></td>
+          <td><a href="./DE2_DCA500MS_VEFI.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_DCA500MS_VEFI</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">DCA500MS_VEFI_CDAWEB</td>
+          <td>1981-08-10 &rarr; 1983-02-16</td>
+          <td>542</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 82.31924826417968%;"></div></div>
+              <span style="font-size: 11px;">82.32%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_DCA500MS_VEFI.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_DUCT16MS_RPA">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_DUCT16MS_RPA" checked onchange="updateView()"></td>
+          <td><a href="./DE2_DUCT16MS_RPA.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_DUCT16MS_RPA</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">RPA16MS_CDAWEB</td>
+          <td>1981-08-03 &rarr; 1983-02-17</td>
+          <td>547</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 78.89314394716254%;"></div></div>
+              <span style="font-size: 11px;">78.89%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_DUCT16MS_RPA.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_ION2S_RPA">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_ION2S_RPA" checked onchange="updateView()"></td>
+          <td><a href="./DE2_ION2S_RPA.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_ION2S_RPA</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">ION2S_CDAWEB</td>
+          <td>1981-08-06 &rarr; 1983-02-16</td>
+          <td>449</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 63.922868730836704%;"></div></div>
+              <span style="font-size: 11px;">63.92%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_ION2S_RPA.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_LAPI_ELECTRON-FLUX-COUNTS-PPS1">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_LAPI_ELECTRON-FLUX-COUNTS-PPS1" checked onchange="updateView()"></td>
+          <td><a href="./DE2_LAPI_ELECTRON-FLUX-COUNTS-PPS1.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_LAPI_ELECTRON-FLUX-COUNTS-PPS1</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">SWRI_ELECTRON-FLUX-COUNTS-PPS1-CDF</td>
+          <td>1981-08-15 &rarr; 1983-02-18</td>
+          <td>5,798</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 16.59288811810588%;"></div></div>
+              <span style="font-size: 11px;">16.59%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_LAPI_ELECTRON-FLUX-COUNTS-PPS1.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_LAPI_ELECTRON-FLUX-COUNTS-PPS2">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_LAPI_ELECTRON-FLUX-COUNTS-PPS2" checked onchange="updateView()"></td>
+          <td><a href="./DE2_LAPI_ELECTRON-FLUX-COUNTS-PPS2.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_LAPI_ELECTRON-FLUX-COUNTS-PPS2</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">SWRI_ELECTRON-FLUX-COUNTS-PPS2-CDF</td>
+          <td>1981-08-15 &rarr; 1983-02-18</td>
+          <td>5,800</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 16.589093666609635%;"></div></div>
+              <span style="font-size: 11px;">16.59%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_LAPI_ELECTRON-FLUX-COUNTS-PPS2.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_LAPI_GEIGER-MUELLER">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_LAPI_GEIGER-MUELLER" checked onchange="updateView()"></td>
+          <td><a href="./DE2_LAPI_GEIGER-MUELLER.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_LAPI_GEIGER-MUELLER</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">SWRI_GEIGER-MUELLER-CDF</td>
+          <td>1981-08-15 &rarr; 1983-02-18</td>
+          <td>5,782</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 16.61551334723694%;"></div></div>
+              <span style="font-size: 11px;">16.62%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_LAPI_GEIGER-MUELLER.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_LAPI_GEIGER-MUELLER-RATIO">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_LAPI_GEIGER-MUELLER-RATIO" checked onchange="updateView()"></td>
+          <td><a href="./DE2_LAPI_GEIGER-MUELLER-RATIO.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_LAPI_GEIGER-MUELLER-RATIO</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">SWRI_GEIGER-MUELLER-RATIO-CDF</td>
+          <td>1981-08-15 &rarr; 1983-02-18</td>
+          <td>5,782</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 16.61551334723694%;"></div></div>
+              <span style="font-size: 11px;">16.62%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_LAPI_GEIGER-MUELLER-RATIO.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_LAPI_ION-FLUX-COUNTS-PPS1">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_LAPI_ION-FLUX-COUNTS-PPS1" checked onchange="updateView()"></td>
+          <td><a href="./DE2_LAPI_ION-FLUX-COUNTS-PPS1.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_LAPI_ION-FLUX-COUNTS-PPS1</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">SWRI_ION-FLUX-COUNTS-PPS1-CDF</td>
+          <td>1981-08-15 &rarr; 1983-02-18</td>
+          <td>5,799</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 16.590443960657787%;"></div></div>
+              <span style="font-size: 11px;">16.59%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_LAPI_ION-FLUX-COUNTS-PPS1.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_LAPI_ION-FLUX-COUNTS-PPS2">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_LAPI_ION-FLUX-COUNTS-PPS2" checked onchange="updateView()"></td>
+          <td><a href="./DE2_LAPI_ION-FLUX-COUNTS-PPS2.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_LAPI_ION-FLUX-COUNTS-PPS2</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">SWRI_ION-FLUX-COUNTS-PPS2-CDF</td>
+          <td>1981-08-15 &rarr; 1983-02-18</td>
+          <td>5,805</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 16.563796847171115%;"></div></div>
+              <span style="font-size: 11px;">16.56%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_LAPI_ION-FLUX-COUNTS-PPS2.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_LAPI_LAPI-MAG">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_LAPI_LAPI-MAG" checked onchange="updateView()"></td>
+          <td><a href="./DE2_LAPI_LAPI-MAG.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_LAPI_LAPI-MAG</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">SWRI_LAPI-MAG-CDF</td>
+          <td>1981-08-15 &rarr; 1983-02-18</td>
+          <td>5,782</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 16.61551334723694%;"></div></div>
+              <span style="font-size: 11px;">16.62%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_LAPI_LAPI-MAG.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_LAPI_ORBIT-ATTITUDE">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_LAPI_ORBIT-ATTITUDE" checked onchange="updateView()"></td>
+          <td><a href="./DE2_LAPI_ORBIT-ATTITUDE.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_LAPI_ORBIT-ATTITUDE</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">SWRI_ORBIT-ATTITUDE-CDF</td>
+          <td>1981-08-15 &rarr; 1983-02-18</td>
+          <td>5,773</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 16.44248189782371%;"></div></div>
+              <span style="font-size: 11px;">16.44%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_LAPI_ORBIT-ATTITUDE.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_LAPI_ORBIT-ATTITUDE-MAGB">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_LAPI_ORBIT-ATTITUDE-MAGB" checked onchange="updateView()"></td>
+          <td><a href="./DE2_LAPI_ORBIT-ATTITUDE-MAGB.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_LAPI_ORBIT-ATTITUDE-MAGB</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">SWRI_ORBIT-ATTITUDE-MAGB-CDF</td>
+          <td>1981-08-15 &rarr; 1983-02-16</td>
+          <td>4,844</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 19.902326588435745%;"></div></div>
+              <span style="font-size: 11px;">19.90%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_LAPI_ORBIT-ATTITUDE-MAGB.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_LAPI_PITCH-ANGLES">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_LAPI_PITCH-ANGLES" checked onchange="updateView()"></td>
+          <td><a href="./DE2_LAPI_PITCH-ANGLES.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_LAPI_PITCH-ANGLES</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">SWRI_PITCH-ANGLES-CDF</td>
+          <td>1981-08-15 &rarr; 1983-02-18</td>
+          <td>4,904</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 16.68991410528748%;"></div></div>
+              <span style="font-size: 11px;">16.69%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_LAPI_PITCH-ANGLES.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_LAPI_PROJECTED-MAGB">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_LAPI_PROJECTED-MAGB" checked onchange="updateView()"></td>
+          <td><a href="./DE2_LAPI_PROJECTED-MAGB.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_LAPI_PROJECTED-MAGB</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">SWRI_PROJECTED-MAGB-CDF</td>
+          <td>1981-08-15 &rarr; 1983-02-18</td>
+          <td>4,904</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 16.68991410528748%;"></div></div>
+              <span style="font-size: 11px;">16.69%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_LAPI_PROJECTED-MAGB.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_LAPI_SC-MAGB">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_LAPI_SC-MAGB" checked onchange="updateView()"></td>
+          <td><a href="./DE2_LAPI_SC-MAGB.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_LAPI_SC-MAGB</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">SWRI_SPACECRAFT-MAGB-CDF</td>
+          <td>1981-08-15 &rarr; 1983-02-16</td>
+          <td>5,197</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 22.421052682491048%;"></div></div>
+              <span style="font-size: 11px;">22.42%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_LAPI_SC-MAGB.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_LAPI_SHAFT-ENCODER-ANGLE">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_LAPI_SHAFT-ENCODER-ANGLE" checked onchange="updateView()"></td>
+          <td><a href="./DE2_LAPI_SHAFT-ENCODER-ANGLE.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_LAPI_SHAFT-ENCODER-ANGLE</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">SWRI-SHAFT-ENCODER-ANGLE-CDF</td>
+          <td>1981-08-15 &rarr; 1983-02-18</td>
+          <td>5,782</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 16.591391090715092%;"></div></div>
+              <span style="font-size: 11px;">16.59%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_LAPI_SHAFT-ENCODER-ANGLE.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_NEUTRAL1S_NACS">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_NEUTRAL1S_NACS" checked onchange="updateView()"></td>
+          <td><a href="./DE2_NEUTRAL1S_NACS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_NEUTRAL1S_NACS</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">NEUTRAL1S_NACS_CDAWEB</td>
+          <td>1981-08-08 &rarr; 1983-02-15</td>
+          <td>539</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 80.33369775852492%;"></div></div>
+              <span style="font-size: 11px;">80.33%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_NEUTRAL1S_NACS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_NEUTRAL8S_FPI">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_NEUTRAL8S_FPI" checked onchange="updateView()"></td>
+          <td><a href="./DE2_NEUTRAL8S_FPI.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_NEUTRAL8S_FPI</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">DE2_NEUTRAL8S_FPI</td>
+          <td>1981-08-09 &rarr; 1983-02-16</td>
+          <td>308</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 36.60033416070426%;"></div></div>
+              <span style="font-size: 11px;">36.60%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_NEUTRAL8S_FPI.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_PLASMA500MS_LANG">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_PLASMA500MS_LANG" checked onchange="updateView()"></td>
+          <td><a href="./DE2_PLASMA500MS_LANG.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_PLASMA500MS_LANG</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">PLASMA500MS_LANG_CDAWEB</td>
+          <td>1981-08-05 &rarr; 1983-02-16</td>
+          <td>542</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 80.55398035643171%;"></div></div>
+              <span style="font-size: 11px;">80.55%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_PLASMA500MS_LANG.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_UA16S_ALL">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_UA16S_ALL" checked onchange="updateView()"></td>
+          <td><a href="./DE2_UA16S_ALL.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_UA16S_ALL</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">UA16S_ALL_CDAWEB</td>
+          <td>1981-08-06 &rarr; 1983-02-16</td>
+          <td>549</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 84.37285608150083%;"></div></div>
+              <span style="font-size: 11px;">84.37%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_UA16S_ALL.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_VION250MS_IDM">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_VION250MS_IDM" checked onchange="updateView()"></td>
+          <td><a href="./DE2_VION250MS_IDM.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_VION250MS_IDM</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">VION250MS_CDAWEB</td>
+          <td>1981-08-15 &rarr; 1983-02-16</td>
+          <td>534</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 77.42447497216509%;"></div></div>
+              <span style="font-size: 11px;">77.42%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_VION250MS_IDM.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE2" data-name="DE2_WIND2S_WATS">
+          <td><input type="checkbox" class="dset-checkbox" value="DE2_WIND2S_WATS" checked onchange="updateView()"></td>
+          <td><a href="./DE2_WIND2S_WATS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE2_WIND2S_WATS</a></td>
+          <td><span class="badge-sm">DE2</span></td>
+          <td style="color: var(--text-muted);">WIND2S_WATS_CDAWEB</td>
+          <td>1981-08-08 &rarr; 1983-02-17</td>
+          <td>533</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 78.28105821039009%;"></div></div>
+              <span style="font-size: 11px;">78.28%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE2_WIND2S_WATS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="DE1" data-name="DE_UV_SAI">
+          <td><input type="checkbox" class="dset-checkbox" value="DE_UV_SAI" checked onchange="updateView()"></td>
+          <td><a href="./DE_UV_SAI.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE_UV_SAI</a></td>
+          <td><span class="badge-sm">DE1</span></td>
+          <td style="color: var(--text-muted);">UV_SAI_CDAWEB</td>
+          <td>1981-09-23 &rarr; 1991-02-18</td>
+          <td>1,856</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 41.85239522816737%;"></div></div>
+              <span style="font-size: 11px;">41.85%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE_UV_SAI.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="Particles (space)" data-name="DE_VS_EICS">
+          <td><input type="checkbox" class="dset-checkbox" value="DE_VS_EICS" checked onchange="updateView()"></td>
+          <td><a href="./DE_VS_EICS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DE_VS_EICS</a></td>
+          <td><span class="badge-sm">Particles (space)</span></td>
+          <td style="color: var(--text-muted);">DE_VS_EICS</td>
+          <td>1981-09-16 &rarr; 1991-02-18</td>
+          <td>2,390</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 40.9247911475015%;"></div></div>
+              <span style="font-size: 11px;">40.92%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./DE_VS_EICS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const allDatasets = [{"name": "DE1_1MIN_RIMS", "instrument": "DE1", "product": "PLASMA_1MIN_CDF", "cdf_count": 39, "active_days": 1114.5707523148149, "coverage_pct": 94.4823379366047, "earliest": "1981-10-07", "latest": "1984-12-30", "intervals": [["1981-10-07 10:21:31", "1982-02-28 10:11:28"], ["1982-03-01 23:15:26", "1982-03-29 22:59:31"], ["1982-04-01 20:29:37", "1982-04-30 08:28:28"], ["1982-05-01 17:29:28", "1982-05-31 01:02:26"], ["1982-06-03 13:31:27", "1982-11-19 16:41:33"], ["1982-12-08 02:52:29", "1982-12-31 08:11:33"], ["1983-01-03 01:41:26", "1983-01-31 04:05:31"], ["1983-02-02 14:39:30", "1983-03-31 11:44:26"], ["1983-04-05 15:00:33", "1983-04-30 00:54:31"], ["1983-05-01 20:52:28", "1983-05-30 20:13:28"], ["1983-06-03 13:06:27", "1983-06-30 05:27:31"], ["1983-07-01 14:00:30", "1983-12-31 16:13:27"], ["1984-01-02 00:46:31", "1984-09-29 13:16:33"], ["1984-10-03 02:52:31", "1984-11-25 07:57:26"], ["1984-12-02 09:21:31", "1984-12-30 02:12:32"]], "page": "./DE1_1MIN_RIMS.html"}, {"name": "DE1_62MS_MAGA-GMS", "instrument": "DE1", "product": "62MS_MAGAGMS_CDAWEB", "cdf_count": 2899, "active_days": 3566.794386574074, "coverage_pct": 95.14631992640552, "earliest": "1981-09-15", "latest": "1991-12-20", "intervals": [["1981-09-15 05:40:09", "1981-10-13 23:59:59"], ["1981-10-18 00:00:00", "1981-11-15 20:24:39"], ["1981-11-27 02:00:44", "1981-12-27 23:15:32"], ["1981-12-31 00:57:20", "1982-03-12 23:59:59"], ["1982-03-21 00:00:00", "1982-04-01 23:59:59"], ["1982-04-03 05:35:25", "1982-04-08 08:16:42"], ["1982-04-13 10:11:59", "1982-04-15 18:51:49"], ["1982-04-17 06:05:20", "1982-04-19 18:47:17"], ["1982-04-21 00:00:00", "1982-06-01 10:24:56"], ["1982-06-03 08:08:03", "1982-07-17 03:03:35"], ["1982-07-18 15:09:14", "1982-07-18 19:30:12"], ["1982-07-20 04:18:10", "1982-07-21 14:39:24"], ["1982-07-23 02:09:03", "1982-07-23 08:57:43"], ["1982-07-27 19:20:08", "1982-09-08 04:17:56"], ["1982-09-11 00:11:34", "1982-09-12 08:46:40"], ["1982-09-14 00:41:03", "1982-09-14 01:47:16"], ["1982-09-16 18:52:05", "1982-09-16 21:28:48"], ["1982-09-19 16:46:30", "1982-09-23 08:40:00"], ["1982-09-25 12:15:59", "1982-11-06 11:18:29"], ["1982-11-07 13:23:25", "1982-11-19 17:24:15"], ["1982-12-08 02:28:14", "1983-04-20 03:08:07"], ["1983-04-21 05:55:45", "1983-04-26 09:24:37"], ["1983-04-28 00:00:00", "1983-06-21 18:29:39"], ["1983-06-23 01:26:16", "1983-07-11 04:27:53"], ["1983-07-12 08:31:01", "1983-08-13 23:59:59"], ["1983-08-15 10:25:05", "1983-10-05 23:59:59"], ["1983-10-09 01:50:28", "1983-10-09 23:59:59"], ["1983-10-12 00:00:00", "1983-12-04 23:59:59"], ["1983-12-06 05:12:09", "1991-12-20 23:35:11"]], "page": "./DE1_62MS_MAGA-GMS.html"}, {"name": "DE1_6SEC_MAGAGMS", "instrument": "DE1", "product": "6SEC_MAGAGMS_CDAWEB", "cdf_count": 3096, "active_days": 2412.527326388889, "coverage_pct": 70.0668930570778, "earliest": "1981-09-15", "latest": "1991-02-18", "intervals": [["1981-09-15 05:40:30", "1981-09-29 23:48:27"], ["1981-10-01 06:02:47", "1981-10-04 22:32:09"], ["1981-10-07 00:06:44", "1981-10-19 23:59:50"], ["1981-11-07 00:02:51", "1981-12-15 23:59:51"], ["1981-12-17 04:22:14", "1981-12-28 02:22:33"], ["1981-12-31 00:57:37", "1981-12-31 11:56:57"], ["1982-01-02 01:01:26", "1982-02-10 21:15:27"], ["1982-02-13 00:03:39", "1982-02-21 21:39:03"], ["1982-02-23 00:03:15", "1982-03-10 22:38:03"], ["1982-03-21 00:06:51", "1982-04-08 08:16:45"], ["1982-04-21 00:03:21", "1982-05-07 19:59:33"], ["1982-05-09 00:28:03", "1982-06-01 10:24:57"], ["1982-06-03 08:08:23", "1982-07-17 03:03:32"], ["1982-07-18 15:09:29", "1982-07-18 19:30:09"], ["1982-07-20 04:18:31", "1982-07-21 14:39:27"], ["1982-07-23 02:09:18", "1982-07-23 08:57:45"], ["1982-07-27 19:20:41", "1982-09-08 04:17:56"], ["1982-09-11 00:11:53", "1982-09-12 08:46:32"], ["1982-09-14 00:41:36", "1982-09-14 01:47:09"], ["1982-09-16 19:00:20", "1982-09-16 21:28:44"], ["1982-09-19 16:46:51", "1982-09-22 12:29:33"], ["1982-09-25 12:16:20", "1982-11-06 11:17:26"], ["1982-11-07 13:23:47", "1982-11-19 17:24:15"], ["1982-12-08 02:28:35", "1983-04-20 03:08:09"], ["1983-04-21 05:56:06", "1983-07-11 04:27:50"], ["1983-07-12 08:31:22", "1983-12-27 22:35:02"], ["1983-12-29 00:41:39", "1984-03-30 23:59:53"], ["1984-04-01 03:49:19", "1984-05-29 22:50:33"], ["1984-05-31 07:00:28", "1984-06-23 12:05:09"], ["1984-06-27 22:29:44", "1984-12-30 23:59:57"], ["1985-01-01 07:04:44", "1985-01-19 17:03:21"], ["1985-02-12 00:04:08", "1985-03-27 15:54:45"], ["1985-03-28 18:54:22", "1985-03-29 08:44:57"], ["1985-03-31 19:30:29", "1985-03-31 22:06:44"], ["1985-04-11 02:01:29", "1985-04-12 03:37:03"], ["1985-04-19 01:50:48", "1985-04-19 13:57:51"], ["1985-04-21 01:45:34", "1985-04-21 05:45:03"], ["1985-04-23 01:13:14", "1985-04-24 03:02:03"], ["1985-04-30 10:51:38", "1985-05-10 15:50:33"], ["1985-05-12 04:13:41", "1985-08-28 23:59:51"], ["1985-08-30 22:17:54", "1985-09-23 22:46:26"], ["1985-09-27 03:00:58", "1985-10-30 23:23:14"], ["1985-11-02 05:01:29", "1985-11-02 19:59:56"], ["1985-11-07 07:29:09", "1985-12-31 18:18:50"], ["1986-01-11 00:03:21", "1986-01-19 22:30:14"], ["1986-01-21 11:18:50", "1986-01-29 14:32:26"], ["1986-01-31 03:49:54", "1986-02-20 23:59:56"], ["1986-03-08 01:57:15", "1986-05-03 23:59:51"], ["1986-05-05 05:53:35", "1986-07-04 11:06:57"], ["1986-07-05 15:14:33", "1986-07-13 15:03:21"], ["1986-07-14 17:52:24", "1987-01-22 09:31:51"], ["1987-01-26 05:20:48", "1987-01-27 18:27:50"], ["1987-01-29 03:47:40", "1987-04-09 22:31:33"], ["1987-04-11 19:44:02", "1987-04-20 18:05:51"], ["1987-04-22 04:01:57", "1987-04-22 16:00:57"], ["1987-04-24 09:46:17", "1987-04-25 00:13:24"], ["1987-04-28 09:53:42", "1987-05-27 06:29:33"], ["1987-05-30 04:34:27", "1987-05-31 02:20:07"], ["1987-06-03 11:46:02", "1987-06-03 11:50:02"], ["1987-06-05 18:58:41", "1987-08-14 23:59:57"], ["1987-08-16 02:48:55", "1987-08-17 21:55:26"], ["1987-08-20 02:42:00", "1987-10-23 02:15:44"], ["1987-10-24 04:39:15", "1987-10-31 22:35:57"], ["1987-11-02 11:02:26", "1987-11-18 00:37:15"], ["1987-11-19 03:04:39", "1988-09-15 10:34:57"], ["1988-09-17 02:30:21", "1988-09-23 02:59:57"], ["1988-09-24 05:20:30", "1988-10-08 07:53:45"], ["1988-10-09 14:21:33", "1988-10-11 08:35:39"], ["1988-10-12 14:34:36", "1988-10-16 10:53:51"], ["1988-10-17 13:46:03", "1988-10-27 07:34:44"], ["1988-10-28 14:00:54", "1988-11-22 07:19:26"], ["1988-12-06 00:21:23", "1988-12-06 01:19:39"], ["1988-12-07 11:42:21", "1988-12-21 20:46:45"], ["1988-12-23 08:30:26", "1988-12-24 12:58:45"], ["1988-12-26 12:00:29", "1988-12-26 22:45:57"], ["1989-01-01 05:55:42", "1989-01-16 01:59:03"], ["1989-01-17 04:40:50", "1989-02-05 19:45:27"], ["1989-02-07 03:55:59", "1989-07-20 07:37:38"], ["1989-07-21 10:40:15", "1989-08-11 07:57:33"], ["1989-08-12 23:00:34", "1989-09-23 21:22:45"], ["1989-09-25 03:00:44", "1989-11-12 21:45:45"], ["1989-11-14 03:56:15", "1989-11-17 01:19:27"], ["1989-11-19 00:39:17", "1989-12-19 14:40:20"], ["1989-12-21 00:30:41", "1989-12-21 14:45:21"], ["1989-12-23 00:25:38", "1990-07-05 05:34:21"], ["1990-07-07 21:00:56", "1990-07-10 06:45:27"], ["1990-07-13 03:53:46", "1990-07-13 04:55:33"], ["1990-07-19 15:42:20", "1990-07-20 04:32:50"], ["1990-07-23 03:01:07", "1990-07-24 20:55:32"], ["1990-07-27 01:26:03", "1990-08-19 19:18:39"], ["1990-09-03 07:15:21", "1990-09-03 18:59:57"], ["1990-09-06 04:43:40", "1990-09-06 04:43:46"], ["1990-09-07 10:20:35", "1990-09-07 18:50:03"], ["1990-09-10 20:51:06", "1990-09-17 20:53:45"], ["1990-09-20 02:55:39", "1990-11-17 23:09:26"], ["1991-02-14 08:40:55", "1991-02-15 06:24:20"], ["1991-02-16 08:34:29", "1991-02-17 06:20:33"], ["1991-02-18 08:26:23", "1991-02-18 09:55:45"]], "page": "./DE1_6SEC_MAGAGMS.html"}, {"name": "DE1_PWI_LFC-SPECTRA", "instrument": "DE1", "product": "LFC-SPECTRA_CDAWEB", "cdf_count": 984, "active_days": 882.9615393518518, "coverage_pct": 86.9037793693025, "earliest": "1981-09-16", "latest": "1984-06-28", "intervals": [["1981-09-16 05:21:48", "1982-04-09 13:30:38"], ["1982-04-12 23:26:55", "1982-06-02 00:58:58"], ["1982-06-03 08:09:38", "1982-07-17 03:04:51"], ["1982-07-18 15:10:48", "1982-07-18 19:46:00"], ["1982-07-20 04:19:49", "1982-07-21 14:42:21"], ["1982-07-23 02:09:02", "1982-07-24 20:21:51"], ["1982-07-27 19:21:44", "1982-09-08 04:19:07"], ["1982-09-11 00:12:38", "1982-09-12 08:46:02"], ["1982-09-14 01:47:11", "1982-09-14 03:46:39"], ["1982-09-16 15:28:37", "1982-09-17 13:43:49"], ["1982-09-19 05:59:54", "1982-09-29 13:06:52"], ["1982-10-02 19:51:46", "1982-11-06 11:17:09"], ["1982-11-07 18:13:58", "1982-11-19 14:59:48"], ["1982-11-23 16:01:42", "1982-11-23 16:20:54"], ["1982-12-08 02:29:49", "1983-04-20 03:08:32"], ["1983-04-21 05:57:12", "1984-02-22 10:18:39"], ["1984-02-23 19:57:27", "1984-06-23 05:37:41"], ["1984-06-27 02:15:55", "1984-06-28 05:53:31"]], "page": "./DE1_PWI_LFC-SPECTRA.html"}, {"name": "DE1_PWI_OR-AT", "instrument": "DE1", "product": "OR-AT_CDAWEB", "cdf_count": 985, "active_days": 890.3519097222222, "coverage_pct": 87.56877979411416, "earliest": "1981-09-16", "latest": "1984-06-28", "intervals": [["1981-09-16 05:20:12", "1982-04-09 13:31:10"], ["1982-04-12 23:25:19", "1982-06-02 00:59:14"], ["1982-06-03 08:08:02", "1982-07-17 03:05:07"], ["1982-07-18 15:09:20", "1982-07-18 21:45:20"], ["1982-07-20 04:18:13", "1982-07-21 14:42:53"], ["1982-07-23 02:09:02", "1982-07-25 12:02:07"], ["1982-07-27 19:20:16", "1982-09-08 04:19:39"], ["1982-09-11 00:11:02", "1982-09-12 08:46:34"], ["1982-09-14 00:41:03", "1982-09-14 03:46:55"], ["1982-09-16 15:27:01", "1982-09-17 13:43:57"], ["1982-09-19 06:00:02", "1982-09-29 13:07:00"], ["1982-10-02 19:52:02", "1982-11-06 11:18:21"], ["1982-11-07 13:23:25", "1982-11-19 17:25:08"], ["1982-11-23 16:00:06", "1982-11-23 18:23:18"], ["1982-12-08 02:28:13", "1983-04-20 03:08:56"], ["1983-04-21 05:55:44", "1984-02-22 10:19:11"], ["1984-02-23 19:57:51", "1984-06-23 12:05:06"], ["1984-06-27 02:14:19", "1984-06-28 23:14:11"]], "page": "./DE1_PWI_OR-AT.html"}, {"name": "DE1_PWI_SFC-SPECTRA", "instrument": "DE1", "product": "SFC-SPECTRA_CDAWEB", "cdf_count": 984, "active_days": 883.5960416666667, "coverage_pct": 86.913810037785, "earliest": "1981-09-16", "latest": "1984-06-28", "intervals": [["1981-09-16 05:21:48", "1982-04-09 13:30:38"], ["1982-04-12 23:26:55", "1982-06-02 00:58:58"], ["1982-06-03 08:09:38", "1982-07-17 03:04:51"], ["1982-07-18 15:10:48", "1982-07-18 19:46:00"], ["1982-07-20 04:19:49", "1982-07-21 14:42:21"], ["1982-07-23 02:10:38", "1982-07-24 20:21:51"], ["1982-07-27 19:21:44", "1982-09-08 04:19:07"], ["1982-09-11 00:12:38", "1982-09-12 08:46:02"], ["1982-09-14 01:47:11", "1982-09-14 03:46:39"], ["1982-09-16 15:28:37", "1982-09-17 13:43:49"], ["1982-09-19 05:59:54", "1982-09-29 13:06:52"], ["1982-10-02 19:51:46", "1982-11-06 11:17:09"], ["1982-11-07 18:13:58", "1982-11-19 14:59:48"], ["1982-11-23 16:01:42", "1982-11-23 16:20:54"], ["1982-12-08 02:29:49", "1983-04-20 03:08:32"], ["1983-04-21 05:57:12", "1984-02-22 10:18:39"], ["1984-02-23 19:57:27", "1984-06-23 10:56:10"], ["1984-06-27 03:05:31", "1984-06-28 20:35:55"]], "page": "./DE1_PWI_SFC-SPECTRA.html"}, {"name": "DE2_62MS_VEFIMAGB", "instrument": "DE2", "product": "62MS_VEFIMAGB_CDAWEB", "cdf_count": 541, "active_days": 462.42623842592593, "coverage_pct": 84.0181282674854, "earliest": "1981-08-15", "latest": "1983-02-16", "intervals": [["1981-08-15 03:44:46", "1981-08-29 03:06:59"], ["1981-09-04 09:11:59", "1982-02-23 23:47:23"], ["1982-02-27 00:19:02", "1982-08-30 21:39:20"], ["1982-09-02 03:48:59", "1982-12-23 14:57:32"], ["1982-12-24 18:21:56", "1983-02-16 13:04:25"]], "page": "./DE2_62MS_VEFIMAGB.html"}, {"name": "DE2_AC500MS_VEFI", "instrument": "DE2", "product": "AC500MS_VEFI_CDAWEB", "cdf_count": 538, "active_days": 457.66054398148145, "coverage_pct": 82.4798016440029, "earliest": "1981-08-10", "latest": "1983-02-16", "intervals": [["1981-08-10 16:03:09", "1981-08-10 18:50:04"], ["1981-08-11 23:49:10", "1981-08-11 23:59:59"], ["1981-08-17 00:00:05", "1981-08-29 03:07:02"], ["1981-09-04 09:11:59", "1982-02-23 23:47:25"], ["1982-02-27 00:19:02", "1982-04-24 22:30:52"], ["1982-04-28 02:19:49", "1982-08-30 21:39:22"], ["1982-09-02 03:49:07", "1983-02-16 13:04:27"]], "page": "./DE2_AC500MS_VEFI.html"}, {"name": "DE2_DCA500MS_VEFI", "instrument": "DE2", "product": "DCA500MS_VEFI_CDAWEB", "cdf_count": 542, "active_days": 456.7699768518519, "coverage_pct": 82.31924826417968, "earliest": "1981-08-10", "latest": "1983-02-16", "intervals": [["1981-08-10 16:03:10", "1981-08-10 18:47:57"], ["1981-08-11 23:49:10", "1981-08-12 00:28:53"], ["1981-08-13 17:11:18", "1981-08-13 17:41:09"], ["1981-08-15 03:44:54", "1981-08-15 04:09:26"], ["1981-08-16 11:39:02", "1981-08-29 03:07:35"], ["1981-09-04 09:11:59", "1982-02-23 23:47:49"], ["1982-02-27 00:19:02", "1982-04-24 22:31:17"], ["1982-04-28 02:19:50", "1982-08-30 21:39:54"], ["1982-09-02 03:49:07", "1983-02-16 13:05:00"]], "page": "./DE2_DCA500MS_VEFI.html"}, {"name": "DE2_DUCT16MS_RPA", "instrument": "DE2", "product": "RPA16MS_CDAWEB", "cdf_count": 547, "active_days": 444.4671990740741, "coverage_pct": 78.89314394716254, "earliest": "1981-08-03", "latest": "1983-02-17", "intervals": [["1981-08-03 10:49:21", "1981-08-11 22:55:02"], ["1981-08-14 20:40:22", "1981-08-28 23:13:19"], ["1981-08-30 12:49:35", "1981-08-31 23:57:11"], ["1981-09-02 13:45:19", "1981-09-02 14:37:51"], ["1981-09-04 09:11:35", "1981-12-15 23:03:57"], ["1981-12-20 15:21:41", "1981-12-20 16:04:13"], ["1981-12-22 21:50:22", "1981-12-22 22:16:46"], ["1981-12-24 07:18:30", "1981-12-24 15:57:02"], ["1981-12-27 04:17:02", "1982-02-23 23:48:14"], ["1982-02-25 05:47:10", "1982-04-04 17:24:02"], ["1982-04-06 08:41:47", "1982-06-09 22:37:54"], ["1982-06-11 01:59:22", "1982-08-30 21:40:11"], ["1982-09-01 03:43:31", "1983-02-17 19:54:44"]], "page": "./DE2_DUCT16MS_RPA.html"}, {"name": "DE2_ION2S_RPA", "instrument": "DE2", "product": "ION2S_CDAWEB", "cdf_count": 449, "active_days": 357.22109953703705, "coverage_pct": 63.922868730836704, "earliest": "1981-08-06", "latest": "1983-02-16", "intervals": [["1981-08-06 17:07:01", "1981-08-06 17:18:49"], ["1981-08-08 07:02:05", "1981-08-08 19:21:45"], ["1981-08-15 03:44:56", "1981-08-15 04:08:37"], ["1981-08-16 11:39:04", "1981-08-29 03:07:02"], ["1981-09-04 09:11:59", "1981-11-11 10:25:42"], ["1982-02-10 16:58:47", "1982-02-23 23:47:17"], ["1982-02-28 00:02:38", "1982-05-01 20:05:01"], ["1982-05-03 00:00:04", "1982-08-30 21:39:22"], ["1982-09-02 03:49:08", "1982-10-05 23:09:10"], ["1982-10-07 01:17:03", "1983-02-16 13:04:19"]], "page": "./DE2_ION2S_RPA.html"}, {"name": "DE2_LAPI_ELECTRON-FLUX-COUNTS-PPS1", "instrument": "DE2", "product": "SWRI_ELECTRON-FLUX-COUNTS-PPS1-CDF", "cdf_count": 5798, "active_days": 91.61732638888888, "coverage_pct": 16.59288811810588, "earliest": "1981-08-15", "latest": "1983-02-18", "intervals": [["1981-08-15 13:09:02", "1981-08-29 03:07:16"], ["1981-08-31 13:16:55", "1981-08-31 13:17:24"], ["1981-09-04 10:37:43", "1982-02-23 23:47:39"], ["1982-02-27 00:18:46", "1982-03-16 22:17:34"], ["1982-04-05 00:45:30", "1982-08-10 00:56:38"], ["1982-08-11 03:15:29", "1982-08-13 23:50:55"], ["1982-08-15 02:06:17", "1982-08-26 22:43:57"], ["1982-08-28 03:31:15", "1982-08-28 21:54:40"], ["1982-08-30 01:26:51", "1982-08-30 21:39:34"], ["1982-09-03 07:33:31", "1982-09-03 07:57:29"], ["1982-09-05 01:00:51", "1982-09-08 20:12:22"], ["1982-09-10 00:43:32", "1982-09-12 19:34:50"], ["1982-09-14 00:51:16", "1983-02-18 16:42:23"]], "page": "./DE2_LAPI_ELECTRON-FLUX-COUNTS-PPS1.html"}, {"name": "DE2_LAPI_ELECTRON-FLUX-COUNTS-PPS2", "instrument": "DE2", "product": "SWRI_ELECTRON-FLUX-COUNTS-PPS2-CDF", "cdf_count": 5800, "active_days": 91.59637731481482, "coverage_pct": 16.589093666609635, "earliest": "1981-08-15", "latest": "1983-02-18", "intervals": [["1981-08-15 13:09:01", "1981-08-29 03:07:16"], ["1981-08-31 13:16:55", "1981-08-31 13:17:24"], ["1981-09-04 10:37:42", "1982-02-23 23:47:39"], ["1982-02-27 00:18:46", "1982-03-16 22:17:34"], ["1982-04-05 00:45:29", "1982-08-10 00:56:38"], ["1982-08-11 03:15:28", "1982-08-13 23:50:55"], ["1982-08-15 02:06:17", "1982-08-26 22:43:58"], ["1982-08-28 03:31:13", "1982-08-28 21:54:40"], ["1982-08-30 01:26:50", "1982-08-30 21:39:34"], ["1982-09-03 07:33:31", "1982-09-03 07:57:29"], ["1982-09-05 01:00:50", "1982-09-08 20:12:22"], ["1982-09-10 00:43:31", "1982-09-12 19:34:50"], ["1982-09-14 00:51:15", "1983-02-18 16:42:23"]], "page": "./DE2_LAPI_ELECTRON-FLUX-COUNTS-PPS2.html"}, {"name": "DE2_LAPI_GEIGER-MUELLER", "instrument": "DE2", "product": "SWRI_GEIGER-MUELLER-CDF", "cdf_count": 5782, "active_days": 91.74225694444445, "coverage_pct": 16.61551334723694, "earliest": "1981-08-15", "latest": "1983-02-18", "intervals": [["1981-08-15 13:09:02", "1981-08-29 03:07:17"], ["1981-08-31 13:16:55", "1981-08-31 13:17:25"], ["1981-09-04 10:37:43", "1982-02-23 23:47:40"], ["1982-02-27 00:18:46", "1982-03-16 22:17:34"], ["1982-04-05 00:45:30", "1982-08-10 00:56:38"], ["1982-08-11 03:15:29", "1982-08-13 23:50:55"], ["1982-08-15 02:06:17", "1982-08-26 22:44:00"], ["1982-08-28 03:31:15", "1982-08-28 21:54:41"], ["1982-08-30 01:26:51", "1982-08-30 21:39:37"], ["1982-09-03 07:33:31", "1982-09-03 07:57:29"], ["1982-09-05 01:00:51", "1982-09-08 20:12:25"], ["1982-09-10 00:43:32", "1982-09-12 19:34:50"], ["1982-09-14 00:51:16", "1983-02-18 16:42:26"]], "page": "./DE2_LAPI_GEIGER-MUELLER.html"}, {"name": "DE2_LAPI_GEIGER-MUELLER-RATIO", "instrument": "DE2", "product": "SWRI_GEIGER-MUELLER-RATIO-CDF", "cdf_count": 5782, "active_days": 91.74225694444445, "coverage_pct": 16.61551334723694, "earliest": "1981-08-15", "latest": "1983-02-18", "intervals": [["1981-08-15 13:09:02", "1981-08-29 03:07:17"], ["1981-08-31 13:16:55", "1981-08-31 13:17:25"], ["1981-09-04 10:37:43", "1982-02-23 23:47:40"], ["1982-02-27 00:18:46", "1982-03-16 22:17:34"], ["1982-04-05 00:45:30", "1982-08-10 00:56:38"], ["1982-08-11 03:15:29", "1982-08-13 23:50:55"], ["1982-08-15 02:06:17", "1982-08-26 22:44:00"], ["1982-08-28 03:31:15", "1982-08-28 21:54:41"], ["1982-08-30 01:26:51", "1982-08-30 21:39:37"], ["1982-09-03 07:33:31", "1982-09-03 07:57:29"], ["1982-09-05 01:00:51", "1982-09-08 20:12:25"], ["1982-09-10 00:43:32", "1982-09-12 19:34:50"], ["1982-09-14 00:51:16", "1983-02-18 16:42:26"]], "page": "./DE2_LAPI_GEIGER-MUELLER-RATIO.html"}, {"name": "DE2_LAPI_ION-FLUX-COUNTS-PPS1", "instrument": "DE2", "product": "SWRI_ION-FLUX-COUNTS-PPS1-CDF", "cdf_count": 5799, "active_days": 91.60383101851852, "coverage_pct": 16.590443960657787, "earliest": "1981-08-15", "latest": "1983-02-18", "intervals": [["1981-08-15 13:09:02", "1981-08-29 03:07:16"], ["1981-08-31 13:16:55", "1981-08-31 13:17:24"], ["1981-09-04 10:37:43", "1982-02-23 23:47:39"], ["1982-02-27 00:18:46", "1982-03-16 22:17:34"], ["1982-04-05 00:45:30", "1982-08-10 00:56:38"], ["1982-08-11 03:15:29", "1982-08-13 23:50:55"], ["1982-08-15 02:06:17", "1982-08-26 22:43:57"], ["1982-08-28 03:31:15", "1982-08-28 21:54:40"], ["1982-08-30 01:26:51", "1982-08-30 21:39:34"], ["1982-09-03 07:33:31", "1982-09-03 07:57:29"], ["1982-09-05 01:00:51", "1982-09-08 20:12:22"], ["1982-09-10 00:43:32", "1982-09-12 19:34:50"], ["1982-09-14 00:51:16", "1983-02-18 16:42:23"]], "page": "./DE2_LAPI_ION-FLUX-COUNTS-PPS1.html"}, {"name": "DE2_LAPI_ION-FLUX-COUNTS-PPS2", "instrument": "DE2", "product": "SWRI_ION-FLUX-COUNTS-PPS2-CDF", "cdf_count": 5805, "active_days": 91.45670138888889, "coverage_pct": 16.563796847171115, "earliest": "1981-08-15", "latest": "1983-02-18", "intervals": [["1981-08-15 13:09:01", "1981-08-29 03:07:16"], ["1981-08-31 13:16:55", "1981-08-31 13:17:24"], ["1981-09-04 10:37:42", "1982-02-23 23:47:39"], ["1982-02-27 00:18:46", "1982-03-16 22:17:34"], ["1982-04-05 00:45:29", "1982-08-10 00:56:38"], ["1982-08-11 03:15:28", "1982-08-13 23:50:55"], ["1982-08-15 02:06:17", "1982-08-26 22:43:58"], ["1982-08-28 03:31:13", "1982-08-28 21:54:40"], ["1982-08-30 01:26:50", "1982-08-30 21:39:34"], ["1982-09-03 07:33:31", "1982-09-03 07:57:29"], ["1982-09-05 01:00:50", "1982-09-08 20:12:22"], ["1982-09-10 00:43:31", "1982-09-12 19:34:50"], ["1982-09-14 00:51:15", "1983-02-18 16:42:23"]], "page": "./DE2_LAPI_ION-FLUX-COUNTS-PPS2.html"}, {"name": "DE2_LAPI_LAPI-MAG", "instrument": "DE2", "product": "SWRI_LAPI-MAG-CDF", "cdf_count": 5782, "active_days": 91.74225694444445, "coverage_pct": 16.61551334723694, "earliest": "1981-08-15", "latest": "1983-02-18", "intervals": [["1981-08-15 13:09:02", "1981-08-29 03:07:17"], ["1981-08-31 13:16:55", "1981-08-31 13:17:25"], ["1981-09-04 10:37:43", "1982-02-23 23:47:40"], ["1982-02-27 00:18:46", "1982-03-16 22:17:34"], ["1982-04-05 00:45:30", "1982-08-10 00:56:38"], ["1982-08-11 03:15:29", "1982-08-13 23:50:55"], ["1982-08-15 02:06:17", "1982-08-26 22:44:00"], ["1982-08-28 03:31:15", "1982-08-28 21:54:41"], ["1982-08-30 01:26:51", "1982-08-30 21:39:37"], ["1982-09-03 07:33:31", "1982-09-03 07:57:29"], ["1982-09-05 01:00:51", "1982-09-08 20:12:25"], ["1982-09-10 00:43:32", "1982-09-12 19:34:50"], ["1982-09-14 00:51:16", "1983-02-18 16:42:26"]], "page": "./DE2_LAPI_LAPI-MAG.html"}, {"name": "DE2_LAPI_ORBIT-ATTITUDE", "instrument": "DE2", "product": "SWRI_ORBIT-ATTITUDE-CDF", "cdf_count": 5773, "active_days": 90.78684027777778, "coverage_pct": 16.44248189782371, "earliest": "1981-08-15", "latest": "1983-02-18", "intervals": [["1981-08-15 13:09:02", "1981-08-29 03:07:03"], ["1981-08-31 13:16:55", "1981-08-31 13:17:11"], ["1981-09-04 10:37:43", "1982-02-23 23:47:26"], ["1982-02-27 00:18:46", "1982-03-16 22:17:20"], ["1982-04-05 00:45:30", "1982-08-10 00:56:24"], ["1982-08-11 03:15:29", "1982-08-13 23:50:41"], ["1982-08-15 02:06:17", "1982-08-26 22:43:46"], ["1982-08-28 03:31:15", "1982-08-28 21:54:27"], ["1982-08-30 01:26:51", "1982-08-30 21:39:23"], ["1982-09-03 07:33:31", "1982-09-03 07:57:15"], ["1982-09-05 01:00:51", "1982-09-08 20:12:11"], ["1982-09-10 00:43:32", "1982-09-12 19:34:36"], ["1982-09-14 00:51:16", "1983-02-18 16:42:12"]], "page": "./DE2_LAPI_ORBIT-ATTITUDE.html"}, {"name": "DE2_LAPI_ORBIT-ATTITUDE-MAGB", "instrument": "DE2", "product": "SWRI_ORBIT-ATTITUDE-MAGB-CDF", "cdf_count": 4844, "active_days": 109.54013888888889, "coverage_pct": 19.902326588435745, "earliest": "1981-08-15", "latest": "1983-02-16", "intervals": [["1981-08-15 03:44:46", "1981-08-29 03:06:59"], ["1981-09-04 09:12:07", "1982-02-23 23:47:18"], ["1982-02-27 00:19:10", "1982-08-30 21:39:20"], ["1982-09-02 03:48:59", "1982-12-23 14:50:13"], ["1982-12-24 18:22:04", "1983-02-16 13:04:22"]], "page": "./DE2_LAPI_ORBIT-ATTITUDE-MAGB.html"}, {"name": "DE2_LAPI_PITCH-ANGLES", "instrument": "DE2", "product": "SWRI_PITCH-ANGLES-CDF", "cdf_count": 4904, "active_days": 92.1530787037037, "coverage_pct": 16.68991410528748, "earliest": "1981-08-15", "latest": "1983-02-18", "intervals": [["1981-08-15 13:08:52", "1981-08-29 03:07:16"], ["1981-08-31 13:16:45", "1981-08-31 13:17:24"], ["1981-09-04 10:37:44", "1982-02-23 23:47:39"], ["1982-02-27 00:18:37", "1982-03-16 22:17:33"], ["1982-04-05 00:45:21", "1982-08-10 00:56:38"], ["1982-08-11 03:15:19", "1982-08-13 23:50:54"], ["1982-08-15 02:06:08", "1982-08-26 22:44:00"], ["1982-08-28 03:31:05", "1982-08-28 21:54:40"], ["1982-08-30 01:26:41", "1982-08-30 21:39:36"], ["1982-09-03 07:33:21", "1982-09-03 07:57:28"], ["1982-09-05 01:00:42", "1982-09-08 20:12:25"], ["1982-09-10 00:43:22", "1982-09-12 19:34:49"], ["1982-09-14 00:51:07", "1983-02-18 16:42:26"]], "page": "./DE2_LAPI_PITCH-ANGLES.html"}, {"name": "DE2_LAPI_PROJECTED-MAGB", "instrument": "DE2", "product": "SWRI_PROJECTED-MAGB-CDF", "cdf_count": 4904, "active_days": 92.1530787037037, "coverage_pct": 16.68991410528748, "earliest": "1981-08-15", "latest": "1983-02-18", "intervals": [["1981-08-15 13:08:52", "1981-08-29 03:07:16"], ["1981-08-31 13:16:45", "1981-08-31 13:17:24"], ["1981-09-04 10:37:44", "1982-02-23 23:47:39"], ["1982-02-27 00:18:37", "1982-03-16 22:17:33"], ["1982-04-05 00:45:21", "1982-08-10 00:56:38"], ["1982-08-11 03:15:19", "1982-08-13 23:50:54"], ["1982-08-15 02:06:08", "1982-08-26 22:44:00"], ["1982-08-28 03:31:05", "1982-08-28 21:54:40"], ["1982-08-30 01:26:41", "1982-08-30 21:39:36"], ["1982-09-03 07:33:21", "1982-09-03 07:57:28"], ["1982-09-05 01:00:42", "1982-09-08 20:12:25"], ["1982-09-10 00:43:22", "1982-09-12 19:34:49"], ["1982-09-14 00:51:07", "1983-02-18 16:42:26"]], "page": "./DE2_LAPI_PROJECTED-MAGB.html"}, {"name": "DE2_LAPI_SC-MAGB", "instrument": "DE2", "product": "SWRI_SPACECRAFT-MAGB-CDF", "cdf_count": 5197, "active_days": 123.40292824074074, "coverage_pct": 22.421052682491048, "earliest": "1981-08-15", "latest": "1983-02-16", "intervals": [["1981-08-15 03:44:46", "1981-08-29 03:06:59"], ["1981-09-04 09:11:59", "1982-02-23 23:47:23"], ["1982-02-27 00:19:02", "1982-08-30 21:39:20"], ["1982-09-02 03:48:59", "1982-12-23 14:57:32"], ["1982-12-24 18:21:56", "1983-02-16 13:04:25"]], "page": "./DE2_LAPI_SC-MAGB.html"}, {"name": "DE2_LAPI_SHAFT-ENCODER-ANGLE", "instrument": "DE2", "product": "SWRI-SHAFT-ENCODER-ANGLE-CDF", "cdf_count": 5782, "active_days": 91.6090625, "coverage_pct": 16.591391090715092, "earliest": "1981-08-15", "latest": "1983-02-18", "intervals": [["1981-08-15 13:09:02", "1981-08-29 03:07:15"], ["1981-08-31 13:16:55", "1981-08-31 13:17:23"], ["1981-09-04 10:37:43", "1982-02-23 23:47:38"], ["1982-02-27 00:18:46", "1982-03-16 22:17:32"], ["1982-04-05 00:45:30", "1982-08-10 00:56:36"], ["1982-08-11 03:15:29", "1982-08-13 23:50:53"], ["1982-08-15 02:06:17", "1982-08-26 22:43:58"], ["1982-08-28 03:31:15", "1982-08-28 21:54:39"], ["1982-08-30 01:26:51", "1982-08-30 21:39:35"], ["1982-09-03 07:33:31", "1982-09-03 07:57:27"], ["1982-09-05 01:00:51", "1982-09-08 20:12:23"], ["1982-09-10 00:43:32", "1982-09-12 19:34:48"], ["1982-09-14 00:51:16", "1983-02-18 16:42:24"]], "page": "./DE2_LAPI_SHAFT-ENCODER-ANGLE.html"}, {"name": "DE2_NEUTRAL1S_NACS", "instrument": "DE2", "product": "NEUTRAL1S_NACS_CDAWEB", "cdf_count": 539, "active_days": 446.7471296296296, "coverage_pct": 80.33369775852492, "earliest": "1981-08-08", "latest": "1983-02-15", "intervals": [["1981-08-08 13:40:02", "1981-08-08 19:19:00"], ["1981-08-13 01:23:15", "1981-08-13 02:00:27"], ["1981-08-16 04:28:54", "1981-08-17 20:02:08"], ["1981-08-19 03:05:43", "1981-08-28 23:12:36"], ["1981-09-04 09:11:44", "1982-02-23 23:47:20"], ["1982-02-27 00:17:12", "1982-08-30 21:39:19"], ["1982-09-02 03:49:09", "1983-02-15 16:24:32"]], "page": "./DE2_NEUTRAL1S_NACS.html"}, {"name": "DE2_NEUTRAL8S_FPI", "instrument": "DE2", "product": "DE2_NEUTRAL8S_FPI", "cdf_count": 308, "active_days": 203.25768518518518, "coverage_pct": 36.60033416070426, "earliest": "1981-08-09", "latest": "1983-02-16", "intervals": [["1981-08-09 21:09:28", "1981-08-10 02:21:36"], ["1981-08-11 07:35:12", "1981-08-11 09:00:48"], ["1981-09-19 02:16:56", "1981-09-23 21:47:04"], ["1981-09-25 05:39:44", "1981-11-02 04:26:16"], ["1981-11-03 08:58:48", "1981-11-18 18:31:44"], ["1981-11-19 20:34:24", "1982-01-15 09:36:32"], ["1982-01-16 16:07:44", "1982-01-17 09:45:12"], ["1982-01-18 12:10:00", "1982-02-16 22:24:56"], ["1982-09-11 00:13:44", "1983-02-02 11:54:48"], ["1983-02-03 17:47:44", "1983-02-04 15:36:56"], ["1983-02-06 02:04:16", "1983-02-08 16:16:16"], ["1983-02-10 01:57:04", "1983-02-11 10:51:12"], ["1983-02-12 15:13:20", "1983-02-13 16:44:00"], ["1983-02-15 01:40:00", "1983-02-16 05:24:32"]], "page": "./DE2_NEUTRAL8S_FPI.html"}, {"name": "DE2_PLASMA500MS_LANG", "instrument": "DE2", "product": "PLASMA500MS_LANG_CDAWEB", "cdf_count": 542, "active_days": 450.85244212962965, "coverage_pct": 80.55398035643171, "earliest": "1981-08-05", "latest": "1983-02-16", "intervals": [["1981-08-05 20:31:02", "1981-08-05 20:52:57"], ["1981-08-08 00:37:18", "1981-08-08 16:47:22"], ["1981-08-13 01:22:30", "1981-08-13 20:36:21"], ["1981-08-16 11:38:55", "1981-08-17 22:55:31"], ["1981-08-19 03:05:43", "1981-08-28 23:12:35"], ["1981-08-31 03:06:56", "1981-08-31 03:06:59"], ["1981-09-04 09:12:08", "1982-02-23 23:47:22"], ["1982-02-27 12:07:19", "1982-08-30 21:39:19"], ["1982-09-02 03:48:52", "1983-02-16 13:04:24"]], "page": "./DE2_PLASMA500MS_LANG.html"}, {"name": "DE2_UA16S_ALL", "instrument": "DE2", "product": "UA16S_ALL_CDAWEB", "cdf_count": 549, "active_days": 472.3451851851852, "coverage_pct": 84.37285608150083, "earliest": "1981-08-06", "latest": "1983-02-16", "intervals": [["1981-08-06 03:24:48", "1981-08-08 19:21:52"], ["1981-08-10 13:31:12", "1981-08-11 09:00:32"], ["1981-08-12 15:01:04", "1981-08-29 03:06:56"], ["1981-09-04 09:12:00", "1982-02-23 23:47:12"], ["1982-02-27 00:17:20", "1982-08-30 21:39:28"], ["1982-09-02 03:49:04", "1983-02-16 23:21:04"]], "page": "./DE2_UA16S_ALL.html"}, {"name": "DE2_VION250MS_IDM", "instrument": "DE2", "product": "VION250MS_CDAWEB", "cdf_count": 534, "active_days": 426.13547453703706, "coverage_pct": 77.42447497216509, "earliest": "1981-08-15", "latest": "1983-02-16", "intervals": [["1981-08-15 03:44:46", "1981-08-29 03:07:03"], ["1981-09-04 09:12:07", "1981-12-18 19:53:49"], ["1981-12-20 15:21:41", "1981-12-20 16:02:37"], ["1981-12-22 21:50:38", "1981-12-22 22:14:30"], ["1981-12-24 07:20:38", "1981-12-24 15:54:54"], ["1981-12-27 04:18:30", "1982-01-22 08:38:10"], ["1982-01-23 13:18:50", "1982-02-23 23:47:18"], ["1982-02-27 00:19:10", "1982-04-05 10:41:15"], ["1982-04-06 13:16:19", "1982-06-09 22:35:22"], ["1982-06-11 02:02:34", "1982-08-12 05:30:49"], ["1982-08-13 10:53:13", "1982-08-16 05:58:33"], ["1982-08-18 05:21:53", "1982-08-30 21:39:15"], ["1982-09-02 03:48:59", "1983-02-16 13:04:20"]], "page": "./DE2_VION250MS_IDM.html"}, {"name": "DE2_WIND2S_WATS", "instrument": "DE2", "product": "WIND2S_WATS_CDAWEB", "cdf_count": 533, "active_days": 436.8525462962963, "coverage_pct": 78.28105821039009, "earliest": "1981-08-08", "latest": "1983-02-17", "intervals": [["1981-08-08 15:54:00", "1981-08-08 19:19:56"], ["1981-08-14 21:27:03", "1981-08-14 22:03:07"], ["1981-08-16 04:28:39", "1981-08-28 23:12:30"], ["1981-09-04 09:14:32", "1981-12-16 10:07:23"], ["1981-12-23 04:09:18", "1982-02-23 23:47:17"], ["1982-02-27 00:18:55", "1982-07-26 19:55:42"], ["1982-07-29 05:12:48", "1982-08-30 21:39:14"], ["1982-09-02 03:49:00", "1983-02-17 17:15:23"]], "page": "./DE2_WIND2S_WATS.html"}, {"name": "DE_UV_SAI", "instrument": "DE1", "product": "UV_SAI_CDAWEB", "cdf_count": 1856, "active_days": 1437.4694097222223, "coverage_pct": 41.85239522816737, "earliest": "1981-09-23", "latest": "1991-02-18", "intervals": [["1981-09-23 19:02:17", "1982-02-09 21:59:01"], ["1982-02-15 05:37:03", "1982-03-06 15:36:32"], ["1982-03-08 14:50:15", "1982-03-12 21:53:18"], ["1982-03-20 00:35:16", "1982-04-09 10:44:42"], ["1982-04-12 23:27:24", "1982-04-27 23:52:07"], ["1982-04-29 02:24:44", "1982-05-31 23:05:03"], ["1982-07-06 20:03:13", "1982-07-07 11:24:01"], ["1982-07-12 04:56:10", "1982-07-17 02:57:01"], ["1982-07-20 04:20:14", "1982-07-20 06:09:58"], ["1982-07-21 13:21:14", "1982-07-21 14:32:39"], ["1982-07-23 02:31:40", "1982-07-23 08:49:29"], ["1982-07-27 21:17:13", "1982-08-08 21:25:39"], ["1982-09-21 10:47:07", "1982-09-22 20:44:37"], ["1982-09-25 12:18:01", "1982-11-19 17:10:40"], ["1982-11-23 16:02:07", "1982-11-23 18:16:28"], ["1982-12-07 14:47:14", "1983-02-10 19:35:26"], ["1983-03-19 00:09:37", "1983-08-07 20:13:47"], ["1983-09-23 02:31:17", "1984-01-29 23:49:54"], ["1984-02-01 00:09:10", "1984-02-12 00:29:43"], ["1984-03-18 21:01:55", "1984-06-23 05:29:20"], ["1984-06-27 22:31:23", "1984-08-05 20:12:15"], ["1984-09-22 02:36:50", "1985-02-10 23:48:39"], ["1985-02-20 19:00:47", "1985-02-20 19:37:04"], ["1985-02-22 18:55:49", "1985-02-22 19:32:05"], ["1985-02-24 18:41:51", "1985-02-24 19:18:02"], ["1985-02-26 18:36:53", "1985-02-26 19:13:04"], ["1985-02-28 18:33:59", "1985-02-28 19:10:16"], ["1985-03-02 18:29:03", "1985-03-02 19:05:14"], ["1985-03-04 18:19:58", "1985-03-04 18:56:15"], ["1985-03-06 18:25:03", "1985-03-06 18:37:03"], ["1985-03-08 18:17:01", "1985-03-08 18:29:06"], ["1985-03-19 01:07:03", "1985-03-27 15:48:15"], ["1985-03-28 18:56:10", "1985-03-29 08:38:54"], ["1985-03-31 19:32:11", "1985-03-31 21:57:43"], ["1985-04-11 02:03:15", "1985-04-12 03:29:51"], ["1985-04-19 01:52:20", "1985-04-19 13:48:54"], ["1985-04-21 01:47:19", "1985-04-21 05:37:54"], ["1985-04-23 01:14:16", "1985-04-24 02:54:55"], ["1985-04-29 22:49:25", "1985-08-08 17:53:09"], ["1985-09-23 12:21:03", "1986-01-31 21:54:52"], ["1986-02-20 02:43:40", "1986-03-10 19:41:16"], ["1986-03-21 05:12:08", "1986-04-22 21:46:15"], ["1986-04-24 03:02:22", "1986-07-13 14:59:13"], ["1986-07-14 17:54:13", "1986-08-07 19:45:27"], ["1986-09-23 03:08:43", "1987-02-04 23:53:28"], ["1987-03-18 13:27:34", "1987-03-19 16:26:24"], ["1987-03-21 02:31:35", "1987-03-23 05:39:05"], ["1987-03-24 19:40:35", "1987-04-02 12:58:49"], ["1987-04-04 09:00:49", "1987-04-05 01:31:56"], ["1987-04-07 19:07:50", "1987-04-07 22:10:10"], ["1987-04-18 08:53:01", "1987-04-19 00:53:16"], ["1987-04-24 01:28:05", "1987-04-24 04:18:25"], ["1987-05-03 05:14:16", "1987-05-03 07:28:06"], ["1987-05-05 10:50:19", "1987-05-05 13:28:29"], ["1987-05-15 04:47:46", "1987-05-15 06:00:47"], ["1987-05-17 08:43:48", "1987-05-17 09:56:46"], ["1987-05-28 13:35:05", "1987-06-03 14:20:11"], ["1987-06-05 06:03:23", "1987-06-05 08:17:10"], ["1987-06-07 13:40:25", "1987-06-07 14:53:21"], ["1987-06-08 17:03:27", "1987-06-17 17:07:49"], ["1987-06-23 14:20:22", "1987-06-25 06:53:37"], ["1987-06-26 21:43:21", "1987-08-07 17:03:05"], ["1987-09-22 17:53:40", "1987-11-16 00:34:16"], ["1987-11-17 03:10:21", "1987-12-03 23:55:22"], ["1987-12-05 02:02:29", "1987-12-14 19:53:11"], ["1987-12-17 07:32:41", "1987-12-19 12:44:12"], ["1987-12-21 01:12:46", "1987-12-21 06:21:18"], ["1987-12-23 01:07:45", "1987-12-23 12:43:27"], ["1987-12-24 18:47:49", "1987-12-28 08:59:15"], ["1987-12-29 21:32:54", "1988-01-30 21:50:43"], ["1988-03-13 01:00:03", "1988-04-13 23:59:33"], ["1988-09-07 15:24:58", "1988-10-01 16:26:12"], ["1988-10-03 22:12:15", "1988-10-04 00:25:23"], ["1988-10-05 22:07:14", "1988-10-06 00:20:29"], ["1988-10-10 03:22:21", "1988-10-10 04:10:42"], ["1988-10-13 21:52:23", "1988-10-13 23:53:27"], ["1988-10-21 11:30:29", "1988-10-22 15:24:29"], ["1988-12-26 02:29:13", "1989-01-30 22:17:27"], ["1989-03-12 01:56:54", "1989-03-22 09:09:44"], ["1989-03-27 16:02:01", "1989-03-27 17:51:11"], ["1989-07-27 03:47:07", "1989-07-27 04:35:47"], ["1989-09-13 03:28:25", "1989-09-13 05:17:20"], ["1989-09-15 03:23:22", "1989-09-15 05:12:24"], ["1990-03-12 05:26:55", "1990-03-12 07:16:19"], ["1990-03-14 11:56:58", "1990-03-15 03:04:51"], ["1990-03-21 00:57:01", "1990-03-21 01:45:32"], ["1990-03-22 15:27:00", "1990-03-23 05:35:32"], ["1990-03-27 08:12:03", "1990-03-27 10:01:22"], ["1990-03-28 12:32:02", "1990-03-28 14:24:36"], ["1990-09-17 19:57:16", "1990-09-17 20:45:47"], ["1990-09-19 05:07:19", "1990-09-26 23:47:40"], ["1990-10-06 10:22:30", "1990-10-06 11:11:01"], ["1990-10-08 15:17:30", "1990-10-08 16:06:02"], ["1990-10-11 02:17:34", "1990-10-11 03:06:06"], ["1990-10-15 15:23:37", "1990-10-15 16:36:19"], ["1991-02-16 08:33:17", "1991-02-17 06:00:15"], ["1991-02-18 08:28:00", "1991-02-18 09:50:31"]], "page": "./DE_UV_SAI.html"}, {"name": "DE_VS_EICS", "instrument": "Particles (space)", "product": "DE_VS_EICS", "cdf_count": 2390, "active_days": 1408.5044444444445, "coverage_pct": 40.9247911475015, "earliest": "1981-09-16", "latest": "1991-02-18", "intervals": [["1981-09-16 17:17:36", "1981-09-22 09:51:12"], ["1981-09-23 13:04:48", "1981-12-30 22:02:24"], ["1982-01-01 03:17:36", "1982-04-04 07:08:00"], ["1982-04-07 00:05:36", "1982-04-07 17:30:24"], ["1982-04-09 09:35:12", "1982-04-09 10:47:12"], ["1982-04-13 00:05:36", "1982-04-22 04:58:24"], ["1982-04-23 13:17:36", "1982-04-24 04:53:36"], ["1982-04-25 13:12:48", "1982-04-28 00:10:24"], ["1982-04-29 02:29:36", "1982-05-10 19:51:12"], ["1982-05-12 01:11:12", "1982-05-20 23:57:36"], ["1982-05-22 07:38:24", "1982-06-01 10:23:12"], ["1982-06-03 08:12:00", "1982-06-13 03:43:12"], ["1982-06-14 11:46:24", "1982-07-17 03:03:12"], ["1982-07-18 15:22:24", "1982-07-18 20:13:36"], ["1982-07-21 01:19:12", "1982-07-21 01:41:36"], ["1982-07-23 02:10:24", "1982-07-23 08:58:24"], ["1982-07-24 15:06:24", "1982-07-24 15:25:36"], ["1982-07-27 21:24:00", "1982-09-08 04:18:24"], ["1982-09-11 01:11:12", "1982-09-12 08:08:48"], ["1982-09-14 00:44:00", "1982-09-14 03:44:48"], ["1982-09-16 15:30:24", "1982-09-17 13:41:36"], ["1982-09-19 06:02:24", "1982-09-22 07:17:36"], ["1982-09-24 07:08:00", "1982-11-19 17:22:24"], ["1982-12-07 15:54:24", "1983-01-04 02:12:00"], ["1983-01-10 04:04:00", "1983-01-12 00:48:48"], ["1983-01-15 15:11:12", "1983-01-18 07:22:24"], ["1983-01-20 17:24:00", "1983-01-20 21:00:00"], ["1983-01-22 11:24:00", "1983-01-28 10:05:36"], ["1983-01-30 03:52:48", "1983-03-01 10:32:48"], ["1983-03-02 12:56:48", "1983-03-03 10:29:36"], ["1983-03-05 08:02:24", "1983-03-06 19:03:12"], ["1983-03-09 00:32:48", "1983-03-09 07:59:12"], ["1983-03-14 02:20:00", "1983-03-29 11:57:36"], ["1983-04-08 01:30:24", "1983-04-08 20:12:00"], ["1983-04-19 11:03:12", "1983-04-19 13:48:00"], ["1983-05-01 06:48:48", "1983-05-01 11:11:12"], ["1983-05-04 15:57:36", "1983-05-04 16:16:48"], ["1983-05-08 16:02:24", "1983-05-08 16:29:36"], ["1983-05-10 15:44:48", "1983-05-10 21:08:00"], ["1983-05-24 13:20:48", "1983-05-24 13:38:24"], ["1983-05-26 12:36:00", "1983-05-26 13:33:36"], ["1983-05-28 15:33:36", "1983-05-28 18:16:48"], ["1983-06-01 01:08:00", "1983-06-07 07:52:48"], ["1983-06-08 11:35:12", "1983-07-06 19:49:36"], ["1983-07-08 01:12:48", "1983-07-08 01:17:36"], ["1983-07-10 01:08:00", "1983-07-11 04:29:36"], ["1983-07-13 01:51:12", "1983-07-13 08:28:00"], ["1983-07-16 06:47:12", "1983-07-25 17:03:12"], ["1983-08-11 05:03:12", "1983-08-11 05:51:12"], ["1983-08-22 01:14:24", "1983-08-22 03:00:00"], ["1983-09-07 00:34:24", "1983-09-07 03:59:12"], ["1983-09-20 01:06:24", "1983-09-20 04:08:48"], ["1983-09-23 02:31:12", "1983-09-23 07:20:48"], ["1983-10-04 05:20:48", "1983-10-05 11:56:00"], ["1983-10-09 01:52:48", "1983-10-09 02:42:24"], ["1983-10-17 01:17:36", "1983-10-17 23:41:36"], ["1983-10-19 02:45:36", "1983-10-19 06:39:12"], ["1983-10-22 00:04:00", "1983-10-23 06:28:00"], ["1983-10-31 07:28:48", "1983-11-02 09:12:48"], ["1983-11-12 01:09:36", "1983-11-13 07:22:24"], ["1983-11-15 17:00:00", "1983-11-16 17:46:24"], ["1983-11-24 04:24:48", "1984-04-19 21:32:00"], ["1984-04-21 02:28:00", "1984-05-12 08:23:12"], ["1984-05-13 19:20:48", "1984-05-15 08:32:48"], ["1984-05-17 01:00:00", "1984-05-19 22:15:12"], ["1984-05-21 00:47:12", "1984-06-05 11:56:00"], ["1984-06-07 03:20:48", "1984-06-23 12:02:24"], ["1984-06-27 22:53:36", "1984-06-30 23:08:00"], ["1984-07-02 05:32:00", "1984-07-05 02:32:48"], ["1984-07-07 01:51:12", "1984-07-15 09:54:24"], ["1984-07-17 01:20:48", "1984-08-02 15:33:36"], ["1984-08-04 00:31:12", "1984-08-06 10:18:24"], ["1984-08-08 01:36:48", "1984-09-04 00:47:12"], ["1984-09-14 02:56:48", "1984-09-15 21:17:36"], ["1984-09-21 23:04:48", "1984-09-22 04:16:48"], ["1984-09-23 15:36:48", "1984-09-24 04:50:24"], ["1984-09-25 15:32:00", "1984-09-29 05:40:00"], ["1984-10-01 11:27:12", "1984-12-05 16:37:36"], ["1984-12-06 21:40:00", "1984-12-07 09:52:48"], ["1984-12-08 16:24:48", "1985-01-02 01:44:48"], ["1985-01-04 12:29:36", "1985-01-04 15:22:24"], ["1985-01-05 21:48:00", "1985-01-10 21:16:00"], ["1985-01-12 05:52:48", "1985-01-13 03:32:00"], ["1985-01-14 09:36:48", "1985-01-17 03:09:36"], ["1985-01-18 09:27:12", "1985-01-24 10:55:12"], ["1985-01-25 13:25:36", "1985-01-25 15:20:48"], ["1985-01-26 19:17:36", "1985-01-30 23:57:36"], ["1985-02-01 02:12:00", "1985-02-08 01:56:00"], ["1985-02-09 09:03:12", "1985-03-02 20:50:24"], ["1985-03-04 00:04:00", "1985-03-04 02:04:00"], ["1985-03-05 15:56:00", "1985-03-05 16:55:12"], ["1985-03-07 09:01:36", "1985-03-08 01:41:36"], ["1985-03-10 05:17:36", "1985-03-14 01:36:48"], ["1985-03-15 07:38:24", "1985-03-23 04:31:12"], ["1985-03-26 07:03:12", "1985-03-26 14:40:48"], ["1985-03-31 19:33:36", "1985-03-31 22:07:12"], ["1985-04-29 22:50:24", "1985-05-03 23:36:48"], ["1985-05-06 20:04:00", "1985-05-09 01:52:48"], ["1985-05-11 00:48:48", "1985-05-11 01:48:00"], ["1985-05-12 05:46:24", "1985-05-26 07:11:12"], ["1985-05-27 17:48:00", "1985-06-08 21:20:48"], ["1985-06-10 01:33:36", "1985-06-13 16:16:48"], ["1985-06-18 20:20:00", "1985-07-24 22:13:36"], ["1985-07-26 03:06:24", "1985-08-03 08:02:24"], ["1985-08-04 14:15:12", "1985-08-08 17:59:12"], ["1985-08-10 13:57:36", "1985-08-11 00:45:36"], ["1985-08-12 07:59:12", "1985-08-17 21:00:00"], ["1985-08-18 23:24:00", "1985-08-21 13:56:00"], ["1985-08-24 15:14:24", "1985-08-24 17:09:36"], ["1985-09-05 04:24:48", "1985-09-05 05:20:48"], ["1985-09-07 12:52:00", "1985-09-07 16:28:00"], ["1985-09-11 06:55:12", "1985-09-11 16:15:12"], ["1985-09-17 05:09:36", "1985-09-17 14:21:36"], ["1985-09-20 04:53:36", "1985-09-20 05:48:00"], ["1985-09-22 18:04:00", "1985-09-22 19:28:48"], ["1985-09-25 14:04:00", "1985-09-25 15:33:36"], ["1985-09-27 05:30:24", "1985-09-27 06:58:24"], ["1985-09-29 18:32:48", "1985-09-29 22:12:00"], ["1985-10-04 04:08:48", "1985-10-04 15:51:12"], ["1985-10-11 20:00:48", "1985-10-11 21:36:48"], ["1985-10-18 05:32:00", "1985-10-18 09:17:36"], ["1985-10-23 10:37:36", "1985-10-23 10:50:24"], ["1985-11-03 06:40:48", "1985-11-03 10:10:24"], ["1985-11-05 08:34:24", "1985-11-05 10:02:24"], ["1985-11-11 12:23:12", "1985-11-12 08:10:24"], ["1985-11-13 20:42:24", "1985-11-14 08:05:36"], ["1985-11-15 12:58:24", "1985-11-15 13:06:24"], ["1985-11-17 19:43:12", "1985-11-18 19:00:00"], ["1985-11-20 07:14:24", "1985-11-20 19:32:00"], ["1985-12-07 17:25:36", "1985-12-07 20:31:12"], ["1985-12-15 03:59:12", "1985-12-15 06:34:24"], ["1985-12-24 12:31:12", "1985-12-24 12:55:12"], ["1985-12-30 12:05:36", "1985-12-30 12:52:00"], ["1986-01-03 19:22:24", "1986-01-03 22:18:24"], ["1986-01-06 15:17:36", "1986-01-06 18:24:48"], ["1986-01-09 19:14:24", "1986-01-09 20:07:12"], ["1986-01-13 15:59:12", "1986-01-19 22:28:00"], ["1986-01-23 11:16:00", "1986-01-23 13:46:24"], ["1986-01-30 03:40:00", "1986-01-30 05:33:36"], ["1986-01-31 20:05:36", "1986-01-31 22:00:48"], ["1986-02-06 11:38:24", "1986-02-09 23:35:12"], ["1986-02-14 16:31:12", "1986-02-14 20:00:48"], ["1986-02-18 10:10:24", "1986-02-18 14:05:36"], ["1986-02-21 06:26:24", "1986-02-21 08:05:36"], ["1986-02-23 12:44:00", "1986-02-23 15:56:00"], ["1986-02-28 23:41:36", "1986-04-22 21:52:48"], ["1986-04-24 03:06:24", "1986-05-21 02:48:48"], ["1986-05-22 10:04:00", "1986-06-04 06:42:24"], ["1986-06-05 23:03:12", "1986-06-06 19:59:12"], ["1986-06-08 20:00:48", "1986-06-08 20:53:36"], ["1986-06-12 19:03:12", "1986-06-16 13:28:48"], ["1986-06-20 15:04:48", "1986-06-20 15:27:12"], ["1986-06-23 21:30:24", "1986-06-24 20:37:36"], ["1986-06-27 13:08:00", "1986-06-28 01:20:48"], ["1986-06-29 09:28:48", "1986-06-29 18:28:00"], ["1986-07-02 00:04:00", "1986-07-02 14:47:12"], ["1986-07-07 09:17:36", "1986-07-11 22:48:48"], ["1986-07-15 15:27:12", "1986-07-15 15:46:24"], ["1986-07-17 15:22:24", "1986-07-17 16:13:36"], ["1986-07-25 15:08:00", "1986-07-26 20:15:12"], ["1986-08-11 04:04:00", "1986-08-13 16:34:24"], ["1986-08-15 03:54:24", "1986-08-15 19:25:36"], ["1986-08-20 12:45:36", "1986-08-26 13:27:12"], ["1986-08-27 15:56:00", "1986-09-04 07:11:12"], ["1986-09-06 01:46:24", "1986-09-06 04:39:12"], ["1986-09-08 17:59:12", "1986-09-08 18:15:12"], ["1986-09-23 00:04:00", "1986-09-27 00:08:48"], ["1986-10-03 04:28:00", "1986-10-03 10:45:36"], ["1986-10-06 08:31:12", "1986-10-06 09:22:24"], ["1986-10-09 11:30:24", "1986-10-09 13:12:48"], ["1986-10-12 05:36:48", "1986-10-12 07:28:48"], ["1986-10-14 08:36:00", "1986-10-14 09:25:36"], ["1986-10-16 08:36:00", "1986-10-16 09:20:48"], ["1986-10-17 17:59:12", "1986-10-22 19:06:24"], ["1986-10-27 11:35:12", "1986-12-16 21:56:00"], ["1986-12-18 04:24:48", "1986-12-23 15:00:00"], ["1986-12-24 17:40:00", "1986-12-24 22:28:00"], ["1986-12-26 03:46:24", "1987-01-08 14:56:48"], ["1987-01-13 16:31:12", "1987-01-13 18:26:24"], ["1987-01-19 02:31:12", "1987-01-19 06:15:12"], ["1987-01-21 03:28:48", "1987-01-21 06:10:24"], ["1987-01-28 13:25:36", "1987-01-28 14:21:36"], ["1987-02-03 00:04:00", "1987-02-06 17:17:36"], ["1987-02-17 14:04:00", "1987-02-17 22:08:48"], ["1987-02-19 11:16:00", "1987-02-20 17:40:00"], ["1987-02-23 02:44:00", "1987-02-23 21:27:12"], ["1987-02-25 00:02:24", "1987-02-27 22:29:36"], ["1987-03-01 03:52:48", "1987-03-02 08:37:36"], ["1987-03-09 17:14:24", "1987-03-09 17:46:24"], ["1987-03-11 17:08:00", "1987-03-11 18:00:48"], ["1987-03-22 06:10:24", "1987-03-23 13:17:36"], ["1987-03-31 02:39:12", "1987-03-31 23:57:36"], ["1987-04-07 13:44:48", "1987-04-09 22:00:48"], ["1987-04-12 08:37:36", "1987-04-14 04:15:12"], ["1987-04-24 02:40:48", "1987-04-24 23:57:36"], ["1987-04-30 22:15:12", "1987-04-30 23:57:36"], ["1987-05-05 18:39:12", "1987-05-08 03:04:48"], ["1987-05-10 01:00:00", "1987-05-13 20:24:48"], ["1987-05-16 16:10:24", "1987-05-17 19:54:24"], ["1987-05-27 05:33:36", "1987-05-27 06:29:36"], ["1987-05-28 13:38:24", "1987-05-28 14:26:24"], ["1987-06-01 13:28:48", "1987-06-01 14:20:00"], ["1987-06-15 05:11:12", "1987-06-15 06:07:12"], ["1987-06-16 16:58:24", "1987-06-17 06:02:24"], ["1987-06-18 16:53:36", "1987-06-18 17:44:48"], ["1987-06-22 02:53:36", "1987-06-26 03:40:00"], ["1987-06-29 04:31:12", "1987-07-18 02:50:24"], ["1987-07-19 08:02:24", "1987-07-24 05:03:12"], ["1987-07-25 07:40:00", "1987-07-26 10:02:24"], ["1987-07-28 04:04:00", "1987-07-30 04:44:00"], ["1987-07-31 07:22:24", "1987-07-31 07:52:48"], ["1987-08-06 11:03:12", "1987-08-06 11:49:36"], ["1987-08-08 10:55:12", "1987-08-08 20:20:00"], ["1987-08-14 11:56:00", "1987-08-14 18:00:48"], ["1987-08-16 11:52:48", "1987-08-16 23:57:36"], ["1987-08-23 14:15:12", "1987-08-23 16:10:24"], ["1987-08-25 14:15:12", "1987-08-25 16:05:36"], ["1987-08-27 14:16:48", "1987-08-28 05:19:12"], ["1987-08-29 14:12:00", "1987-08-29 16:02:24"], ["1987-09-07 18:52:00", "1987-09-07 19:41:36"], ["1987-09-09 18:47:12", "1987-09-09 19:30:24"], ["1987-09-15 01:43:12", "1987-09-16 08:08:48"], ["1987-09-18 05:01:36", "1987-09-18 13:54:24"], ["1987-09-20 19:56:00", "1987-09-29 23:25:36"], ["1987-10-05 14:16:48", "1987-10-05 16:13:36"], ["1987-10-06 19:06:24", "1987-10-06 20:53:36"], ["1987-10-08 18:56:48", "1987-10-09 03:04:48"], ["1987-10-20 18:04:00", "1987-10-21 23:57:36"], ["1987-10-25 14:32:48", "1987-11-01 20:15:12"], ["1987-11-03 19:14:24", "1988-03-03 12:48:48"], ["1988-03-04 22:05:36", "1988-04-22 21:19:12"], ["1988-04-24 00:05:36", "1988-05-13 09:59:12"], ["1988-05-16 12:07:12", "1988-05-16 23:06:24"], ["1988-05-18 07:56:00", "1988-05-25 13:22:24"], ["1988-05-26 16:21:36", "1988-05-28 22:40:48"], ["1988-05-30 02:00:48", "1988-06-12 00:31:12"], ["1988-06-25 06:15:12", "1988-06-25 06:44:00"], ["1988-06-27 06:15:12", "1988-07-03 20:16:48"], ["1988-07-05 05:44:48", "1988-07-07 13:28:48"], ["1988-07-09 12:45:36", "1988-07-09 13:24:00"], ["1988-07-11 04:50:24", "1988-07-11 05:41:36"], ["1988-07-13 04:42:24", "1988-07-15 19:36:48"], ["1988-07-19 18:05:36", "1988-07-22 11:52:48"], ["1988-07-23 17:51:12", "1988-07-24 03:41:36"], ["1988-07-26 00:45:36", "1988-07-31 12:32:48"], ["1988-08-01 18:34:24", "1988-08-05 09:59:12"], ["1988-08-06 14:53:36", "1988-08-12 11:52:48"], ["1988-08-14 09:52:48", "1988-08-14 18:39:12"], ["1988-08-17 06:18:24", "1988-09-02 17:38:24"], ["1988-09-04 05:22:24", "1988-09-04 06:12:00"], ["1988-09-10 19:17:36", "1988-09-10 21:11:12"], ["1988-09-12 04:55:12", "1988-09-12 05:22:24"], ["1988-09-18 04:45:36", "1988-09-18 05:25:36"], ["1988-09-20 04:29:36", "1988-09-20 05:25:36"], ["1988-09-26 04:07:12", "1988-09-26 04:32:48"], ["1988-09-28 04:05:36", "1988-09-28 04:28:00"], ["1988-10-06 15:27:12", "1988-10-06 15:46:24"], ["1988-10-10 00:04:00", "1988-10-11 08:36:00"], ["1988-11-02 13:59:12", "1988-11-02 15:24:00"], ["1988-11-12 05:06:24", "1988-11-12 05:54:24"], ["1988-11-14 05:01:36", "1988-11-14 05:11:12"], ["1988-11-17 17:03:12", "1988-11-17 18:08:48"], ["1988-11-19 01:28:48", "1988-11-19 01:40:00"], ["1988-11-23 15:28:48", "1988-11-23 16:18:24"], ["1988-11-28 04:18:24", "1988-11-28 14:55:12"], ["1988-11-30 04:16:48", "1988-11-30 04:21:36"], ["1988-12-01 12:12:00", "1988-12-01 12:23:12"], ["1988-12-22 06:04:00", "1988-12-22 06:18:24"], ["1988-12-24 05:22:24", "1988-12-24 06:13:36"], ["1988-12-31 02:26:24", "1988-12-31 03:19:12"], ["1989-01-01 05:57:36", "1989-01-03 06:28:00"], ["1989-01-08 20:05:36", "1989-01-09 11:38:24"], ["1989-01-11 04:44:00", "1989-01-11 16:58:24"], ["1989-01-18 07:43:12", "1989-01-18 22:23:12"], ["1989-01-23 03:04:48", "1989-01-23 17:22:24"], ["1989-01-26 20:37:36", "1989-01-29 16:21:36"], ["1989-02-01 01:01:36", "1989-02-03 08:39:12"], ["1989-02-04 14:48:48", "1989-02-09 12:58:24"], ["1989-02-11 10:58:24", "1989-02-11 12:50:24"], ["1989-02-13 10:52:00", "1989-02-15 12:44:00"], ["1989-02-19 10:44:00", "1989-02-21 16:13:36"], ["1989-02-23 10:18:24", "1989-02-26 15:54:24"], ["1989-03-01 10:02:24", "1989-03-02 01:08:00"], ["1989-03-03 09:57:36", "1989-04-07 08:48:48"], ["1989-04-09 03:40:00", "1989-04-13 08:08:48"], ["1989-04-14 21:04:48", "1989-04-15 08:04:00"], ["1989-04-17 05:03:12", "1989-04-18 16:12:00"], ["1989-04-21 06:40:48", "1989-04-21 12:53:36"], ["1989-04-22 21:33:36", "1989-04-25 18:52:00"], ["1989-04-27 17:59:12", "1989-04-27 18:23:12"], ["1989-04-28 21:28:48", "1989-04-30 20:56:48"], ["1989-05-02 02:44:00", "1989-05-03 17:48:00"], ["1989-05-05 04:58:24", "1989-05-05 17:46:24"], ["1989-05-09 10:58:24", "1989-05-10 07:38:24"], ["1989-05-12 07:03:12", "1989-05-12 07:16:00"], ["1989-05-15 02:32:48", "1989-05-18 15:17:36"], ["1989-05-22 06:18:24", "1989-05-23 18:12:00"], ["1989-05-25 02:10:24", "1989-05-25 10:40:48"], ["1989-05-27 02:29:36", "1989-05-27 03:51:12"], ["1989-05-28 06:02:24", "1989-06-02 03:38:24"], ["1989-06-04 09:17:36", "1989-06-08 21:12:48"], ["1989-06-10 01:57:36", "1989-06-11 06:42:24"], ["1989-06-12 15:17:36", "1989-06-13 06:48:48"], ["1989-06-15 17:28:48", "1989-06-15 18:52:00"], ["1989-06-17 04:55:12", "1989-06-17 06:37:36"], ["1989-06-18 08:45:36", "1989-06-22 15:54:24"], ["1989-06-24 01:24:00", "1989-06-28 16:40:48"], ["1989-06-30 00:47:12", "1989-06-30 02:37:36"], ["1989-07-02 00:28:00", "1989-07-06 02:28:00"], ["1989-07-12 00:28:00", "1989-07-12 01:48:00"], ["1989-07-13 10:44:00", "1989-07-15 05:56:00"], ["1989-07-16 14:23:12", "1989-07-18 07:43:12"], ["1989-07-20 01:32:00", "1989-07-20 07:38:24"], ["1989-07-21 10:42:24", "1989-07-23 12:28:00"], ["1989-07-25 18:04:00", "1989-08-01 15:24:00"], ["1989-08-03 00:05:36", "1989-08-05 11:40:00"], ["1989-08-06 14:00:48", "1989-08-28 02:44:00"], ["1989-08-29 05:49:36", "1989-08-29 16:07:12"], ["1989-08-31 01:12:48", "1989-10-09 17:40:00"], ["1989-10-11 01:54:24", "1989-10-14 21:01:36"], ["1989-10-16 20:29:36", "1989-10-22 05:33:36"], ["1989-10-23 11:19:12", "1989-10-23 13:14:24"], ["1989-10-25 01:03:12", "1989-10-25 01:59:12"], ["1989-10-26 08:44:00", "1989-10-31 05:52:48"], ["1989-11-03 06:05:36", "1989-11-21 06:24:48"], ["1989-11-22 21:33:36", "1989-11-22 22:16:48"], ["1989-11-25 02:47:12", "1989-11-27 13:12:48"], ["1989-11-29 05:36:48", "1989-12-01 16:32:48"], ["1989-12-03 03:59:12", "1989-12-03 16:28:00"], ["1989-12-05 04:50:24", "1989-12-13 23:57:36"], ["1989-12-15 23:11:12", "1989-12-15 23:52:48"], ["1989-12-18 08:48:48", "1989-12-18 09:24:00"], ["1989-12-19 14:39:12", "1989-12-21 21:51:12"], ["1989-12-23 01:01:36", "1989-12-25 01:43:12"], ["1989-12-26 08:00:48", "1989-12-27 14:40:48"], ["1989-12-29 00:08:48", "1990-04-07 05:52:48"], ["1990-04-09 16:52:00", "1990-04-21 21:01:36"], ["1990-04-23 17:17:36", "1990-04-25 20:42:24"], ["1990-04-27 00:04:00", "1990-04-28 19:16:00"], ["1990-05-02 14:04:00", "1990-05-03 20:05:36"], ["1990-05-05 08:07:12", "1990-05-05 08:26:24"], ["1990-05-07 04:04:00", "1990-05-07 16:04:00"], ["1990-05-16 13:51:12", "1990-05-16 15:16:00"], ["1990-05-19 08:05:36", "1990-05-21 08:48:48"], ["1990-05-25 01:57:36", "1990-05-25 08:48:48"], ["1990-05-31 02:45:36", "1990-06-03 13:59:12"], ["1990-06-05 13:19:12", "1990-06-06 17:52:48"], ["1990-06-12 16:15:12", "1990-06-12 16:23:12"], ["1990-06-14 15:22:24", "1990-06-16 02:18:24"], ["1990-06-20 22:07:12", "1990-06-20 22:18:24"], ["1990-06-22 21:46:24", "1990-06-22 22:13:36"], ["1990-06-24 00:32:48", "1990-06-24 15:33:36"], ["1990-06-26 00:28:00", "1990-06-28 21:27:12"], ["1990-06-30 21:20:48", "1990-06-30 21:54:24"], ["1990-07-04 00:18:24", "1990-07-05 04:31:12"], ["1990-07-06 20:47:12", "1990-07-10 06:44:00"], ["1990-07-13 00:48:48", "1990-07-17 21:24:00"], ["1990-07-22 13:36:48", "1990-07-24 14:24:48"], ["1990-07-26 05:35:12", "1990-07-26 06:29:36"], ["1990-07-27 13:04:48", "1990-07-27 13:27:12"], ["1990-07-31 06:34:24", "1990-07-31 07:59:12"], ["1990-08-01 13:06:24", "1990-08-05 16:58:24"], ["1990-08-08 00:04:00", "1990-08-08 00:53:36"], ["1990-08-09 12:36:00", "1990-08-12 22:36:00"], ["1990-08-14 11:40:00", "1990-08-16 01:43:12"], ["1990-08-17 03:59:12", "1990-08-29 05:12:48"], ["1990-08-30 17:46:24", "1990-09-01 11:20:48"], ["1990-09-05 17:28:48", "1990-09-06 11:08:00"], ["1990-09-07 17:22:24", "1990-09-08 14:39:12"], ["1990-09-10 13:40:00", "1990-09-10 14:32:48"], ["1990-09-11 18:13:36", "1990-09-11 19:38:24"], ["1990-09-13 04:21:36", "1990-09-14 10:53:36"], ["1990-09-15 20:05:36", "1990-09-16 08:48:48"], ["1990-09-17 19:59:12", "1990-09-18 02:53:36"], ["1990-09-19 17:48:00", "1990-09-21 18:05:36"], ["1990-09-22 22:13:36", "1990-10-01 04:23:12"], ["1990-10-02 21:41:36", "1990-10-04 01:01:36"], ["1990-10-05 09:22:24", "1990-10-07 17:33:36"], ["1990-10-08 21:17:36", "1990-10-17 18:55:12"], ["1990-10-18 23:48:00", "1990-10-22 21:54:24"], ["1990-10-24 19:52:48", "1990-10-28 01:06:24"], ["1990-10-29 09:11:12", "1990-11-02 14:04:00"], ["1990-11-04 01:59:12", "1990-11-04 09:44:48"], ["1990-11-07 02:39:12", "1990-11-10 23:56:00"], ["1990-11-13 18:23:12", "1990-11-17 23:09:36"], ["1991-01-04 16:08:48", "1991-01-04 16:16:48"], ["1991-02-14 08:44:00", "1991-02-15 06:08:48"], ["1991-02-16 08:36:00", "1991-02-17 06:12:00"], ["1991-02-18 08:28:00", "1991-02-18 09:51:12"]], "page": "./DE_VS_EICS.html"}];
+
+    function parseDateMs(str) {
+      if (!str) return NaN;
+      const s = str.trim();
+      const iso = s.replace(/\//g, '-').replace(' ', 'T') + 'Z';
+      const ms = Date.parse(iso);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function enableSortableTable(tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      table.querySelectorAll('th.sortable').forEach((header, columnIndex) => {
+        header.tabIndex = 0;
+        header.setAttribute('role', 'button');
+        header.setAttribute('aria-sort', 'none');
+        const sortColumn = () => {
+          const ascending = header.getAttribute('aria-sort') !== 'ascending';
+          table.querySelectorAll('th.sortable').forEach(th => th.setAttribute('aria-sort', 'none'));
+          header.setAttribute('aria-sort', ascending ? 'ascending' : 'descending');
+          const rows = Array.from(table.tBodies[0].rows);
+          const type = header.getAttribute('data-sort-type');
+          rows.sort((left, right) => {
+            const a = left.cells[columnIndex].textContent.trim();
+            const b = right.cells[columnIndex].textContent.trim();
+            let comparison;
+            if (type === 'number') comparison = Number(a.replace(/[^0-9.-]/g, '')) - Number(b.replace(/[^0-9.-]/g, ''));
+            else if (type === 'date') comparison = parseDateMs(a.split('→')[0].trim()) - parseDateMs(b.split('→')[0].trim());
+            else comparison = a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+            return ascending ? comparison : -comparison;
+          });
+          rows.forEach(row => table.tBodies[0].appendChild(row));
+        };
+        header.addEventListener('click', sortColumn);
+        header.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); sortColumn(); }
+        });
+      });
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+      const newTheme = isDark ? 'light' : 'dark';
+      document.body.className = newTheme;
+      localStorage.setItem('cdaweb_theme', newTheme);
+      document.getElementById('theme-toggle').textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      updateView();
+    }
+
+    function toggleChartDisplay(show) {
+      const chartCard = document.getElementById('chart-card-container');
+      if (chartCard) {
+        chartCard.style.display = show ? 'block' : 'none';
+      }
+      if (show) {
+        updateView();
+        setTimeout(() => {
+          const plotDiv = document.getElementById('timeline-chart');
+          if (plotDiv) {
+            Plotly.Plots.resize(plotDiv);
+          }
+        }, 50);
+      }
+    }
+
+    function resetAllSelections() {
+      document.querySelectorAll('.dset-checkbox').forEach(cb => {
+        cb.checked = true;
+      });
+      const masterCb = document.getElementById('master-cb');
+      if (masterCb) masterCb.checked = true;
+      updateView();
+    }
+
+    function presetRange(type) {
+      document.querySelectorAll('.btn-preset').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-preset') === type);
+      });
+      if (type === 'all') {
+        if (window._globalMinTimeMs) {
+          document.getElementById('filter-start').value = formatAxisDate(window._globalMinTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-start').value = '';
+        }
+        if (window._globalMaxTimeMs) {
+          document.getElementById('filter-stop').value = formatAxisDate(window._globalMaxTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-stop').value = '';
+        }
+        updateView();
+        return;
+      }
+      const now = new Date();
+      const endStr = now.toISOString().split('T')[0];
+      let startStr = '';
+      if (type === '1y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 1);
+        startStr = d.toISOString().split('T')[0];
+      } else if (type === '5y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 5);
+        startStr = d.toISOString().split('T')[0];
+      }
+      document.getElementById('filter-start').value = startStr;
+      document.getElementById('filter-stop').value = endStr;
+      updateView();
+    }
+
+    function clearPresetHighlight() {
+      document.querySelectorAll('.btn-preset').forEach(btn => btn.classList.remove('active'));
+    }
+
+    function updateView() {
+      const showChart = document.getElementById('toggle-chart-cb')?.checked;
+      if (!showChart) {
+        return;
+      }
+
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const checkedBoxes = Array.from(document.querySelectorAll('.dset-checkbox:checked'));
+      const selectedNames = new Set(checkedBoxes.map(cb => cb.value));
+      const startFilter = document.getElementById('filter-start').value;
+      const stopFilter = document.getElementById('filter-stop').value;
+      const startFilterMs = startFilter ? parseDateMs(startFilter) : null;
+      const stopFilterMs = stopFilter ? parseDateMs(stopFilter + ' 23:59:59') : null;
+
+      const isLight = document.body.classList.contains('light');
+      const paperBg = isLight ? '#ffffff' : '#1e293b';
+      const plotBg = isLight ? '#f8fafc' : '#0f172a';
+      const textColor = isLight ? '#0f172a' : '#f8fafc';
+      const gridColor = isLight ? '#e2e8f0' : '#334155';
+
+      const timelineData = { y: [], x: [], base: [], colors: [], hovertext: [] };
+      const colors = ['#0284c7', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6'];
+
+      const activeDatasets = [];
+      allDatasets.forEach(d => {
+        if (instFilter && d.instrument !== instFilter) return;
+        if (query && !d.name.toLowerCase().includes(query) && !d.instrument.toLowerCase().includes(query) && !d.product.toLowerCase().includes(query)) return;
+        if (!selectedNames.has(d.name)) return;
+
+        const validIntervals = [];
+        d.intervals.forEach(inv => {
+          const s = inv[0];
+          const e = inv[1];
+          const sTime = parseDateMs(s);
+          const eTime = parseDateMs(e);
+          if (isNaN(sTime) || isNaN(eTime)) return;
+
+          if (startFilterMs && eTime < startFilterMs) return;
+          if (stopFilterMs && sTime > stopFilterMs) return;
+
+          const sClamped = startFilterMs ? Math.max(sTime, startFilterMs) : sTime;
+          const eClamped = stopFilterMs ? Math.min(eTime, stopFilterMs) : eTime;
+          if (eClamped <= sClamped) return;
+
+          validIntervals.push({ s, e, sClamped, eClamped });
+        });
+
+        if (validIntervals.length > 0) {
+          activeDatasets.push({ d, validIntervals });
+        }
+      });
+
+      const activeNames = activeDatasets.map(item => item.d.name);
+      activeDatasets.forEach((item, idx) => {
+        const color = colors[idx % colors.length];
+        const d = item.d;
+        item.validIntervals.forEach(inv => {
+          const durMs = Math.max(86400000, inv.eClamped - inv.sClamped);
+          timelineData.y.push(d.name);
+          timelineData.x.push(durMs);
+          timelineData.base.push(new Date(inv.sClamped).toISOString());
+          timelineData.colors.push(color);
+          timelineData.hovertext.push(`<b>${d.name}</b><br>${d.instrument} • ${d.product}<br>From: ${inv.s}<br>To: ${inv.e}<br><i>Click to unselect • Ctrl+Click to open full page</i>`);
+        });
+      });
+
+      const traces = timelineData.y.length ? [{
+        type: 'bar',
+        orientation: 'h',
+        y: timelineData.y,
+        x: timelineData.x,
+        base: timelineData.base,
+        marker: { color: timelineData.colors, line: { width: 0 } },
+        hoverinfo: 'text',
+        hovertext: timelineData.hovertext,
+        showlegend: false
+      }] : [];
+
+      const count = activeNames.length;
+      const barGap = count === 1 ? 0.75 : (count === 2 ? 0.6 : (count <= 4 ? 0.45 : 0.25));
+      const barWidth = count === 1 ? 0.32 : (count === 2 ? 0.45 : (count <= 4 ? 0.6 : 0.75));
+      traces.forEach(t => { t.width = barWidth; });
+      const plotHeight = count === 1 ? 140 : (count === 2 ? 180 : Math.max(220, count * 32 + 80));
+
+      const plotDiv = document.getElementById('timeline-chart');
+      plotDiv.style.height = plotHeight + 'px';
+      plotDiv.style.minHeight = plotHeight + 'px';
+
+      const xAxisConfig = {
+        type: 'date',
+        side: 'bottom',
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      // Determine if "All Time" preset is active
+      const allTimeBtn = document.querySelector('.btn-preset[data-preset="all"]');
+      const isAllTime = Boolean(allTimeBtn && allTimeBtn.classList.contains('active'));
+
+      // Calculate data bounds for currently selected/plotted items
+      let plottedMinMs = Infinity;
+      let plottedMaxMs = -Infinity;
+      for (let i = 0; i < timelineData.base.length; i++) {
+        const s = parseAxisTimeMs(timelineData.base[i]);
+        const dur = Number(timelineData.x[i]) || 0;
+        if (Number.isFinite(s)) {
+          if (s < plottedMinMs) plottedMinMs = s;
+          if ((s + dur) > plottedMaxMs) plottedMaxMs = s + dur;
+        }
+      }
+      const hasPlottedData = Number.isFinite(plottedMinMs) && Number.isFinite(plottedMaxMs) && plottedMaxMs >= plottedMinMs;
+
+      if (isAllTime && hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (startFilter && stopFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', stopFilter + ' 23:59:59'];
+        xAxisConfig.autorange = false;
+      } else if (startFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', formatAxisDate(window._globalMaxTimeMs || Date.now())];
+        xAxisConfig.autorange = false;
+      } else if (hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        xAxisConfig.range = [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)];
+        xAxisConfig.autorange = false;
+      } else {
+        xAxisConfig.autorange = true;
+      }
+
+      const xAxis2Config = {
+        type: 'date',
+        overlaying: 'x',
+        side: 'top',
+        matches: 'x',
+        showgrid: false,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      const yAxisConfig = {
+        type: 'category',
+        categoryorder: 'array',
+        categoryarray: activeNames.slice().reverse(),
+        automargin: true,
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor },
+        fixedrange: true,
+        autorange: true
+      };
+
+      const layout = {
+        height: plotHeight,
+        paper_bgcolor: paperBg,
+        plot_bgcolor: plotBg,
+        font: { color: textColor, size: 11 },
+        margin: { l: 180, r: 30, t: 35, b: 40 },
+        xaxis: xAxisConfig,
+        xaxis2: xAxis2Config,
+        yaxis: yAxisConfig,
+        barmode: 'overlay',
+        bargap: barGap,
+        bargroupgap: 0.1,
+        annotations: count === 0 ? [{
+          text: checkedBoxes.length > 0
+            ? 'No data available for the selected datasets in this date range'
+            : 'Select one or more datasets to view timeline',
+          showarrow: false,
+          font: { size: 13, color: textColor }
+        }] : []
+      };
+
+      Plotly.newPlot('timeline-chart', traces, layout, { responsive: true, displayModeBar: true, displaylogo: false }).then(() => {
+        updatePanButtons('timeline-chart');
+      });
+
+      plotDiv.on('plotly_relayout', function() {
+        updatePanButtons('timeline-chart');
+      });
+
+      // Attach click events on chart points and y-axis ticks
+      plotDiv.on('plotly_click', function(data) {
+        if (!data.points || data.points.length === 0) return;
+        const name = data.points[0].y;
+        const isCtrl = data.event && (data.event.ctrlKey || data.event.metaKey);
+        handleRowClick(name, isCtrl);
+      });
+
+      plotDiv.querySelectorAll('.ytick text').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.style.userSelect = 'none';
+        el.title = 'Click to unselect • Ctrl+Click to open full page';
+        el.onclick = function(e) {
+          e.stopPropagation();
+          const isCtrl = e.ctrlKey || e.metaKey;
+          handleRowClick(el.textContent.trim(), isCtrl);
+        };
+      });
+    }
+
+    function handleRowClick(name, isCtrl) {
+      const d = allDatasets.find(item => item.name === name);
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (isCtrl && d && d.page) {
+        window.open(d.page + q, '_blank');
+        return;
+      }
+      const cb = document.querySelector(`.dset-checkbox[value="${name}"]`);
+      if (cb) {
+        cb.checked = !cb.checked;
+        updateView();
+      }
+    }
+
+    function filterTable() {
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+
+      rows.forEach(r => {
+        const name = (r.getAttribute('data-name') || '').toLowerCase();
+        const inst = r.getAttribute('data-inst') || '';
+        const matchQ = !query || name.includes(query);
+        const matchInst = !instFilter || inst === instFilter;
+        r.style.display = (matchQ && matchInst) ? '' : 'none';
+      });
+
+      updateView();
+      propagateQueryToLinks();
+    }
+
+    function selectAll(state) {
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+      rows.forEach(r => {
+        if (r.style.display !== 'none') {
+          const cb = r.querySelector('.dset-checkbox');
+          if (cb) cb.checked = state;
+        }
+      });
+      document.getElementById('master-cb').checked = state;
+      updateView();
+    }
+
+    function toggleAllCheckboxes(state) {
+      selectAll(state);
+    }
+
+    function parseAxisTimeMs(val) {
+      if (val == null) return NaN;
+      if (typeof val === 'number') return val;
+      if (val instanceof Date) return val.getTime();
+      const s = String(val).trim();
+      if (!s) return NaN;
+      if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+      const iso = s.replace(/\//g, '-').replace(' ', 'T');
+      const isoUtc = (iso.includes('Z') || iso.includes('+')) ? iso : iso + 'Z';
+      let ms = Date.parse(isoUtc);
+      if (!isNaN(ms)) return ms;
+      ms = Date.parse(s);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function formatAxisDate(ms) {
+      const d = new Date(ms);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString();
+    }
+
+    function panTimelineWindow(divId, direction) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv || !plotDiv._fullLayout || !plotDiv._fullLayout.xaxis) return;
+      const rng = plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2) return;
+
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+
+      const span = t1 - t0;
+      if (span <= 0) return;
+
+      const newT0 = t0 + (direction * span);
+      const newT1 = t1 + (direction * span);
+
+      Plotly.relayout(plotDiv, {
+        'xaxis.range': [formatAxisDate(newT0), formatAxisDate(newT1)],
+        'xaxis.autorange': false
+      }).then(() => {
+        updatePanButtons(divId);
+      });
+    }
+
+    function resetTimelineZoom(divId) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        Plotly.relayout(plotDiv, {
+          'xaxis.range': [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)],
+          'xaxis.autorange': false
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      } else {
+        Plotly.relayout(plotDiv, {
+          'xaxis.autorange': true
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      }
+    }
+
+    window._globalMinTimeMs = 365683761000;
+    window._globalMaxTimeMs = 693272111000;
+
+    function exportPlotAsPng(divId, filename) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      Plotly.downloadImage(plotDiv, {
+        format: 'png',
+        width: 1400,
+        height: Math.max(500, plotDiv.offsetHeight || 500),
+        filename: filename || 'plot.png'
+      });
+    }
+
+    function updatePanButtons(divId) {
+      const plotDiv = document.getElementById(divId);
+      const prevBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', -1)"]`);
+      const nextBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', 1)"]`);
+      if (!plotDiv || !prevBtn || !nextBtn) return;
+      const rng = plotDiv._fullLayout && plotDiv._fullLayout.xaxis && plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2 || !window._globalMinTimeMs || !window._globalMaxTimeMs) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+      const fullSpan = window._globalMaxTimeMs - window._globalMinTimeMs;
+      const currentSpan = t1 - t0;
+      if (currentSpan >= fullSpan - 60000) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      const canPrev = t0 > (window._globalMinTimeMs + 60000);
+      const canNext = t1 < (window._globalMaxTimeMs - 60000);
+      prevBtn.disabled = !canPrev;
+      nextBtn.disabled = !canNext;
+      prevBtn.classList.toggle('disabled', !canPrev);
+      nextBtn.classList.toggle('disabled', !canNext);
+    }
+
+    // Theme initialization
+    const savedTheme = localStorage.getItem('cdaweb_theme') || 'dark';
+    document.body.className = savedTheme;
+    document.getElementById('theme-toggle').textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+    // Propagate URL query params (such as ?view for updog) to relative navigation links
+    function propagateQueryToLinks() {
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (q) {
+        document.querySelectorAll('a[href]').forEach(a => {
+          const href = a.getAttribute('href');
+          if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto:') && !href.includes('?')) {
+            a.setAttribute('href', href + q);
+          }
+        });
+      }
+    }
+
+    // Ensure timeline checkbox is unchecked by default and container is hidden
+    const chartCb = document.getElementById('toggle-chart-cb');
+    if (chartCb) {
+      chartCb.checked = false;
+    }
+    const chartCard = document.getElementById('chart-card-container');
+    if (chartCard) {
+      chartCard.style.display = 'none';
+    }
+
+    enableSortableTable('datasets-table');
+
+    // Initial render
+    updateView();
+    propagateQueryToLinks();
+  </script>
+  <footer class="page-footer">This page was last updated on: 2026-11-17 17:21:22 UTC. For any questions or comments, please contact SPDF support at: <a href="mailto:NASA-SPDF-Support@nasa.gov">NASA-SPDF-Support@nasa.gov</a></footer>
+</body>
+</html>

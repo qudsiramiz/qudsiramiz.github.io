@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ALOUETTE Inventory Index - CDAWeb</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root, body.dark {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #0284c7;
+      --accent-light: #38bdf8;
+      --success: #10b981;
+      --plot-paper: #1e293b;
+      --plot-bg: #0f172a;
+      --plot-grid: #334155;
+    }
+    body.light {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --accent: #0284c7;
+      --accent-light: #0369a1;
+      --success: #16a34a;
+      --plot-paper: #ffffff;
+      --plot-bg: #f8fafc;
+      --plot-grid: #e2e8f0;
+    }
+    body {
+      margin: 0;
+      padding: 24px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    input[type="date"] {
+      color-scheme: dark;
+    }
+    body.light input[type="date"] {
+      color-scheme: light;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .page-footer { margin: 20px 0 0; color: var(--text-muted); font-size: 12px; text-align: center; }
+    .page-footer a { color: var(--accent-light); }
+    .breadcrumbs { font-size: 14px; margin-bottom: 0; color: var(--text-muted); }
+    .breadcrumbs a { color: var(--accent-light); text-decoration: none; }
+    .breadcrumbs a:hover { text-decoration: underline; }
+    .btn-theme {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-theme:hover { opacity: 0.9; }
+    h1 { margin: 0 0 6px 0; font-size: 28px; }
+    .subtitle { color: var(--text-muted); font-size: 15px; margin: 0 0 20px 0; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .kpi-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 20px; font-weight: 700; color: var(--text); }
+    .controls-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    input[type="text"], input[type="date"], select {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: 13px;
+    }
+    button, .btn-sm {
+      background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block;
+    }
+    button.btn-secondary { background: var(--border); color: var(--text); }
+    button:hover, .btn-sm:hover { opacity: 0.9; }
+    .chart-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th { padding: 10px 12px; background: rgba(125,125,125,0.06); color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .progress-bar { width: 70px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; display: inline-block; }
+    .progress-bar .fill { height: 100%; background: var(--success); }
+    .badge-sm { display: inline-block; padding: 2px 8px; background: rgba(56, 189, 248, 0.15); color: var(--accent-light); border-radius: 4px; font-size: 11px; }
+    .chart-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .pan-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(125,125,125,0.08);
+      padding: 3px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .btn-pan {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-pan:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .btn-pan:disabled, .btn-pan.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .btn-preset {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .btn-preset:hover {
+      opacity: 0.9;
+      color: var(--text);
+    }
+    .btn-preset.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      font-weight: 700;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+    }
+    .xtick text, .ytick text {
+      fill: var(--text) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+      <div class="breadcrumbs">
+        <a href="./inventory_index.html">CDAWeb Inventory</a> &gt;
+        <span>ALOUETTE Index</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="./ALOUETTE_Inventory.png" target="_blank" class="btn-theme"> View ALOUETTE PNG</a>
+        <button class="btn-theme" onclick="exportPlotAsPng('timeline-chart', 'ALOUETTE_timeline.png')"> Download Plot PNG</button>
+        <button id="theme-toggle" class="btn-theme" onclick="toggleTheme()">☀️ Light Mode</button>
+      </div>
+    </div>
+    <h1>ALOUETTE Mission Data Inventory</h1>
+    <p class="subtitle">Complete catalog of holdings and availability for ALOUETTE spacecraft</p>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Datasets</div>
+        <div class="kpi-value">7</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Instruments</div>
+        <div class="kpi-value">1</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total CDF Files</div>
+        <div class="kpi-value">45,268</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Mission Span</div>
+        <div class="kpi-value" style="font-size: 14px;">1965-11-29 &rarr; 1972-07-10</div>
+      </div>
+    </div>
+
+    <div class="controls-card">
+      <input type="text" id="search-box" placeholder="Search datasets..." oninput="filterTable()">
+      <select id="instrument-filter" onchange="filterTable()">
+        <option value="">All Instruments (1)</option>
+        <option value='TOPSIDE_SOUNDER'>TOPSIDE_SOUNDER</option>
+      </select>
+      <button class="btn-secondary" onclick="selectAll(true)">Select All</button>
+      <button class="btn-secondary" onclick="selectAll(false)">Clear All</button>
+      <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; font-size: 13px; font-weight: 600; padding: 4px 10px; background: rgba(125,125,125,0.08); border-radius: 6px; border: 1px solid var(--border);">
+        <input type="checkbox" id="toggle-chart-cb" autocomplete="off" onchange="toggleChartDisplay(this.checked)">
+        <span> Show Timeline Graph</span>
+      </label>
+      <div style="margin-left: auto; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+        <span style="font-size: 13px; color: var(--text-muted);">Date Range:</span>
+        <input type="date" id="filter-start" value="1965-11-29" oninput="clearPresetHighlight()">
+        <span style="color: var(--text-muted);">&rarr;</span>
+        <input type="date" id="filter-stop" value="1972-07-10" oninput="clearPresetHighlight()">
+        <button onclick="updateView()">Apply</button>
+        <button type="button" class="btn-preset" data-preset="1y" onclick="presetRange('1y')">1 Year</button>
+        <button type="button" class="btn-preset" data-preset="5y" onclick="presetRange('5y')">5 Years</button>
+        <button type="button" class="btn-preset active" data-preset="all" onclick="presetRange('all')">All Time</button>
+      </div>
+    </div>
+
+    <div class="chart-card" id="chart-card-container" style="display: none;">
+      <div class="chart-hint">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <span><strong>Availability Timeline (Selected Items)</strong></span>
+          <div class="pan-controls">
+            <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin: 0 4px;">Time Window:</span>
+            <button type="button" class="btn-pan disabled" disabled title="Pan backward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', -1)">◀ Prev Frame</button>
+            <button type="button" class="btn-pan" title="Reset zoom to full range" onclick="resetTimelineZoom('timeline-chart')">↺ Reset Zoom</button>
+            <button type="button" class="btn-pan disabled" disabled title="Pan forward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', 1)">Next Frame ▶</button>
+            <button type="button" class="btn-pan" title="Reselect all unselected items" onclick="resetAllSelections()">↺ Reset Selection</button>
+            <button type="button" class="btn-pan" title="Download timeline chart as PNG" onclick="exportPlotAsPng('timeline-chart', 'ALOUETTE_timeline.png')"> PNG</button>
+          </div>
+        </div>
+        <span>💡 Click row/label to unselect • Ctrl+Click to open full dataset page</span>
+      </div>
+      <div id="timeline-chart" style="min-height: 120px; width: 100%;"></div>
+    </div>
+
+    <div class="table-card">
+      <h3 style="margin: 0 0 12px 0;">Available Datasets</h3>
+      <table id="datasets-table">
+        <thead>
+          <tr>
+            <th style="width: 30px;"><input type="checkbox" id="master-cb" checked onchange="toggleAllCheckboxes(this.checked)"></th>
+            <th class="sortable" data-sort-type="text">Dataset ID</th>
+            <th class="sortable" data-sort-type="text">Instrument</th>
+            <th class="sortable" data-sort-type="text">Product</th>
+            <th class="sortable" data-sort-type="date">Time Coverage</th>
+            <th class="sortable" data-sort-type="number">CDF Count</th>
+            <th class="sortable" data-sort-type="number">Coverage</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="datasets-tbody">
+          
+        <tr data-inst="TOPSIDE_SOUNDER" data-name="ALOUETTE2_AV_LIM">
+          <td><input type="checkbox" class="dset-checkbox" value="ALOUETTE2_AV_LIM" checked onchange="updateView()"></td>
+          <td><a href="./alouette_inventory/ALOUETTE2_AV_LIM.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ALOUETTE2_AV_LIM</a></td>
+          <td><span class="badge-sm">TOPSIDE_SOUNDER</span></td>
+          <td style="color: var(--text-muted);">LIM_12S_283E</td>
+          <td>1966-11-11 &rarr; 1967-01-15</td>
+          <td>81</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 0.04170919298526884%;"></div></div>
+              <span style="font-size: 11px;">0.04%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./alouette_inventory/ALOUETTE2_AV_LIM.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TOPSIDE_SOUNDER" data-name="ALOUETTE2_AV_QUI">
+          <td><input type="checkbox" class="dset-checkbox" value="ALOUETTE2_AV_QUI" checked onchange="updateView()"></td>
+          <td><a href="./alouette_inventory/ALOUETTE2_AV_QUI.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ALOUETTE2_AV_QUI</a></td>
+          <td><span class="badge-sm">TOPSIDE_SOUNDER</span></td>
+          <td style="color: var(--text-muted);">QUI_01S_281E</td>
+          <td>1965-11-29 &rarr; 1968-01-01</td>
+          <td>19,175</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 0.8315571303464306%;"></div></div>
+              <span style="font-size: 11px;">0.83%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./alouette_inventory/ALOUETTE2_AV_QUI.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TOPSIDE_SOUNDER" data-name="ALOUETTE2_AV_SNT">
+          <td><input type="checkbox" class="dset-checkbox" value="ALOUETTE2_AV_SNT" checked onchange="updateView()"></td>
+          <td><a href="./alouette_inventory/ALOUETTE2_AV_SNT.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ALOUETTE2_AV_SNT</a></td>
+          <td><span class="badge-sm">TOPSIDE_SOUNDER</span></td>
+          <td style="color: var(--text-muted);">SN_33S_298ET</td>
+          <td>1965-11-29 &rarr; 1967-01-01</td>
+          <td>12,947</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 1.097884740688439%;"></div></div>
+              <span style="font-size: 11px;">1.10%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./alouette_inventory/ALOUETTE2_AV_SNT.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TOPSIDE_SOUNDER" data-name="ALOUETTE2_AV_SOL">
+          <td><input type="checkbox" class="dset-checkbox" value="ALOUETTE2_AV_SOL" checked onchange="updateView()"></td>
+          <td><a href="./alouette_inventory/ALOUETTE2_AV_SOL.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ALOUETTE2_AV_SOL</a></td>
+          <td><span class="badge-sm">TOPSIDE_SOUNDER</span></td>
+          <td style="color: var(--text-muted);">SOL_52S_302E</td>
+          <td>1965-12-01 &rarr; 1966-12-28</td>
+          <td>12,873</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 1.047105890161781%;"></div></div>
+              <span style="font-size: 11px;">1.05%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./alouette_inventory/ALOUETTE2_AV_SOL.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TOPSIDE_SOUNDER" data-name="ALOUETTE2_AV_ULA">
+          <td><input type="checkbox" class="dset-checkbox" value="ALOUETTE2_AV_ULA" checked onchange="updateView()"></td>
+          <td><a href="./alouette_inventory/ALOUETTE2_AV_ULA.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ALOUETTE2_AV_ULA</a></td>
+          <td><span class="badge-sm">TOPSIDE_SOUNDER</span></td>
+          <td style="color: var(--text-muted);">ULA_65N_212E</td>
+          <td>1965-11-29 &rarr; 1965-11-29</td>
+          <td>29</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.46808510638297%;"></div></div>
+              <span style="font-size: 11px;">99.47%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./alouette_inventory/ALOUETTE2_AV_ULA.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TOPSIDE_SOUNDER" data-name="ALOUETTE2_AV_WNK">
+          <td><input type="checkbox" class="dset-checkbox" value="ALOUETTE2_AV_WNK" checked onchange="updateView()"></td>
+          <td><a href="./alouette_inventory/ALOUETTE2_AV_WNK.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ALOUETTE2_AV_WNK</a></td>
+          <td><span class="badge-sm">TOPSIDE_SOUNDER</span></td>
+          <td style="color: var(--text-muted);">WNK_51N_359E</td>
+          <td>1966-03-30 &rarr; 1966-04-06</td>
+          <td>108</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 0.5167024180484204%;"></div></div>
+              <span style="font-size: 11px;">0.52%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./alouette_inventory/ALOUETTE2_AV_WNK.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="TOPSIDE_SOUNDER" data-name="ALOUETTE2_NEPROF_TOPS">
+          <td><input type="checkbox" class="dset-checkbox" value="ALOUETTE2_NEPROF_TOPS" checked onchange="updateView()"></td>
+          <td><a href="./alouette_inventory/ALOUETTE2_NEPROF_TOPS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">ALOUETTE2_NEPROF_TOPS</a></td>
+          <td><span class="badge-sm">TOPSIDE_SOUNDER</span></td>
+          <td style="color: var(--text-muted);">NEPROF</td>
+          <td>1965-12-15 &rarr; 1972-07-10</td>
+          <td>55</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 30.769933992017094%;"></div></div>
+              <span style="font-size: 11px;">30.77%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./alouette_inventory/ALOUETTE2_NEPROF_TOPS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const allDatasets = [{"name": "ALOUETTE2_AV_LIM", "instrument": "TOPSIDE_SOUNDER", "product": "LIM_12S_283E", "cdf_count": 81, "active_days": 0.026979166666666665, "coverage_pct": 0.04170919298526884, "earliest": "1966-11-11", "latest": "1967-01-15", "intervals": [["1966-11-11 20:34:08", "1966-11-12 20:58:44"], ["1966-12-23 16:20:09", "1966-12-23 16:30:42"], ["1967-01-15 12:46:53", "1967-01-15 12:59:04"]], "page": "./ALOUETTE2_AV_LIM.html"}, {"name": "ALOUETTE2_AV_QUI", "instrument": "TOPSIDE_SOUNDER", "product": "QUI_01S_281E", "cdf_count": 19175, "active_days": 6.341458333333334, "coverage_pct": 0.8315571303464306, "earliest": "1965-11-29", "latest": "1968-01-01", "intervals": [["1965-11-29 13:47:39", "1965-12-01 03:07:37"], ["1965-12-02 14:43:48", "1965-12-02 14:53:55"], ["1965-12-04 02:06:09", "1965-12-07 14:21:45"], ["1965-12-09 12:41:40", "1965-12-12 00:41:54"], ["1965-12-13 11:53:09", "1965-12-16 00:01:05"], ["1965-12-17 13:03:05", "1965-12-18 00:37:08"], ["1965-12-19 11:34:41", "1965-12-21 10:22:24"], ["1965-12-23 10:44:05", "1965-12-23 11:00:48"], ["1965-12-25 11:19:05", "1966-01-22 07:56:48"], ["1966-01-24 05:59:03", "1966-01-26 20:33:43"], ["1966-01-28 07:09:44", "1966-02-03 05:11:49"], ["1966-02-04 18:30:27", "1966-02-14 04:28:12"], ["1966-02-16 04:47:05", "1966-02-16 04:50:51"], ["1966-02-18 03:23:15", "1966-02-19 04:04:09"], ["1966-02-22 04:31:06", "1966-03-02 03:08:02"], ["1966-03-03 20:35:24", "1966-03-06 15:23:51"], ["1966-03-08 02:31:40", "1966-03-11 14:50:38"], ["1966-03-13 02:13:12", "1966-03-25 01:56:55"], ["1966-03-26 12:57:55", "1966-05-18 06:45:31"], ["1966-05-21 18:26:07", "1966-05-23 17:04:10"], ["1966-05-25 04:18:52", "1966-05-26 17:58:39"], ["1966-05-28 05:11:50", "1966-05-31 04:09:15"], ["1966-06-02 04:38:12", "1966-06-06 04:07:25"], ["1966-06-07 15:13:15", "1966-06-13 15:06:30"], ["1966-06-15 02:21:32", "1966-06-18 01:37:33"], ["1966-06-19 14:41:32", "1966-06-19 14:52:13"], ["1966-06-21 15:16:10", "1966-07-12 00:31:21"], ["1966-07-14 11:51:09", "1966-08-01 09:24:59"], ["1966-08-03 07:35:45", "1966-08-05 21:35:18"], ["1966-08-07 08:40:04", "1966-08-23 07:48:52"], ["1966-08-24 18:51:15", "1966-08-25 06:21:51"], ["1966-08-27 06:39:56", "1966-08-27 06:57:16"], ["1966-08-29 05:03:01", "1966-08-30 05:34:01"], ["1966-09-01 05:53:59", "1966-09-05 05:32:36"], ["1966-09-06 16:33:51", "1966-09-06 16:42:22"], ["1966-09-08 03:56:03", "1966-10-08 00:52:11"], ["1966-10-10 01:09:48", "1966-10-10 01:28:02"], ["1966-10-12 01:45:54", "1966-11-04 22:47:14"], ["1966-11-06 07:48:16", "1966-11-12 09:55:33"], ["1966-11-13 21:09:12", "1966-11-14 21:35:55"], ["1966-11-16 08:44:38", "1966-11-25 07:45:50"], ["1966-11-26 18:47:39", "1966-11-30 07:11:12"], ["1966-12-03 05:35:10", "1966-12-07 07:09:31"], ["1966-12-09 05:19:40", "1966-12-10 06:01:04"], ["1966-12-13 04:27:01", "1966-12-16 05:43:14"], ["1966-12-18 02:37:12", "1966-12-19 17:28:12"], ["1966-12-21 04:44:31", "1966-12-21 05:07:06"], ["1966-12-24 03:34:02", "1966-12-25 04:10:33"], ["1966-12-26 15:10:05", "1966-12-26 15:24:54"], ["1966-12-30 16:21:29", "1966-12-31 14:49:48"], ["1968-01-01 03:56:21", "1968-01-01 04:12:17"]], "page": "./ALOUETTE2_AV_QUI.html"}, {"name": "ALOUETTE2_AV_SNT", "instrument": "TOPSIDE_SOUNDER", "product": "SN_33S_298ET", "cdf_count": 12947, "active_days": 4.365289351851852, "coverage_pct": 1.097884740688439, "earliest": "1965-11-29", "latest": "1967-01-01", "intervals": [["1965-11-29 13:42:37", "1965-11-30 14:07:35"], ["1965-12-03 12:49:02", "1965-12-05 13:34:40"], ["1965-12-08 12:15:46", "1965-12-10 13:02:06"], ["1965-12-12 11:26:36", "1965-12-12 11:34:47"], ["1965-12-14 12:03:26", "1965-12-14 12:11:39"], ["1965-12-16 10:33:31", "1965-12-16 10:43:14"], ["1965-12-19 11:30:09", "1965-12-20 11:56:56"], ["1965-12-23 00:00:06", "1965-12-23 10:48:28"], ["1965-12-25 11:15:27", "1966-01-04 21:54:40"], ["1966-01-06 22:23:27", "1966-01-30 19:25:01"], ["1966-02-02 01:38:26", "1966-02-02 18:15:28"], ["1966-02-14 17:33:30", "1966-02-14 17:45:30"], ["1966-02-16 16:09:07", "1966-02-18 16:55:43"], ["1966-02-22 15:52:02", "1966-02-24 16:37:48"], ["1966-02-26 15:02:18", "1966-02-26 15:13:52"], ["1966-02-28 15:34:06", "1966-03-07 02:33:47"], ["1966-03-08 13:52:42", "1966-03-23 01:07:04"], ["1966-03-24 12:30:28", "1966-05-10 19:15:35"], ["1966-05-15 16:29:35", "1966-05-17 17:08:47"], ["1966-05-23 06:10:25", "1966-05-23 16:57:22"], ["1966-05-29 16:31:06", "1966-05-30 17:01:40"], ["1966-06-01 15:20:59", "1966-06-03 16:06:07"], ["1966-06-05 14:30:25", "1966-06-08 15:32:05"], ["1966-06-13 14:49:09", "1966-06-13 14:57:55"], ["1966-06-15 02:38:11", "1966-06-15 02:55:40"], ["1966-06-17 03:15:20", "1966-06-18 14:24:04"], ["1966-06-20 02:05:42", "1966-07-31 08:49:25"], ["1966-08-02 09:08:25", "1966-08-02 09:11:25"], ["1966-08-03 21:01:10", "1966-08-05 01:36:49"], ["1966-08-06 08:29:15", "1966-08-06 08:33:49"], ["1966-08-07 20:07:29", "1966-08-20 20:03:25"], ["1966-08-22 18:26:07", "1966-08-24 19:12:02"], ["1966-08-26 06:10:05", "1966-08-27 18:02:19"], ["1966-08-29 04:34:30", "1966-09-09 17:47:50"], ["1966-09-11 16:05:18", "1966-09-25 14:24:26"], ["1966-09-27 14:37:08", "1966-10-02 14:27:24"], ["1966-10-04 14:39:51", "1966-10-07 13:54:44"], ["1966-10-09 14:05:43", "1966-10-10 23:30:25"], ["1966-10-12 01:43:06", "1966-10-12 01:52:23"], ["1966-10-15 02:11:49", "1966-10-17 01:17:22"], ["1966-10-18 23:40:10", "1966-10-21 13:55:15"], ["1966-10-22 22:45:40", "1966-10-27 00:06:17"], ["1966-10-28 22:27:22", "1966-11-01 21:48:12"], ["1966-11-03 22:09:36", "1966-11-06 21:12:39"], ["1966-11-08 21:32:01", "1966-11-09 11:08:18"], ["1966-11-10 20:08:49", "1966-11-10 20:18:31"], ["1966-11-12 20:38:24", "1966-11-13 21:11:24"], ["1966-11-16 19:51:46", "1966-11-22 19:42:36"], ["1966-11-25 18:20:38", "1966-11-28 19:23:33"], ["1966-12-01 18:04:06", "1966-12-01 18:10:21"], ["1966-12-09 16:19:23", "1966-12-10 16:43:45"], ["1966-12-16 16:18:33", "1966-12-17 05:59:41"], ["1966-12-19 20:49:34", "1966-12-19 20:49:43"], ["1966-12-21 05:00:16", "1966-12-22 05:32:31"], ["1966-12-26 15:04:10", "1966-12-27 15:31:40"], ["1966-12-30 14:10:02", "1967-01-01 04:19:41"]], "page": "./ALOUETTE2_AV_SNT.html"}, {"name": "ALOUETTE2_AV_SOL", "instrument": "TOPSIDE_SOUNDER", "product": "SOL_52S_302E", "cdf_count": 12873, "active_days": 4.105300925925926, "coverage_pct": 1.047105890161781, "earliest": "1965-12-01", "latest": "1966-12-28", "intervals": [["1965-12-01 01:31:39", "1965-12-01 01:47:47"], ["1965-12-05 11:20:45", "1965-12-06 01:08:08"], ["1965-12-10 00:10:49", "1965-12-16 10:39:42"], ["1965-12-18 00:33:52", "1965-12-18 00:46:58"], ["1965-12-19 09:20:32", "1965-12-20 09:48:50"], ["1965-12-23 00:01:56", "1965-12-23 00:10:11"], ["1965-12-24 08:47:20", "1965-12-29 08:21:25"], ["1965-12-30 22:20:29", "1966-01-04 04:29:13"], ["1966-01-05 22:06:39", "1966-01-18 20:01:33"], ["1966-01-20 07:26:04", "1966-01-25 19:59:29"], ["1966-01-27 04:30:48", "1966-02-05 19:12:26"], ["1966-02-07 05:49:29", "1966-02-14 17:42:56"], ["1966-02-16 03:00:50", "1966-02-19 17:17:29"], ["1966-02-21 01:46:51", "1966-02-21 01:53:19"], ["1966-02-25 17:01:52", "1966-03-06 15:45:50"], ["1966-03-08 02:12:28", "1966-03-09 14:29:44"], ["1966-03-11 00:44:22", "1966-03-22 18:35:06"], ["1966-03-24 00:52:43", "1966-04-15 13:34:12"], ["1966-04-16 21:54:28", "1966-05-02 05:17:03"], ["1966-05-04 00:38:49", "1966-05-05 19:44:24"], ["1966-05-07 07:36:35", "1966-05-14 07:49:22"], ["1966-05-15 16:19:08", "1966-05-24 06:40:48"], ["1966-05-25 15:16:45", "1966-05-26 15:39:33"], ["1966-05-28 16:09:19", "1966-05-30 04:22:18"], ["1966-06-01 15:17:11", "1966-06-06 16:10:11"], ["1966-06-09 02:54:22", "1966-06-14 13:08:45"], ["1966-06-15 17:42:55", "1966-06-15 17:43:27"], ["1966-06-20 12:44:10", "1966-07-02 01:46:28"], ["1966-07-04 00:11:38", "1966-07-04 00:18:34"], ["1966-07-05 11:00:12", "1966-07-05 11:09:52"], ["1966-07-06 17:14:06", "1966-07-06 17:14:35"], ["1966-07-07 23:19:41", "1966-07-11 10:53:56"], ["1966-07-12 22:46:32", "1966-07-14 01:22:59"], ["1966-07-15 09:50:47", "1966-07-19 21:07:30"], ["1966-07-21 23:26:20", "1966-07-21 23:31:35"], ["1966-07-24 22:14:19", "1966-07-24 22:21:23"], ["1966-07-26 22:51:27", "1966-07-29 08:04:07"], ["1966-07-31 17:21:01", "1966-07-31 17:23:10"], ["1966-08-03 07:26:43", "1966-08-03 07:33:47"], ["1966-08-04 21:24:22", "1966-08-16 07:14:42"], ["1966-08-17 19:03:59", "1966-08-24 19:19:32"], ["1966-08-26 06:00:34", "1966-08-27 18:03:11"], ["1966-08-29 04:42:05", "1966-09-07 04:01:09"], ["1966-09-08 17:20:58", "1966-09-25 14:31:25"], ["1966-09-27 03:02:08", "1966-10-05 19:27:52"], ["1966-10-13 11:38:03", "1966-10-14 08:57:02"], ["1966-10-22 01:10:11", "1966-10-22 01:14:59"], ["1966-10-31 05:52:22", "1966-10-31 05:52:54"], ["1966-11-01 15:16:58", "1966-11-02 15:06:09"], ["1966-11-06 00:58:14", "1966-11-06 00:58:46"], ["1966-11-18 15:20:52", "1966-11-18 15:29:58"], ["1966-11-30 01:04:20", "1966-11-30 01:04:52"], ["1966-12-19 16:46:05", "1966-12-19 16:46:38"], ["1966-12-24 19:41:17", "1966-12-24 19:44:37"], ["1966-12-28 02:42:08", "1966-12-28 03:00:28"]], "page": "./ALOUETTE2_AV_SOL.html"}, {"name": "ALOUETTE2_AV_ULA", "instrument": "TOPSIDE_SOUNDER", "product": "ULA_65N_212E", "cdf_count": 29, "active_days": 0.008657407407407407, "coverage_pct": 99.46808510638297, "earliest": "1965-11-29", "latest": "1965-11-29", "intervals": [["1965-11-29 06:20:12", "1965-11-29 06:32:44"]], "page": "./ALOUETTE2_AV_ULA.html"}, {"name": "ALOUETTE2_AV_WNK", "instrument": "TOPSIDE_SOUNDER", "product": "WNK_51N_359E", "cdf_count": 108, "active_days": 0.03621527777777778, "coverage_pct": 0.5167024180484204, "earliest": "1966-03-30", "latest": "1966-04-06", "intervals": [["1966-03-30 05:48:19", "1966-03-30 05:48:50"], ["1966-03-31 19:53:11", "1966-04-01 06:33:59"], ["1966-04-05 19:20:08", "1966-04-06 06:01:10"]], "page": "./ALOUETTE2_AV_WNK.html"}, {"name": "ALOUETTE2_NEPROF_TOPS", "instrument": "TOPSIDE_SOUNDER", "product": "NEPROF", "cdf_count": 55, "active_days": 738.3367708333334, "coverage_pct": 30.769933992017094, "earliest": "1965-12-15", "latest": "1972-07-10", "intervals": [["1965-12-15 09:40:15", "1965-12-30 22:06:49"], ["1966-01-01 03:15:48", "1966-01-31 13:15:46"], ["1966-02-09 11:52:04", "1966-02-27 15:11:08"], ["1966-03-07 02:36:53", "1966-03-31 12:28:34"], ["1966-04-02 05:01:06", "1966-04-25 14:33:55"], ["1966-05-04 01:41:27", "1966-05-30 23:30:17"], ["1966-06-03 04:24:47", "1966-06-27 19:45:10"], ["1966-07-06 05:30:04", "1966-07-30 09:05:46"], ["1966-08-02 09:36:12", "1966-08-28 14:52:12"], ["1966-09-01 13:55:15", "1966-11-21 16:46:52"], ["1966-12-06 05:56:14", "1966-12-24 11:31:46"], ["1967-01-06 08:55:13", "1967-01-10 15:55:40"], ["1967-02-02 22:47:20", "1967-02-26 13:21:43"], ["1967-04-06 03:36:19", "1967-04-12 05:30:26"], ["1967-05-04 06:00:15", "1967-05-26 23:45:57"], ["1967-06-26 19:51:19", "1967-06-26 19:56:04"], ["1967-07-06 08:44:15", "1967-07-13 20:35:52"], ["1967-09-02 09:43:19", "1967-09-29 09:18:47"], ["1967-10-06 00:59:13", "1967-10-19 00:31:44"], ["1967-11-03 22:25:24", "1967-11-03 22:29:42"], ["1967-12-29 07:25:57", "1967-12-29 07:29:09"], ["1968-02-07 03:13:35", "1968-02-28 05:56:26"], ["1968-03-04 07:07:25", "1968-03-23 04:08:49"], ["1968-05-07 10:00:59", "1968-05-07 10:25:42"], ["1968-06-09 05:54:20", "1968-06-09 06:17:08"], ["1968-10-07 03:20:17", "1968-10-26 02:19:04"], ["1968-11-11 06:10:36", "1968-11-28 22:06:58"], ["1968-12-14 05:46:55", "1968-12-29 01:18:37"], ["1969-01-02 02:05:36", "1969-01-05 13:32:46"], ["1969-02-03 08:02:44", "1969-02-24 18:05:19"], ["1969-03-02 15:42:15", "1969-03-29 16:09:50"], ["1969-04-13 01:27:24", "1969-04-30 21:37:38"], ["1969-05-02 21:50:23", "1969-05-26 19:31:50"], ["1969-06-12 14:00:19", "1969-06-21 04:07:30"], ["1969-08-13 12:33:41", "1969-08-23 00:07:00"], ["1969-09-24 05:42:09", "1969-09-30 02:51:46"], ["1969-11-26 04:33:15", "1969-11-26 04:34:18"], ["1969-12-10 17:50:17", "1969-12-10 18:02:43"], ["1970-01-05 04:48:53", "1970-01-15 09:37:12"], ["1970-03-02 20:36:24", "1970-03-26 11:26:58"], ["1970-05-13 20:12:28", "1970-05-26 18:59:28"], ["1970-06-20 13:56:17", "1970-06-20 14:02:38"], ["1970-08-31 17:07:23", "1970-08-31 17:18:24"], ["1970-09-07 18:39:23", "1970-09-15 16:16:30"], ["1970-10-14 11:44:16", "1970-10-14 12:01:23"], ["1970-11-05 10:14:10", "1970-11-22 10:01:53"], ["1970-12-05 17:15:22", "1970-12-11 05:28:09"], ["1971-03-21 18:39:18", "1971-03-30 22:27:12"], ["1971-04-10 14:15:18", "1971-04-28 14:38:30"], ["1971-05-02 10:32:27", "1971-05-11 10:24:00"], ["1971-11-21 01:21:17", "1971-11-21 01:31:58"], ["1971-12-16 22:14:29", "1971-12-16 22:20:25"], ["1972-07-10 09:56:17", "1972-07-10 22:37:22"]], "page": "./ALOUETTE2_NEPROF_TOPS.html"}];
+
+    function parseDateMs(str) {
+      if (!str) return NaN;
+      const s = str.trim();
+      const iso = s.replace(/\//g, '-').replace(' ', 'T') + 'Z';
+      const ms = Date.parse(iso);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function enableSortableTable(tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      table.querySelectorAll('th.sortable').forEach((header, columnIndex) => {
+        header.tabIndex = 0;
+        header.setAttribute('role', 'button');
+        header.setAttribute('aria-sort', 'none');
+        const sortColumn = () => {
+          const ascending = header.getAttribute('aria-sort') !== 'ascending';
+          table.querySelectorAll('th.sortable').forEach(th => th.setAttribute('aria-sort', 'none'));
+          header.setAttribute('aria-sort', ascending ? 'ascending' : 'descending');
+          const rows = Array.from(table.tBodies[0].rows);
+          const type = header.getAttribute('data-sort-type');
+          rows.sort((left, right) => {
+            const a = left.cells[columnIndex].textContent.trim();
+            const b = right.cells[columnIndex].textContent.trim();
+            let comparison;
+            if (type === 'number') comparison = Number(a.replace(/[^0-9.-]/g, '')) - Number(b.replace(/[^0-9.-]/g, ''));
+            else if (type === 'date') comparison = parseDateMs(a.split('→')[0].trim()) - parseDateMs(b.split('→')[0].trim());
+            else comparison = a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+            return ascending ? comparison : -comparison;
+          });
+          rows.forEach(row => table.tBodies[0].appendChild(row));
+        };
+        header.addEventListener('click', sortColumn);
+        header.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); sortColumn(); }
+        });
+      });
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+      const newTheme = isDark ? 'light' : 'dark';
+      document.body.className = newTheme;
+      localStorage.setItem('cdaweb_theme', newTheme);
+      document.getElementById('theme-toggle').textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      updateView();
+    }
+
+    function toggleChartDisplay(show) {
+      const chartCard = document.getElementById('chart-card-container');
+      if (chartCard) {
+        chartCard.style.display = show ? 'block' : 'none';
+      }
+      if (show) {
+        updateView();
+        setTimeout(() => {
+          const plotDiv = document.getElementById('timeline-chart');
+          if (plotDiv) {
+            Plotly.Plots.resize(plotDiv);
+          }
+        }, 50);
+      }
+    }
+
+    function resetAllSelections() {
+      document.querySelectorAll('.dset-checkbox').forEach(cb => {
+        cb.checked = true;
+      });
+      const masterCb = document.getElementById('master-cb');
+      if (masterCb) masterCb.checked = true;
+      updateView();
+    }
+
+    function presetRange(type) {
+      document.querySelectorAll('.btn-preset').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-preset') === type);
+      });
+      if (type === 'all') {
+        if (window._globalMinTimeMs) {
+          document.getElementById('filter-start').value = formatAxisDate(window._globalMinTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-start').value = '';
+        }
+        if (window._globalMaxTimeMs) {
+          document.getElementById('filter-stop').value = formatAxisDate(window._globalMaxTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-stop').value = '';
+        }
+        updateView();
+        return;
+      }
+      const now = new Date();
+      const endStr = now.toISOString().split('T')[0];
+      let startStr = '';
+      if (type === '1y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 1);
+        startStr = d.toISOString().split('T')[0];
+      } else if (type === '5y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 5);
+        startStr = d.toISOString().split('T')[0];
+      }
+      document.getElementById('filter-start').value = startStr;
+      document.getElementById('filter-stop').value = endStr;
+      updateView();
+    }
+
+    function clearPresetHighlight() {
+      document.querySelectorAll('.btn-preset').forEach(btn => btn.classList.remove('active'));
+    }
+
+    function updateView() {
+      const showChart = document.getElementById('toggle-chart-cb')?.checked;
+      if (!showChart) {
+        return;
+      }
+
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const checkedBoxes = Array.from(document.querySelectorAll('.dset-checkbox:checked'));
+      const selectedNames = new Set(checkedBoxes.map(cb => cb.value));
+      const startFilter = document.getElementById('filter-start').value;
+      const stopFilter = document.getElementById('filter-stop').value;
+      const startFilterMs = startFilter ? parseDateMs(startFilter) : null;
+      const stopFilterMs = stopFilter ? parseDateMs(stopFilter + ' 23:59:59') : null;
+
+      const isLight = document.body.classList.contains('light');
+      const paperBg = isLight ? '#ffffff' : '#1e293b';
+      const plotBg = isLight ? '#f8fafc' : '#0f172a';
+      const textColor = isLight ? '#0f172a' : '#f8fafc';
+      const gridColor = isLight ? '#e2e8f0' : '#334155';
+
+      const timelineData = { y: [], x: [], base: [], colors: [], hovertext: [] };
+      const colors = ['#0284c7', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6'];
+
+      const activeDatasets = [];
+      allDatasets.forEach(d => {
+        if (instFilter && d.instrument !== instFilter) return;
+        if (query && !d.name.toLowerCase().includes(query) && !d.instrument.toLowerCase().includes(query) && !d.product.toLowerCase().includes(query)) return;
+        if (!selectedNames.has(d.name)) return;
+
+        const validIntervals = [];
+        d.intervals.forEach(inv => {
+          const s = inv[0];
+          const e = inv[1];
+          const sTime = parseDateMs(s);
+          const eTime = parseDateMs(e);
+          if (isNaN(sTime) || isNaN(eTime)) return;
+
+          if (startFilterMs && eTime < startFilterMs) return;
+          if (stopFilterMs && sTime > stopFilterMs) return;
+
+          const sClamped = startFilterMs ? Math.max(sTime, startFilterMs) : sTime;
+          const eClamped = stopFilterMs ? Math.min(eTime, stopFilterMs) : eTime;
+          if (eClamped <= sClamped) return;
+
+          validIntervals.push({ s, e, sClamped, eClamped });
+        });
+
+        if (validIntervals.length > 0) {
+          activeDatasets.push({ d, validIntervals });
+        }
+      });
+
+      const activeNames = activeDatasets.map(item => item.d.name);
+      activeDatasets.forEach((item, idx) => {
+        const color = colors[idx % colors.length];
+        const d = item.d;
+        item.validIntervals.forEach(inv => {
+          const durMs = Math.max(86400000, inv.eClamped - inv.sClamped);
+          timelineData.y.push(d.name);
+          timelineData.x.push(durMs);
+          timelineData.base.push(new Date(inv.sClamped).toISOString());
+          timelineData.colors.push(color);
+          timelineData.hovertext.push(`<b>${d.name}</b><br>${d.instrument} • ${d.product}<br>From: ${inv.s}<br>To: ${inv.e}<br><i>Click to unselect • Ctrl+Click to open full page</i>`);
+        });
+      });
+
+      const traces = timelineData.y.length ? [{
+        type: 'bar',
+        orientation: 'h',
+        y: timelineData.y,
+        x: timelineData.x,
+        base: timelineData.base,
+        marker: { color: timelineData.colors, line: { width: 0 } },
+        hoverinfo: 'text',
+        hovertext: timelineData.hovertext,
+        showlegend: false
+      }] : [];
+
+      const count = activeNames.length;
+      const barGap = count === 1 ? 0.75 : (count === 2 ? 0.6 : (count <= 4 ? 0.45 : 0.25));
+      const barWidth = count === 1 ? 0.32 : (count === 2 ? 0.45 : (count <= 4 ? 0.6 : 0.75));
+      traces.forEach(t => { t.width = barWidth; });
+      const plotHeight = count === 1 ? 140 : (count === 2 ? 180 : Math.max(220, count * 32 + 80));
+
+      const plotDiv = document.getElementById('timeline-chart');
+      plotDiv.style.height = plotHeight + 'px';
+      plotDiv.style.minHeight = plotHeight + 'px';
+
+      const xAxisConfig = {
+        type: 'date',
+        side: 'bottom',
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      // Determine if "All Time" preset is active
+      const allTimeBtn = document.querySelector('.btn-preset[data-preset="all"]');
+      const isAllTime = Boolean(allTimeBtn && allTimeBtn.classList.contains('active'));
+
+      // Calculate data bounds for currently selected/plotted items
+      let plottedMinMs = Infinity;
+      let plottedMaxMs = -Infinity;
+      for (let i = 0; i < timelineData.base.length; i++) {
+        const s = parseAxisTimeMs(timelineData.base[i]);
+        const dur = Number(timelineData.x[i]) || 0;
+        if (Number.isFinite(s)) {
+          if (s < plottedMinMs) plottedMinMs = s;
+          if ((s + dur) > plottedMaxMs) plottedMaxMs = s + dur;
+        }
+      }
+      const hasPlottedData = Number.isFinite(plottedMinMs) && Number.isFinite(plottedMaxMs) && plottedMaxMs >= plottedMinMs;
+
+      if (isAllTime && hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (startFilter && stopFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', stopFilter + ' 23:59:59'];
+        xAxisConfig.autorange = false;
+      } else if (startFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', formatAxisDate(window._globalMaxTimeMs || Date.now())];
+        xAxisConfig.autorange = false;
+      } else if (hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        xAxisConfig.range = [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)];
+        xAxisConfig.autorange = false;
+      } else {
+        xAxisConfig.autorange = true;
+      }
+
+      const xAxis2Config = {
+        type: 'date',
+        overlaying: 'x',
+        side: 'top',
+        matches: 'x',
+        showgrid: false,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      const yAxisConfig = {
+        type: 'category',
+        categoryorder: 'array',
+        categoryarray: activeNames.slice().reverse(),
+        automargin: true,
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor },
+        fixedrange: true,
+        autorange: true
+      };
+
+      const layout = {
+        height: plotHeight,
+        paper_bgcolor: paperBg,
+        plot_bgcolor: plotBg,
+        font: { color: textColor, size: 11 },
+        margin: { l: 180, r: 30, t: 35, b: 40 },
+        xaxis: xAxisConfig,
+        xaxis2: xAxis2Config,
+        yaxis: yAxisConfig,
+        barmode: 'overlay',
+        bargap: barGap,
+        bargroupgap: 0.1,
+        annotations: count === 0 ? [{
+          text: checkedBoxes.length > 0
+            ? 'No data available for the selected datasets in this date range'
+            : 'Select one or more datasets to view timeline',
+          showarrow: false,
+          font: { size: 13, color: textColor }
+        }] : []
+      };
+
+      Plotly.newPlot('timeline-chart', traces, layout, { responsive: true, displayModeBar: true, displaylogo: false }).then(() => {
+        updatePanButtons('timeline-chart');
+      });
+
+      plotDiv.on('plotly_relayout', function() {
+        updatePanButtons('timeline-chart');
+      });
+
+      // Attach click events on chart points and y-axis ticks
+      plotDiv.on('plotly_click', function(data) {
+        if (!data.points || data.points.length === 0) return;
+        const name = data.points[0].y;
+        const isCtrl = data.event && (data.event.ctrlKey || data.event.metaKey);
+        handleRowClick(name, isCtrl);
+      });
+
+      plotDiv.querySelectorAll('.ytick text').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.style.userSelect = 'none';
+        el.title = 'Click to unselect • Ctrl+Click to open full page';
+        el.onclick = function(e) {
+          e.stopPropagation();
+          const isCtrl = e.ctrlKey || e.metaKey;
+          handleRowClick(el.textContent.trim(), isCtrl);
+        };
+      });
+    }
+
+    function handleRowClick(name, isCtrl) {
+      const d = allDatasets.find(item => item.name === name);
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (isCtrl && d && d.page) {
+        window.open(d.page + q, '_blank');
+        return;
+      }
+      const cb = document.querySelector(`.dset-checkbox[value="${name}"]`);
+      if (cb) {
+        cb.checked = !cb.checked;
+        updateView();
+      }
+    }
+
+    function filterTable() {
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+
+      rows.forEach(r => {
+        const name = (r.getAttribute('data-name') || '').toLowerCase();
+        const inst = r.getAttribute('data-inst') || '';
+        const matchQ = !query || name.includes(query);
+        const matchInst = !instFilter || inst === instFilter;
+        r.style.display = (matchQ && matchInst) ? '' : 'none';
+      });
+
+      updateView();
+      propagateQueryToLinks();
+    }
+
+    function selectAll(state) {
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+      rows.forEach(r => {
+        if (r.style.display !== 'none') {
+          const cb = r.querySelector('.dset-checkbox');
+          if (cb) cb.checked = state;
+        }
+      });
+      document.getElementById('master-cb').checked = state;
+      updateView();
+    }
+
+    function toggleAllCheckboxes(state) {
+      selectAll(state);
+    }
+
+    function parseAxisTimeMs(val) {
+      if (val == null) return NaN;
+      if (typeof val === 'number') return val;
+      if (val instanceof Date) return val.getTime();
+      const s = String(val).trim();
+      if (!s) return NaN;
+      if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+      const iso = s.replace(/\//g, '-').replace(' ', 'T');
+      const isoUtc = (iso.includes('Z') || iso.includes('+')) ? iso : iso + 'Z';
+      let ms = Date.parse(isoUtc);
+      if (!isNaN(ms)) return ms;
+      ms = Date.parse(s);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function formatAxisDate(ms) {
+      const d = new Date(ms);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString();
+    }
+
+    function panTimelineWindow(divId, direction) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv || !plotDiv._fullLayout || !plotDiv._fullLayout.xaxis) return;
+      const rng = plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2) return;
+
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+
+      const span = t1 - t0;
+      if (span <= 0) return;
+
+      const newT0 = t0 + (direction * span);
+      const newT1 = t1 + (direction * span);
+
+      Plotly.relayout(plotDiv, {
+        'xaxis.range': [formatAxisDate(newT0), formatAxisDate(newT1)],
+        'xaxis.autorange': false
+      }).then(() => {
+        updatePanButtons(divId);
+      });
+    }
+
+    function resetTimelineZoom(divId) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        Plotly.relayout(plotDiv, {
+          'xaxis.range': [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)],
+          'xaxis.autorange': false
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      } else {
+        Plotly.relayout(plotDiv, {
+          'xaxis.autorange': true
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      }
+    }
+
+    window._globalMinTimeMs = -129058788000;
+    window._globalMaxTimeMs = 79655842000;
+
+    function exportPlotAsPng(divId, filename) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      Plotly.downloadImage(plotDiv, {
+        format: 'png',
+        width: 1400,
+        height: Math.max(500, plotDiv.offsetHeight || 500),
+        filename: filename || 'plot.png'
+      });
+    }
+
+    function updatePanButtons(divId) {
+      const plotDiv = document.getElementById(divId);
+      const prevBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', -1)"]`);
+      const nextBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', 1)"]`);
+      if (!plotDiv || !prevBtn || !nextBtn) return;
+      const rng = plotDiv._fullLayout && plotDiv._fullLayout.xaxis && plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2 || !window._globalMinTimeMs || !window._globalMaxTimeMs) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+      const fullSpan = window._globalMaxTimeMs - window._globalMinTimeMs;
+      const currentSpan = t1 - t0;
+      if (currentSpan >= fullSpan - 60000) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      const canPrev = t0 > (window._globalMinTimeMs + 60000);
+      const canNext = t1 < (window._globalMaxTimeMs - 60000);
+      prevBtn.disabled = !canPrev;
+      nextBtn.disabled = !canNext;
+      prevBtn.classList.toggle('disabled', !canPrev);
+      nextBtn.classList.toggle('disabled', !canNext);
+    }
+
+    // Theme initialization
+    const savedTheme = localStorage.getItem('cdaweb_theme') || 'dark';
+    document.body.className = savedTheme;
+    document.getElementById('theme-toggle').textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+    // Propagate URL query params (such as ?view for updog) to relative navigation links
+    function propagateQueryToLinks() {
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (q) {
+        document.querySelectorAll('a[href]').forEach(a => {
+          const href = a.getAttribute('href');
+          if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto:') && !href.includes('?')) {
+            a.setAttribute('href', href + q);
+          }
+        });
+      }
+    }
+
+    // Ensure timeline checkbox is unchecked by default and container is hidden
+    const chartCb = document.getElementById('toggle-chart-cb');
+    if (chartCb) {
+      chartCb.checked = false;
+    }
+    const chartCard = document.getElementById('chart-card-container');
+    if (chartCard) {
+      chartCard.style.display = 'none';
+    }
+
+    enableSortableTable('datasets-table');
+
+    // Initial render
+    updateView();
+    propagateQueryToLinks();
+  </script>
+  <footer class="page-footer">This page was last updated on: 2026-11-17 17:20:39 UTC. For any questions or comments, please contact SPDF support at: <a href="mailto:NASA-SPDF-Support@nasa.gov">NASA-SPDF-Support@nasa.gov</a></footer>
+</body>
+</html>

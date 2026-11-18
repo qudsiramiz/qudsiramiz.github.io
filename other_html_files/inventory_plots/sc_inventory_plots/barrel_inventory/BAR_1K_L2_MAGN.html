@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BAR_1K_L2_MAGN - CDAWeb Inventory</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root, body.dark {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #0284c7;
+      --accent-light: #38bdf8;
+      --success: #10b981;
+    }
+    body.light {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --accent: #0284c7;
+      --accent-light: #0369a1;
+      --success: #16a34a;
+    }
+    body {
+      margin: 0;
+      padding: 24px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    input[type="date"] {
+      color-scheme: dark;
+    }
+    body.light input[type="date"] {
+      color-scheme: light;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .breadcrumbs { font-size: 14px; margin-bottom: 0; color: var(--text-muted); }
+    .breadcrumbs a { color: var(--accent-light); text-decoration: none; }
+    .breadcrumbs a:hover { text-decoration: underline; }
+    .dataset-navigation { font-size: 13px; color: var(--text-muted); }
+    .dataset-navigation select { margin-left: 6px; max-width: 340px; color: var(--text); background: var(--card-bg); border: 1px solid var(--border); border-radius: 4px; padding: 4px; }
+    .page-footer { margin: 20px 0 0; color: var(--text-muted); font-size: 12px; text-align: center; }
+    .page-footer a { color: var(--accent-light); }
+    .btn-theme {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-theme:hover { opacity: 0.9; }
+    .badge { display: inline-block; padding: 4px 10px; background: rgba(2, 132, 199, 0.2); color: var(--accent-light); border-radius: 9999px; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+    h1 { margin: 0 0 6px 0; font-size: 26px; }
+    .subtitle { color: var(--text-muted); font-size: 15px; margin: 0 0 20px 0; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .kpi-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 18px; font-weight: 700; color: var(--text); }
+    .kpi-overall { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+    .chart-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th { padding: 8px 12px; background: rgba(255,255,255,0.03); color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+    code { color: var(--accent-light); font-family: monospace; }
+    .pan-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(125,125,125,0.08);
+      padding: 3px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .btn-pan {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-pan:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .btn-pan:disabled, .btn-pan.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .btn-preset {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .btn-preset:hover {
+      opacity: 0.9;
+      color: var(--text);
+    }
+    .btn-preset.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      font-weight: 700;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+    }
+    .xtick text, .ytick text {
+      fill: var(--text) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+      <div class="breadcrumbs">
+        <a href="../inventory_index.html">CDAWeb Inventory</a> &gt;
+        <a href="./barrel_index.html">BARREL Index</a> &gt;
+        <span>BAR_1K_L2_MAGN</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <label class="dataset-navigation">Dataset: <select onchange="navigateToDataset(this.value)"><option value="BAR_1A_L2_EPHM.html">BAR_1A_L2_EPHM</option><option value="BAR_1A_L2_FSPC.html">BAR_1A_L2_FSPC</option><option value="BAR_1A_L2_HKPG.html">BAR_1A_L2_HKPG</option><option value="BAR_1A_L2_MAGN.html">BAR_1A_L2_MAGN</option><option value="BAR_1A_L2_MSPC.html">BAR_1A_L2_MSPC</option><option value="BAR_1A_L2_RCNT.html">BAR_1A_L2_RCNT</option><option value="BAR_1A_L2_SSPC.html">BAR_1A_L2_SSPC</option><option value="BAR_1B_L2_EPHM.html">BAR_1B_L2_EPHM</option><option value="BAR_1B_L2_FSPC.html">BAR_1B_L2_FSPC</option><option value="BAR_1B_L2_HKPG.html">BAR_1B_L2_HKPG</option><option value="BAR_1B_L2_MAGN.html">BAR_1B_L2_MAGN</option><option value="BAR_1B_L2_MSPC.html">BAR_1B_L2_MSPC</option><option value="BAR_1B_L2_RCNT.html">BAR_1B_L2_RCNT</option><option value="BAR_1B_L2_SSPC.html">BAR_1B_L2_SSPC</option><option value="BAR_1C_L2_EPHM.html">BAR_1C_L2_EPHM</option><option value="BAR_1C_L2_FSPC.html">BAR_1C_L2_FSPC</option><option value="BAR_1C_L2_HKPG.html">BAR_1C_L2_HKPG</option><option value="BAR_1C_L2_MAGN.html">BAR_1C_L2_MAGN</option><option value="BAR_1C_L2_MSPC.html">BAR_1C_L2_MSPC</option><option value="BAR_1C_L2_RCNT.html">BAR_1C_L2_RCNT</option><option value="BAR_1C_L2_SSPC.html">BAR_1C_L2_SSPC</option><option value="BAR_1D_L2_EPHM.html">BAR_1D_L2_EPHM</option><option value="BAR_1D_L2_FSPC.html">BAR_1D_L2_FSPC</option><option value="BAR_1D_L2_HKPG.html">BAR_1D_L2_HKPG</option><option value="BAR_1D_L2_MAGN.html">BAR_1D_L2_MAGN</option><option value="BAR_1D_L2_MSPC.html">BAR_1D_L2_MSPC</option><option value="BAR_1D_L2_RCNT.html">BAR_1D_L2_RCNT</option><option value="BAR_1D_L2_SSPC.html">BAR_1D_L2_SSPC</option><option value="BAR_1G_L2_EPHM.html">BAR_1G_L2_EPHM</option><option value="BAR_1G_L2_FSPC.html">BAR_1G_L2_FSPC</option><option value="BAR_1G_L2_HKPG.html">BAR_1G_L2_HKPG</option><option value="BAR_1G_L2_MAGN.html">BAR_1G_L2_MAGN</option><option value="BAR_1G_L2_MSPC.html">BAR_1G_L2_MSPC</option><option value="BAR_1G_L2_RCNT.html">BAR_1G_L2_RCNT</option><option value="BAR_1G_L2_SSPC.html">BAR_1G_L2_SSPC</option><option value="BAR_1H_L2_EPHM.html">BAR_1H_L2_EPHM</option><option value="BAR_1H_L2_FSPC.html">BAR_1H_L2_FSPC</option><option value="BAR_1H_L2_HKPG.html">BAR_1H_L2_HKPG</option><option value="BAR_1H_L2_MAGN.html">BAR_1H_L2_MAGN</option><option value="BAR_1H_L2_MSPC.html">BAR_1H_L2_MSPC</option><option value="BAR_1H_L2_RCNT.html">BAR_1H_L2_RCNT</option><option value="BAR_1H_L2_SSPC.html">BAR_1H_L2_SSPC</option><option value="BAR_1I_L2_EPHM.html">BAR_1I_L2_EPHM</option><option value="BAR_1I_L2_FSPC.html">BAR_1I_L2_FSPC</option><option value="BAR_1I_L2_HKPG.html">BAR_1I_L2_HKPG</option><option value="BAR_1I_L2_MAGN.html">BAR_1I_L2_MAGN</option><option value="BAR_1I_L2_MSPC.html">BAR_1I_L2_MSPC</option><option value="BAR_1I_L2_RCNT.html">BAR_1I_L2_RCNT</option><option value="BAR_1I_L2_SSPC.html">BAR_1I_L2_SSPC</option><option value="BAR_1J_L2_EPHM.html">BAR_1J_L2_EPHM</option><option value="BAR_1J_L2_FSPC.html">BAR_1J_L2_FSPC</option><option value="BAR_1J_L2_HKPG.html">BAR_1J_L2_HKPG</option><option value="BAR_1J_L2_MAGN.html">BAR_1J_L2_MAGN</option><option value="BAR_1J_L2_MSPC.html">BAR_1J_L2_MSPC</option><option value="BAR_1J_L2_RCNT.html">BAR_1J_L2_RCNT</option><option value="BAR_1J_L2_SSPC.html">BAR_1J_L2_SSPC</option><option value="BAR_1K_L2_EPHM.html">BAR_1K_L2_EPHM</option><option value="BAR_1K_L2_FSPC.html">BAR_1K_L2_FSPC</option><option value="BAR_1K_L2_HKPG.html">BAR_1K_L2_HKPG</option><option value="BAR_1K_L2_MAGN.html" selected>BAR_1K_L2_MAGN</option><option value="BAR_1K_L2_MSPC.html">BAR_1K_L2_MSPC</option><option value="BAR_1K_L2_RCNT.html">BAR_1K_L2_RCNT</option><option value="BAR_1K_L2_SSPC.html">BAR_1K_L2_SSPC</option><option value="BAR_1M_L2_EPHM.html">BAR_1M_L2_EPHM</option><option value="BAR_1M_L2_FSPC.html">BAR_1M_L2_FSPC</option><option value="BAR_1M_L2_HKPG.html">BAR_1M_L2_HKPG</option><option value="BAR_1M_L2_MAGN.html">BAR_1M_L2_MAGN</option><option value="BAR_1M_L2_MSPC.html">BAR_1M_L2_MSPC</option><option value="BAR_1M_L2_RCNT.html">BAR_1M_L2_RCNT</option><option value="BAR_1M_L2_SSPC.html">BAR_1M_L2_SSPC</option><option value="BAR_1N_L2_EPHM.html">BAR_1N_L2_EPHM</option><option value="BAR_1N_L2_FSPC.html">BAR_1N_L2_FSPC</option><option value="BAR_1N_L2_HKPG.html">BAR_1N_L2_HKPG</option><option value="BAR_1N_L2_MAGN.html">BAR_1N_L2_MAGN</option><option value="BAR_1N_L2_MSPC.html">BAR_1N_L2_MSPC</option><option value="BAR_1N_L2_RCNT.html">BAR_1N_L2_RCNT</option><option value="BAR_1N_L2_SSPC.html">BAR_1N_L2_SSPC</option><option value="BAR_1O_L2_EPHM.html">BAR_1O_L2_EPHM</option><option value="BAR_1O_L2_FSPC.html">BAR_1O_L2_FSPC</option><option value="BAR_1O_L2_HKPG.html">BAR_1O_L2_HKPG</option><option value="BAR_1O_L2_MAGN.html">BAR_1O_L2_MAGN</option><option value="BAR_1O_L2_MSPC.html">BAR_1O_L2_MSPC</option><option value="BAR_1O_L2_RCNT.html">BAR_1O_L2_RCNT</option><option value="BAR_1O_L2_SSPC.html">BAR_1O_L2_SSPC</option><option value="BAR_1Q_L2_EPHM.html">BAR_1Q_L2_EPHM</option><option value="BAR_1Q_L2_FSPC.html">BAR_1Q_L2_FSPC</option><option value="BAR_1Q_L2_HKPG.html">BAR_1Q_L2_HKPG</option><option value="BAR_1Q_L2_MAGN.html">BAR_1Q_L2_MAGN</option><option value="BAR_1Q_L2_MSPC.html">BAR_1Q_L2_MSPC</option><option value="BAR_1Q_L2_RCNT.html">BAR_1Q_L2_RCNT</option><option value="BAR_1Q_L2_SSPC.html">BAR_1Q_L2_SSPC</option><option value="BAR_1R_L2_EPHM.html">BAR_1R_L2_EPHM</option><option value="BAR_1R_L2_FSPC.html">BAR_1R_L2_FSPC</option><option value="BAR_1R_L2_HKPG.html">BAR_1R_L2_HKPG</option><option value="BAR_1R_L2_MAGN.html">BAR_1R_L2_MAGN</option><option value="BAR_1R_L2_MSPC.html">BAR_1R_L2_MSPC</option><option value="BAR_1R_L2_RCNT.html">BAR_1R_L2_RCNT</option><option value="BAR_1R_L2_SSPC.html">BAR_1R_L2_SSPC</option><option value="BAR_1S_L2_EPHM.html">BAR_1S_L2_EPHM</option><option value="BAR_1S_L2_FSPC.html">BAR_1S_L2_FSPC</option><option value="BAR_1S_L2_HKPG.html">BAR_1S_L2_HKPG</option><option value="BAR_1S_L2_MAGN.html">BAR_1S_L2_MAGN</option><option value="BAR_1S_L2_MSPC.html">BAR_1S_L2_MSPC</option><option value="BAR_1S_L2_RCNT.html">BAR_1S_L2_RCNT</option><option value="BAR_1S_L2_SSPC.html">BAR_1S_L2_SSPC</option><option value="BAR_1T_L2_EPHM.html">BAR_1T_L2_EPHM</option><option value="BAR_1T_L2_FSPC.html">BAR_1T_L2_FSPC</option><option value="BAR_1T_L2_HKPG.html">BAR_1T_L2_HKPG</option><option value="BAR_1T_L2_MAGN.html">BAR_1T_L2_MAGN</option><option value="BAR_1T_L2_MSPC.html">BAR_1T_L2_MSPC</option><option value="BAR_1T_L2_RCNT.html">BAR_1T_L2_RCNT</option><option value="BAR_1T_L2_SSPC.html">BAR_1T_L2_SSPC</option><option value="BAR_1U_L2_EPHM.html">BAR_1U_L2_EPHM</option><option value="BAR_1U_L2_FSPC.html">BAR_1U_L2_FSPC</option><option value="BAR_1U_L2_HKPG.html">BAR_1U_L2_HKPG</option><option value="BAR_1U_L2_MAGN.html">BAR_1U_L2_MAGN</option><option value="BAR_1U_L2_MSPC.html">BAR_1U_L2_MSPC</option><option value="BAR_1U_L2_RCNT.html">BAR_1U_L2_RCNT</option><option value="BAR_1U_L2_SSPC.html">BAR_1U_L2_SSPC</option><option value="BAR_1V_L2_EPHM.html">BAR_1V_L2_EPHM</option><option value="BAR_1V_L2_FSPC.html">BAR_1V_L2_FSPC</option><option value="BAR_1V_L2_HKPG.html">BAR_1V_L2_HKPG</option><option value="BAR_1V_L2_MAGN.html">BAR_1V_L2_MAGN</option><option value="BAR_1V_L2_MSPC.html">BAR_1V_L2_MSPC</option><option value="BAR_1V_L2_RCNT.html">BAR_1V_L2_RCNT</option><option value="BAR_1V_L2_SSPC.html">BAR_1V_L2_SSPC</option><option value="BAR_2A_L2_EPHM.html">BAR_2A_L2_EPHM</option><option value="BAR_2A_L2_FSPC.html">BAR_2A_L2_FSPC</option><option value="BAR_2A_L2_HKPG.html">BAR_2A_L2_HKPG</option><option value="BAR_2A_L2_MAGN.html">BAR_2A_L2_MAGN</option><option value="BAR_2A_L2_MSPC.html">BAR_2A_L2_MSPC</option><option value="BAR_2A_L2_RCNT.html">BAR_2A_L2_RCNT</option><option value="BAR_2A_L2_SSPC.html">BAR_2A_L2_SSPC</option><option value="BAR_2B_L2_EPHM.html">BAR_2B_L2_EPHM</option><option value="BAR_2B_L2_FSPC.html">BAR_2B_L2_FSPC</option><option value="BAR_2B_L2_HKPG.html">BAR_2B_L2_HKPG</option><option value="BAR_2B_L2_MAGN.html">BAR_2B_L2_MAGN</option><option value="BAR_2B_L2_MSPC.html">BAR_2B_L2_MSPC</option><option value="BAR_2B_L2_RCNT.html">BAR_2B_L2_RCNT</option><option value="BAR_2B_L2_SSPC.html">BAR_2B_L2_SSPC</option><option value="BAR_2C_L2_EPHM.html">BAR_2C_L2_EPHM</option><option value="BAR_2C_L2_FSPC.html">BAR_2C_L2_FSPC</option><option value="BAR_2C_L2_HKPG.html">BAR_2C_L2_HKPG</option><option value="BAR_2C_L2_MAGN.html">BAR_2C_L2_MAGN</option><option value="BAR_2C_L2_MSPC.html">BAR_2C_L2_MSPC</option><option value="BAR_2C_L2_RCNT.html">BAR_2C_L2_RCNT</option><option value="BAR_2C_L2_SSPC.html">BAR_2C_L2_SSPC</option><option value="BAR_2D_L2_EPHM.html">BAR_2D_L2_EPHM</option><option value="BAR_2D_L2_FSPC.html">BAR_2D_L2_FSPC</option><option value="BAR_2D_L2_HKPG.html">BAR_2D_L2_HKPG</option><option value="BAR_2D_L2_MAGN.html">BAR_2D_L2_MAGN</option><option value="BAR_2D_L2_MSPC.html">BAR_2D_L2_MSPC</option><option value="BAR_2D_L2_RCNT.html">BAR_2D_L2_RCNT</option><option value="BAR_2D_L2_SSPC.html">BAR_2D_L2_SSPC</option><option value="BAR_2E_L2_EPHM.html">BAR_2E_L2_EPHM</option><option value="BAR_2E_L2_FSPC.html">BAR_2E_L2_FSPC</option><option value="BAR_2E_L2_HKPG.html">BAR_2E_L2_HKPG</option><option value="BAR_2E_L2_MAGN.html">BAR_2E_L2_MAGN</option><option value="BAR_2E_L2_MSPC.html">BAR_2E_L2_MSPC</option><option value="BAR_2E_L2_RCNT.html">BAR_2E_L2_RCNT</option><option value="BAR_2E_L2_SSPC.html">BAR_2E_L2_SSPC</option><option value="BAR_2F_L2_EPHM.html">BAR_2F_L2_EPHM</option><option value="BAR_2F_L2_FSPC.html">BAR_2F_L2_FSPC</option><option value="BAR_2F_L2_HKPG.html">BAR_2F_L2_HKPG</option><option value="BAR_2F_L2_MAGN.html">BAR_2F_L2_MAGN</option><option value="BAR_2F_L2_MSPC.html">BAR_2F_L2_MSPC</option><option value="BAR_2F_L2_RCNT.html">BAR_2F_L2_RCNT</option><option value="BAR_2F_L2_SSPC.html">BAR_2F_L2_SSPC</option><option value="BAR_2I_L2_EPHM.html">BAR_2I_L2_EPHM</option><option value="BAR_2I_L2_FSPC.html">BAR_2I_L2_FSPC</option><option value="BAR_2I_L2_HKPG.html">BAR_2I_L2_HKPG</option><option value="BAR_2I_L2_MAGN.html">BAR_2I_L2_MAGN</option><option value="BAR_2I_L2_MSPC.html">BAR_2I_L2_MSPC</option><option value="BAR_2I_L2_RCNT.html">BAR_2I_L2_RCNT</option><option value="BAR_2I_L2_SSPC.html">BAR_2I_L2_SSPC</option><option value="BAR_2K_L2_EPHM.html">BAR_2K_L2_EPHM</option><option value="BAR_2K_L2_FSPC.html">BAR_2K_L2_FSPC</option><option value="BAR_2K_L2_HKPG.html">BAR_2K_L2_HKPG</option><option value="BAR_2K_L2_MAGN.html">BAR_2K_L2_MAGN</option><option value="BAR_2K_L2_MSPC.html">BAR_2K_L2_MSPC</option><option value="BAR_2K_L2_RCNT.html">BAR_2K_L2_RCNT</option><option value="BAR_2K_L2_SSPC.html">BAR_2K_L2_SSPC</option><option value="BAR_2L_L2_EPHM.html">BAR_2L_L2_EPHM</option><option value="BAR_2L_L2_FSPC.html">BAR_2L_L2_FSPC</option><option value="BAR_2L_L2_HKPG.html">BAR_2L_L2_HKPG</option><option value="BAR_2L_L2_MAGN.html">BAR_2L_L2_MAGN</option><option value="BAR_2L_L2_MSPC.html">BAR_2L_L2_MSPC</option><option value="BAR_2L_L2_RCNT.html">BAR_2L_L2_RCNT</option><option value="BAR_2L_L2_SSPC.html">BAR_2L_L2_SSPC</option><option value="BAR_2M_L2_EPHM.html">BAR_2M_L2_EPHM</option><option value="BAR_2M_L2_FSPC.html">BAR_2M_L2_FSPC</option><option value="BAR_2M_L2_HKPG.html">BAR_2M_L2_HKPG</option><option value="BAR_2M_L2_MAGN.html">BAR_2M_L2_MAGN</option><option value="BAR_2M_L2_MSPC.html">BAR_2M_L2_MSPC</option><option value="BAR_2M_L2_RCNT.html">BAR_2M_L2_RCNT</option><option value="BAR_2M_L2_SSPC.html">BAR_2M_L2_SSPC</option><option value="BAR_2N_L2_EPHM.html">BAR_2N_L2_EPHM</option><option value="BAR_2N_L2_FSPC.html">BAR_2N_L2_FSPC</option><option value="BAR_2N_L2_HKPG.html">BAR_2N_L2_HKPG</option><option value="BAR_2N_L2_MAGN.html">BAR_2N_L2_MAGN</option><option value="BAR_2N_L2_MSPC.html">BAR_2N_L2_MSPC</option><option value="BAR_2N_L2_RCNT.html">BAR_2N_L2_RCNT</option><option value="BAR_2N_L2_SSPC.html">BAR_2N_L2_SSPC</option><option value="BAR_2O_L2_EPHM.html">BAR_2O_L2_EPHM</option><option value="BAR_2O_L2_FSPC.html">BAR_2O_L2_FSPC</option><option value="BAR_2O_L2_HKPG.html">BAR_2O_L2_HKPG</option><option value="BAR_2O_L2_MAGN.html">BAR_2O_L2_MAGN</option><option value="BAR_2O_L2_MSPC.html">BAR_2O_L2_MSPC</option><option value="BAR_2O_L2_RCNT.html">BAR_2O_L2_RCNT</option><option value="BAR_2O_L2_SSPC.html">BAR_2O_L2_SSPC</option><option value="BAR_2P_L2_EPHM.html">BAR_2P_L2_EPHM</option><option value="BAR_2P_L2_FSPC.html">BAR_2P_L2_FSPC</option><option value="BAR_2P_L2_HKPG.html">BAR_2P_L2_HKPG</option><option value="BAR_2P_L2_MAGN.html">BAR_2P_L2_MAGN</option><option value="BAR_2P_L2_MSPC.html">BAR_2P_L2_MSPC</option><option value="BAR_2P_L2_RCNT.html">BAR_2P_L2_RCNT</option><option value="BAR_2P_L2_SSPC.html">BAR_2P_L2_SSPC</option><option value="BAR_2Q_L2_EPHM.html">BAR_2Q_L2_EPHM</option><option value="BAR_2Q_L2_FSPC.html">BAR_2Q_L2_FSPC</option><option value="BAR_2Q_L2_HKPG.html">BAR_2Q_L2_HKPG</option><option value="BAR_2Q_L2_MAGN.html">BAR_2Q_L2_MAGN</option><option value="BAR_2Q_L2_MSPC.html">BAR_2Q_L2_MSPC</option><option value="BAR_2Q_L2_RCNT.html">BAR_2Q_L2_RCNT</option><option value="BAR_2Q_L2_SSPC.html">BAR_2Q_L2_SSPC</option><option value="BAR_2T_L2_EPHM.html">BAR_2T_L2_EPHM</option><option value="BAR_2T_L2_FSPC.html">BAR_2T_L2_FSPC</option><option value="BAR_2T_L2_HKPG.html">BAR_2T_L2_HKPG</option><option value="BAR_2T_L2_MAGN.html">BAR_2T_L2_MAGN</option><option value="BAR_2T_L2_MSPC.html">BAR_2T_L2_MSPC</option><option value="BAR_2T_L2_RCNT.html">BAR_2T_L2_RCNT</option><option value="BAR_2T_L2_SSPC.html">BAR_2T_L2_SSPC</option><option value="BAR_2W_L2_EPHM.html">BAR_2W_L2_EPHM</option><option value="BAR_2W_L2_FSPC.html">BAR_2W_L2_FSPC</option><option value="BAR_2W_L2_HKPG.html">BAR_2W_L2_HKPG</option><option value="BAR_2W_L2_MAGN.html">BAR_2W_L2_MAGN</option><option value="BAR_2W_L2_MSPC.html">BAR_2W_L2_MSPC</option><option value="BAR_2W_L2_RCNT.html">BAR_2W_L2_RCNT</option><option value="BAR_2W_L2_SSPC.html">BAR_2W_L2_SSPC</option><option value="BAR_2X_L2_EPHM.html">BAR_2X_L2_EPHM</option><option value="BAR_2X_L2_FSPC.html">BAR_2X_L2_FSPC</option><option value="BAR_2X_L2_HKPG.html">BAR_2X_L2_HKPG</option><option value="BAR_2X_L2_MAGN.html">BAR_2X_L2_MAGN</option><option value="BAR_2X_L2_MSPC.html">BAR_2X_L2_MSPC</option><option value="BAR_2X_L2_RCNT.html">BAR_2X_L2_RCNT</option><option value="BAR_2X_L2_SSPC.html">BAR_2X_L2_SSPC</option><option value="BAR_2Y_L2_EPHM.html">BAR_2Y_L2_EPHM</option><option value="BAR_2Y_L2_FSPC.html">BAR_2Y_L2_FSPC</option><option value="BAR_2Y_L2_HKPG.html">BAR_2Y_L2_HKPG</option><option value="BAR_2Y_L2_MAGN.html">BAR_2Y_L2_MAGN</option><option value="BAR_2Y_L2_MSPC.html">BAR_2Y_L2_MSPC</option><option value="BAR_2Y_L2_RCNT.html">BAR_2Y_L2_RCNT</option><option value="BAR_2Y_L2_SSPC.html">BAR_2Y_L2_SSPC</option><option value="BAR_3A_L2_EPHM.html">BAR_3A_L2_EPHM</option><option value="BAR_3A_L2_FSPC.html">BAR_3A_L2_FSPC</option><option value="BAR_3A_L2_HKPG.html">BAR_3A_L2_HKPG</option><option value="BAR_3A_L2_MAGN.html">BAR_3A_L2_MAGN</option><option value="BAR_3A_L2_MSPC.html">BAR_3A_L2_MSPC</option><option value="BAR_3A_L2_RCNT.html">BAR_3A_L2_RCNT</option><option value="BAR_3A_L2_SSPC.html">BAR_3A_L2_SSPC</option><option value="BAR_3B_L2_EPHM.html">BAR_3B_L2_EPHM</option><option value="BAR_3B_L2_FSPC.html">BAR_3B_L2_FSPC</option><option value="BAR_3B_L2_HKPG.html">BAR_3B_L2_HKPG</option><option value="BAR_3B_L2_MAGN.html">BAR_3B_L2_MAGN</option><option value="BAR_3B_L2_MSPC.html">BAR_3B_L2_MSPC</option><option value="BAR_3B_L2_RCNT.html">BAR_3B_L2_RCNT</option><option value="BAR_3B_L2_SSPC.html">BAR_3B_L2_SSPC</option><option value="BAR_3C_L2_EPHM.html">BAR_3C_L2_EPHM</option><option value="BAR_3C_L2_FSPC.html">BAR_3C_L2_FSPC</option><option value="BAR_3C_L2_HKPG.html">BAR_3C_L2_HKPG</option><option value="BAR_3C_L2_MAGN.html">BAR_3C_L2_MAGN</option><option value="BAR_3C_L2_MSPC.html">BAR_3C_L2_MSPC</option><option value="BAR_3C_L2_RCNT.html">BAR_3C_L2_RCNT</option><option value="BAR_3C_L2_SSPC.html">BAR_3C_L2_SSPC</option><option value="BAR_3D_L2_EPHM.html">BAR_3D_L2_EPHM</option><option value="BAR_3D_L2_FSPC.html">BAR_3D_L2_FSPC</option><option value="BAR_3D_L2_HKPG.html">BAR_3D_L2_HKPG</option><option value="BAR_3D_L2_MAGN.html">BAR_3D_L2_MAGN</option><option value="BAR_3D_L2_MSPC.html">BAR_3D_L2_MSPC</option><option value="BAR_3D_L2_RCNT.html">BAR_3D_L2_RCNT</option><option value="BAR_3D_L2_SSPC.html">BAR_3D_L2_SSPC</option><option value="BAR_3E_L2_EPHM.html">BAR_3E_L2_EPHM</option><option value="BAR_3E_L2_FSPC.html">BAR_3E_L2_FSPC</option><option value="BAR_3E_L2_HKPG.html">BAR_3E_L2_HKPG</option><option value="BAR_3E_L2_MAGN.html">BAR_3E_L2_MAGN</option><option value="BAR_3E_L2_MSPC.html">BAR_3E_L2_MSPC</option><option value="BAR_3E_L2_RCNT.html">BAR_3E_L2_RCNT</option><option value="BAR_3E_L2_SSPC.html">BAR_3E_L2_SSPC</option><option value="BAR_3F_L2_EPHM.html">BAR_3F_L2_EPHM</option><option value="BAR_3F_L2_FSPC.html">BAR_3F_L2_FSPC</option><option value="BAR_3F_L2_HKPG.html">BAR_3F_L2_HKPG</option><option value="BAR_3F_L2_MAGN.html">BAR_3F_L2_MAGN</option><option value="BAR_3F_L2_MSPC.html">BAR_3F_L2_MSPC</option><option value="BAR_3F_L2_RCNT.html">BAR_3F_L2_RCNT</option><option value="BAR_3F_L2_SSPC.html">BAR_3F_L2_SSPC</option><option value="BAR_3G_L2_EPHM.html">BAR_3G_L2_EPHM</option><option value="BAR_3G_L2_FSPC.html">BAR_3G_L2_FSPC</option><option value="BAR_3G_L2_HKPG.html">BAR_3G_L2_HKPG</option><option value="BAR_3G_L2_MAGN.html">BAR_3G_L2_MAGN</option><option value="BAR_3G_L2_MSPC.html">BAR_3G_L2_MSPC</option><option value="BAR_3G_L2_RCNT.html">BAR_3G_L2_RCNT</option><option value="BAR_3G_L2_SSPC.html">BAR_3G_L2_SSPC</option><option value="BAR_4A_L2_EPHM.html">BAR_4A_L2_EPHM</option><option value="BAR_4A_L2_FSPC.html">BAR_4A_L2_FSPC</option><option value="BAR_4A_L2_HKPG.html">BAR_4A_L2_HKPG</option><option value="BAR_4A_L2_MSPC.html">BAR_4A_L2_MSPC</option><option value="BAR_4A_L2_RCNT.html">BAR_4A_L2_RCNT</option><option value="BAR_4A_L2_SSPC.html">BAR_4A_L2_SSPC</option><option value="BAR_4A_L2_USPC.html">BAR_4A_L2_USPC</option><option value="BAR_4A_L2_XSPC.html">BAR_4A_L2_XSPC</option><option value="BAR_4B_L2_EPHM.html">BAR_4B_L2_EPHM</option><option value="BAR_4B_L2_FSPC.html">BAR_4B_L2_FSPC</option><option value="BAR_4B_L2_HKPG.html">BAR_4B_L2_HKPG</option><option value="BAR_4B_L2_MSPC.html">BAR_4B_L2_MSPC</option><option value="BAR_4B_L2_RCNT.html">BAR_4B_L2_RCNT</option><option value="BAR_4B_L2_SSPC.html">BAR_4B_L2_SSPC</option><option value="BAR_4B_L2_USPC.html">BAR_4B_L2_USPC</option><option value="BAR_4B_L2_XSPC.html">BAR_4B_L2_XSPC</option><option value="BAR_4C_L2_EPHM.html">BAR_4C_L2_EPHM</option><option value="BAR_4C_L2_FSPC.html">BAR_4C_L2_FSPC</option><option value="BAR_4C_L2_HKPG.html">BAR_4C_L2_HKPG</option><option value="BAR_4C_L2_MSPC.html">BAR_4C_L2_MSPC</option><option value="BAR_4C_L2_RCNT.html">BAR_4C_L2_RCNT</option><option value="BAR_4C_L2_SSPC.html">BAR_4C_L2_SSPC</option><option value="BAR_4C_L2_USPC.html">BAR_4C_L2_USPC</option><option value="BAR_4C_L2_XSPC.html">BAR_4C_L2_XSPC</option><option value="BAR_4D_L2_EPHM.html">BAR_4D_L2_EPHM</option><option value="BAR_4D_L2_FSPC.html">BAR_4D_L2_FSPC</option><option value="BAR_4D_L2_HKPG.html">BAR_4D_L2_HKPG</option><option value="BAR_4D_L2_MSPC.html">BAR_4D_L2_MSPC</option><option value="BAR_4D_L2_RCNT.html">BAR_4D_L2_RCNT</option><option value="BAR_4D_L2_SSPC.html">BAR_4D_L2_SSPC</option><option value="BAR_4D_L2_USPC.html">BAR_4D_L2_USPC</option><option value="BAR_4D_L2_XSPC.html">BAR_4D_L2_XSPC</option><option value="BAR_4E_L2_EPHM.html">BAR_4E_L2_EPHM</option><option value="BAR_4E_L2_FSPC.html">BAR_4E_L2_FSPC</option><option value="BAR_4E_L2_HKPG.html">BAR_4E_L2_HKPG</option><option value="BAR_4E_L2_MSPC.html">BAR_4E_L2_MSPC</option><option value="BAR_4E_L2_RCNT.html">BAR_4E_L2_RCNT</option><option value="BAR_4E_L2_SSPC.html">BAR_4E_L2_SSPC</option><option value="BAR_4E_L2_USPC.html">BAR_4E_L2_USPC</option><option value="BAR_4E_L2_XSPC.html">BAR_4E_L2_XSPC</option><option value="BAR_4F_L2_EPHM.html">BAR_4F_L2_EPHM</option><option value="BAR_4F_L2_FSPC.html">BAR_4F_L2_FSPC</option><option value="BAR_4F_L2_HKPG.html">BAR_4F_L2_HKPG</option><option value="BAR_4F_L2_MSPC.html">BAR_4F_L2_MSPC</option><option value="BAR_4F_L2_RCNT.html">BAR_4F_L2_RCNT</option><option value="BAR_4F_L2_SSPC.html">BAR_4F_L2_SSPC</option><option value="BAR_4F_L2_USPC.html">BAR_4F_L2_USPC</option><option value="BAR_4F_L2_XSPC.html">BAR_4F_L2_XSPC</option><option value="BAR_4G_L2_EPHM.html">BAR_4G_L2_EPHM</option><option value="BAR_4G_L2_FSPC.html">BAR_4G_L2_FSPC</option><option value="BAR_4G_L2_HKPG.html">BAR_4G_L2_HKPG</option><option value="BAR_4G_L2_MSPC.html">BAR_4G_L2_MSPC</option><option value="BAR_4G_L2_RCNT.html">BAR_4G_L2_RCNT</option><option value="BAR_4G_L2_SSPC.html">BAR_4G_L2_SSPC</option><option value="BAR_4G_L2_USPC.html">BAR_4G_L2_USPC</option><option value="BAR_4G_L2_XSPC.html">BAR_4G_L2_XSPC</option><option value="BAR_4H_L2_EPHM.html">BAR_4H_L2_EPHM</option><option value="BAR_4H_L2_FSPC.html">BAR_4H_L2_FSPC</option><option value="BAR_4H_L2_HKPG.html">BAR_4H_L2_HKPG</option><option value="BAR_4H_L2_MSPC.html">BAR_4H_L2_MSPC</option><option value="BAR_4H_L2_RCNT.html">BAR_4H_L2_RCNT</option><option value="BAR_4H_L2_SSPC.html">BAR_4H_L2_SSPC</option><option value="BAR_4H_L2_USPC.html">BAR_4H_L2_USPC</option><option value="BAR_4H_L2_XSPC.html">BAR_4H_L2_XSPC</option><option value="BAR_5A_L2_EPHM.html">BAR_5A_L2_EPHM</option><option value="BAR_5A_L2_FSPC.html">BAR_5A_L2_FSPC</option><option value="BAR_5A_L2_HKPG.html">BAR_5A_L2_HKPG</option><option value="BAR_5A_L2_MSPC.html">BAR_5A_L2_MSPC</option><option value="BAR_5A_L2_RCNT.html">BAR_5A_L2_RCNT</option><option value="BAR_5A_L2_SSPC.html">BAR_5A_L2_SSPC</option><option value="BAR_5A_L2_USPC.html">BAR_5A_L2_USPC</option><option value="BAR_5A_L2_XSPC.html">BAR_5A_L2_XSPC</option><option value="BAR_6A_L2_EPHM.html">BAR_6A_L2_EPHM</option><option value="BAR_6A_L2_FSPC.html">BAR_6A_L2_FSPC</option><option value="BAR_6A_L2_HKPG.html">BAR_6A_L2_HKPG</option><option value="BAR_6A_L2_MAGN.html">BAR_6A_L2_MAGN</option><option value="BAR_6A_L2_MSPC.html">BAR_6A_L2_MSPC</option><option value="BAR_6A_L2_RCNT.html">BAR_6A_L2_RCNT</option><option value="BAR_6A_L2_SSPC.html">BAR_6A_L2_SSPC</option><option value="BAR_7A_L2_EPHM.html">BAR_7A_L2_EPHM</option><option value="BAR_7A_L2_FSPC.html">BAR_7A_L2_FSPC</option><option value="BAR_7A_L2_HKPG.html">BAR_7A_L2_HKPG</option><option value="BAR_7A_L2_MAGN.html">BAR_7A_L2_MAGN</option><option value="BAR_7A_L2_MSPC.html">BAR_7A_L2_MSPC</option><option value="BAR_7A_L2_RCNT.html">BAR_7A_L2_RCNT</option><option value="BAR_7A_L2_SSPC.html">BAR_7A_L2_SSPC</option></select></label>
+        <a href="../BARREL_Inventory.png" target="_blank" class="btn-theme"> BARREL PNG</a>
+        <button class="btn-theme" onclick="exportPlotAsPng('dataset-timeline-plot', 'BAR_1K_L2_MAGN_plot.png')"> Download Plot PNG</button>
+        <button id="theme-toggle" class="btn-theme" onclick="toggleTheme()">☀️ Light Mode</button>
+      </div>
+    </div>
+    <div>
+      <span class="badge">BARREL &bull; L2</span>
+      <h1>BAR_1K_L2_MAGN</h1>
+      <p class="subtitle">MAGN</p>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">CDF Files</div>
+        <div id="kpi-cdf-files" class="kpi-value">17</div>
+        <div id="kpi-cdf-files-overall" class="kpi-overall"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Active Days</div>
+        <div id="kpi-active-days" class="kpi-value">14.94</div>
+        <div id="kpi-active-days-overall" class="kpi-overall"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Coverage</div>
+        <div id="kpi-coverage" class="kpi-value" style="color: var(--success);">97.54%</div>
+        <div id="kpi-coverage-overall" class="kpi-overall"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Earliest Start</div>
+        <div id="kpi-earliest-start" class="kpi-value" style="font-size: 14px;">2013-01-05 17:49 UTC</div>
+        <div id="kpi-earliest-start-overall" class="kpi-overall"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Latest Stop</div>
+        <div id="kpi-latest-stop" class="kpi-value" style="font-size: 14px;">2013-01-21 01:24 UTC</div>
+        <div id="kpi-latest-stop-overall" class="kpi-overall"></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+        <span style="font-size: 14px; font-weight: 600;">Data Availability Timeline</span>
+        <div class="pan-controls">
+          <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin: 0 4px;">Time Window:</span>
+          <button type="button" class="btn-pan disabled" disabled title="Pan backward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('dataset-timeline-plot', -1)">◀ Prev Frame</button>
+          <button type="button" class="btn-pan" title="Reset zoom to full range" onclick="resetTimelineZoom('dataset-timeline-plot')">↺ Reset Zoom</button>
+          <button type="button" class="btn-pan disabled" disabled title="Pan forward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('dataset-timeline-plot', 1)">Next Frame ▶</button>
+          <button type="button" class="btn-pan" title="Download timeline chart as PNG" onclick="exportPlotAsPng('dataset-timeline-plot', 'BAR_1K_L2_MAGN_plot.png')"> PNG</button>
+        </div>
+      </div>
+      <div id="dataset-timeline-plot" style="min-height: 180px; width: 100%;"></div>
+    </div>
+    <div class="table-card">
+      <h3 style="margin: 0 0 12px 0; font-size: 16px;">Intervals &amp; Coverage Bounds</h3>
+      <div style="max-height: 400px; overflow-y: auto;">
+        <table>
+          <thead>
+            <tr><th>Start Time (UTC)</th><th>Stop Time (UTC)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>2013-01-05 17:49:57 UTC</code></td><td><code>2013-01-09 22:01:26 UTC</code></td></tr><tr><td><code>2013-01-10 03:39:28 UTC</code></td><td><code>2013-01-10 23:23:19 UTC</code></td></tr><tr><td><code>2013-01-11 00:27:11 UTC</code></td><td><code>2013-01-21 01:24:08 UTC</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+    <footer class="page-footer">This page was last updated on: 2026-11-17 17:20:54 UTC. For any questions or comments, please contact SPDF support at: <a href="mailto:NASA-SPDF-Support@nasa.gov">NASA-SPDF-Support@nasa.gov</a></footer>
+  </div>
+
+  <script>
+    function navigateToDataset(path) {
+      const query = window.location.search || '';
+      window.location.href = path + query;
+    }
+    const plotIntervals = [["2013-01-05T17:49:57Z", 360689000, "2013-01-09T22:01:26Z"], ["2013-01-10T03:39:28Z", 86400000, "2013-01-10T23:23:19Z"], ["2013-01-11T00:27:11Z", 867417000, "2013-01-21T01:24:08Z"]];
+    const fileIntervals = [["2013-01-05T17:49:57Z", "2013-01-05T23:49:22Z"], ["2013-01-06T00:14:46Z", "2013-01-06T23:43:42Z"], ["2013-01-07T00:38:32Z", "2013-01-07T23:45:03Z"], ["2013-01-08T00:02:58Z", "2013-01-08T23:31:07Z"], ["2013-01-09T00:06:04Z", "2013-01-09T22:01:26Z"], ["2013-01-10T03:39:28Z", "2013-01-10T23:23:19Z"], ["2013-01-11T00:27:11Z", "2013-01-11T23:57:17Z"], ["2013-01-12T00:04:33Z", "2013-01-12T23:59:59Z"], ["2013-01-13T00:00:00Z", "2013-01-13T23:59:59Z"], ["2013-01-14T00:00:00Z", "2013-01-14T23:59:59Z"], ["2013-01-15T00:00:00Z", "2013-01-15T23:59:59Z"], ["2013-01-16T00:00:00Z", "2013-01-16T23:59:59Z"], ["2013-01-17T00:00:00Z", "2013-01-17T23:59:59Z"], ["2013-01-18T00:00:00Z", "2013-01-18T23:59:59Z"], ["2013-01-19T00:00:00Z", "2013-01-19T23:59:59Z"], ["2013-01-20T00:00:00Z", "2013-01-20T23:59:59Z"], ["2013-01-21T00:00:00Z", "2013-01-21T01:24:08Z"]];
+    const overallKpis = {
+      cdfFiles: 17,
+      activeDays: 14.9387268519,
+      coverage: 97.5405270807,
+      earliest: "2013-01-05 17:49 UTC",
+      latest: "2013-01-21 01:24 UTC"
+    };
+
+    window._globalMinTimeMs = 1357408197000;
+    window._globalMaxTimeMs = 1358731448000;
+
+    function parseAxisTimeMs(val) {
+      if (val == null) return NaN;
+      if (typeof val === 'number') return val;
+      if (val instanceof Date) return val.getTime();
+      const s = String(val).trim();
+      if (!s) return NaN;
+      if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+      const iso = s.replace(/\//g, '-').replace(' ', 'T');
+      const isoUtc = (iso.includes('Z') || iso.includes('+')) ? iso : iso + 'Z';
+      let ms = Date.parse(isoUtc);
+      if (!isNaN(ms)) return ms;
+      ms = Date.parse(s);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function formatAxisDate(ms) {
+      const d = new Date(ms);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString();
+    }
+
+    function formatKpiDate(ms) {
+      if (!Number.isFinite(ms)) return 'No data';
+      return new Date(ms).toISOString().replace('.000Z', ' UTC');
+    }
+
+    function getThemeColors() {
+      const isLight = document.body.classList.contains('light');
+      return {
+        textColor: isLight ? '#0f172a' : '#f8fafc',
+        gridColor: isLight ? '#cbd5e1' : '#334155'
+      };
+    }
+
+    // Single vectorized trace — one bar per interval in parallel arrays.
+    // Avoids creating N trace objects in the DOM when a dataset has many gaps.
+    const traces = [{
+      type: 'bar',
+      orientation: 'h',
+      y: plotIntervals.map(() => 'BAR_1K_L2_MAGN'),
+      x: plotIntervals.map(inv => inv[1]),
+      base: plotIntervals.map(inv => inv[0]),
+      marker: { color: '#0284c7', line: { width: 0 } },
+      hoverinfo: 'text',
+      hovertext: plotIntervals.map(inv =>
+        `<b>BAR_1K_L2_MAGN</b><br>From: ${inv[0].replace('T', ' ').replace('Z', ' UTC')}<br>To: ${inv[2].replace('T', ' ').replace('Z', ' UTC')}<br>Duration: ${(inv[1] / 86400000).toFixed(2)} days`
+      ),
+      showlegend: false
+    }];
+
+    function renderPlot() {
+      const colors = getThemeColors();
+      let xRange = undefined;
+      let autorange = true;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        const span = Math.max(86400000, window._globalMaxTimeMs - window._globalMinTimeMs);
+        const pad = Math.max(86400000, span * 0.02);
+        xRange = [formatAxisDate(window._globalMinTimeMs - pad), formatAxisDate(window._globalMaxTimeMs + pad)];
+        autorange = false;
+      }
+      const layout = {
+        height: 190,
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent',
+        font: { color: colors.textColor, size: 11 },
+        margin: { l: 140, r: 30, t: 35, b: 40 },
+        xaxis: {
+          type: 'date',
+          side: 'bottom',
+          range: xRange,
+          autorange: autorange,
+          gridcolor: colors.gridColor,
+          tickcolor: colors.gridColor,
+          tickfont: { color: colors.textColor, size: 11 },
+          showline: true,
+          linecolor: colors.gridColor
+        },
+        xaxis2: {
+          type: 'date',
+          overlaying: 'x',
+          side: 'top',
+          matches: 'x',
+          title: { text: 'Time (UTC)', font: { color: colors.textColor, size: 11 } },
+          showgrid: false,
+          tickcolor: colors.gridColor,
+          tickfont: { color: colors.textColor, size: 11 },
+          showline: true,
+          linecolor: colors.gridColor
+        },
+        yaxis: {
+          type: 'category',
+          fixedrange: true,
+          automargin: true,
+          gridcolor: colors.gridColor,
+          tickcolor: colors.gridColor,
+          tickfont: { color: '#0284c7', size: 12 },
+          showline: true,
+          linecolor: colors.gridColor
+        },
+        dragmode: 'zoom',
+        barmode: 'overlay',
+        bargap: 0.75
+      };
+      Plotly.react('dataset-timeline-plot', traces, layout, { responsive: true, displayModeBar: true, displaylogo: false });
+    }
+
+    const savedTheme = localStorage.getItem('cdaweb_theme') || 'dark';
+    document.body.className = savedTheme;
+    const themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+      themeBtn.textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+    }
+
+    function mergeVisibleIntervals(intervals) {
+      if (!intervals.length) return [];
+      const sorted = intervals.slice().sort((a, b) => a[0] - b[0]);
+      const merged = [sorted[0].slice()];
+      for (let i = 1; i < sorted.length; i++) {
+        const prior = merged[merged.length - 1];
+        if (sorted[i][0] <= prior[1]) prior[1] = Math.max(prior[1], sorted[i][1]);
+        else merged.push(sorted[i].slice());
+      }
+      return merged;
+    }
+
+    function updateVisibleKpis(range) {
+      const fullRange = !range || range.length !== 2;
+      let startMs = fullRange ? null : parseAxisTimeMs(range[0]);
+      let stopMs = fullRange ? null : parseAxisTimeMs(range[1]);
+      if (!fullRange && (!Number.isFinite(startMs) || !Number.isFinite(stopMs))) return;
+      if (!fullRange && startMs > stopMs) { const tmp = startMs; startMs = stopMs; stopMs = tmp; }
+
+      const clippedIntervals = [];
+      const visibleFiles = new Set();
+      fileIntervals.forEach((interval, index) => {
+        const start = parseAxisTimeMs(interval[0]);
+        const stop = parseAxisTimeMs(interval[1]);
+        if (!Number.isFinite(start) || !Number.isFinite(stop)) return;
+        const clippedStart = startMs === null ? start : Math.max(start, startMs);
+        const clippedStop = stopMs === null ? stop : Math.min(stop, stopMs);
+        if (clippedStop > clippedStart) {
+          clippedIntervals.push([clippedStart, clippedStop]);
+          visibleFiles.add(index);
+        }
+      });
+      const merged = mergeVisibleIntervals(clippedIntervals);
+      const activeMs = merged.reduce((total, interval) => total + interval[1] - interval[0], 0);
+      const earliest = merged.length ? merged[0][0] : NaN;
+      const latest = merged.length ? merged[merged.length - 1][1] : NaN;
+      const spanMs = startMs !== null && stopMs !== null
+        ? Math.max(0, stopMs - startMs)
+        : Math.max(0, latest - earliest);
+      const kpis = fullRange ? overallKpis : {
+        cdfFiles: visibleFiles.size,
+        activeDays: activeMs / 86400000,
+        coverage: spanMs ? Math.min(100, (activeMs / spanMs) * 100) : 0,
+        earliest: formatKpiDate(earliest),
+        latest: formatKpiDate(latest)
+      };
+      const values = {
+        'kpi-cdf-files': Number(kpis.cdfFiles).toLocaleString(),
+        'kpi-active-days': Number(kpis.activeDays).toFixed(2),
+        'kpi-coverage': Number(kpis.coverage).toFixed(2) + '%',
+        'kpi-earliest-start': kpis.earliest,
+        'kpi-latest-stop': kpis.latest
+      };
+      Object.entries(values).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+      });
+      const overallValues = {
+        'kpi-cdf-files-overall': overallKpis.cdfFiles.toLocaleString() + ' overall',
+        'kpi-active-days-overall': overallKpis.activeDays.toFixed(2) + ' days overall',
+        'kpi-coverage-overall': overallKpis.coverage.toFixed(2) + '% overall',
+        'kpi-earliest-start-overall': 'Overall: ' + overallKpis.earliest,
+        'kpi-latest-stop-overall': 'Overall: ' + overallKpis.latest
+      };
+      Object.entries(overallValues).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = fullRange ? '' : value;
+      });
+    }
+
+    renderPlot();
+    const datasetPlotDiv = document.getElementById('dataset-timeline-plot');
+    if (datasetPlotDiv) {
+      datasetPlotDiv.on('plotly_relayout', eventData => {
+        if (eventData['xaxis.autorange']) {
+          resetTimelineZoom('dataset-timeline-plot');
+          return;
+        }
+        const range = eventData['xaxis.range'] || (
+          eventData['xaxis.range[0]'] !== undefined
+            ? [eventData['xaxis.range[0]'], eventData['xaxis.range[1]']]
+            : null
+        );
+        updateVisibleKpis(range);
+        updatePanButtons('dataset-timeline-plot');
+      });
+      datasetPlotDiv.on('plotly_doubleclick', () => {
+        resetTimelineZoom('dataset-timeline-plot');
+        return false;
+      });
+    }
+    updateVisibleKpis(null);
+
+    function panTimelineWindow(divId, direction) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv || !plotDiv._fullLayout || !plotDiv._fullLayout.xaxis) return;
+      const rng = plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2) return;
+
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+
+      const span = t1 - t0;
+      if (span <= 0) return;
+
+      const newT0 = t0 + (direction * span);
+      const newT1 = t1 + (direction * span);
+
+      Plotly.relayout(plotDiv, {
+        'xaxis.range': [formatAxisDate(newT0), formatAxisDate(newT1)],
+        'xaxis.autorange': false
+      }).then(() => {
+        updatePanButtons(divId);
+      });
+    }
+
+    function resetTimelineZoom(divId) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        const span = Math.max(86400000, window._globalMaxTimeMs - window._globalMinTimeMs);
+        const pad = Math.max(86400000, span * 0.02);
+        Plotly.relayout(plotDiv, {
+          'xaxis.range': [
+            formatAxisDate(window._globalMinTimeMs - pad),
+            formatAxisDate(window._globalMaxTimeMs + pad)
+          ],
+          'xaxis.autorange': false
+        }).then(() => {
+          updateVisibleKpis(null);
+          updatePanButtons(divId);
+        });
+      } else {
+        Plotly.relayout(plotDiv, {
+          'xaxis.autorange': true
+        }).then(() => {
+          updateVisibleKpis(null);
+          updatePanButtons(divId);
+        });
+      }
+    }
+
+    function exportPlotAsPng(divId, filename) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      Plotly.downloadImage(plotDiv, {
+        format: 'png',
+        width: 1200,
+        height: 400,
+        filename: filename || 'plot.png'
+      });
+    }
+
+    function updatePanButtons(divId) {
+      const plotDiv = document.getElementById(divId);
+      const prevBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', -1)"]`);
+      const nextBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', 1)"]`);
+      if (!plotDiv || !prevBtn || !nextBtn) return;
+      const rng = plotDiv._fullLayout && plotDiv._fullLayout.xaxis && plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2 || !window._globalMinTimeMs || !window._globalMaxTimeMs) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+      const fullSpan = window._globalMaxTimeMs - window._globalMinTimeMs;
+      const currentSpan = t1 - t0;
+      if (currentSpan >= fullSpan - 60000) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      const canPrev = t0 > (window._globalMinTimeMs + 60000);
+      const canNext = t1 < (window._globalMaxTimeMs - 60000);
+      prevBtn.disabled = !canPrev;
+      nextBtn.disabled = !canNext;
+      prevBtn.classList.toggle('disabled', !canPrev);
+      nextBtn.classList.toggle('disabled', !canNext);
+    }
+
+    const plotDivEl = document.getElementById('dataset-timeline-plot');
+    if (plotDivEl) {
+      plotDivEl.on('plotly_relayout', () => updatePanButtons('dataset-timeline-plot'));
+    }
+    setTimeout(() => updatePanButtons('dataset-timeline-plot'), 300);
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+      const newTheme = isDark ? 'light' : 'dark';
+      document.body.className = newTheme;
+      localStorage.setItem('cdaweb_theme', newTheme);
+      document.getElementById('theme-toggle').textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      renderPlot();
+    }
+
+    // Propagate URL query params (such as ?view for updog) to relative navigation links
+    (function() {
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (q) {
+        document.querySelectorAll('a[href]').forEach(a => {
+          const href = a.getAttribute('href');
+          if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto:') && !href.includes('?')) {
+            a.setAttribute('href', href + q);
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

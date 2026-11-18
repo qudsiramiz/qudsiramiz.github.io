@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CNOFS Inventory Index - CDAWeb</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root, body.dark {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #0284c7;
+      --accent-light: #38bdf8;
+      --success: #10b981;
+      --plot-paper: #1e293b;
+      --plot-bg: #0f172a;
+      --plot-grid: #334155;
+    }
+    body.light {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --accent: #0284c7;
+      --accent-light: #0369a1;
+      --success: #16a34a;
+      --plot-paper: #ffffff;
+      --plot-bg: #f8fafc;
+      --plot-grid: #e2e8f0;
+    }
+    body {
+      margin: 0;
+      padding: 24px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    input[type="date"] {
+      color-scheme: dark;
+    }
+    body.light input[type="date"] {
+      color-scheme: light;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .page-footer { margin: 20px 0 0; color: var(--text-muted); font-size: 12px; text-align: center; }
+    .page-footer a { color: var(--accent-light); }
+    .breadcrumbs { font-size: 14px; margin-bottom: 0; color: var(--text-muted); }
+    .breadcrumbs a { color: var(--accent-light); text-decoration: none; }
+    .breadcrumbs a:hover { text-decoration: underline; }
+    .btn-theme {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-theme:hover { opacity: 0.9; }
+    h1 { margin: 0 0 6px 0; font-size: 28px; }
+    .subtitle { color: var(--text-muted); font-size: 15px; margin: 0 0 20px 0; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .kpi-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 20px; font-weight: 700; color: var(--text); }
+    .controls-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    input[type="text"], input[type="date"], select {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: 13px;
+    }
+    button, .btn-sm {
+      background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block;
+    }
+    button.btn-secondary { background: var(--border); color: var(--text); }
+    button:hover, .btn-sm:hover { opacity: 0.9; }
+    .chart-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th { padding: 10px 12px; background: rgba(125,125,125,0.06); color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .progress-bar { width: 70px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; display: inline-block; }
+    .progress-bar .fill { height: 100%; background: var(--success); }
+    .badge-sm { display: inline-block; padding: 2px 8px; background: rgba(56, 189, 248, 0.15); color: var(--accent-light); border-radius: 4px; font-size: 11px; }
+    .chart-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .pan-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(125,125,125,0.08);
+      padding: 3px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .btn-pan {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-pan:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .btn-pan:disabled, .btn-pan.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .btn-preset {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .btn-preset:hover {
+      opacity: 0.9;
+      color: var(--text);
+    }
+    .btn-preset.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      font-weight: 700;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+    }
+    .xtick text, .ytick text {
+      fill: var(--text) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+      <div class="breadcrumbs">
+        <a href="./inventory_index.html">CDAWeb Inventory</a> &gt;
+        <span>CNOFS Index</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="./CNOFS_Inventory.png" target="_blank" class="btn-theme"> View CNOFS PNG</a>
+        <button class="btn-theme" onclick="exportPlotAsPng('timeline-chart', 'CNOFS_timeline.png')"> Download Plot PNG</button>
+        <button id="theme-toggle" class="btn-theme" onclick="toggleTheme()">☀️ Light Mode</button>
+      </div>
+    </div>
+    <h1>CNOFS Mission Data Inventory</h1>
+    <p class="subtitle">Complete catalog of holdings and availability for CNOFS spacecraft</p>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Datasets</div>
+        <div class="kpi-value">5</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Instruments</div>
+        <div class="kpi-value">3</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total CDF Files</div>
+        <div class="kpi-value">25,162</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Mission Span</div>
+        <div class="kpi-value" style="font-size: 14px;">2008-04-23 &rarr; 2015-11-26</div>
+      </div>
+    </div>
+
+    <div class="controls-card">
+      <input type="text" id="search-box" placeholder="Search datasets..." oninput="filterTable()">
+      <select id="instrument-filter" onchange="filterTable()">
+        <option value="">All Instruments (3)</option>
+        <option value='CINDI'>CINDI</option><option value='PLP'>PLP</option><option value='VEFI'>VEFI</option>
+      </select>
+      <button class="btn-secondary" onclick="selectAll(true)">Select All</button>
+      <button class="btn-secondary" onclick="selectAll(false)">Clear All</button>
+      <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; font-size: 13px; font-weight: 600; padding: 4px 10px; background: rgba(125,125,125,0.08); border-radius: 6px; border: 1px solid var(--border);">
+        <input type="checkbox" id="toggle-chart-cb" autocomplete="off" onchange="toggleChartDisplay(this.checked)">
+        <span> Show Timeline Graph</span>
+      </label>
+      <div style="margin-left: auto; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+        <span style="font-size: 13px; color: var(--text-muted);">Date Range:</span>
+        <input type="date" id="filter-start" value="2008-04-23" oninput="clearPresetHighlight()">
+        <span style="color: var(--text-muted);">&rarr;</span>
+        <input type="date" id="filter-stop" value="2015-11-26" oninput="clearPresetHighlight()">
+        <button onclick="updateView()">Apply</button>
+        <button type="button" class="btn-preset" data-preset="1y" onclick="presetRange('1y')">1 Year</button>
+        <button type="button" class="btn-preset" data-preset="5y" onclick="presetRange('5y')">5 Years</button>
+        <button type="button" class="btn-preset active" data-preset="all" onclick="presetRange('all')">All Time</button>
+      </div>
+    </div>
+
+    <div class="chart-card" id="chart-card-container" style="display: none;">
+      <div class="chart-hint">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <span><strong>Availability Timeline (Selected Items)</strong></span>
+          <div class="pan-controls">
+            <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin: 0 4px;">Time Window:</span>
+            <button type="button" class="btn-pan disabled" disabled title="Pan backward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', -1)">◀ Prev Frame</button>
+            <button type="button" class="btn-pan" title="Reset zoom to full range" onclick="resetTimelineZoom('timeline-chart')">↺ Reset Zoom</button>
+            <button type="button" class="btn-pan disabled" disabled title="Pan forward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', 1)">Next Frame ▶</button>
+            <button type="button" class="btn-pan" title="Reselect all unselected items" onclick="resetAllSelections()">↺ Reset Selection</button>
+            <button type="button" class="btn-pan" title="Download timeline chart as PNG" onclick="exportPlotAsPng('timeline-chart', 'CNOFS_timeline.png')"> PNG</button>
+          </div>
+        </div>
+        <span>💡 Click row/label to unselect • Ctrl+Click to open full dataset page</span>
+      </div>
+      <div id="timeline-chart" style="min-height: 120px; width: 100%;"></div>
+    </div>
+
+    <div class="table-card">
+      <h3 style="margin: 0 0 12px 0;">Available Datasets</h3>
+      <table id="datasets-table">
+        <thead>
+          <tr>
+            <th style="width: 30px;"><input type="checkbox" id="master-cb" checked onchange="toggleAllCheckboxes(this.checked)"></th>
+            <th class="sortable" data-sort-type="text">Dataset ID</th>
+            <th class="sortable" data-sort-type="text">Instrument</th>
+            <th class="sortable" data-sort-type="text">Product</th>
+            <th class="sortable" data-sort-type="date">Time Coverage</th>
+            <th class="sortable" data-sort-type="number">CDF Count</th>
+            <th class="sortable" data-sort-type="number">Coverage</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="datasets-tbody">
+          
+        <tr data-inst="CINDI" data-name="CNOFS_CINDI_IVM_500MS">
+          <td><input type="checkbox" class="dset-checkbox" value="CNOFS_CINDI_IVM_500MS" checked onchange="updateView()"></td>
+          <td><a href="./cnofs_inventory/CNOFS_CINDI_IVM_500MS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">CNOFS_CINDI_IVM_500MS</a></td>
+          <td><span class="badge-sm">CINDI</span></td>
+          <td style="color: var(--text-muted);">IVM_500MS_CDF</td>
+          <td>2008-08-02 &rarr; 2015-11-26</td>
+          <td>2,451</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 88.62205439254646%;"></div></div>
+              <span style="font-size: 11px;">88.62%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./cnofs_inventory/CNOFS_CINDI_IVM_500MS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="PLP" data-name="CNOFS_PLP_PLASMA_1SEC">
+          <td><input type="checkbox" class="dset-checkbox" value="CNOFS_PLP_PLASMA_1SEC" checked onchange="updateView()"></td>
+          <td><a href="./cnofs_inventory/CNOFS_PLP_PLASMA_1SEC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">CNOFS_PLP_PLASMA_1SEC</a></td>
+          <td><span class="badge-sm">PLP</span></td>
+          <td style="color: var(--text-muted);">PLASMA_1SEC</td>
+          <td>2008-11-01 &rarr; 2010-11-21</td>
+          <td>724</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 96.40256498750324%;"></div></div>
+              <span style="font-size: 11px;">96.40%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./cnofs_inventory/CNOFS_PLP_PLASMA_1SEC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="VEFI" data-name="CNOFS_VEFI_BFIELD_1SEC">
+          <td><input type="checkbox" class="dset-checkbox" value="CNOFS_VEFI_BFIELD_1SEC" checked onchange="updateView()"></td>
+          <td><a href="./cnofs_inventory/CNOFS_VEFI_BFIELD_1SEC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">CNOFS_VEFI_BFIELD_1SEC</a></td>
+          <td><span class="badge-sm">VEFI</span></td>
+          <td style="color: var(--text-muted);">BFIELD_1SEC</td>
+          <td>2008-05-09 &rarr; 2015-09-28</td>
+          <td>2,374</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 86.07392847006233%;"></div></div>
+              <span style="font-size: 11px;">86.07%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./cnofs_inventory/CNOFS_VEFI_BFIELD_1SEC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="VEFI" data-name="CNOFS_VEFI_EFIELD_1SEC">
+          <td><input type="checkbox" class="dset-checkbox" value="CNOFS_VEFI_EFIELD_1SEC" checked onchange="updateView()"></td>
+          <td><a href="./cnofs_inventory/CNOFS_VEFI_EFIELD_1SEC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">CNOFS_VEFI_EFIELD_1SEC</a></td>
+          <td><span class="badge-sm">VEFI</span></td>
+          <td style="color: var(--text-muted);">EFIELD_1SEC</td>
+          <td>2008-05-09 &rarr; 2011-03-01</td>
+          <td>941</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 90.77595706086203%;"></div></div>
+              <span style="font-size: 11px;">90.78%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./cnofs_inventory/CNOFS_VEFI_EFIELD_1SEC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="VEFI" data-name="CNOFS_VEFI_LD_500MS">
+          <td><input type="checkbox" class="dset-checkbox" value="CNOFS_VEFI_LD_500MS" checked onchange="updateView()"></td>
+          <td><a href="./cnofs_inventory/CNOFS_VEFI_LD_500MS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">CNOFS_VEFI_LD_500MS</a></td>
+          <td><span class="badge-sm">VEFI</span></td>
+          <td style="color: var(--text-muted);">LD_500MSEC</td>
+          <td>2008-04-23 &rarr; 2012-01-01</td>
+          <td>18,672</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 31.75596730720568%;"></div></div>
+              <span style="font-size: 11px;">31.76%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./cnofs_inventory/CNOFS_VEFI_LD_500MS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const allDatasets = [{"name": "CNOFS_CINDI_IVM_500MS", "instrument": "CINDI", "product": "IVM_500MS_CDF", "cdf_count": 2451, "active_days": 2368.119560185185, "coverage_pct": 88.62205439254646, "earliest": "2008-08-02", "latest": "2015-11-26", "intervals": [["2008-08-02 00:00:01", "2008-09-03 17:25:51"], ["2008-09-04 22:00:09", "2008-09-06 11:22:23"], ["2008-09-08 02:16:05", "2008-09-09 06:47:54"], ["2008-09-10 20:18:10", "2008-09-15 10:03:53"], ["2008-09-27 02:56:18", "2008-10-22 17:08:48"], ["2008-10-28 13:42:36", "2009-01-13 01:39:37"], ["2009-01-14 23:35:13", "2009-02-05 23:59:59"], ["2009-02-16 18:43:43", "2010-02-03 23:59:59"], ["2010-02-06 22:53:02", "2010-08-31 11:24:21"], ["2010-09-01 17:12:52", "2011-04-26 05:14:03"], ["2011-04-27 14:16:53", "2011-04-27 15:34:20"], ["2011-04-28 21:27:01", "2011-05-01 06:45:15"], ["2011-05-02 19:07:20", "2011-07-15 18:26:53"], ["2011-07-17 01:40:10", "2011-11-25 14:44:08"], ["2011-11-26 21:43:47", "2011-12-06 12:16:13"], ["2011-12-07 19:51:02", "2012-03-21 22:16:08"], ["2012-03-25 12:46:17", "2012-08-10 14:12:10"], ["2012-08-12 00:26:49", "2012-08-13 18:34:49"], ["2012-08-15 00:37:57", "2012-08-16 14:12:22"], ["2012-08-17 19:54:02", "2013-02-13 13:34:25"], ["2013-02-14 19:53:08", "2013-05-04 16:04:58"], ["2013-05-05 22:27:50", "2013-06-05 04:20:43"], ["2013-10-22 00:56:35", "2013-10-31 11:50:49"], ["2013-11-01 23:32:14", "2013-11-13 19:30:29"], ["2013-11-15 07:13:18", "2013-11-21 15:16:20"], ["2013-11-23 03:22:57", "2013-11-29 11:52:45"], ["2013-11-30 23:58:32", "2013-12-05 13:01:58"], ["2013-12-07 01:03:11", "2013-12-10 12:39:52"], ["2013-12-12 00:26:37", "2013-12-16 12:38:30"], ["2013-12-18 00:18:28", "2013-12-20 07:37:53"], ["2013-12-21 17:40:58", "2013-12-23 23:20:30"], ["2013-12-25 08:42:51", "2013-12-27 23:59:59"], ["2013-12-29 10:42:38", "2014-01-20 10:50:10"], ["2014-01-24 10:23:36", "2014-01-24 13:18:35"], ["2014-01-29 00:44:13", "2014-02-13 17:08:39"], ["2014-02-15 04:53:40", "2014-02-18 23:59:59"], ["2014-02-20 09:04:09", "2014-02-23 08:50:35"], ["2014-02-24 20:14:14", "2014-03-03 15:51:51"], ["2014-03-05 00:59:28", "2014-03-19 23:59:59"], ["2014-03-22 23:11:18", "2014-04-19 11:56:10"], ["2014-04-20 23:55:14", "2014-04-27 23:59:59"], ["2014-04-29 10:59:35", "2014-05-04 03:45:28"], ["2014-05-05 09:24:32", "2014-06-14 08:06:07"], ["2014-06-15 17:53:06", "2014-08-17 04:27:55"], ["2014-08-18 14:28:46", "2014-08-20 17:30:13"], ["2014-08-22 00:59:17", "2014-08-25 11:18:41"], ["2014-08-26 18:31:32", "2014-08-29 15:05:04"], ["2014-08-30 23:16:44", "2014-09-13 23:54:56"], ["2014-09-15 09:45:35", "2014-10-04 15:25:49"], ["2014-10-06 01:50:05", "2014-11-25 10:30:54"], ["2014-12-09 10:44:55", "2014-12-13 05:48:20"], ["2014-12-14 18:18:21", "2014-12-23 11:58:36"], ["2014-12-24 23:53:29", "2014-12-25 23:59:59"], ["2014-12-27 22:05:49", "2015-02-08 13:51:43"], ["2015-02-10 00:31:53", "2015-02-15 10:36:08"], ["2015-02-16 17:47:19", "2015-03-25 09:19:17"], ["2015-03-26 20:33:38", "2015-04-21 09:32:37"], ["2015-04-22 20:18:25", "2015-04-28 05:01:09"], ["2015-04-29 15:27:30", "2015-05-02 14:27:30"], ["2015-05-04 00:55:55", "2015-06-09 14:00:28"], ["2015-06-11 00:10:57", "2015-08-19 23:59:59"], ["2015-08-22 23:00:35", "2015-10-06 01:29:33"], ["2015-10-07 18:30:15", "2015-10-08 23:59:59"], ["2015-10-10 18:46:32", "2015-10-12 20:50:02"], ["2015-10-14 13:44:29", "2015-10-18 01:16:41"], ["2015-10-19 18:18:57", "2015-11-11 19:09:59"], ["2015-11-13 22:57:34", "2015-11-17 12:45:44"], ["2015-11-18 23:51:37", "2015-11-21 15:46:35"], ["2015-11-23 09:07:21", "2015-11-23 11:42:44"], ["2015-11-25 00:54:12", "2015-11-26 03:44:41"]], "page": "./CNOFS_CINDI_IVM_500MS.html"}, {"name": "CNOFS_PLP_PLASMA_1SEC", "instrument": "PLP", "product": "PLASMA_1SEC", "cdf_count": 724, "active_days": 723.9832407407407, "coverage_pct": 96.40256498750324, "earliest": "2008-11-01", "latest": "2010-11-21", "intervals": [["2008-11-01 00:00:00", "2008-11-23 23:59:58"], ["2008-11-26 00:00:00", "2008-12-05 23:59:58"], ["2008-12-08 00:00:00", "2009-01-03 23:59:58"], ["2009-01-06 00:00:00", "2009-01-12 23:59:58"], ["2009-01-18 00:00:00", "2009-02-06 23:59:58"], ["2009-02-17 00:00:00", "2009-06-05 23:59:58"], ["2009-06-08 00:00:00", "2010-08-07 23:59:58"], ["2010-08-10 00:00:00", "2010-08-30 23:59:58"], ["2010-09-02 00:00:00", "2010-11-21 23:59:58"]], "page": "./CNOFS_PLP_PLASMA_1SEC.html"}, {"name": "CNOFS_VEFI_BFIELD_1SEC", "instrument": "VEFI", "product": "BFIELD_1SEC", "cdf_count": 2374, "active_days": 2323.1253472222224, "coverage_pct": 86.07392847006233, "earliest": "2008-05-09", "latest": "2015-09-28", "intervals": [["2008-05-09 00:00:00", "2008-07-03 23:57:35"], ["2008-07-25 23:32:32", "2008-09-05 23:59:59"], ["2008-09-08 02:16:08", "2008-09-08 23:59:33"], ["2008-09-10 20:18:09", "2008-09-14 23:59:59"], ["2008-09-27 01:00:00", "2008-10-22 17:07:59"], ["2008-10-27 15:02:41", "2009-01-04 20:26:45"], ["2009-01-06 00:00:00", "2009-01-15 21:53:47"], ["2009-01-18 00:00:00", "2009-02-06 16:46:35"], ["2009-02-16 17:01:19", "2010-08-29 23:59:59"], ["2010-09-02 00:00:00", "2011-04-25 23:59:59"], ["2011-04-28 21:27:00", "2011-04-30 23:59:59"], ["2011-05-02 19:07:22", "2011-06-15 20:59:33"], ["2011-06-19 00:00:00", "2011-07-15 18:27:31"], ["2011-07-17 01:44:00", "2011-11-19 20:15:17"], ["2011-11-22 01:42:32", "2011-11-25 14:44:11"], ["2011-11-27 00:00:00", "2011-11-28 23:59:59"], ["2011-12-01 00:00:18", "2011-12-06 12:16:02"], ["2011-12-07 19:51:02", "2012-01-03 16:29:28"], ["2012-01-05 02:42:55", "2012-03-21 22:16:12"], ["2012-03-25 16:01:57", "2012-03-26 16:01:56"], ["2012-04-09 16:26:59", "2012-04-13 23:59:59"], ["2012-04-16 00:00:00", "2012-04-19 23:49:58"], ["2012-04-24 01:55:10", "2012-07-20 21:14:34"], ["2012-07-22 00:00:00", "2012-08-10 14:10:18"], ["2012-08-12 00:26:47", "2012-08-13 18:34:54"], ["2012-08-15 00:37:57", "2012-08-15 23:59:59"], ["2012-08-17 19:54:00", "2012-09-16 23:59:59"], ["2012-09-19 08:21:30", "2013-01-21 17:32:15"], ["2013-01-23 00:53:51", "2013-02-13 13:34:05"], ["2013-02-15 00:00:00", "2013-02-17 23:59:59"], ["2013-02-19 14:15:08", "2013-03-03 23:59:59"], ["2013-03-06 17:35:36", "2013-05-04 16:04:02"], ["2013-05-05 22:27:48", "2013-06-04 23:59:59"], ["2013-10-22 00:47:53", "2013-10-31 11:50:18"], ["2013-11-01 23:32:35", "2013-11-13 19:30:33"], ["2013-11-15 07:13:17", "2013-11-21 15:16:26"], ["2013-11-23 03:22:57", "2013-11-28 23:59:59"], ["2013-12-01 00:00:00", "2013-12-05 13:01:07"], ["2013-12-07 01:03:11", "2013-12-10 12:39:28"], ["2013-12-12 00:26:35", "2013-12-16 12:38:48"], ["2013-12-18 00:19:20", "2013-12-19 23:59:59"], ["2013-12-21 17:41:00", "2013-12-23 23:19:25"], ["2013-12-25 08:42:52", "2013-12-27 23:59:59"], ["2013-12-29 10:42:40", "2013-12-30 23:59:59"], ["2014-01-29 21:06:32", "2014-02-13 17:08:48"], ["2014-02-15 04:53:41", "2014-02-18 23:59:59"], ["2014-02-20 12:35:02", "2014-02-22 23:59:59"], ["2014-02-24 22:11:02", "2014-03-03 15:50:44"], ["2014-03-05 00:59:28", "2014-04-19 11:55:18"], ["2014-04-21 00:00:00", "2014-04-27 23:59:59"], ["2014-04-29 10:59:35", "2014-05-03 23:59:59"], ["2014-05-05 09:24:34", "2014-06-13 23:59:59"], ["2014-06-15 17:53:07", "2014-08-16 23:59:59"], ["2014-08-19 00:00:00", "2014-08-20 17:30:03"], ["2014-08-22 01:00:38", "2014-08-24 23:59:59"], ["2014-08-26 18:31:33", "2014-08-29 15:03:58"], ["2014-08-31 00:00:00", "2014-10-04 15:25:22"], ["2014-10-06 01:50:06", "2014-10-31 22:04:13"], ["2014-11-04 20:41:20", "2014-12-12 23:59:59"], ["2014-12-14 18:18:22", "2014-12-23 11:58:00"], ["2014-12-25 00:00:00", "2014-12-25 23:59:59"], ["2014-12-27 22:09:36", "2015-01-26 23:59:59"], ["2015-01-28 02:17:46", "2015-02-07 23:59:59"], ["2015-02-10 00:31:51", "2015-02-14 23:59:59"], ["2015-02-16 20:50:18", "2015-03-24 23:59:59"], ["2015-03-27 00:00:00", "2015-04-20 23:59:59"], ["2015-04-22 20:18:24", "2015-04-27 23:59:59"], ["2015-04-29 15:28:29", "2015-05-02 14:25:58"], ["2015-05-04 00:55:58", "2015-06-09 13:59:59"], ["2015-06-11 00:16:53", "2015-09-28 23:43:18"]], "page": "./CNOFS_VEFI_BFIELD_1SEC.html"}, {"name": "CNOFS_VEFI_EFIELD_1SEC", "instrument": "VEFI", "product": "EFIELD_1SEC", "cdf_count": 941, "active_days": 931.3613194444445, "coverage_pct": 90.77595706086203, "earliest": "2008-05-09", "latest": "2011-03-01", "intervals": [["2008-05-09 00:00:00", "2008-05-26 23:59:59"], ["2008-05-31 00:00:00", "2008-07-04 07:59:59"], ["2008-07-26 00:00:00", "2008-09-05 23:59:58"], ["2008-09-08 02:16:08", "2008-09-08 23:59:59"], ["2008-09-11 00:00:00", "2008-09-14 23:59:59"], ["2008-09-27 01:00:00", "2008-10-22 17:07:59"], ["2008-10-28 00:40:36", "2008-11-24 15:20:23"], ["2008-11-26 00:00:00", "2009-01-04 20:25:56"], ["2009-01-06 00:00:01", "2009-01-15 21:52:15"], ["2009-01-18 00:00:01", "2009-02-05 23:59:59"], ["2009-02-17 00:00:01", "2009-05-10 23:59:59"], ["2009-05-13 00:00:01", "2009-06-16 23:59:59"], ["2009-06-18 05:01:00", "2009-11-19 20:38:58"], ["2009-11-21 00:00:01", "2010-08-29 23:59:59"], ["2010-09-02 00:00:01", "2010-10-21 23:59:58"], ["2010-10-24 00:48:05", "2011-03-01 00:00:00"]], "page": "./CNOFS_VEFI_EFIELD_1SEC.html"}, {"name": "CNOFS_VEFI_LD_500MS", "instrument": "VEFI", "product": "LD_500MSEC", "cdf_count": 18672, "active_days": 427.7855324074074, "coverage_pct": 31.75596730720568, "earliest": "2008-04-23", "latest": "2012-01-01", "intervals": [["2008-04-23 21:51:25", "2008-07-04 08:02:56"], ["2008-07-25 17:19:01", "2008-08-05 22:15:58"], ["2008-08-07 01:16:02", "2008-09-06 12:10:56"], ["2008-09-08 02:29:42", "2008-09-09 06:34:32"], ["2008-09-10 20:53:21", "2008-09-15 09:56:17"], ["2008-09-27 01:30:12", "2008-10-22 17:08:55"], ["2008-10-27 15:05:19", "2009-01-13 00:47:47"], ["2009-01-15 00:48:32", "2009-02-06 16:46:41"], ["2009-02-16 17:57:14", "2009-03-06 00:33:23"], ["2009-03-07 23:19:55", "2009-03-10 00:26:57"], ["2009-03-11 22:50:27", "2010-08-31 10:38:50"], ["2010-09-01 18:24:26", "2011-04-21 00:20:54"], ["2011-04-24 00:24:00", "2011-04-26 04:35:41"], ["2011-04-28 22:10:33", "2011-05-01 05:36:16"], ["2011-05-02 19:45:07", "2011-06-15 20:48:56"], ["2011-06-19 00:03:29", "2011-07-15 18:27:32"], ["2011-07-17 02:09:53", "2011-11-25 13:25:10"], ["2011-11-26 22:38:05", "2011-12-06 11:36:48"], ["2011-12-07 20:52:42", "2012-01-01 00:19:29"]], "page": "./CNOFS_VEFI_LD_500MS.html"}];
+
+    function parseDateMs(str) {
+      if (!str) return NaN;
+      const s = str.trim();
+      const iso = s.replace(/\//g, '-').replace(' ', 'T') + 'Z';
+      const ms = Date.parse(iso);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function enableSortableTable(tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      table.querySelectorAll('th.sortable').forEach((header, columnIndex) => {
+        header.tabIndex = 0;
+        header.setAttribute('role', 'button');
+        header.setAttribute('aria-sort', 'none');
+        const sortColumn = () => {
+          const ascending = header.getAttribute('aria-sort') !== 'ascending';
+          table.querySelectorAll('th.sortable').forEach(th => th.setAttribute('aria-sort', 'none'));
+          header.setAttribute('aria-sort', ascending ? 'ascending' : 'descending');
+          const rows = Array.from(table.tBodies[0].rows);
+          const type = header.getAttribute('data-sort-type');
+          rows.sort((left, right) => {
+            const a = left.cells[columnIndex].textContent.trim();
+            const b = right.cells[columnIndex].textContent.trim();
+            let comparison;
+            if (type === 'number') comparison = Number(a.replace(/[^0-9.-]/g, '')) - Number(b.replace(/[^0-9.-]/g, ''));
+            else if (type === 'date') comparison = parseDateMs(a.split('→')[0].trim()) - parseDateMs(b.split('→')[0].trim());
+            else comparison = a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+            return ascending ? comparison : -comparison;
+          });
+          rows.forEach(row => table.tBodies[0].appendChild(row));
+        };
+        header.addEventListener('click', sortColumn);
+        header.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); sortColumn(); }
+        });
+      });
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+      const newTheme = isDark ? 'light' : 'dark';
+      document.body.className = newTheme;
+      localStorage.setItem('cdaweb_theme', newTheme);
+      document.getElementById('theme-toggle').textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      updateView();
+    }
+
+    function toggleChartDisplay(show) {
+      const chartCard = document.getElementById('chart-card-container');
+      if (chartCard) {
+        chartCard.style.display = show ? 'block' : 'none';
+      }
+      if (show) {
+        updateView();
+        setTimeout(() => {
+          const plotDiv = document.getElementById('timeline-chart');
+          if (plotDiv) {
+            Plotly.Plots.resize(plotDiv);
+          }
+        }, 50);
+      }
+    }
+
+    function resetAllSelections() {
+      document.querySelectorAll('.dset-checkbox').forEach(cb => {
+        cb.checked = true;
+      });
+      const masterCb = document.getElementById('master-cb');
+      if (masterCb) masterCb.checked = true;
+      updateView();
+    }
+
+    function presetRange(type) {
+      document.querySelectorAll('.btn-preset').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-preset') === type);
+      });
+      if (type === 'all') {
+        if (window._globalMinTimeMs) {
+          document.getElementById('filter-start').value = formatAxisDate(window._globalMinTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-start').value = '';
+        }
+        if (window._globalMaxTimeMs) {
+          document.getElementById('filter-stop').value = formatAxisDate(window._globalMaxTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-stop').value = '';
+        }
+        updateView();
+        return;
+      }
+      const now = new Date();
+      const endStr = now.toISOString().split('T')[0];
+      let startStr = '';
+      if (type === '1y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 1);
+        startStr = d.toISOString().split('T')[0];
+      } else if (type === '5y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 5);
+        startStr = d.toISOString().split('T')[0];
+      }
+      document.getElementById('filter-start').value = startStr;
+      document.getElementById('filter-stop').value = endStr;
+      updateView();
+    }
+
+    function clearPresetHighlight() {
+      document.querySelectorAll('.btn-preset').forEach(btn => btn.classList.remove('active'));
+    }
+
+    function updateView() {
+      const showChart = document.getElementById('toggle-chart-cb')?.checked;
+      if (!showChart) {
+        return;
+      }
+
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const checkedBoxes = Array.from(document.querySelectorAll('.dset-checkbox:checked'));
+      const selectedNames = new Set(checkedBoxes.map(cb => cb.value));
+      const startFilter = document.getElementById('filter-start').value;
+      const stopFilter = document.getElementById('filter-stop').value;
+      const startFilterMs = startFilter ? parseDateMs(startFilter) : null;
+      const stopFilterMs = stopFilter ? parseDateMs(stopFilter + ' 23:59:59') : null;
+
+      const isLight = document.body.classList.contains('light');
+      const paperBg = isLight ? '#ffffff' : '#1e293b';
+      const plotBg = isLight ? '#f8fafc' : '#0f172a';
+      const textColor = isLight ? '#0f172a' : '#f8fafc';
+      const gridColor = isLight ? '#e2e8f0' : '#334155';
+
+      const timelineData = { y: [], x: [], base: [], colors: [], hovertext: [] };
+      const colors = ['#0284c7', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6'];
+
+      const activeDatasets = [];
+      allDatasets.forEach(d => {
+        if (instFilter && d.instrument !== instFilter) return;
+        if (query && !d.name.toLowerCase().includes(query) && !d.instrument.toLowerCase().includes(query) && !d.product.toLowerCase().includes(query)) return;
+        if (!selectedNames.has(d.name)) return;
+
+        const validIntervals = [];
+        d.intervals.forEach(inv => {
+          const s = inv[0];
+          const e = inv[1];
+          const sTime = parseDateMs(s);
+          const eTime = parseDateMs(e);
+          if (isNaN(sTime) || isNaN(eTime)) return;
+
+          if (startFilterMs && eTime < startFilterMs) return;
+          if (stopFilterMs && sTime > stopFilterMs) return;
+
+          const sClamped = startFilterMs ? Math.max(sTime, startFilterMs) : sTime;
+          const eClamped = stopFilterMs ? Math.min(eTime, stopFilterMs) : eTime;
+          if (eClamped <= sClamped) return;
+
+          validIntervals.push({ s, e, sClamped, eClamped });
+        });
+
+        if (validIntervals.length > 0) {
+          activeDatasets.push({ d, validIntervals });
+        }
+      });
+
+      const activeNames = activeDatasets.map(item => item.d.name);
+      activeDatasets.forEach((item, idx) => {
+        const color = colors[idx % colors.length];
+        const d = item.d;
+        item.validIntervals.forEach(inv => {
+          const durMs = Math.max(86400000, inv.eClamped - inv.sClamped);
+          timelineData.y.push(d.name);
+          timelineData.x.push(durMs);
+          timelineData.base.push(new Date(inv.sClamped).toISOString());
+          timelineData.colors.push(color);
+          timelineData.hovertext.push(`<b>${d.name}</b><br>${d.instrument} • ${d.product}<br>From: ${inv.s}<br>To: ${inv.e}<br><i>Click to unselect • Ctrl+Click to open full page</i>`);
+        });
+      });
+
+      const traces = timelineData.y.length ? [{
+        type: 'bar',
+        orientation: 'h',
+        y: timelineData.y,
+        x: timelineData.x,
+        base: timelineData.base,
+        marker: { color: timelineData.colors, line: { width: 0 } },
+        hoverinfo: 'text',
+        hovertext: timelineData.hovertext,
+        showlegend: false
+      }] : [];
+
+      const count = activeNames.length;
+      const barGap = count === 1 ? 0.75 : (count === 2 ? 0.6 : (count <= 4 ? 0.45 : 0.25));
+      const barWidth = count === 1 ? 0.32 : (count === 2 ? 0.45 : (count <= 4 ? 0.6 : 0.75));
+      traces.forEach(t => { t.width = barWidth; });
+      const plotHeight = count === 1 ? 140 : (count === 2 ? 180 : Math.max(220, count * 32 + 80));
+
+      const plotDiv = document.getElementById('timeline-chart');
+      plotDiv.style.height = plotHeight + 'px';
+      plotDiv.style.minHeight = plotHeight + 'px';
+
+      const xAxisConfig = {
+        type: 'date',
+        side: 'bottom',
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      // Determine if "All Time" preset is active
+      const allTimeBtn = document.querySelector('.btn-preset[data-preset="all"]');
+      const isAllTime = Boolean(allTimeBtn && allTimeBtn.classList.contains('active'));
+
+      // Calculate data bounds for currently selected/plotted items
+      let plottedMinMs = Infinity;
+      let plottedMaxMs = -Infinity;
+      for (let i = 0; i < timelineData.base.length; i++) {
+        const s = parseAxisTimeMs(timelineData.base[i]);
+        const dur = Number(timelineData.x[i]) || 0;
+        if (Number.isFinite(s)) {
+          if (s < plottedMinMs) plottedMinMs = s;
+          if ((s + dur) > plottedMaxMs) plottedMaxMs = s + dur;
+        }
+      }
+      const hasPlottedData = Number.isFinite(plottedMinMs) && Number.isFinite(plottedMaxMs) && plottedMaxMs >= plottedMinMs;
+
+      if (isAllTime && hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (startFilter && stopFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', stopFilter + ' 23:59:59'];
+        xAxisConfig.autorange = false;
+      } else if (startFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', formatAxisDate(window._globalMaxTimeMs || Date.now())];
+        xAxisConfig.autorange = false;
+      } else if (hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        xAxisConfig.range = [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)];
+        xAxisConfig.autorange = false;
+      } else {
+        xAxisConfig.autorange = true;
+      }
+
+      const xAxis2Config = {
+        type: 'date',
+        overlaying: 'x',
+        side: 'top',
+        matches: 'x',
+        showgrid: false,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      const yAxisConfig = {
+        type: 'category',
+        categoryorder: 'array',
+        categoryarray: activeNames.slice().reverse(),
+        automargin: true,
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor },
+        fixedrange: true,
+        autorange: true
+      };
+
+      const layout = {
+        height: plotHeight,
+        paper_bgcolor: paperBg,
+        plot_bgcolor: plotBg,
+        font: { color: textColor, size: 11 },
+        margin: { l: 180, r: 30, t: 35, b: 40 },
+        xaxis: xAxisConfig,
+        xaxis2: xAxis2Config,
+        yaxis: yAxisConfig,
+        barmode: 'overlay',
+        bargap: barGap,
+        bargroupgap: 0.1,
+        annotations: count === 0 ? [{
+          text: checkedBoxes.length > 0
+            ? 'No data available for the selected datasets in this date range'
+            : 'Select one or more datasets to view timeline',
+          showarrow: false,
+          font: { size: 13, color: textColor }
+        }] : []
+      };
+
+      Plotly.newPlot('timeline-chart', traces, layout, { responsive: true, displayModeBar: true, displaylogo: false }).then(() => {
+        updatePanButtons('timeline-chart');
+      });
+
+      plotDiv.on('plotly_relayout', function() {
+        updatePanButtons('timeline-chart');
+      });
+
+      // Attach click events on chart points and y-axis ticks
+      plotDiv.on('plotly_click', function(data) {
+        if (!data.points || data.points.length === 0) return;
+        const name = data.points[0].y;
+        const isCtrl = data.event && (data.event.ctrlKey || data.event.metaKey);
+        handleRowClick(name, isCtrl);
+      });
+
+      plotDiv.querySelectorAll('.ytick text').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.style.userSelect = 'none';
+        el.title = 'Click to unselect • Ctrl+Click to open full page';
+        el.onclick = function(e) {
+          e.stopPropagation();
+          const isCtrl = e.ctrlKey || e.metaKey;
+          handleRowClick(el.textContent.trim(), isCtrl);
+        };
+      });
+    }
+
+    function handleRowClick(name, isCtrl) {
+      const d = allDatasets.find(item => item.name === name);
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (isCtrl && d && d.page) {
+        window.open(d.page + q, '_blank');
+        return;
+      }
+      const cb = document.querySelector(`.dset-checkbox[value="${name}"]`);
+      if (cb) {
+        cb.checked = !cb.checked;
+        updateView();
+      }
+    }
+
+    function filterTable() {
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+
+      rows.forEach(r => {
+        const name = (r.getAttribute('data-name') || '').toLowerCase();
+        const inst = r.getAttribute('data-inst') || '';
+        const matchQ = !query || name.includes(query);
+        const matchInst = !instFilter || inst === instFilter;
+        r.style.display = (matchQ && matchInst) ? '' : 'none';
+      });
+
+      updateView();
+      propagateQueryToLinks();
+    }
+
+    function selectAll(state) {
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+      rows.forEach(r => {
+        if (r.style.display !== 'none') {
+          const cb = r.querySelector('.dset-checkbox');
+          if (cb) cb.checked = state;
+        }
+      });
+      document.getElementById('master-cb').checked = state;
+      updateView();
+    }
+
+    function toggleAllCheckboxes(state) {
+      selectAll(state);
+    }
+
+    function parseAxisTimeMs(val) {
+      if (val == null) return NaN;
+      if (typeof val === 'number') return val;
+      if (val instanceof Date) return val.getTime();
+      const s = String(val).trim();
+      if (!s) return NaN;
+      if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+      const iso = s.replace(/\//g, '-').replace(' ', 'T');
+      const isoUtc = (iso.includes('Z') || iso.includes('+')) ? iso : iso + 'Z';
+      let ms = Date.parse(isoUtc);
+      if (!isNaN(ms)) return ms;
+      ms = Date.parse(s);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function formatAxisDate(ms) {
+      const d = new Date(ms);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString();
+    }
+
+    function panTimelineWindow(divId, direction) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv || !plotDiv._fullLayout || !plotDiv._fullLayout.xaxis) return;
+      const rng = plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2) return;
+
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+
+      const span = t1 - t0;
+      if (span <= 0) return;
+
+      const newT0 = t0 + (direction * span);
+      const newT1 = t1 + (direction * span);
+
+      Plotly.relayout(plotDiv, {
+        'xaxis.range': [formatAxisDate(newT0), formatAxisDate(newT1)],
+        'xaxis.autorange': false
+      }).then(() => {
+        updatePanButtons(divId);
+      });
+    }
+
+    function resetTimelineZoom(divId) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        Plotly.relayout(plotDiv, {
+          'xaxis.range': [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)],
+          'xaxis.autorange': false
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      } else {
+        Plotly.relayout(plotDiv, {
+          'xaxis.autorange': true
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      }
+    }
+
+    window._globalMinTimeMs = 1208987485000;
+    window._globalMaxTimeMs = 1448509481000;
+
+    function exportPlotAsPng(divId, filename) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      Plotly.downloadImage(plotDiv, {
+        format: 'png',
+        width: 1400,
+        height: Math.max(500, plotDiv.offsetHeight || 500),
+        filename: filename || 'plot.png'
+      });
+    }
+
+    function updatePanButtons(divId) {
+      const plotDiv = document.getElementById(divId);
+      const prevBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', -1)"]`);
+      const nextBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', 1)"]`);
+      if (!plotDiv || !prevBtn || !nextBtn) return;
+      const rng = plotDiv._fullLayout && plotDiv._fullLayout.xaxis && plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2 || !window._globalMinTimeMs || !window._globalMaxTimeMs) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+      const fullSpan = window._globalMaxTimeMs - window._globalMinTimeMs;
+      const currentSpan = t1 - t0;
+      if (currentSpan >= fullSpan - 60000) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      const canPrev = t0 > (window._globalMinTimeMs + 60000);
+      const canNext = t1 < (window._globalMaxTimeMs - 60000);
+      prevBtn.disabled = !canPrev;
+      nextBtn.disabled = !canNext;
+      prevBtn.classList.toggle('disabled', !canPrev);
+      nextBtn.classList.toggle('disabled', !canNext);
+    }
+
+    // Theme initialization
+    const savedTheme = localStorage.getItem('cdaweb_theme') || 'dark';
+    document.body.className = savedTheme;
+    document.getElementById('theme-toggle').textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+    // Propagate URL query params (such as ?view for updog) to relative navigation links
+    function propagateQueryToLinks() {
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (q) {
+        document.querySelectorAll('a[href]').forEach(a => {
+          const href = a.getAttribute('href');
+          if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto:') && !href.includes('?')) {
+            a.setAttribute('href', href + q);
+          }
+        });
+      }
+    }
+
+    // Ensure timeline checkbox is unchecked by default and container is hidden
+    const chartCb = document.getElementById('toggle-chart-cb');
+    if (chartCb) {
+      chartCb.checked = false;
+    }
+    const chartCard = document.getElementById('chart-card-container');
+    if (chartCard) {
+      chartCard.style.display = 'none';
+    }
+
+    enableSortableTable('datasets-table');
+
+    // Initial render
+    updateView();
+    propagateQueryToLinks();
+  </script>
+  <footer class="page-footer">This page was last updated on: 2026-11-17 17:20:35 UTC. For any questions or comments, please contact SPDF support at: <a href="mailto:NASA-SPDF-Support@nasa.gov">NASA-SPDF-Support@nasa.gov</a></footer>
+</body>
+</html>

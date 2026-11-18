@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GOES Inventory Index - CDAWeb</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root, body.dark {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #0284c7;
+      --accent-light: #38bdf8;
+      --success: #10b981;
+      --plot-paper: #1e293b;
+      --plot-bg: #0f172a;
+      --plot-grid: #334155;
+    }
+    body.light {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --accent: #0284c7;
+      --accent-light: #0369a1;
+      --success: #16a34a;
+      --plot-paper: #ffffff;
+      --plot-bg: #f8fafc;
+      --plot-grid: #e2e8f0;
+    }
+    body {
+      margin: 0;
+      padding: 24px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    input[type="date"] {
+      color-scheme: dark;
+    }
+    body.light input[type="date"] {
+      color-scheme: light;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .page-footer { margin: 20px 0 0; color: var(--text-muted); font-size: 12px; text-align: center; }
+    .page-footer a { color: var(--accent-light); }
+    .breadcrumbs { font-size: 14px; margin-bottom: 0; color: var(--text-muted); }
+    .breadcrumbs a { color: var(--accent-light); text-decoration: none; }
+    .breadcrumbs a:hover { text-decoration: underline; }
+    .btn-theme {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-theme:hover { opacity: 0.9; }
+    h1 { margin: 0 0 6px 0; font-size: 28px; }
+    .subtitle { color: var(--text-muted); font-size: 15px; margin: 0 0 20px 0; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .kpi-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 20px; font-weight: 700; color: var(--text); }
+    .controls-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    input[type="text"], input[type="date"], select {
+      background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 6px; font-size: 13px;
+    }
+    button, .btn-sm {
+      background: var(--accent); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-block;
+    }
+    button.btn-secondary { background: var(--border); color: var(--text); }
+    button:hover, .btn-sm:hover { opacity: 0.9; }
+    .chart-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th { padding: 10px 12px; background: rgba(125,125,125,0.06); color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .progress-bar { width: 70px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; display: inline-block; }
+    .progress-bar .fill { height: 100%; background: var(--success); }
+    .badge-sm { display: inline-block; padding: 2px 8px; background: rgba(56, 189, 248, 0.15); color: var(--accent-light); border-radius: 4px; font-size: 11px; }
+    .chart-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .pan-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(125,125,125,0.08);
+      padding: 3px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .btn-pan {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-pan:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .btn-pan:disabled, .btn-pan.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .btn-preset {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .btn-preset:hover {
+      opacity: 0.9;
+      color: var(--text);
+    }
+    .btn-preset.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      font-weight: 700;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+    }
+    .xtick text, .ytick text {
+      fill: var(--text) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+      <div class="breadcrumbs">
+        <a href="./inventory_index.html">CDAWeb Inventory</a> &gt;
+        <span>GOES Index</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <a href="./GOES_Inventory.png" target="_blank" class="btn-theme"> View GOES PNG</a>
+        <button class="btn-theme" onclick="exportPlotAsPng('timeline-chart', 'GOES_timeline.png')"> Download Plot PNG</button>
+        <button id="theme-toggle" class="btn-theme" onclick="toggleTheme()">☀️ Light Mode</button>
+      </div>
+    </div>
+    <h1>GOES Mission Data Inventory</h1>
+    <p class="subtitle">Complete catalog of holdings and availability for GOES spacecraft</p>
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Datasets</div>
+        <div class="kpi-value">52</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Instruments</div>
+        <div class="kpi-value">14</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total CDF Files</div>
+        <div class="kpi-value">44,907</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Mission Span</div>
+        <div class="kpi-value" style="font-size: 14px;">1992-12-12 &rarr; 2026-11-17</div>
+      </div>
+    </div>
+
+    <div class="controls-card">
+      <input type="text" id="search-box" placeholder="Search datasets..." oninput="filterTable()">
+      <select id="instrument-filter" onchange="filterTable()">
+        <option value="">All Instruments (14)</option>
+        <option value='GOES06'>GOES06</option><option value='GOES07'>GOES07</option><option value='GOES08'>GOES08</option><option value='GOES09'>GOES09</option><option value='GOES10'>GOES10</option><option value='GOES11'>GOES11</option><option value='GOES12'>GOES12</option><option value='GOES13'>GOES13</option><option value='GOES14'>GOES14</option><option value='GOES15'>GOES15</option><option value='GOES16'>GOES16</option><option value='GOES17'>GOES17</option><option value='GOES18'>GOES18</option><option value='GOES19'>GOES19</option>
+      </select>
+      <button class="btn-secondary" onclick="selectAll(true)">Select All</button>
+      <button class="btn-secondary" onclick="selectAll(false)">Clear All</button>
+      <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; font-size: 13px; font-weight: 600; padding: 4px 10px; background: rgba(125,125,125,0.08); border-radius: 6px; border: 1px solid var(--border);">
+        <input type="checkbox" id="toggle-chart-cb" autocomplete="off" onchange="toggleChartDisplay(this.checked)">
+        <span> Show Timeline Graph</span>
+      </label>
+      <div style="margin-left: auto; display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+        <span style="font-size: 13px; color: var(--text-muted);">Date Range:</span>
+        <input type="date" id="filter-start" value="1992-12-12" oninput="clearPresetHighlight()">
+        <span style="color: var(--text-muted);">&rarr;</span>
+        <input type="date" id="filter-stop" value="2026-11-17" oninput="clearPresetHighlight()">
+        <button onclick="updateView()">Apply</button>
+        <button type="button" class="btn-preset" data-preset="1y" onclick="presetRange('1y')">1 Year</button>
+        <button type="button" class="btn-preset" data-preset="5y" onclick="presetRange('5y')">5 Years</button>
+        <button type="button" class="btn-preset active" data-preset="all" onclick="presetRange('all')">All Time</button>
+      </div>
+    </div>
+
+    <div class="chart-card" id="chart-card-container" style="display: none;">
+      <div class="chart-hint">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <span><strong>Availability Timeline (Selected Items)</strong></span>
+          <div class="pan-controls">
+            <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin: 0 4px;">Time Window:</span>
+            <button type="button" class="btn-pan disabled" disabled title="Pan backward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', -1)">◀ Prev Frame</button>
+            <button type="button" class="btn-pan" title="Reset zoom to full range" onclick="resetTimelineZoom('timeline-chart')">↺ Reset Zoom</button>
+            <button type="button" class="btn-pan disabled" disabled title="Pan forward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('timeline-chart', 1)">Next Frame ▶</button>
+            <button type="button" class="btn-pan" title="Reselect all unselected items" onclick="resetAllSelections()">↺ Reset Selection</button>
+            <button type="button" class="btn-pan" title="Download timeline chart as PNG" onclick="exportPlotAsPng('timeline-chart', 'GOES_timeline.png')"> PNG</button>
+          </div>
+        </div>
+        <span>💡 Click row/label to unselect • Ctrl+Click to open full dataset page</span>
+      </div>
+      <div id="timeline-chart" style="min-height: 120px; width: 100%;"></div>
+    </div>
+
+    <div class="table-card">
+      <h3 style="margin: 0 0 12px 0;">Available Datasets</h3>
+      <table id="datasets-table">
+        <thead>
+          <tr>
+            <th style="width: 30px;"><input type="checkbox" id="master-cb" checked onchange="toggleAllCheckboxes(this.checked)"></th>
+            <th class="sortable" data-sort-type="text">Dataset ID</th>
+            <th class="sortable" data-sort-type="text">Instrument</th>
+            <th class="sortable" data-sort-type="text">Product</th>
+            <th class="sortable" data-sort-type="date">Time Coverage</th>
+            <th class="sortable" data-sort-type="number">CDF Count</th>
+            <th class="sortable" data-sort-type="number">Coverage</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="datasets-tbody">
+          
+        <tr data-inst="GOES08" data-name="DN_MAGN-L2-HIRES_G08">
+          <td><input type="checkbox" class="dset-checkbox" value="DN_MAGN-L2-HIRES_G08" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/DN_MAGN-L2-HIRES_G08.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DN_MAGN-L2-HIRES_G08</a></td>
+          <td><span class="badge-sm">GOES08</span></td>
+          <td style="color: var(--text-muted);">MAG_L2_NETCDF</td>
+          <td>1995-07-01 &rarr; 2001-12-09</td>
+          <td>2,249</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 95.45858062448168%;"></div></div>
+              <span style="font-size: 11px;">95.46%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/DN_MAGN-L2-HIRES_G08.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES09" data-name="DN_MAGN-L2-HIRES_G09">
+          <td><input type="checkbox" class="dset-checkbox" value="DN_MAGN-L2-HIRES_G09" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/DN_MAGN-L2-HIRES_G09.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DN_MAGN-L2-HIRES_G09</a></td>
+          <td><span class="badge-sm">GOES09</span></td>
+          <td style="color: var(--text-muted);">MAG_L2_NETCDF</td>
+          <td>1995-06-16 &rarr; 2001-12-24</td>
+          <td>1,091</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 45.65798633277593%;"></div></div>
+              <span style="font-size: 11px;">45.66%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/DN_MAGN-L2-HIRES_G09.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES10" data-name="DN_MAGN-L2-HIRES_G10">
+          <td><input type="checkbox" class="dset-checkbox" value="DN_MAGN-L2-HIRES_G10" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/DN_MAGN-L2-HIRES_G10.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DN_MAGN-L2-HIRES_G10</a></td>
+          <td><span class="badge-sm">GOES10</span></td>
+          <td style="color: var(--text-muted);">MAG_L2_NETCDF</td>
+          <td>1997-05-06 &rarr; 2005-05-31</td>
+          <td>2,276</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 77.00680262280298%;"></div></div>
+              <span style="font-size: 11px;">77.01%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/DN_MAGN-L2-HIRES_G10.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES11" data-name="DN_MAGN-L2-HIRES_G11">
+          <td><input type="checkbox" class="dset-checkbox" value="DN_MAGN-L2-HIRES_G11" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/DN_MAGN-L2-HIRES_G11.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DN_MAGN-L2-HIRES_G11</a></td>
+          <td><span class="badge-sm">GOES11</span></td>
+          <td style="color: var(--text-muted);">MAG_L2_NETCDF</td>
+          <td>2000-05-16 &rarr; 2010-04-13</td>
+          <td>1,210</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 33.34444231297461%;"></div></div>
+              <span style="font-size: 11px;">33.34%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/DN_MAGN-L2-HIRES_G11.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES12" data-name="DN_MAGN-L2-HIRES_G12">
+          <td><input type="checkbox" class="dset-checkbox" value="DN_MAGN-L2-HIRES_G12" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/DN_MAGN-L2-HIRES_G12.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DN_MAGN-L2-HIRES_G12</a></td>
+          <td><span class="badge-sm">GOES12</span></td>
+          <td style="color: var(--text-muted);">MAG_L2_NETCDF</td>
+          <td>2001-09-01 &rarr; 2009-09-16</td>
+          <td>2,000</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 67.8963193337317%;"></div></div>
+              <span style="font-size: 11px;">67.90%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/DN_MAGN-L2-HIRES_G12.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES13" data-name="DN_MAGN-L2-HIRES_G13">
+          <td><input type="checkbox" class="dset-checkbox" value="DN_MAGN-L2-HIRES_G13" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/DN_MAGN-L2-HIRES_G13.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DN_MAGN-L2-HIRES_G13</a></td>
+          <td><span class="badge-sm">GOES13</span></td>
+          <td style="color: var(--text-muted);">MAG_L2_NETCDF</td>
+          <td>2010-05-04 &rarr; 2017-12-09</td>
+          <td>2,712</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 97.42503358200727%;"></div></div>
+              <span style="font-size: 11px;">97.43%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/DN_MAGN-L2-HIRES_G13.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES14" data-name="DN_MAGN-L2-HIRES_G14">
+          <td><input type="checkbox" class="dset-checkbox" value="DN_MAGN-L2-HIRES_G14" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/DN_MAGN-L2-HIRES_G14.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DN_MAGN-L2-HIRES_G14</a></td>
+          <td><span class="badge-sm">GOES14</span></td>
+          <td style="color: var(--text-muted);">MAG_L2_NETCDF</td>
+          <td>2012-10-01 &rarr; 2017-12-07</td>
+          <td>331</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 17.161399773415805%;"></div></div>
+              <span style="font-size: 11px;">17.16%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/DN_MAGN-L2-HIRES_G14.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES15" data-name="DN_MAGN-L2-HIRES_G15">
+          <td><input type="checkbox" class="dset-checkbox" value="DN_MAGN-L2-HIRES_G15" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/DN_MAGN-L2-HIRES_G15.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DN_MAGN-L2-HIRES_G15</a></td>
+          <td><span class="badge-sm">GOES15</span></td>
+          <td style="color: var(--text-muted);">MAG_L2_NETCDF</td>
+          <td>2011-01-01 &rarr; 2017-12-09</td>
+          <td>2,530</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.4214675077684%;"></div></div>
+              <span style="font-size: 11px;">99.42%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/DN_MAGN-L2-HIRES_G15.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES16" data-name="DN_MAGN-L2-HIRES_G16">
+          <td><input type="checkbox" class="dset-checkbox" value="DN_MAGN-L2-HIRES_G16" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/DN_MAGN-L2-HIRES_G16.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DN_MAGN-L2-HIRES_G16</a></td>
+          <td><span class="badge-sm">GOES16</span></td>
+          <td style="color: var(--text-muted);">MAG_L2_NETCDF</td>
+          <td>2018-08-29 &rarr; 2025-04-07</td>
+          <td>2,326</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 96.35353280801004%;"></div></div>
+              <span style="font-size: 11px;">96.35%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/DN_MAGN-L2-HIRES_G16.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES17" data-name="DN_MAGN-L2-HIRES_G17">
+          <td><input type="checkbox" class="dset-checkbox" value="DN_MAGN-L2-HIRES_G17" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/DN_MAGN-L2-HIRES_G17.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DN_MAGN-L2-HIRES_G17</a></td>
+          <td><span class="badge-sm">GOES17</span></td>
+          <td style="color: var(--text-muted);">MAG_L2_NETCDF</td>
+          <td>2018-08-01 &rarr; 2023-03-14</td>
+          <td>1,638</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 97.0943125610216%;"></div></div>
+              <span style="font-size: 11px;">97.09%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/DN_MAGN-L2-HIRES_G17.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES18" data-name="DN_MAGN-L2-HIRES_G18">
+          <td><input type="checkbox" class="dset-checkbox" value="DN_MAGN-L2-HIRES_G18" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/DN_MAGN-L2-HIRES_G18.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DN_MAGN-L2-HIRES_G18</a></td>
+          <td><span class="badge-sm">GOES18</span></td>
+          <td style="color: var(--text-muted);">MAG_L2_NETCDF</td>
+          <td>2022-08-08 &rarr; 2026-11-07</td>
+          <td>1,548</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.67688956020672%;"></div></div>
+              <span style="font-size: 11px;">99.68%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/DN_MAGN-L2-HIRES_G18.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES19" data-name="DN_MAGN-L2-HIRES_G19">
+          <td><input type="checkbox" class="dset-checkbox" value="DN_MAGN-L2-HIRES_G19" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/DN_MAGN-L2-HIRES_G19.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">DN_MAGN-L2-HIRES_G19</a></td>
+          <td><span class="badge-sm">GOES19</span></td>
+          <td style="color: var(--text-muted);">MAG_L2_NETCDF</td>
+          <td>2025-06-01 &rarr; 2026-11-07</td>
+          <td>525</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.99906305112573%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/DN_MAGN-L2-HIRES_G19.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES10" data-name="G0_K0_EP8">
+          <td><input type="checkbox" class="dset-checkbox" value="G0_K0_EP8" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/G0_K0_EP8.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">G0_K0_EP8</a></td>
+          <td><span class="badge-sm">GOES10</span></td>
+          <td style="color: var(--text-muted);">EP8_K0</td>
+          <td>1999-03-21 &rarr; 2006-06-22</td>
+          <td>2,505</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 94.16466816068905%;"></div></div>
+              <span style="font-size: 11px;">94.16%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/G0_K0_EP8.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES10" data-name="G0_K0_MAG">
+          <td><input type="checkbox" class="dset-checkbox" value="G0_K0_MAG" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/G0_K0_MAG.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">G0_K0_MAG</a></td>
+          <td><span class="badge-sm">GOES10</span></td>
+          <td style="color: var(--text-muted);">MAG_K0</td>
+          <td>1999-03-21 &rarr; 2006-06-22</td>
+          <td>2,503</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 94.35165827142228%;"></div></div>
+              <span style="font-size: 11px;">94.35%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/G0_K0_MAG.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES10" data-name="G10_L2_MAG">
+          <td><input type="checkbox" class="dset-checkbox" value="G10_L2_MAG" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/G10_L2_MAG.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">G10_L2_MAG</a></td>
+          <td><span class="badge-sm">GOES10</span></td>
+          <td style="color: var(--text-muted);">MAG_L2</td>
+          <td>2007-01-01 &rarr; 2008-12-31</td>
+          <td>660</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 90.28566414420986%;"></div></div>
+              <span style="font-size: 11px;">90.29%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/G10_L2_MAG.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES11" data-name="G11_L2_MAG">
+          <td><input type="checkbox" class="dset-checkbox" value="G11_L2_MAG" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/G11_L2_MAG.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">G11_L2_MAG</a></td>
+          <td><span class="badge-sm">GOES11</span></td>
+          <td style="color: var(--text-muted);">MAG_L2</td>
+          <td>2007-01-01 &rarr; 2008-12-31</td>
+          <td>731</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.99875075997414%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/G11_L2_MAG.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES12" data-name="G12_L2_MAG">
+          <td><input type="checkbox" class="dset-checkbox" value="G12_L2_MAG" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/G12_L2_MAG.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">G12_L2_MAG</a></td>
+          <td><span class="badge-sm">GOES12</span></td>
+          <td style="color: var(--text-muted);">MAG_L2</td>
+          <td>2007-01-01 &rarr; 2008-12-31</td>
+          <td>720</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.49407360690064%;"></div></div>
+              <span style="font-size: 11px;">98.49%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/G12_L2_MAG.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES06" data-name="G6_K0_EPS">
+          <td><input type="checkbox" class="dset-checkbox" value="G6_K0_EPS" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/G6_K0_EPS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">G6_K0_EPS</a></td>
+          <td><span class="badge-sm">GOES06</span></td>
+          <td style="color: var(--text-muted);">EPS_K0</td>
+          <td>1992-12-12 &rarr; 1994-11-25</td>
+          <td>582</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 81.09039979380542%;"></div></div>
+              <span style="font-size: 11px;">81.09%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/G6_K0_EPS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES06" data-name="G6_K0_MAG">
+          <td><input type="checkbox" class="dset-checkbox" value="G6_K0_MAG" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/G6_K0_MAG.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">G6_K0_MAG</a></td>
+          <td><span class="badge-sm">GOES06</span></td>
+          <td style="color: var(--text-muted);">MAG_K0</td>
+          <td>1992-12-12 &rarr; 1994-11-25</td>
+          <td>582</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 81.38031180002315%;"></div></div>
+              <span style="font-size: 11px;">81.38%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/G6_K0_MAG.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES07" data-name="G7_K0_EPS">
+          <td><input type="checkbox" class="dset-checkbox" value="G7_K0_EPS" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/G7_K0_EPS.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">G7_K0_EPS</a></td>
+          <td><span class="badge-sm">GOES07</span></td>
+          <td style="color: var(--text-muted);">EPS_K0</td>
+          <td>1992-12-12 &rarr; 1996-02-26</td>
+          <td>1,057</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 89.87482779563601%;"></div></div>
+              <span style="font-size: 11px;">89.87%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/G7_K0_EPS.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES07" data-name="G7_K0_MAG">
+          <td><input type="checkbox" class="dset-checkbox" value="G7_K0_MAG" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/G7_K0_MAG.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">G7_K0_MAG</a></td>
+          <td><span class="badge-sm">GOES07</span></td>
+          <td style="color: var(--text-muted);">MAG_K0</td>
+          <td>1992-12-12 &rarr; 1996-02-26</td>
+          <td>1,050</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 89.32510270021729%;"></div></div>
+              <span style="font-size: 11px;">89.33%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/G7_K0_MAG.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES07" data-name="G7_K1_MAG">
+          <td><input type="checkbox" class="dset-checkbox" value="G7_K1_MAG" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/G7_K1_MAG.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">G7_K1_MAG</a></td>
+          <td><span class="badge-sm">GOES07</span></td>
+          <td style="color: var(--text-muted);">MAG_K1</td>
+          <td>1995-02-11 &rarr; 1995-04-09</td>
+          <td>17</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 20.565574671241407%;"></div></div>
+              <span style="font-size: 11px;">20.57%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/G7_K1_MAG.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES08" data-name="G8_K0_EP8">
+          <td><input type="checkbox" class="dset-checkbox" value="G8_K0_EP8" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/G8_K0_EP8.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">G8_K0_EP8</a></td>
+          <td><span class="badge-sm">GOES08</span></td>
+          <td style="color: var(--text-muted);">EP8_K0</td>
+          <td>1995-12-01 &rarr; 2003-04-08</td>
+          <td>2,583</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 95.75731643154374%;"></div></div>
+              <span style="font-size: 11px;">95.76%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/G8_K0_EP8.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES08" data-name="G8_K0_MAG">
+          <td><input type="checkbox" class="dset-checkbox" value="G8_K0_MAG" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/G8_K0_MAG.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">G8_K0_MAG</a></td>
+          <td><span class="badge-sm">GOES08</span></td>
+          <td style="color: var(--text-muted);">MAG_K0</td>
+          <td>1995-12-01 &rarr; 2003-04-08</td>
+          <td>2,585</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 96.09854494977687%;"></div></div>
+              <span style="font-size: 11px;">96.10%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/G8_K0_MAG.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES09" data-name="G9_K0_EP8">
+          <td><input type="checkbox" class="dset-checkbox" value="G9_K0_EP8" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/G9_K0_EP8.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">G9_K0_EP8</a></td>
+          <td><span class="badge-sm">GOES09</span></td>
+          <td style="color: var(--text-muted);">EP8_K0</td>
+          <td>1995-12-01 &rarr; 1998-07-27</td>
+          <td>959</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.52304740495205%;"></div></div>
+              <span style="font-size: 11px;">98.52%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/G9_K0_EP8.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES09" data-name="G9_K0_MAG">
+          <td><input type="checkbox" class="dset-checkbox" value="G9_K0_MAG" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/G9_K0_MAG.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">G9_K0_MAG</a></td>
+          <td><span class="badge-sm">GOES09</span></td>
+          <td style="color: var(--text-muted);">MAG_K0</td>
+          <td>1995-12-01 &rarr; 1998-07-27</td>
+          <td>960</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.90041444760485%;"></div></div>
+              <span style="font-size: 11px;">98.90%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/G9_K0_MAG.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES10" data-name="GOES10_EPHEMERIS_SSC">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES10_EPHEMERIS_SSC" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES10_EPHEMERIS_SSC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES10_EPHEMERIS_SSC</a></td>
+          <td><span class="badge-sm">GOES10</span></td>
+          <td style="color: var(--text-muted);">ORBIT</td>
+          <td>1997-04-25 &rarr; 2009-01-01</td>
+          <td>1</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES10_EPHEMERIS_SSC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES11" data-name="GOES11_EPHEMERIS_SSC">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES11_EPHEMERIS_SSC" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES11_EPHEMERIS_SSC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES11_EPHEMERIS_SSC</a></td>
+          <td><span class="badge-sm">GOES11</span></td>
+          <td style="color: var(--text-muted);">ORBIT</td>
+          <td>2000-05-17 &rarr; 2016-01-01</td>
+          <td>1</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES11_EPHEMERIS_SSC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES11" data-name="GOES11_K0_EP8">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES11_K0_EP8" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES11_K0_EP8.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES11_K0_EP8</a></td>
+          <td><span class="badge-sm">GOES11</span></td>
+          <td style="color: var(--text-muted);">EP8_K0</td>
+          <td>2006-06-23 &rarr; 2010-12-30</td>
+          <td>1,647</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.35137407387946%;"></div></div>
+              <span style="font-size: 11px;">99.35%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES11_K0_EP8.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES11" data-name="GOES11_K0_MAG">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES11_K0_MAG" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES11_K0_MAG.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES11_K0_MAG</a></td>
+          <td><span class="badge-sm">GOES11</span></td>
+          <td style="color: var(--text-muted);">MAG_L1</td>
+          <td>2006-06-23 &rarr; 2010-12-30</td>
+          <td>1,646</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.56765350402438%;"></div></div>
+              <span style="font-size: 11px;">99.57%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES11_K0_MAG.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES12" data-name="GOES12_EPHEMERIS_SSC">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES12_EPHEMERIS_SSC" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES12_EPHEMERIS_SSC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES12_EPHEMERIS_SSC</a></td>
+          <td><span class="badge-sm">GOES12</span></td>
+          <td style="color: var(--text-muted);">ORBIT</td>
+          <td>2006-01-01 &rarr; 2016-12-20</td>
+          <td>11</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES12_EPHEMERIS_SSC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES12" data-name="GOES12_K0_MAG">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES12_K0_MAG" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES12_K0_MAG.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES12_K0_MAG</a></td>
+          <td><span class="badge-sm">GOES12</span></td>
+          <td style="color: var(--text-muted);">MAG_K0</td>
+          <td>2003-04-08 &rarr; 2010-09-23</td>
+          <td>2,589</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 94.9083911379084%;"></div></div>
+              <span style="font-size: 11px;">94.91%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES12_K0_MAG.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES13" data-name="GOES13_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES13_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES13_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES13_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN</a></td>
+          <td><span class="badge-sm">GOES13</span></td>
+          <td style="color: var(--text-muted);">E13EW_1MIN</td>
+          <td>2010-05-01 &rarr; 2017-12-14</td>
+          <td>91</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.81283632875432%;"></div></div>
+              <span style="font-size: 11px;">98.81%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES13_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES13" data-name="GOES13_EPHEMERIS_SSC">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES13_EPHEMERIS_SSC" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES13_EPHEMERIS_SSC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES13_EPHEMERIS_SSC</a></td>
+          <td><span class="badge-sm">GOES13</span></td>
+          <td style="color: var(--text-muted);">ORBIT</td>
+          <td>2006-06-10 &rarr; 2022-02-13</td>
+          <td>17</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES13_EPHEMERIS_SSC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES13" data-name="GOES13_EPS-MAGED_1MIN">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES13_EPS-MAGED_1MIN" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES13_EPS-MAGED_1MIN.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES13_EPS-MAGED_1MIN</a></td>
+          <td><span class="badge-sm">GOES13</span></td>
+          <td style="color: var(--text-muted);">19ME15_1MIN</td>
+          <td>2006-06-01 &rarr; 2017-12-14</td>
+          <td>114</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 81.5165219316795%;"></div></div>
+              <span style="font-size: 11px;">81.52%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES13_EPS-MAGED_1MIN.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES13" data-name="GOES13_EPS-MAGED_5MIN">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES13_EPS-MAGED_5MIN" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES13_EPS-MAGED_5MIN.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES13_EPS-MAGED_5MIN</a></td>
+          <td><span class="badge-sm">GOES13</span></td>
+          <td style="color: var(--text-muted);">19ME15_5MIN</td>
+          <td>2011-01-01 &rarr; 2017-12-14</td>
+          <td>84</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.24062122788335%;"></div></div>
+              <span style="font-size: 11px;">99.24%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES13_EPS-MAGED_5MIN.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES13" data-name="GOES13_EPS-PITCH-ANGLES_1MIN">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES13_EPS-PITCH-ANGLES_1MIN" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES13_EPS-PITCH-ANGLES_1MIN.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES13_EPS-PITCH-ANGLES_1MIN</a></td>
+          <td><span class="badge-sm">GOES13</span></td>
+          <td style="color: var(--text-muted);">EPS-PITCH-ANGLES_1MIN</td>
+          <td>2010-05-01 &rarr; 2017-12-14</td>
+          <td>92</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 99.6027577305899%;"></div></div>
+              <span style="font-size: 11px;">99.60%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES13_EPS-PITCH-ANGLES_1MIN.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES14" data-name="GOES14_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES14_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES14_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES14_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN</a></td>
+          <td><span class="badge-sm">GOES14</span></td>
+          <td style="color: var(--text-muted);">E13EW_1MIN</td>
+          <td>2012-10-01 &rarr; 2020-03-04</td>
+          <td>41</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 42.513710288048564%;"></div></div>
+              <span style="font-size: 11px;">42.51%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES14_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES14" data-name="GOES14_EPHEMERIS_SSC">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES14_EPHEMERIS_SSC" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES14_EPHEMERIS_SSC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES14_EPHEMERIS_SSC</a></td>
+          <td><span class="badge-sm">GOES14</span></td>
+          <td style="color: var(--text-muted);">ORBIT</td>
+          <td>2009-07-09 &rarr; 2025-07-27</td>
+          <td>17</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES14_EPHEMERIS_SSC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES14" data-name="GOES14_EPS-MAGED_1MIN">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES14_EPS-MAGED_1MIN" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES14_EPS-MAGED_1MIN.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES14_EPS-MAGED_1MIN</a></td>
+          <td><span class="badge-sm">GOES14</span></td>
+          <td style="color: var(--text-muted);">19ME15_1MIN</td>
+          <td>2009-07-01 &rarr; 2020-03-04</td>
+          <td>58</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 42.89641077215292%;"></div></div>
+              <span style="font-size: 11px;">42.90%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES14_EPS-MAGED_1MIN.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES14" data-name="GOES14_EPS-MAGED_5MIN">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES14_EPS-MAGED_5MIN" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES14_EPS-MAGED_5MIN.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES14_EPS-MAGED_5MIN</a></td>
+          <td><span class="badge-sm">GOES14</span></td>
+          <td style="color: var(--text-muted);">19ME15_5MIN</td>
+          <td>2010-04-01 &rarr; 2020-01-23</td>
+          <td>38</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 28.922428446486563%;"></div></div>
+              <span style="font-size: 11px;">28.92%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES14_EPS-MAGED_5MIN.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES14" data-name="GOES14_EPS-PITCH-ANGLES_1MIN">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES14_EPS-PITCH-ANGLES_1MIN" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES14_EPS-PITCH-ANGLES_1MIN.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES14_EPS-PITCH-ANGLES_1MIN</a></td>
+          <td><span class="badge-sm">GOES14</span></td>
+          <td style="color: var(--text-muted);">EPS-PITCH-ANGLES_1MIN</td>
+          <td>2012-10-01 &rarr; 2020-03-04</td>
+          <td>41</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 42.513710288048564%;"></div></div>
+              <span style="font-size: 11px;">42.51%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES14_EPS-PITCH-ANGLES_1MIN.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES15" data-name="GOES15_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES15_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES15_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES15_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN</a></td>
+          <td><span class="badge-sm">GOES15</span></td>
+          <td style="color: var(--text-muted);">E13EW_1MIN</td>
+          <td>2010-03-26 &rarr; 2020-03-04</td>
+          <td>112</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 92.39875726542563%;"></div></div>
+              <span style="font-size: 11px;">92.40%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES15_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES15" data-name="GOES15_EPHEMERIS_SSC">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES15_EPHEMERIS_SSC" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES15_EPHEMERIS_SSC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES15_EPHEMERIS_SSC</a></td>
+          <td><span class="badge-sm">GOES15</span></td>
+          <td style="color: var(--text-muted);">ORBIT</td>
+          <td>2010-03-21 &rarr; 2023-10-29</td>
+          <td>14</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES15_EPHEMERIS_SSC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES15" data-name="GOES15_EPS-MAGED_1MIN">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES15_EPS-MAGED_1MIN" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES15_EPS-MAGED_1MIN.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES15_EPS-MAGED_1MIN</a></td>
+          <td><span class="badge-sm">GOES15</span></td>
+          <td style="color: var(--text-muted);">19ME15_1MIN</td>
+          <td>2010-03-01 &rarr; 2020-03-04</td>
+          <td>121</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.05623880689978%;"></div></div>
+              <span style="font-size: 11px;">98.06%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES15_EPS-MAGED_1MIN.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES15" data-name="GOES15_EPS-MAGED_5MIN">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES15_EPS-MAGED_5MIN" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES15_EPS-MAGED_5MIN.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES15_EPS-MAGED_5MIN</a></td>
+          <td><span class="badge-sm">GOES15</span></td>
+          <td style="color: var(--text-muted);">19ME15_5MIN</td>
+          <td>2011-02-01 &rarr; 2019-10-08</td>
+          <td>105</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 98.06553662421254%;"></div></div>
+              <span style="font-size: 11px;">98.07%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES15_EPS-MAGED_5MIN.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES15" data-name="GOES15_EPS-PITCH-ANGLES_1MIN">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES15_EPS-PITCH-ANGLES_1MIN" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES15_EPS-PITCH-ANGLES_1MIN.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES15_EPS-PITCH-ANGLES_1MIN</a></td>
+          <td><span class="badge-sm">GOES15</span></td>
+          <td style="color: var(--text-muted);">EPS-PITCH-ANGLES_1MIN</td>
+          <td>2010-03-26 &rarr; 2020-03-04</td>
+          <td>112</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 92.37122422051368%;"></div></div>
+              <span style="font-size: 11px;">92.37%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES15_EPS-PITCH-ANGLES_1MIN.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES16" data-name="GOES16_EPHEMERIS_SSC">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES16_EPHEMERIS_SSC" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES16_EPHEMERIS_SSC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES16_EPHEMERIS_SSC</a></td>
+          <td><span class="badge-sm">GOES16</span></td>
+          <td style="color: var(--text-muted);">ORBIT</td>
+          <td>2016-12-03 &rarr; 2026-01-01</td>
+          <td>10</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES16_EPHEMERIS_SSC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES17" data-name="GOES17_EPHEMERIS_SSC">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES17_EPHEMERIS_SSC" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES17_EPHEMERIS_SSC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES17_EPHEMERIS_SSC</a></td>
+          <td><span class="badge-sm">GOES17</span></td>
+          <td style="color: var(--text-muted);">ORBIT</td>
+          <td>2018-03-21 &rarr; 2026-01-01</td>
+          <td>8</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES17_EPHEMERIS_SSC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES18" data-name="GOES18_EPHEMERIS_SSC">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES18_EPHEMERIS_SSC" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES18_EPHEMERIS_SSC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES18_EPHEMERIS_SSC</a></td>
+          <td><span class="badge-sm">GOES18</span></td>
+          <td style="color: var(--text-muted);">ORBIT</td>
+          <td>2022-03-18 &rarr; 2026-11-23</td>
+          <td>5</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES18_EPHEMERIS_SSC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES08" data-name="GOES8_EPHEMERIS_SSC">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES8_EPHEMERIS_SSC" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES8_EPHEMERIS_SSC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES8_EPHEMERIS_SSC</a></td>
+          <td><span class="badge-sm">GOES08</span></td>
+          <td style="color: var(--text-muted);">ORBIT</td>
+          <td>1994-05-03 &rarr; 2016-11-23</td>
+          <td>1</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES8_EPHEMERIS_SSC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        <tr data-inst="GOES09" data-name="GOES9_EPHEMERIS_SSC">
+          <td><input type="checkbox" class="dset-checkbox" value="GOES9_EPHEMERIS_SSC" checked onchange="updateView()"></td>
+          <td><a href="./goes_inventory/GOES9_EPHEMERIS_SSC.html" target="_blank" style="color: var(--accent-light); font-weight: 600; text-decoration: none;">GOES9_EPHEMERIS_SSC</a></td>
+          <td><span class="badge-sm">GOES09</span></td>
+          <td style="color: var(--text-muted);">ORBIT</td>
+          <td>1995-06-05 &rarr; 2010-01-01</td>
+          <td>1</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="progress-bar"><div class="fill" style="width: 100%;"></div></div>
+              <span style="font-size: 11px;">100.00%</span>
+            </div>
+          </td>
+          <td><a class="btn-sm" href="./goes_inventory/GOES9_EPHEMERIS_SSC.html" target="_blank">View Plot &rarr;</a></td>
+        </tr>
+        
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const allDatasets = [{"name": "DN_MAGN-L2-HIRES_G08", "instrument": "GOES08", "product": "MAG_L2_NETCDF", "cdf_count": 2249, "active_days": 2247.0949768518517, "coverage_pct": 95.45858062448168, "earliest": "1995-07-01", "latest": "2001-12-09", "intervals": [["1995-07-01 00:00:00", "1996-04-16 23:59:59"], ["1996-05-01 00:00:00", "1996-05-13 23:59:59"], ["1996-05-16 00:00:00", "1996-07-08 23:59:59"], ["1996-07-16 00:00:00", "1997-10-17 12:14:19"], ["1997-10-20 00:00:00", "1997-11-12 23:59:59"], ["1997-11-16 00:00:00", "1999-04-29 23:59:59"], ["1999-05-02 00:00:00", "1999-06-03 23:59:59"], ["1999-06-07 00:00:00", "1999-07-02 23:59:59"], ["1999-07-05 00:00:00", "2000-05-31 23:59:59"], ["2000-06-03 00:00:00", "2001-08-08 08:05:27"], ["2001-08-16 00:00:00", "2001-09-05 23:59:59"], ["2001-09-16 00:00:00", "2001-10-12 23:59:59"], ["2001-10-16 00:00:00", "2001-11-12 23:59:59"], ["2001-11-15 00:00:00", "2001-12-09 23:59:59"]], "page": "./DN_MAGN-L2-HIRES_G08.html"}, {"name": "DN_MAGN-L2-HIRES_G09", "instrument": "GOES09", "product": "MAG_L2_NETCDF", "cdf_count": 1091, "active_days": 1088.486388888889, "coverage_pct": 45.65798633277593, "earliest": "1995-06-16", "latest": "2001-12-24", "intervals": [["1995-06-16 00:00:00", "1996-01-14 23:59:59"], ["1996-01-18 00:00:00", "1996-01-26 23:59:59"], ["1996-01-29 00:00:00", "1996-03-10 23:59:59"], ["1996-03-13 00:00:00", "1996-04-08 23:59:59"], ["1996-04-11 00:00:00", "1996-07-08 23:59:59"], ["1996-07-16 00:00:00", "1996-10-04 23:59:59"], ["1996-10-07 00:00:00", "1997-01-05 23:59:59"], ["1997-01-08 00:00:00", "1997-06-15 23:59:59"], ["1997-06-18 00:00:00", "1997-08-13 23:59:59"], ["1997-08-16 00:00:00", "1997-10-31 23:59:59"], ["1997-11-17 00:00:00", "1998-05-09 23:59:59"], ["1998-05-12 00:00:00", "1998-07-16 23:59:59"], ["2001-11-16 00:00:00", "2001-11-26 23:59:59"], ["2001-12-01 00:00:00", "2001-12-24 23:59:59"]], "page": "./DN_MAGN-L2-HIRES_G09.html"}, {"name": "DN_MAGN-L2-HIRES_G10", "instrument": "GOES10", "product": "MAG_L2_NETCDF", "cdf_count": 2276, "active_days": 2270.1605324074076, "coverage_pct": 77.00680262280298, "earliest": "1997-05-06", "latest": "2005-05-31", "intervals": [["1997-05-06 00:00:00", "1997-05-07 23:59:59"], ["1997-05-10 00:00:00", "1997-05-18 23:59:59"], ["1997-05-21 00:00:00", "1997-06-01 23:59:59"], ["1997-08-01 00:00:00", "1997-09-06 20:52:03"], ["1997-09-08 00:00:00", "1997-10-31 23:59:59"], ["1998-01-01 00:00:00", "1998-03-28 23:59:59"], ["1998-04-01 00:00:00", "1998-06-16 23:59:59"], ["1998-07-01 00:00:00", "1999-02-05 23:59:59"], ["1999-02-08 00:00:00", "1999-07-27 13:13:11"], ["1999-07-31 00:00:00", "1999-08-14 23:59:59"], ["1999-08-17 00:00:00", "1999-11-14 23:59:59"], ["1999-11-17 00:00:00", "2000-05-01 23:59:59"], ["2000-05-04 00:00:00", "2000-09-05 23:59:59"], ["2000-09-08 00:00:00", "2001-01-08 23:59:59"], ["2001-01-11 00:00:00", "2001-09-11 23:59:59"], ["2001-09-16 00:00:00", "2001-10-21 18:37:06"], ["2001-11-01 00:00:00", "2002-02-01 23:59:59"], ["2002-04-17 00:00:00", "2002-04-20 14:34:45"], ["2002-07-16 00:00:00", "2002-07-20 12:26:00"], ["2002-08-01 00:00:00", "2002-10-15 23:59:59"], ["2002-12-01 00:00:00", "2002-12-01 00:34:04"], ["2003-01-01 00:00:00", "2003-01-15 23:59:59"], ["2003-02-01 00:00:00", "2003-02-15 23:59:59"], ["2003-04-01 00:00:00", "2003-05-15 23:59:59"], ["2003-06-01 00:00:00", "2003-06-27 23:59:59"], ["2003-07-01 00:00:00", "2003-08-24 23:59:59"], ["2003-09-01 00:00:00", "2003-09-20 23:59:59"], ["2003-10-01 00:00:00", "2003-10-10 23:59:59"], ["2003-10-16 00:00:00", "2003-11-18 23:59:59"], ["2003-12-01 00:00:00", "2004-01-03 23:59:59"], ["2004-01-09 00:00:00", "2004-10-15 23:59:59"], ["2004-11-02 00:00:00", "2004-11-18 23:59:59"], ["2004-12-01 00:00:00", "2004-12-04 23:59:59"], ["2004-12-16 00:00:00", "2005-01-05 23:59:59"], ["2005-01-16 00:00:00", "2005-01-24 23:59:59"], ["2005-02-01 00:00:00", "2005-02-11 23:59:59"], ["2005-02-16 00:00:00", "2005-02-23 23:59:59"], ["2005-03-01 00:00:00", "2005-03-03 23:59:59"], ["2005-04-01 00:00:00", "2005-05-31 23:59:59"]], "page": "./DN_MAGN-L2-HIRES_G10.html"}, {"name": "DN_MAGN-L2-HIRES_G11", "instrument": "GOES11", "product": "MAG_L2_NETCDF", "cdf_count": 1210, "active_days": 1207.0688078703704, "coverage_pct": 33.34444231297461, "earliest": "2000-05-16", "latest": "2010-04-13", "intervals": [["2000-05-16 00:00:00", "2000-08-16 23:59:59"], ["2001-05-16 00:00:16", "2001-06-10 12:26:25"], ["2001-06-12 00:00:00", "2001-06-12 12:20:31"], ["2001-06-14 00:00:00", "2001-06-16 23:59:59"], ["2003-06-16 00:00:08", "2003-07-16 23:59:59"], ["2004-06-01 00:00:42", "2004-07-01 23:59:59"], ["2005-07-01 00:00:14", "2005-08-16 23:59:59"], ["2006-05-16 00:00:00", "2006-05-29 23:59:59"], ["2006-06-03 00:00:00", "2006-09-15 23:59:59"], ["2006-09-18 00:00:00", "2006-12-09 23:59:59"], ["2006-12-12 00:00:00", "2006-12-26 23:59:59"], ["2006-12-29 00:00:00", "2007-04-24 23:59:59"], ["2007-04-27 00:00:00", "2007-09-11 23:55:55"], ["2007-09-14 00:00:00", "2007-11-14 23:59:59"], ["2007-11-17 00:00:00", "2007-12-27 23:59:59"], ["2007-12-30 00:00:00", "2008-01-15 23:59:58"], ["2008-01-18 00:00:00", "2008-10-09 23:59:59"], ["2008-10-12 00:00:00", "2009-02-01 23:59:59"], ["2009-03-16 00:00:00", "2009-04-16 23:59:59"], ["2009-09-10 00:00:00", "2009-09-16 23:59:59"], ["2010-04-01 00:00:00", "2010-04-13 23:59:59"]], "page": "./DN_MAGN-L2-HIRES_G11.html"}, {"name": "DN_MAGN-L2-HIRES_G12", "instrument": "GOES12", "product": "MAG_L2_NETCDF", "cdf_count": 2000, "active_days": 1994.7938541666667, "coverage_pct": 67.8963193337317, "earliest": "2001-09-01", "latest": "2009-09-16", "intervals": [["2001-09-01 00:00:00", "2001-09-07 23:59:59"], ["2001-09-16 00:00:00", "2001-09-30 23:59:59"], ["2001-10-16 00:00:00", "2001-10-27 23:59:59"], ["2001-11-01 00:00:00", "2001-12-26 18:39:49"], ["2001-12-29 00:00:00", "2002-01-01 23:58:56"], ["2003-01-01 00:00:00", "2003-01-05 11:20:24"], ["2003-01-07 00:00:00", "2003-01-15 23:59:59"], ["2003-02-01 00:00:00", "2003-02-17 23:59:59"], ["2003-03-16 00:00:00", "2003-03-21 23:59:59"], ["2003-04-01 00:00:00", "2003-04-21 23:59:59"], ["2003-05-01 00:00:00", "2003-05-04 23:59:59"], ["2003-05-07 00:00:00", "2003-05-14 23:59:59"], ["2003-06-01 00:00:00", "2003-07-12 23:59:59"], ["2003-07-16 00:00:00", "2003-08-05 23:59:59"], ["2003-08-08 00:00:00", "2003-09-06 23:59:59"], ["2003-09-16 00:00:00", "2003-09-16 23:59:59"], ["2003-10-01 00:00:00", "2003-10-09 23:59:59"], ["2003-10-16 00:00:00", "2003-11-17 23:59:59"], ["2003-12-01 00:00:00", "2004-01-01 23:59:59"], ["2004-01-16 00:00:00", "2004-01-17 23:59:58"], ["2004-02-01 00:00:00", "2004-02-21 23:59:59"], ["2004-02-24 00:00:00", "2004-03-02 23:59:59"], ["2004-03-05 00:00:00", "2004-08-04 23:59:59"], ["2004-08-07 00:00:00", "2004-10-15 23:59:59"], ["2004-11-02 00:00:00", "2004-11-19 23:59:59"], ["2004-12-16 00:00:00", "2004-12-17 23:59:59"], ["2005-01-01 00:00:00", "2005-01-04 23:59:59"], ["2005-01-16 00:00:00", "2005-01-26 23:59:59"], ["2005-02-01 00:00:00", "2005-02-04 23:59:59"], ["2005-02-16 00:00:00", "2005-02-19 23:59:59"], ["2005-03-01 00:00:00", "2005-03-01 23:59:59"], ["2005-04-01 00:00:00", "2006-01-31 23:59:59"], ["2006-02-16 00:00:00", "2006-05-26 23:59:59"], ["2006-05-29 00:00:00", "2006-07-23 23:59:59"], ["2006-08-02 00:00:00", "2006-08-31 23:59:59"], ["2006-09-16 00:00:00", "2006-09-26 23:59:58"], ["2006-10-01 00:00:00", "2007-12-05 13:14:28"], ["2007-12-17 00:00:00", "2009-02-01 23:59:59"], ["2009-02-16 00:00:00", "2009-03-01 23:59:59"], ["2009-03-16 00:00:00", "2009-04-16 23:59:59"], ["2009-09-02 00:00:00", "2009-09-16 23:59:59"]], "page": "./DN_MAGN-L2-HIRES_G12.html"}, {"name": "DN_MAGN-L2-HIRES_G13", "instrument": "GOES13", "product": "MAG_L2_NETCDF", "cdf_count": 2712, "active_days": 2705.493171296296, "coverage_pct": 97.42503358200727, "earliest": "2010-05-04", "latest": "2017-12-09", "intervals": [["2010-05-04 00:00:00", "2010-07-01 23:59:59"], ["2010-07-05 00:00:00", "2012-08-02 23:59:59"], ["2012-08-05 00:00:00", "2013-03-11 23:59:58"], ["2013-03-14 00:00:00", "2013-03-25 23:59:59"], ["2013-04-01 00:00:00", "2013-05-22 10:05:29"], ["2013-05-30 18:38:54", "2015-02-24 23:59:59"], ["2015-02-26 07:40:12", "2015-11-05 23:59:59"], ["2015-11-09 00:00:00", "2016-11-23 23:59:59"], ["2016-11-29 00:00:00", "2017-12-09 23:59:59"]], "page": "./DN_MAGN-L2-HIRES_G13.html"}, {"name": "DN_MAGN-L2-HIRES_G14", "instrument": "GOES14", "product": "MAG_L2_NETCDF", "cdf_count": 331, "active_days": 325.0369097222222, "coverage_pct": 17.161399773415805, "earliest": "2012-10-01", "latest": "2017-12-07", "intervals": [["2012-10-01 00:00:00", "2012-11-24 23:03:42"], ["2015-05-20 22:04:36", "2015-06-09 14:31:31"], ["2015-06-10 21:06:58", "2015-06-22 00:02:34"], ["2016-04-07 15:55:16", "2016-07-07 23:59:59"], ["2016-07-10 00:00:00", "2016-07-10 23:59:59"], ["2016-07-13 00:00:00", "2016-11-17 18:39:10"], ["2017-08-08 21:53:24", "2017-08-23 12:17:56"], ["2017-12-01 00:52:06", "2017-12-07 23:59:59"]], "page": "./DN_MAGN-L2-HIRES_G14.html"}, {"name": "DN_MAGN-L2-HIRES_G15", "instrument": "GOES15", "product": "MAG_L2_NETCDF", "cdf_count": 2530, "active_days": 2520.3341898148146, "coverage_pct": 99.4214675077684, "earliest": "2011-01-01", "latest": "2017-12-09", "intervals": [["2011-01-01 00:00:00", "2012-03-21 20:48:35"], ["2012-03-23 15:42:24", "2012-10-23 16:37:25"], ["2012-10-25 18:42:55", "2013-03-11 23:59:59"], ["2013-03-14 00:00:00", "2017-08-23 15:07:05"], ["2017-08-24 18:31:27", "2017-12-09 23:59:59"]], "page": "./DN_MAGN-L2-HIRES_G15.html"}, {"name": "DN_MAGN-L2-HIRES_G16", "instrument": "GOES16", "product": "MAG_L2_NETCDF", "cdf_count": 2326, "active_days": 2325.9742708333333, "coverage_pct": 96.35353280801004, "earliest": "2018-08-29", "latest": "2025-04-07", "intervals": [["2018-08-29 00:00:00", "2018-12-31 23:59:59"], ["2019-03-19 00:00:00", "2019-06-10 23:59:59"], ["2019-06-13 00:00:00", "2019-07-23 23:59:59"], ["2019-07-26 00:00:00", "2024-06-23 23:59:59"], ["2024-06-27 00:00:00", "2025-04-07 23:59:59"]], "page": "./DN_MAGN-L2-HIRES_G16.html"}, {"name": "DN_MAGN-L2-HIRES_G17", "instrument": "GOES17", "product": "MAG_L2_NETCDF", "cdf_count": 1638, "active_days": 1637.9810416666667, "coverage_pct": 97.0943125610216, "earliest": "2018-08-01", "latest": "2023-03-14", "intervals": [["2018-08-01 00:00:00", "2019-07-23 23:59:59"], ["2019-07-26 00:00:00", "2021-03-10 23:59:59"], ["2021-03-15 00:00:00", "2023-01-10 23:59:59"], ["2023-02-10 00:00:00", "2023-02-27 23:59:59"], ["2023-03-13 00:00:00", "2023-03-14 23:59:59"]], "page": "./DN_MAGN-L2-HIRES_G17.html"}, {"name": "DN_MAGN-L2-HIRES_G18", "instrument": "GOES18", "product": "MAG_L2_NETCDF", "cdf_count": 1548, "active_days": 1547.9820833333333, "coverage_pct": 99.67688956020672, "earliest": "2022-08-08", "latest": "2026-11-07", "intervals": [["2022-08-08 00:00:00", "2024-06-23 23:59:59"], ["2024-06-27 00:00:00", "2026-11-07 23:59:59"]], "page": "./DN_MAGN-L2-HIRES_G18.html"}, {"name": "DN_MAGN-L2-HIRES_G19", "instrument": "GOES19", "product": "MAG_L2_NETCDF", "cdf_count": 525, "active_days": 524.9950694444444, "coverage_pct": 99.99906305112573, "earliest": "2025-06-01", "latest": "2026-11-07", "intervals": [["2025-06-01 00:00:00", "2026-11-07 23:59:59"]], "page": "./DN_MAGN-L2-HIRES_G19.html"}, {"name": "G0_K0_EP8", "instrument": "GOES10", "product": "EP8_K0", "cdf_count": 2505, "active_days": 2496.3020833333335, "coverage_pct": 94.16466816068905, "earliest": "1999-03-21", "latest": "2006-06-22", "intervals": [["1999-03-21 00:02:30", "1999-03-24 23:57:30"], ["1999-04-01 00:02:30", "2000-02-17 23:57:30"], ["2000-02-21 00:02:30", "2005-04-02 23:57:30"], ["2005-04-05 00:02:30", "2005-05-06 23:57:30"], ["2005-09-05 00:02:30", "2006-06-22 23:57:30"]], "page": "./G0_K0_EP8.html"}, {"name": "G0_K0_MAG", "instrument": "GOES10", "product": "MAG_K0", "cdf_count": 2503, "active_days": 2501.2618055555554, "coverage_pct": 94.35165827142228, "earliest": "1999-03-21", "latest": "2006-06-22", "intervals": [["1999-03-21 00:00:30", "1999-03-24 23:59:30"], ["1999-04-01 00:00:30", "2000-02-17 23:59:30"], ["2000-02-21 00:00:30", "2005-04-02 23:59:30"], ["2005-04-05 00:00:30", "2005-05-06 23:59:30"], ["2005-09-05 00:00:30", "2006-06-22 23:59:30"]], "page": "./G0_K0_MAG.html"}, {"name": "G10_L2_MAG", "instrument": "GOES10", "product": "MAG_L2", "cdf_count": 660, "active_days": 659.9881944444444, "coverage_pct": 90.28566414420986, "earliest": "2007-01-01", "latest": "2008-12-31", "intervals": [["2007-01-01 00:00:00", "2007-11-19 23:59:59"], ["2007-12-05 00:00:00", "2007-12-17 23:59:59"], ["2008-02-10 00:00:00", "2008-12-31 23:59:59"]], "page": "./G10_L2_MAG.html"}, {"name": "G11_L2_MAG", "instrument": "GOES11", "product": "MAG_L2", "cdf_count": 731, "active_days": 730.9908564814815, "coverage_pct": 99.99875075997414, "earliest": "2007-01-01", "latest": "2008-12-31", "intervals": [["2007-01-01 00:00:00", "2008-12-31 23:59:59"]], "page": "./G11_L2_MAG.html"}, {"name": "G12_L2_MAG", "instrument": "GOES12", "product": "MAG_L2", "cdf_count": 720, "active_days": 719.9916666666667, "coverage_pct": 98.49407360690064, "earliest": "2007-01-01", "latest": "2008-12-31", "intervals": [["2007-01-01 00:00:00", "2007-12-05 23:59:59"], ["2007-12-17 00:00:00", "2008-12-31 23:59:59"]], "page": "./G12_L2_MAG.html"}, {"name": "G6_K0_EPS", "instrument": "GOES06", "product": "EPS_K0", "cdf_count": 582, "active_days": 578.9826388888889, "coverage_pct": 81.09039979380542, "earliest": "1992-12-12", "latest": "1994-11-25", "intervals": [["1992-12-12 00:02:30", "1993-02-07 23:57:30"], ["1993-03-06 00:02:30", "1993-12-10 23:57:30"], ["1993-12-13 00:02:30", "1994-02-24 23:57:30"], ["1994-02-27 00:02:30", "1994-05-18 23:57:30"], ["1994-05-22 00:02:30", "1994-07-08 23:57:30"], ["1994-10-02 00:02:30", "1994-10-20 23:57:30"], ["1994-10-23 00:02:30", "1994-11-25 23:57:30"]], "page": "./G6_K0_EPS.html"}, {"name": "G6_K0_MAG", "instrument": "GOES06", "product": "MAG_K0", "cdf_count": 582, "active_days": 581.0548611111111, "coverage_pct": 81.38031180002315, "earliest": "1992-12-12", "latest": "1994-11-25", "intervals": [["1992-12-12 00:00:30", "1993-02-07 23:59:30"], ["1993-03-06 00:00:30", "1994-02-24 23:59:30"], ["1994-02-27 00:00:30", "1994-05-18 23:59:30"], ["1994-05-22 00:00:30", "1994-07-08 23:59:30"], ["1994-10-02 00:00:30", "1994-10-20 23:59:30"], ["1994-10-23 00:00:30", "1994-11-25 23:59:30"]], "page": "./G6_K0_MAG.html"}, {"name": "G7_K0_EPS", "instrument": "GOES07", "product": "EPS_K0", "cdf_count": 1057, "active_days": 1053.329861111111, "coverage_pct": 89.87482779563601, "earliest": "1992-12-12", "latest": "1996-02-26", "intervals": [["1992-12-12 00:02:30", "1993-02-07 23:57:30"], ["1993-03-06 00:02:30", "1994-02-24 23:57:30"], ["1994-02-27 00:02:30", "1994-05-18 23:57:30"], ["1994-05-22 00:02:30", "1994-07-18 23:57:30"], ["1994-07-22 00:02:30", "1994-08-07 23:57:30"], ["1994-08-10 00:02:30", "1994-09-08 23:57:30"], ["1994-09-11 00:02:30", "1994-09-26 23:57:30"], ["1994-09-29 00:02:30", "1994-10-20 23:57:30"], ["1994-10-23 00:02:30", "1994-11-25 23:57:30"], ["1994-11-30 00:02:30", "1995-04-09 23:57:30"], ["1995-05-08 00:02:30", "1995-09-19 23:57:30"], ["1995-09-27 00:02:30", "1995-12-12 23:57:30"], ["1995-12-15 00:02:30", "1996-02-26 23:57:30"]], "page": "./G7_K0_EPS.html"}, {"name": "G7_K0_MAG", "instrument": "GOES07", "product": "MAG_K0", "cdf_count": 1050, "active_days": 1046.8895833333333, "coverage_pct": 89.32510270021729, "earliest": "1992-12-12", "latest": "1996-02-26", "intervals": [["1992-12-12 00:00:30", "1993-02-07 23:59:30"], ["1993-03-11 00:00:30", "1993-12-10 23:59:30"], ["1993-12-13 00:00:30", "1994-02-24 23:59:30"], ["1994-02-27 00:00:30", "1994-05-18 23:59:30"], ["1994-05-22 00:00:30", "1994-07-18 23:59:30"], ["1994-07-22 00:00:30", "1994-08-07 23:59:30"], ["1994-08-10 00:00:30", "1994-09-08 23:59:30"], ["1994-09-11 00:00:30", "1994-09-26 23:59:30"], ["1994-09-29 00:00:30", "1994-10-20 23:59:30"], ["1994-10-23 00:00:30", "1994-11-25 23:59:30"], ["1994-11-30 00:00:30", "1995-04-09 23:59:30"], ["1995-05-08 00:00:30", "1995-09-19 23:59:30"], ["1995-09-26 00:00:30", "1995-12-12 23:59:30"], ["1995-12-15 00:00:30", "1996-02-26 23:59:30"]], "page": "./G7_K0_MAG.html"}, {"name": "G7_K1_MAG", "instrument": "GOES07", "product": "MAG_K1", "cdf_count": 17, "active_days": 11.696527777777778, "coverage_pct": 20.565574671241407, "earliest": "1995-02-11", "latest": "1995-04-09", "intervals": [["1995-02-11 04:00:30", "1995-02-15 00:59:30"], ["1995-02-27 08:00:30", "1995-03-01 03:59:30"], ["1995-03-09 21:00:30", "1995-03-12 11:59:30"], ["1995-04-05 16:00:30", "1995-04-09 00:59:30"]], "page": "./G7_K1_MAG.html"}, {"name": "G8_K0_EP8", "instrument": "GOES08", "product": "EP8_K0", "cdf_count": 2583, "active_days": 2572.0381944444443, "coverage_pct": 95.75731643154374, "earliest": "1995-12-01", "latest": "2003-04-08", "intervals": [["1995-12-01 00:02:30", "1997-08-12 23:57:30"], ["1997-08-18 00:02:30", "1999-01-03 23:57:30"], ["1999-03-21 00:02:30", "1999-03-24 23:57:30"], ["1999-04-01 00:02:30", "2000-02-17 23:57:30"], ["2000-02-21 00:02:30", "2003-04-08 23:57:30"]], "page": "./G8_K0_EP8.html"}, {"name": "G8_K0_MAG", "instrument": "GOES08", "product": "MAG_K0", "cdf_count": 2585, "active_days": 2581.20625, "coverage_pct": 96.09854494977687, "earliest": "1995-12-01", "latest": "2003-04-08", "intervals": [["1995-12-01 00:00:30", "1997-08-12 23:59:30"], ["1997-08-18 00:00:30", "1999-01-03 23:59:30"], ["1999-03-21 00:00:30", "1999-03-24 23:59:30"], ["1999-04-01 00:00:30", "2000-02-17 23:59:30"], ["2000-02-21 00:00:30", "2003-04-08 23:59:30"]], "page": "./G8_K0_MAG.html"}, {"name": "G9_K0_EP8", "instrument": "GOES09", "product": "EP8_K0", "cdf_count": 959, "active_days": 955.6701388888889, "coverage_pct": 98.52304740495205, "earliest": "1995-12-01", "latest": "1998-07-27", "intervals": [["1995-12-01 00:02:30", "1997-08-12 23:57:30"], ["1997-08-18 00:02:30", "1998-07-27 23:57:30"]], "page": "./G9_K0_EP8.html"}, {"name": "G9_K0_MAG", "instrument": "GOES09", "product": "MAG_K0", "cdf_count": 960, "active_days": 959.3333333333334, "coverage_pct": 98.90041444760485, "earliest": "1995-12-01", "latest": "1998-07-27", "intervals": [["1995-12-01 00:00:30", "1997-08-12 23:59:30"], ["1997-08-18 00:00:30", "1998-07-27 23:59:30"]], "page": "./G9_K0_MAG.html"}, {"name": "GOES10_EPHEMERIS_SSC", "instrument": "GOES10", "product": "ORBIT", "cdf_count": 1, "active_days": 4268.995833333333, "coverage_pct": 100.0, "earliest": "1997-04-25", "latest": "2009-01-01", "intervals": [["1997-04-25 00:06:00", "2009-01-01 00:00:00"]], "page": "./GOES10_EPHEMERIS_SSC.html"}, {"name": "GOES11_EPHEMERIS_SSC", "instrument": "GOES11", "product": "ORBIT", "cdf_count": 1, "active_days": 5707.0, "coverage_pct": 100.0, "earliest": "2000-05-17", "latest": "2016-01-01", "intervals": [["2000-05-17 00:00:00", "2016-01-01 00:00:00"]], "page": "./GOES11_EPHEMERIS_SSC.html"}, {"name": "GOES11_K0_EP8", "instrument": "GOES11", "product": "EP8_K0", "cdf_count": 1647, "active_days": 1641.28125, "coverage_pct": 99.35137407387946, "earliest": "2006-06-23", "latest": "2010-12-30", "intervals": [["2006-06-23 00:02:30", "2009-08-03 23:57:30"], ["2009-08-06 00:02:30", "2010-12-30 23:57:30"]], "page": "./GOES11_K0_EP8.html"}, {"name": "GOES11_K0_MAG", "instrument": "GOES11", "product": "MAG_L1", "cdf_count": 1646, "active_days": 1644.8569444444445, "coverage_pct": 99.56765350402438, "earliest": "2006-06-23", "latest": "2010-12-30", "intervals": [["2006-06-23 00:00:30", "2009-08-03 23:59:30"], ["2009-08-06 00:00:30", "2010-12-30 23:59:30"]], "page": "./GOES11_K0_MAG.html"}, {"name": "GOES12_EPHEMERIS_SSC", "instrument": "GOES12", "product": "ORBIT", "cdf_count": 11, "active_days": 4006.0, "coverage_pct": 100.0, "earliest": "2006-01-01", "latest": "2016-12-20", "intervals": [["2006-01-01 00:00:00", "2016-12-20 00:00:00"]], "page": "./GOES12_EPHEMERIS_SSC.html"}, {"name": "GOES12_K0_MAG", "instrument": "GOES12", "product": "MAG_K0", "cdf_count": 2589, "active_days": 2587.202083333333, "coverage_pct": 94.9083911379084, "earliest": "2003-04-08", "latest": "2010-09-23", "intervals": [["2003-04-08 00:00:30", "2005-05-06 23:59:30"], ["2005-09-05 00:00:30", "2005-11-14 23:59:30"], ["2005-11-17 00:00:30", "2009-08-03 23:59:30"], ["2009-08-06 00:00:30", "2010-09-23 23:59:30"]], "page": "./GOES12_K0_MAG.html"}, {"name": "GOES13_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN", "instrument": "GOES13", "product": "E13EW_1MIN", "cdf_count": 91, "active_days": 2751.9368055555556, "coverage_pct": 98.81283632875432, "earliest": "2010-05-01", "latest": "2017-12-14", "intervals": [["2010-05-01 00:00:00", "2013-04-30 23:59:00"], ["2013-06-01 00:00:00", "2017-12-14 23:59:00"]], "page": "./GOES13_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN.html"}, {"name": "GOES13_EPHEMERIS_SSC", "instrument": "GOES13", "product": "ORBIT", "cdf_count": 17, "active_days": 5727.0, "coverage_pct": 100.0, "earliest": "2006-06-10", "latest": "2022-02-13", "intervals": [["2006-06-10 00:00:00", "2022-02-13 00:00:00"]], "page": "./GOES13_EPHEMERIS_SSC.html"}, {"name": "GOES13_EPS-MAGED_1MIN", "instrument": "GOES13", "product": "19ME15_1MIN", "cdf_count": 114, "active_days": 3435.920833333333, "coverage_pct": 81.5165219316795, "earliest": "2006-06-01", "latest": "2017-12-14", "intervals": [["2006-06-01 00:00:00", "2006-12-31 23:59:00"], ["2007-07-01 00:00:00", "2007-08-31 23:59:00"], ["2008-02-01 00:00:00", "2008-04-30 23:59:00"], ["2008-07-01 00:00:00", "2008-11-30 23:59:00"], ["2009-01-01 00:00:00", "2009-04-30 23:59:00"], ["2010-04-01 00:00:00", "2013-05-22 23:59:00"], ["2013-06-10 00:00:00", "2017-12-14 23:59:00"]], "page": "./GOES13_EPS-MAGED_1MIN.html"}, {"name": "GOES13_EPS-MAGED_5MIN", "instrument": "GOES13", "product": "19ME15_5MIN", "cdf_count": 84, "active_days": 2520.7083333333335, "coverage_pct": 99.24062122788335, "earliest": "2011-01-01", "latest": "2017-12-14", "intervals": [["2011-01-01 00:00:00", "2013-05-22 23:55:00"], ["2013-06-10 00:00:00", "2017-12-14 23:55:00"]], "page": "./GOES13_EPS-MAGED_5MIN.html"}, {"name": "GOES13_EPS-PITCH-ANGLES_1MIN", "instrument": "GOES13", "product": "EPS-PITCH-ANGLES_1MIN", "cdf_count": 92, "active_days": 2773.936111111111, "coverage_pct": 99.6027577305899, "earliest": "2010-05-01", "latest": "2017-12-14", "intervals": [["2010-05-01 00:00:00", "2013-05-22 23:59:00"], ["2013-06-01 00:00:00", "2017-12-14 23:59:00"]], "page": "./GOES13_EPS-PITCH-ANGLES_1MIN.html"}, {"name": "GOES14_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN", "instrument": "GOES14", "product": "E13EW_1MIN", "cdf_count": 41, "active_days": 1152.9715277777777, "coverage_pct": 42.513710288048564, "earliest": "2012-10-01", "latest": "2020-03-04", "intervals": [["2012-10-01 00:00:00", "2012-11-24 23:59:00"], ["2015-05-20 00:00:00", "2015-06-22 23:59:00"], ["2016-04-07 00:00:00", "2016-11-17 23:59:00"], ["2017-08-08 00:00:00", "2017-08-23 23:59:00"], ["2017-12-01 00:00:00", "2020-03-04 23:59:00"]], "page": "./GOES14_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN.html"}, {"name": "GOES14_EPHEMERIS_SSC", "instrument": "GOES14", "product": "ORBIT", "cdf_count": 17, "active_days": 5862.0, "coverage_pct": 100.0, "earliest": "2009-07-09", "latest": "2025-07-27", "intervals": [["2009-07-09 00:00:00", "2025-07-27 00:00:00"]], "page": "./GOES14_EPHEMERIS_SSC.html"}, {"name": "GOES14_EPS-MAGED_1MIN", "instrument": "GOES14", "product": "19ME15_1MIN", "cdf_count": 58, "active_days": 1672.9597222222221, "coverage_pct": 42.89641077215292, "earliest": "2009-07-01", "latest": "2020-03-04", "intervals": [["2009-07-01 00:00:00", "2010-11-30 23:59:00"], ["2012-10-01 00:00:00", "2012-11-24 23:59:00"], ["2015-05-20 00:00:00", "2015-06-22 23:59:00"], ["2016-04-07 00:00:00", "2016-11-17 23:59:00"], ["2017-08-08 00:00:00", "2017-08-23 23:59:00"], ["2017-12-01 00:00:00", "2020-03-04 23:59:00"]], "page": "./GOES14_EPS-MAGED_1MIN.html"}, {"name": "GOES14_EPS-MAGED_5MIN", "instrument": "GOES14", "product": "19ME15_5MIN", "cdf_count": 38, "active_days": 1036.8680555555557, "coverage_pct": 28.922428446486563, "earliest": "2010-04-01", "latest": "2020-01-23", "intervals": [["2010-04-01 00:00:00", "2010-04-30 23:55:00"], ["2012-10-01 00:00:00", "2012-11-24 23:55:00"], ["2015-05-20 00:00:00", "2015-06-21 23:55:00"], ["2016-04-07 00:00:00", "2016-11-17 23:55:00"], ["2017-08-08 00:00:00", "2017-08-23 23:55:00"], ["2017-12-01 00:00:00", "2019-10-08 23:55:00"], ["2020-01-23 00:00:00", "2020-01-23 23:55:00"]], "page": "./GOES14_EPS-MAGED_5MIN.html"}, {"name": "GOES14_EPS-PITCH-ANGLES_1MIN", "instrument": "GOES14", "product": "EPS-PITCH-ANGLES_1MIN", "cdf_count": 41, "active_days": 1152.9715277777777, "coverage_pct": 42.513710288048564, "earliest": "2012-10-01", "latest": "2020-03-04", "intervals": [["2012-10-01 00:00:00", "2012-11-24 23:59:00"], ["2015-05-20 00:00:00", "2015-06-22 23:59:00"], ["2016-04-07 00:00:00", "2016-11-17 23:59:00"], ["2017-08-08 00:00:00", "2017-08-23 23:59:00"], ["2017-12-01 00:00:00", "2020-03-04 23:59:00"]], "page": "./GOES14_EPS-PITCH-ANGLES_1MIN.html"}, {"name": "GOES15_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN", "instrument": "GOES15", "product": "E13EW_1MIN", "cdf_count": 112, "active_days": 3355.9222222222224, "coverage_pct": 92.39875726542563, "earliest": "2010-03-26", "latest": "2020-03-04", "intervals": [["2010-03-26 00:00:00", "2010-03-31 23:59:00"], ["2011-01-01 00:00:00", "2020-03-04 23:59:00"]], "page": "./GOES15_EPEAD-SCIENCE-ELECTRONS-E13EW_1MIN.html"}, {"name": "GOES15_EPHEMERIS_SSC", "instrument": "GOES15", "product": "ORBIT", "cdf_count": 14, "active_days": 4970.0, "coverage_pct": 100.0, "earliest": "2010-03-21", "latest": "2023-10-29", "intervals": [["2010-03-21 00:00:00", "2023-10-29 00:00:00"]], "page": "./GOES15_EPHEMERIS_SSC.html"}, {"name": "GOES15_EPS-MAGED_1MIN", "instrument": "GOES15", "product": "19ME15_1MIN", "cdf_count": 121, "active_days": 3585.915972222222, "coverage_pct": 98.05623880689978, "earliest": "2010-03-01", "latest": "2020-03-04", "intervals": [["2010-03-01 00:00:00", "2018-12-17 23:59:00"], ["2019-01-29 00:00:00", "2019-12-09 23:59:00"], ["2020-01-08 00:00:00", "2020-03-04 23:59:00"]], "page": "./GOES15_EPS-MAGED_1MIN.html"}, {"name": "GOES15_EPS-MAGED_5MIN", "instrument": "GOES15", "product": "19ME15_5MIN", "cdf_count": 105, "active_days": 3110.6354166666665, "coverage_pct": 98.06553662421254, "earliest": "2011-02-01", "latest": "2019-10-08", "intervals": [["2011-02-01 00:00:00", "2011-10-12 23:55:00"], ["2011-11-01 00:00:00", "2018-12-17 23:55:00"], ["2019-01-29 00:00:00", "2019-10-08 23:55:00"]], "page": "./GOES15_EPS-MAGED_5MIN.html"}, {"name": "GOES15_EPS-PITCH-ANGLES_1MIN", "instrument": "GOES15", "product": "EPS-PITCH-ANGLES_1MIN", "cdf_count": 112, "active_days": 3354.9222222222224, "coverage_pct": 92.37122422051368, "earliest": "2010-03-26", "latest": "2020-03-04", "intervals": [["2010-03-26 00:00:00", "2010-03-31 23:59:00"], ["2011-01-01 00:00:00", "2020-03-04 23:59:00"]], "page": "./GOES15_EPS-PITCH-ANGLES_1MIN.html"}, {"name": "GOES16_EPHEMERIS_SSC", "instrument": "GOES16", "product": "ORBIT", "cdf_count": 10, "active_days": 3315.5444444444443, "coverage_pct": 100.0, "earliest": "2016-12-03", "latest": "2026-01-01", "intervals": [["2016-12-03 10:56:00", "2026-01-01 00:00:00"]], "page": "./GOES16_EPHEMERIS_SSC.html"}, {"name": "GOES17_EPHEMERIS_SSC", "instrument": "GOES17", "product": "ORBIT", "cdf_count": 8, "active_days": 2843.0, "coverage_pct": 100.0, "earliest": "2018-03-21", "latest": "2026-01-01", "intervals": [["2018-03-21 00:00:00", "2026-01-01 00:00:00"]], "page": "./GOES17_EPHEMERIS_SSC.html"}, {"name": "GOES18_EPHEMERIS_SSC", "instrument": "GOES18", "product": "ORBIT", "cdf_count": 5, "active_days": 1711.0, "coverage_pct": 100.0, "earliest": "2022-03-18", "latest": "2026-11-23", "intervals": [["2022-03-18 00:00:00", "2026-11-23 00:00:00"]], "page": "./GOES18_EPHEMERIS_SSC.html"}, {"name": "GOES8_EPHEMERIS_SSC", "instrument": "GOES08", "product": "ORBIT", "cdf_count": 1, "active_days": 8240.0, "coverage_pct": 100.0, "earliest": "1994-05-03", "latest": "2016-11-23", "intervals": [["1994-05-03 00:00:00", "2016-11-23 00:00:00"]], "page": "./GOES8_EPHEMERIS_SSC.html"}, {"name": "GOES9_EPHEMERIS_SSC", "instrument": "GOES09", "product": "ORBIT", "cdf_count": 1, "active_days": 5324.0, "coverage_pct": 100.0, "earliest": "1995-06-05", "latest": "2010-01-01", "intervals": [["1995-06-05 00:00:00", "2010-01-01 00:00:00"]], "page": "./GOES9_EPHEMERIS_SSC.html"}];
+
+    function parseDateMs(str) {
+      if (!str) return NaN;
+      const s = str.trim();
+      const iso = s.replace(/\//g, '-').replace(' ', 'T') + 'Z';
+      const ms = Date.parse(iso);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function enableSortableTable(tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+      table.querySelectorAll('th.sortable').forEach((header, columnIndex) => {
+        header.tabIndex = 0;
+        header.setAttribute('role', 'button');
+        header.setAttribute('aria-sort', 'none');
+        const sortColumn = () => {
+          const ascending = header.getAttribute('aria-sort') !== 'ascending';
+          table.querySelectorAll('th.sortable').forEach(th => th.setAttribute('aria-sort', 'none'));
+          header.setAttribute('aria-sort', ascending ? 'ascending' : 'descending');
+          const rows = Array.from(table.tBodies[0].rows);
+          const type = header.getAttribute('data-sort-type');
+          rows.sort((left, right) => {
+            const a = left.cells[columnIndex].textContent.trim();
+            const b = right.cells[columnIndex].textContent.trim();
+            let comparison;
+            if (type === 'number') comparison = Number(a.replace(/[^0-9.-]/g, '')) - Number(b.replace(/[^0-9.-]/g, ''));
+            else if (type === 'date') comparison = parseDateMs(a.split('→')[0].trim()) - parseDateMs(b.split('→')[0].trim());
+            else comparison = a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+            return ascending ? comparison : -comparison;
+          });
+          rows.forEach(row => table.tBodies[0].appendChild(row));
+        };
+        header.addEventListener('click', sortColumn);
+        header.addEventListener('keydown', event => {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); sortColumn(); }
+        });
+      });
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+      const newTheme = isDark ? 'light' : 'dark';
+      document.body.className = newTheme;
+      localStorage.setItem('cdaweb_theme', newTheme);
+      document.getElementById('theme-toggle').textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      updateView();
+    }
+
+    function toggleChartDisplay(show) {
+      const chartCard = document.getElementById('chart-card-container');
+      if (chartCard) {
+        chartCard.style.display = show ? 'block' : 'none';
+      }
+      if (show) {
+        updateView();
+        setTimeout(() => {
+          const plotDiv = document.getElementById('timeline-chart');
+          if (plotDiv) {
+            Plotly.Plots.resize(plotDiv);
+          }
+        }, 50);
+      }
+    }
+
+    function resetAllSelections() {
+      document.querySelectorAll('.dset-checkbox').forEach(cb => {
+        cb.checked = true;
+      });
+      const masterCb = document.getElementById('master-cb');
+      if (masterCb) masterCb.checked = true;
+      updateView();
+    }
+
+    function presetRange(type) {
+      document.querySelectorAll('.btn-preset').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-preset') === type);
+      });
+      if (type === 'all') {
+        if (window._globalMinTimeMs) {
+          document.getElementById('filter-start').value = formatAxisDate(window._globalMinTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-start').value = '';
+        }
+        if (window._globalMaxTimeMs) {
+          document.getElementById('filter-stop').value = formatAxisDate(window._globalMaxTimeMs).split('T')[0];
+        } else {
+          document.getElementById('filter-stop').value = '';
+        }
+        updateView();
+        return;
+      }
+      const now = new Date();
+      const endStr = now.toISOString().split('T')[0];
+      let startStr = '';
+      if (type === '1y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 1);
+        startStr = d.toISOString().split('T')[0];
+      } else if (type === '5y') {
+        const d = new Date();
+        d.setFullYear(d.getFullYear() - 5);
+        startStr = d.toISOString().split('T')[0];
+      }
+      document.getElementById('filter-start').value = startStr;
+      document.getElementById('filter-stop').value = endStr;
+      updateView();
+    }
+
+    function clearPresetHighlight() {
+      document.querySelectorAll('.btn-preset').forEach(btn => btn.classList.remove('active'));
+    }
+
+    function updateView() {
+      const showChart = document.getElementById('toggle-chart-cb')?.checked;
+      if (!showChart) {
+        return;
+      }
+
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const checkedBoxes = Array.from(document.querySelectorAll('.dset-checkbox:checked'));
+      const selectedNames = new Set(checkedBoxes.map(cb => cb.value));
+      const startFilter = document.getElementById('filter-start').value;
+      const stopFilter = document.getElementById('filter-stop').value;
+      const startFilterMs = startFilter ? parseDateMs(startFilter) : null;
+      const stopFilterMs = stopFilter ? parseDateMs(stopFilter + ' 23:59:59') : null;
+
+      const isLight = document.body.classList.contains('light');
+      const paperBg = isLight ? '#ffffff' : '#1e293b';
+      const plotBg = isLight ? '#f8fafc' : '#0f172a';
+      const textColor = isLight ? '#0f172a' : '#f8fafc';
+      const gridColor = isLight ? '#e2e8f0' : '#334155';
+
+      const timelineData = { y: [], x: [], base: [], colors: [], hovertext: [] };
+      const colors = ['#0284c7', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6'];
+
+      const activeDatasets = [];
+      allDatasets.forEach(d => {
+        if (instFilter && d.instrument !== instFilter) return;
+        if (query && !d.name.toLowerCase().includes(query) && !d.instrument.toLowerCase().includes(query) && !d.product.toLowerCase().includes(query)) return;
+        if (!selectedNames.has(d.name)) return;
+
+        const validIntervals = [];
+        d.intervals.forEach(inv => {
+          const s = inv[0];
+          const e = inv[1];
+          const sTime = parseDateMs(s);
+          const eTime = parseDateMs(e);
+          if (isNaN(sTime) || isNaN(eTime)) return;
+
+          if (startFilterMs && eTime < startFilterMs) return;
+          if (stopFilterMs && sTime > stopFilterMs) return;
+
+          const sClamped = startFilterMs ? Math.max(sTime, startFilterMs) : sTime;
+          const eClamped = stopFilterMs ? Math.min(eTime, stopFilterMs) : eTime;
+          if (eClamped <= sClamped) return;
+
+          validIntervals.push({ s, e, sClamped, eClamped });
+        });
+
+        if (validIntervals.length > 0) {
+          activeDatasets.push({ d, validIntervals });
+        }
+      });
+
+      const activeNames = activeDatasets.map(item => item.d.name);
+      activeDatasets.forEach((item, idx) => {
+        const color = colors[idx % colors.length];
+        const d = item.d;
+        item.validIntervals.forEach(inv => {
+          const durMs = Math.max(86400000, inv.eClamped - inv.sClamped);
+          timelineData.y.push(d.name);
+          timelineData.x.push(durMs);
+          timelineData.base.push(new Date(inv.sClamped).toISOString());
+          timelineData.colors.push(color);
+          timelineData.hovertext.push(`<b>${d.name}</b><br>${d.instrument} • ${d.product}<br>From: ${inv.s}<br>To: ${inv.e}<br><i>Click to unselect • Ctrl+Click to open full page</i>`);
+        });
+      });
+
+      const traces = timelineData.y.length ? [{
+        type: 'bar',
+        orientation: 'h',
+        y: timelineData.y,
+        x: timelineData.x,
+        base: timelineData.base,
+        marker: { color: timelineData.colors, line: { width: 0 } },
+        hoverinfo: 'text',
+        hovertext: timelineData.hovertext,
+        showlegend: false
+      }] : [];
+
+      const count = activeNames.length;
+      const barGap = count === 1 ? 0.75 : (count === 2 ? 0.6 : (count <= 4 ? 0.45 : 0.25));
+      const barWidth = count === 1 ? 0.32 : (count === 2 ? 0.45 : (count <= 4 ? 0.6 : 0.75));
+      traces.forEach(t => { t.width = barWidth; });
+      const plotHeight = count === 1 ? 140 : (count === 2 ? 180 : Math.max(220, count * 32 + 80));
+
+      const plotDiv = document.getElementById('timeline-chart');
+      plotDiv.style.height = plotHeight + 'px';
+      plotDiv.style.minHeight = plotHeight + 'px';
+
+      const xAxisConfig = {
+        type: 'date',
+        side: 'bottom',
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      // Determine if "All Time" preset is active
+      const allTimeBtn = document.querySelector('.btn-preset[data-preset="all"]');
+      const isAllTime = Boolean(allTimeBtn && allTimeBtn.classList.contains('active'));
+
+      // Calculate data bounds for currently selected/plotted items
+      let plottedMinMs = Infinity;
+      let plottedMaxMs = -Infinity;
+      for (let i = 0; i < timelineData.base.length; i++) {
+        const s = parseAxisTimeMs(timelineData.base[i]);
+        const dur = Number(timelineData.x[i]) || 0;
+        if (Number.isFinite(s)) {
+          if (s < plottedMinMs) plottedMinMs = s;
+          if ((s + dur) > plottedMaxMs) plottedMaxMs = s + dur;
+        }
+      }
+      const hasPlottedData = Number.isFinite(plottedMinMs) && Number.isFinite(plottedMaxMs) && plottedMaxMs >= plottedMinMs;
+
+      if (isAllTime && hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (startFilter && stopFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', stopFilter + ' 23:59:59'];
+        xAxisConfig.autorange = false;
+      } else if (startFilter) {
+        xAxisConfig.range = [startFilter + ' 00:00:00', formatAxisDate(window._globalMaxTimeMs || Date.now())];
+        xAxisConfig.autorange = false;
+      } else if (hasPlottedData) {
+        const span = Math.max(86400000, plottedMaxMs - plottedMinMs);
+        const pad = Math.max(7 * 86400000, span * 0.02);
+        xAxisConfig.range = [formatAxisDate(plottedMinMs - pad), formatAxisDate(plottedMaxMs + pad)];
+        xAxisConfig.autorange = false;
+      } else if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        xAxisConfig.range = [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)];
+        xAxisConfig.autorange = false;
+      } else {
+        xAxisConfig.autorange = true;
+      }
+
+      const xAxis2Config = {
+        type: 'date',
+        overlaying: 'x',
+        side: 'top',
+        matches: 'x',
+        showgrid: false,
+        tickcolor: gridColor,
+        tickfont: { color: textColor }
+      };
+
+      const yAxisConfig = {
+        type: 'category',
+        categoryorder: 'array',
+        categoryarray: activeNames.slice().reverse(),
+        automargin: true,
+        gridcolor: gridColor,
+        tickcolor: gridColor,
+        tickfont: { color: textColor },
+        fixedrange: true,
+        autorange: true
+      };
+
+      const layout = {
+        height: plotHeight,
+        paper_bgcolor: paperBg,
+        plot_bgcolor: plotBg,
+        font: { color: textColor, size: 11 },
+        margin: { l: 180, r: 30, t: 35, b: 40 },
+        xaxis: xAxisConfig,
+        xaxis2: xAxis2Config,
+        yaxis: yAxisConfig,
+        barmode: 'overlay',
+        bargap: barGap,
+        bargroupgap: 0.1,
+        annotations: count === 0 ? [{
+          text: checkedBoxes.length > 0
+            ? 'No data available for the selected datasets in this date range'
+            : 'Select one or more datasets to view timeline',
+          showarrow: false,
+          font: { size: 13, color: textColor }
+        }] : []
+      };
+
+      Plotly.newPlot('timeline-chart', traces, layout, { responsive: true, displayModeBar: true, displaylogo: false }).then(() => {
+        updatePanButtons('timeline-chart');
+      });
+
+      plotDiv.on('plotly_relayout', function() {
+        updatePanButtons('timeline-chart');
+      });
+
+      // Attach click events on chart points and y-axis ticks
+      plotDiv.on('plotly_click', function(data) {
+        if (!data.points || data.points.length === 0) return;
+        const name = data.points[0].y;
+        const isCtrl = data.event && (data.event.ctrlKey || data.event.metaKey);
+        handleRowClick(name, isCtrl);
+      });
+
+      plotDiv.querySelectorAll('.ytick text').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.style.userSelect = 'none';
+        el.title = 'Click to unselect • Ctrl+Click to open full page';
+        el.onclick = function(e) {
+          e.stopPropagation();
+          const isCtrl = e.ctrlKey || e.metaKey;
+          handleRowClick(el.textContent.trim(), isCtrl);
+        };
+      });
+    }
+
+    function handleRowClick(name, isCtrl) {
+      const d = allDatasets.find(item => item.name === name);
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (isCtrl && d && d.page) {
+        window.open(d.page + q, '_blank');
+        return;
+      }
+      const cb = document.querySelector(`.dset-checkbox[value="${name}"]`);
+      if (cb) {
+        cb.checked = !cb.checked;
+        updateView();
+      }
+    }
+
+    function filterTable() {
+      const query = (document.getElementById('search-box')?.value || '').toLowerCase().trim();
+      const instFilter = document.getElementById('instrument-filter')?.value || '';
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+
+      rows.forEach(r => {
+        const name = (r.getAttribute('data-name') || '').toLowerCase();
+        const inst = r.getAttribute('data-inst') || '';
+        const matchQ = !query || name.includes(query);
+        const matchInst = !instFilter || inst === instFilter;
+        r.style.display = (matchQ && matchInst) ? '' : 'none';
+      });
+
+      updateView();
+      propagateQueryToLinks();
+    }
+
+    function selectAll(state) {
+      const rows = document.querySelectorAll('#datasets-tbody tr');
+      rows.forEach(r => {
+        if (r.style.display !== 'none') {
+          const cb = r.querySelector('.dset-checkbox');
+          if (cb) cb.checked = state;
+        }
+      });
+      document.getElementById('master-cb').checked = state;
+      updateView();
+    }
+
+    function toggleAllCheckboxes(state) {
+      selectAll(state);
+    }
+
+    function parseAxisTimeMs(val) {
+      if (val == null) return NaN;
+      if (typeof val === 'number') return val;
+      if (val instanceof Date) return val.getTime();
+      const s = String(val).trim();
+      if (!s) return NaN;
+      if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+      const iso = s.replace(/\//g, '-').replace(' ', 'T');
+      const isoUtc = (iso.includes('Z') || iso.includes('+')) ? iso : iso + 'Z';
+      let ms = Date.parse(isoUtc);
+      if (!isNaN(ms)) return ms;
+      ms = Date.parse(s);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function formatAxisDate(ms) {
+      const d = new Date(ms);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString();
+    }
+
+    function panTimelineWindow(divId, direction) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv || !plotDiv._fullLayout || !plotDiv._fullLayout.xaxis) return;
+      const rng = plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2) return;
+
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+
+      const span = t1 - t0;
+      if (span <= 0) return;
+
+      const newT0 = t0 + (direction * span);
+      const newT1 = t1 + (direction * span);
+
+      Plotly.relayout(plotDiv, {
+        'xaxis.range': [formatAxisDate(newT0), formatAxisDate(newT1)],
+        'xaxis.autorange': false
+      }).then(() => {
+        updatePanButtons(divId);
+      });
+    }
+
+    function resetTimelineZoom(divId) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        Plotly.relayout(plotDiv, {
+          'xaxis.range': [formatAxisDate(window._globalMinTimeMs), formatAxisDate(window._globalMaxTimeMs)],
+          'xaxis.autorange': false
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      } else {
+        Plotly.relayout(plotDiv, {
+          'xaxis.autorange': true
+        }).then(() => {
+          updatePanButtons(divId);
+        });
+      }
+    }
+
+    window._globalMinTimeMs = 724118430000;
+    window._globalMaxTimeMs = 1794936075402;
+
+    function exportPlotAsPng(divId, filename) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      Plotly.downloadImage(plotDiv, {
+        format: 'png',
+        width: 1400,
+        height: Math.max(500, plotDiv.offsetHeight || 500),
+        filename: filename || 'plot.png'
+      });
+    }
+
+    function updatePanButtons(divId) {
+      const plotDiv = document.getElementById(divId);
+      const prevBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', -1)"]`);
+      const nextBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', 1)"]`);
+      if (!plotDiv || !prevBtn || !nextBtn) return;
+      const rng = plotDiv._fullLayout && plotDiv._fullLayout.xaxis && plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2 || !window._globalMinTimeMs || !window._globalMaxTimeMs) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+      const fullSpan = window._globalMaxTimeMs - window._globalMinTimeMs;
+      const currentSpan = t1 - t0;
+      if (currentSpan >= fullSpan - 60000) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      const canPrev = t0 > (window._globalMinTimeMs + 60000);
+      const canNext = t1 < (window._globalMaxTimeMs - 60000);
+      prevBtn.disabled = !canPrev;
+      nextBtn.disabled = !canNext;
+      prevBtn.classList.toggle('disabled', !canPrev);
+      nextBtn.classList.toggle('disabled', !canNext);
+    }
+
+    // Theme initialization
+    const savedTheme = localStorage.getItem('cdaweb_theme') || 'dark';
+    document.body.className = savedTheme;
+    document.getElementById('theme-toggle').textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+    // Propagate URL query params (such as ?view for updog) to relative navigation links
+    function propagateQueryToLinks() {
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (q) {
+        document.querySelectorAll('a[href]').forEach(a => {
+          const href = a.getAttribute('href');
+          if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto:') && !href.includes('?')) {
+            a.setAttribute('href', href + q);
+          }
+        });
+      }
+    }
+
+    // Ensure timeline checkbox is unchecked by default and container is hidden
+    const chartCb = document.getElementById('toggle-chart-cb');
+    if (chartCb) {
+      chartCb.checked = false;
+    }
+    const chartCard = document.getElementById('chart-card-container');
+    if (chartCard) {
+      chartCard.style.display = 'none';
+    }
+
+    enableSortableTable('datasets-table');
+
+    // Initial render
+    updateView();
+    propagateQueryToLinks();
+  </script>
+  <footer class="page-footer">This page was last updated on: 2026-11-17 17:21:15 UTC. For any questions or comments, please contact SPDF support at: <a href="mailto:NASA-SPDF-Support@nasa.gov">NASA-SPDF-Support@nasa.gov</a></footer>
+</body>
+</html>

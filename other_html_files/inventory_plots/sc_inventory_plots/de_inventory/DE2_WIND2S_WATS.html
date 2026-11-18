@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DE2_WIND2S_WATS - CDAWeb Inventory</title>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+  <style>
+    :root, body.dark {
+      color-scheme: dark;
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #0284c7;
+      --accent-light: #38bdf8;
+      --success: #10b981;
+    }
+    body.light {
+      color-scheme: light;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --border: #cbd5e1;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --accent: #0284c7;
+      --accent-light: #0369a1;
+      --success: #16a34a;
+    }
+    body {
+      margin: 0;
+      padding: 24px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    input[type="date"] {
+      color-scheme: dark;
+    }
+    body.light input[type="date"] {
+      color-scheme: light;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .breadcrumbs { font-size: 14px; margin-bottom: 0; color: var(--text-muted); }
+    .breadcrumbs a { color: var(--accent-light); text-decoration: none; }
+    .breadcrumbs a:hover { text-decoration: underline; }
+    .dataset-navigation { font-size: 13px; color: var(--text-muted); }
+    .dataset-navigation select { margin-left: 6px; max-width: 340px; color: var(--text); background: var(--card-bg); border: 1px solid var(--border); border-radius: 4px; padding: 4px; }
+    .page-footer { margin: 20px 0 0; color: var(--text-muted); font-size: 12px; text-align: center; }
+    .page-footer a { color: var(--accent-light); }
+    .btn-theme {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-theme:hover { opacity: 0.9; }
+    .badge { display: inline-block; padding: 4px 10px; background: rgba(2, 132, 199, 0.2); color: var(--accent-light); border-radius: 9999px; font-size: 12px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px; }
+    h1 { margin: 0 0 6px 0; font-size: 26px; }
+    .subtitle { color: var(--text-muted); font-size: 15px; margin: 0 0 20px 0; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 24px; }
+    .kpi-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
+    .kpi-label { font-size: 11px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .kpi-value { font-size: 18px; font-weight: 700; color: var(--text); }
+    .kpi-overall { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-weight: 500; }
+    .chart-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+    .table-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+    th { padding: 8px 12px; background: rgba(255,255,255,0.03); color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    td { padding: 8px 12px; border-bottom: 1px solid var(--border); }
+    code { color: var(--accent-light); font-family: monospace; }
+    .pan-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(125,125,125,0.08);
+      padding: 3px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+    .btn-pan {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-pan:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .btn-pan:disabled, .btn-pan.disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .btn-preset {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .btn-preset:hover {
+      opacity: 0.9;
+      color: var(--text);
+    }
+    .btn-preset.active {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+      font-weight: 700;
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+    }
+    .xtick text, .ytick text {
+      fill: var(--text) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px;">
+      <div class="breadcrumbs">
+        <a href="../inventory_index.html">CDAWeb Inventory</a> &gt;
+        <a href="./de_index.html">DE Index</a> &gt;
+        <span>DE2_WIND2S_WATS</span>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <label class="dataset-navigation">Dataset: <select onchange="navigateToDataset(this.value)"><option value="DE1_1MIN_RIMS.html">DE1_1MIN_RIMS</option><option value="DE1_62MS_MAGA-GMS.html">DE1_62MS_MAGA-GMS</option><option value="DE1_6SEC_MAGAGMS.html">DE1_6SEC_MAGAGMS</option><option value="DE1_PWI_LFC-SPECTRA.html">DE1_PWI_LFC-SPECTRA</option><option value="DE1_PWI_OR-AT.html">DE1_PWI_OR-AT</option><option value="DE1_PWI_SFC-SPECTRA.html">DE1_PWI_SFC-SPECTRA</option><option value="DE2_62MS_VEFIMAGB.html">DE2_62MS_VEFIMAGB</option><option value="DE2_AC500MS_VEFI.html">DE2_AC500MS_VEFI</option><option value="DE2_DCA500MS_VEFI.html">DE2_DCA500MS_VEFI</option><option value="DE2_DUCT16MS_RPA.html">DE2_DUCT16MS_RPA</option><option value="DE2_ION2S_RPA.html">DE2_ION2S_RPA</option><option value="DE2_LAPI_ELECTRON-FLUX-COUNTS-PPS1.html">DE2_LAPI_ELECTRON-FLUX-COUNTS-PPS1</option><option value="DE2_LAPI_ELECTRON-FLUX-COUNTS-PPS2.html">DE2_LAPI_ELECTRON-FLUX-COUNTS-PPS2</option><option value="DE2_LAPI_GEIGER-MUELLER.html">DE2_LAPI_GEIGER-MUELLER</option><option value="DE2_LAPI_GEIGER-MUELLER-RATIO.html">DE2_LAPI_GEIGER-MUELLER-RATIO</option><option value="DE2_LAPI_ION-FLUX-COUNTS-PPS1.html">DE2_LAPI_ION-FLUX-COUNTS-PPS1</option><option value="DE2_LAPI_ION-FLUX-COUNTS-PPS2.html">DE2_LAPI_ION-FLUX-COUNTS-PPS2</option><option value="DE2_LAPI_LAPI-MAG.html">DE2_LAPI_LAPI-MAG</option><option value="DE2_LAPI_ORBIT-ATTITUDE.html">DE2_LAPI_ORBIT-ATTITUDE</option><option value="DE2_LAPI_ORBIT-ATTITUDE-MAGB.html">DE2_LAPI_ORBIT-ATTITUDE-MAGB</option><option value="DE2_LAPI_PITCH-ANGLES.html">DE2_LAPI_PITCH-ANGLES</option><option value="DE2_LAPI_PROJECTED-MAGB.html">DE2_LAPI_PROJECTED-MAGB</option><option value="DE2_LAPI_SC-MAGB.html">DE2_LAPI_SC-MAGB</option><option value="DE2_LAPI_SHAFT-ENCODER-ANGLE.html">DE2_LAPI_SHAFT-ENCODER-ANGLE</option><option value="DE2_NEUTRAL1S_NACS.html">DE2_NEUTRAL1S_NACS</option><option value="DE2_NEUTRAL8S_FPI.html">DE2_NEUTRAL8S_FPI</option><option value="DE2_PLASMA500MS_LANG.html">DE2_PLASMA500MS_LANG</option><option value="DE2_UA16S_ALL.html">DE2_UA16S_ALL</option><option value="DE2_VION250MS_IDM.html">DE2_VION250MS_IDM</option><option value="DE2_WIND2S_WATS.html" selected>DE2_WIND2S_WATS</option><option value="DE_UV_SAI.html">DE_UV_SAI</option><option value="DE_VS_EICS.html">DE_VS_EICS</option></select></label>
+        <a href="../DE_Inventory.png" target="_blank" class="btn-theme"> DE PNG</a>
+        <button class="btn-theme" onclick="exportPlotAsPng('dataset-timeline-plot', 'DE2_WIND2S_WATS_plot.png')"> Download Plot PNG</button>
+        <button id="theme-toggle" class="btn-theme" onclick="toggleTheme()">☀️ Light Mode</button>
+      </div>
+    </div>
+    <div>
+      <span class="badge">DE &bull; DE2</span>
+      <h1>DE2_WIND2S_WATS</h1>
+      <p class="subtitle">WIND2S_WATS_CDAWEB</p>
+    </div>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">CDF Files</div>
+        <div id="kpi-cdf-files" class="kpi-value">533</div>
+        <div id="kpi-cdf-files-overall" class="kpi-overall"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Active Days</div>
+        <div id="kpi-active-days" class="kpi-value">436.85</div>
+        <div id="kpi-active-days-overall" class="kpi-overall"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Coverage</div>
+        <div id="kpi-coverage" class="kpi-value" style="color: var(--success);">78.28%</div>
+        <div id="kpi-coverage-overall" class="kpi-overall"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Earliest Start</div>
+        <div id="kpi-earliest-start" class="kpi-value" style="font-size: 14px;">1981-08-08 15:54 UTC</div>
+        <div id="kpi-earliest-start-overall" class="kpi-overall"></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Latest Stop</div>
+        <div id="kpi-latest-stop" class="kpi-value" style="font-size: 14px;">1983-02-17 17:15 UTC</div>
+        <div id="kpi-latest-stop-overall" class="kpi-overall"></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+        <span style="font-size: 14px; font-weight: 600;">Data Availability Timeline</span>
+        <div class="pan-controls">
+          <span style="font-size: 11px; font-weight: 600; color: var(--text-muted); margin: 0 4px;">Time Window:</span>
+          <button type="button" class="btn-pan disabled" disabled title="Pan backward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('dataset-timeline-plot', -1)">◀ Prev Frame</button>
+          <button type="button" class="btn-pan" title="Reset zoom to full range" onclick="resetTimelineZoom('dataset-timeline-plot')">↺ Reset Zoom</button>
+          <button type="button" class="btn-pan disabled" disabled title="Pan forward by visible duration (preserves Y-axis)" onclick="panTimelineWindow('dataset-timeline-plot', 1)">Next Frame ▶</button>
+          <button type="button" class="btn-pan" title="Download timeline chart as PNG" onclick="exportPlotAsPng('dataset-timeline-plot', 'DE2_WIND2S_WATS_plot.png')"> PNG</button>
+        </div>
+      </div>
+      <div id="dataset-timeline-plot" style="min-height: 180px; width: 100%;"></div>
+    </div>
+    <div class="table-card">
+      <h3 style="margin: 0 0 12px 0; font-size: 16px;">Intervals &amp; Coverage Bounds</h3>
+      <div style="max-height: 400px; overflow-y: auto;">
+        <table>
+          <thead>
+            <tr><th>Start Time (UTC)</th><th>Stop Time (UTC)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>1981-08-08 15:54:00 UTC</code></td><td><code>1981-08-08 19:19:56 UTC</code></td></tr><tr><td><code>1981-08-14 21:27:03 UTC</code></td><td><code>1981-08-14 22:03:07 UTC</code></td></tr><tr><td><code>1981-08-16 04:28:39 UTC</code></td><td><code>1981-08-16 21:13:09 UTC</code></td></tr><tr><td><code>1981-08-17 08:07:43 UTC</code></td><td><code>1981-08-17 22:54:29 UTC</code></td></tr><tr><td><code>1981-08-18 10:06:55 UTC</code></td><td><code>1981-08-18 10:18:33 UTC</code></td></tr><tr><td><code>1981-08-19 05:45:11 UTC</code></td><td><code>1981-08-19 19:17:01 UTC</code></td></tr><tr><td><code>1981-08-20 01:11:51 UTC</code></td><td><code>1981-08-20 23:03:33 UTC</code></td></tr><tr><td><code>1981-08-21 06:31:03 UTC</code></td><td><code>1981-08-21 23:27:41 UTC</code></td></tr><tr><td><code>1981-08-22 02:03:51 UTC</code></td><td><code>1981-08-22 23:51:41 UTC</code></td></tr><tr><td><code>1981-08-23 04:07:27 UTC</code></td><td><code>1981-08-23 22:39:17 UTC</code></td></tr><tr><td><code>1981-08-24 02:57:20 UTC</code></td><td><code>1981-08-24 23:05:41 UTC</code></td></tr><tr><td><code>1981-08-25 03:23:04 UTC</code></td><td><code>1981-08-25 21:41:50 UTC</code></td></tr><tr><td><code>1981-08-26 02:58:00 UTC</code></td><td><code>1981-08-26 22:19:50 UTC</code></td></tr><tr><td><code>1981-08-27 05:51:52 UTC</code></td><td><code>1981-08-27 17:40:54 UTC</code></td></tr><tr><td><code>1981-08-28 04:38:08 UTC</code></td><td><code>1981-08-28 23:12:30 UTC</code></td></tr><tr><td><code>1981-09-04 09:14:32 UTC</code></td><td><code>1981-09-04 21:15:34 UTC</code></td></tr><tr><td><code>1981-09-05 09:36:40 UTC</code></td><td><code>1981-09-05 21:33:34 UTC</code></td></tr><tr><td><code>1981-09-06 03:14:32 UTC</code></td><td><code>1981-09-06 21:27:42 UTC</code></td></tr><tr><td><code>1981-09-07 03:38:40 UTC</code></td><td><code>1981-09-07 22:08:46 UTC</code></td></tr><tr><td><code>1981-09-08 02:36:40 UTC</code></td><td><code>1981-09-08 18:59:58 UTC</code></td></tr><tr><td><code>1981-09-09 01:33:12 UTC</code></td><td><code>1981-09-09 13:05:26 UTC</code></td></tr><tr><td><code>1981-09-10 03:35:44 UTC</code></td><td><code>1981-09-10 21:54:30 UTC</code></td></tr><tr><td><code>1981-09-11 03:41:52 UTC</code></td><td><code>1981-09-11 18:29:34 UTC</code></td></tr><tr><td><code>1981-09-12 02:27:36 UTC</code></td><td><code>1981-09-12 20:57:50 UTC</code></td></tr><tr><td><code>1981-09-13 01:14:01 UTC</code></td><td><code>1981-09-13 21:26:55 UTC</code></td></tr><tr><td><code>1981-09-14 00:31:45 UTC</code></td><td><code>1981-09-14 21:48:31 UTC</code></td></tr><tr><td><code>1981-09-15 05:33:37 UTC</code></td><td><code>1981-09-15 22:05:11 UTC</code></td></tr><tr><td><code>1981-09-16 04:10:57 UTC</code></td><td><code>1981-09-16 20:59:51 UTC</code></td></tr><tr><td><code>1981-09-17 02:52:01 UTC</code></td><td><code>1981-09-17 21:02:23 UTC</code></td></tr><tr><td><code>1981-09-18 03:12:01 UTC</code></td><td><code>1981-09-18 21:43:19 UTC</code></td></tr><tr><td><code>1981-09-19 00:20:57 UTC</code></td><td><code>1981-09-19 17:08:07 UTC</code></td></tr><tr><td><code>1981-09-20 04:18:57 UTC</code></td><td><code>1981-09-21 21:08:47 UTC</code></td></tr><tr><td><code>1981-09-22 03:08:25 UTC</code></td><td><code>1981-09-22 21:31:27 UTC</code></td></tr><tr><td><code>1981-09-23 00:12:10 UTC</code></td><td><code>1981-09-23 21:46:08 UTC</code></td></tr><tr><td><code>1981-09-24 01:05:14 UTC</code></td><td><code>1981-09-25 20:57:04 UTC</code></td></tr><tr><td><code>1981-09-26 02:57:06 UTC</code></td><td><code>1981-09-26 21:17:36 UTC</code></td></tr><tr><td><code>1981-09-27 03:36:58 UTC</code></td><td><code>1981-09-27 21:37:52 UTC</code></td></tr><tr><td><code>1981-09-28 00:10:42 UTC</code></td><td><code>1981-09-28 23:35:36 UTC</code></td></tr><tr><td><code>1981-09-29 05:22:34 UTC</code></td><td><code>1981-09-29 23:24:00 UTC</code></td></tr><tr><td><code>1981-09-30 01:24:50 UTC</code></td><td><code>1981-09-30 21:03:36 UTC</code></td></tr><tr><td><code>1981-10-01 01:10:10 UTC</code></td><td><code>1981-10-01 21:20:25 UTC</code></td></tr><tr><td><code>1981-10-02 01:29:54 UTC</code></td><td><code>1981-10-02 21:29:29 UTC</code></td></tr><tr><td><code>1981-10-03 04:07:31 UTC</code></td><td><code>1981-10-03 21:28:01 UTC</code></td></tr><tr><td><code>1981-10-04 02:16:43 UTC</code></td><td><code>1981-10-04 22:08:33 UTC</code></td></tr><tr><td><code>1981-10-05 02:42:03 UTC</code></td><td><code>1981-10-05 23:36:57 UTC</code></td></tr><tr><td><code>1981-10-06 01:08:43 UTC</code></td><td><code>1981-10-07 00:08:57 UTC</code></td></tr><tr><td><code>1981-10-08 00:15:31 UTC</code></td><td><code>1981-10-08 20:21:53 UTC</code></td></tr><tr><td><code>1981-10-09 00:35:47 UTC</code></td><td><code>1981-10-09 22:14:25 UTC</code></td></tr><tr><td><code>1981-10-10 00:52:52 UTC</code></td><td><code>1981-10-10 22:21:22 UTC</code></td></tr><tr><td><code>1981-10-11 02:37:40 UTC</code></td><td><code>1981-10-11 19:32:26 UTC</code></td></tr><tr><td><code>1981-10-12 01:17:56 UTC</code></td><td><code>1981-10-12 22:43:22 UTC</code></td></tr><tr><td><code>1981-10-13 04:50:04 UTC</code></td><td><code>1981-10-13 15:07:54 UTC</code></td></tr><tr><td><code>1981-10-14 00:22:44 UTC</code></td><td><code>1981-10-14 18:25:22 UTC</code></td></tr><tr><td><code>1981-10-15 00:39:48 UTC</code></td><td><code>1981-10-15 19:04:28 UTC</code></td></tr><tr><td><code>1981-10-16 00:56:52 UTC</code></td><td><code>1981-10-16 22:27:30 UTC</code></td></tr><tr><td><code>1981-10-17 04:20:12 UTC</code></td><td><code>1981-10-17 19:30:02 UTC</code></td></tr><tr><td><code>1981-10-18 01:27:01 UTC</code></td><td><code>1981-10-18 16:21:23 UTC</code></td></tr><tr><td><code>1981-10-19 00:09:41 UTC</code></td><td><code>1981-10-19 21:48:27 UTC</code></td></tr><tr><td><code>1981-10-20 00:25:09 UTC</code></td><td><code>1981-10-20 21:51:23 UTC</code></td></tr><tr><td><code>1981-10-21 02:19:09 UTC</code></td><td><code>1981-10-21 23:49:15 UTC</code></td></tr><tr><td><code>1981-10-22 00:50:13 UTC</code></td><td><code>1981-10-24 21:22:28 UTC</code></td></tr><tr><td><code>1981-10-25 04:59:18 UTC</code></td><td><code>1981-10-25 20:00:44 UTC</code></td></tr><tr><td><code>1981-10-26 01:52:22 UTC</code></td><td><code>1981-10-26 23:32:04 UTC</code></td></tr><tr><td><code>1981-10-27 03:47:42 UTC</code></td><td><code>1981-10-27 20:05:16 UTC</code></td></tr><tr><td><code>1981-10-28 12:15:10 UTC</code></td><td><code>1981-10-28 20:49:16 UTC</code></td></tr><tr><td><code>1981-10-29 04:23:10 UTC</code></td><td><code>1981-10-29 16:10:20 UTC</code></td></tr><tr><td><code>1981-10-30 07:47:02 UTC</code></td><td><code>1981-10-30 21:21:00 UTC</code></td></tr><tr><td><code>1981-10-31 04:52:54 UTC</code></td><td><code>1981-10-31 23:07:41 UTC</code></td></tr><tr><td><code>1981-11-01 06:55:03 UTC</code></td><td><code>1981-11-01 21:53:25 UTC</code></td></tr><tr><td><code>1981-11-02 03:36:39 UTC</code></td><td><code>1981-11-02 20:30:53 UTC</code></td></tr><tr><td><code>1981-11-03 05:27:59 UTC</code></td><td><code>1981-11-05 23:44:37 UTC</code></td></tr><tr><td><code>1981-11-06 08:06:07 UTC</code></td><td><code>1981-11-06 19:08:37 UTC</code></td></tr><tr><td><code>1981-11-07 06:23:43 UTC</code></td><td><code>1981-11-08 22:48:54 UTC</code></td></tr><tr><td><code>1981-11-09 00:26:40 UTC</code></td><td><code>1981-11-09 22:05:10 UTC</code></td></tr><tr><td><code>1981-11-10 10:16:00 UTC</code></td><td><code>1981-11-10 23:55:02 UTC</code></td></tr><tr><td><code>1981-11-11 04:09:28 UTC</code></td><td><code>1981-11-11 23:31:50 UTC</code></td></tr><tr><td><code>1981-11-12 01:00:40 UTC</code></td><td><code>1981-11-12 23:43:26 UTC</code></td></tr><tr><td><code>1981-11-13 01:13:12 UTC</code></td><td><code>1981-11-14 22:35:27 UTC</code></td></tr><tr><td><code>1981-11-15 01:40:57 UTC</code></td><td><code>1981-11-16 23:37:27 UTC</code></td></tr><tr><td><code>1981-11-17 02:05:53 UTC</code></td><td><code>1981-11-18 20:11:59 UTC</code></td></tr><tr><td><code>1981-11-19 20:25:13 UTC</code></td><td><code>1981-11-19 23:38:55 UTC</code></td></tr><tr><td><code>1981-11-20 02:39:21 UTC</code></td><td><code>1981-11-20 22:41:43 UTC</code></td></tr><tr><td><code>1981-11-21 01:10:42 UTC</code></td><td><code>1981-11-21 21:15:54 UTC</code></td></tr><tr><td><code>1981-11-22 01:26:34 UTC</code></td><td><code>1981-11-22 23:08:24 UTC</code></td></tr><tr><td><code>1981-11-23 01:32:18 UTC</code></td><td><code>1981-11-24 23:31:20 UTC</code></td></tr><tr><td><code>1981-11-25 01:57:14 UTC</code></td><td><code>1981-11-25 23:31:36 UTC</code></td></tr><tr><td><code>1981-11-26 02:10:10 UTC</code></td><td><code>1981-11-26 23:42:24 UTC</code></td></tr><tr><td><code>1981-11-27 02:20:50 UTC</code></td><td><code>1981-11-28 23:59:53 UTC</code></td></tr><tr><td><code>1981-11-29 02:40:51 UTC</code></td><td><code>1981-11-29 23:59:37 UTC</code></td></tr><tr><td><code>1981-11-30 01:11:23 UTC</code></td><td><code>1981-12-03 22:51:06 UTC</code></td></tr><tr><td><code>1981-12-04 00:06:43 UTC</code></td><td><code>1981-12-04 23:03:54 UTC</code></td></tr><tr><td><code>1981-12-05 00:16:36 UTC</code></td><td><code>1981-12-05 23:13:38 UTC</code></td></tr><tr><td><code>1981-12-06 00:26:12 UTC</code></td><td><code>1981-12-13 22:48:35 UTC</code></td></tr><tr><td><code>1981-12-14 00:00:05 UTC</code></td><td><code>1981-12-15 23:01:40 UTC</code></td></tr><tr><td><code>1981-12-16 00:07:17 UTC</code></td><td><code>1981-12-16 10:07:23 UTC</code></td></tr><tr><td><code>1981-12-23 04:09:18 UTC</code></td><td><code>1981-12-23 21:43:09 UTC</code></td></tr><tr><td><code>1981-12-24 02:22:06 UTC</code></td><td><code>1981-12-24 22:32:29 UTC</code></td></tr><tr><td><code>1981-12-25 01:29:51 UTC</code></td><td><code>1981-12-26 22:35:25 UTC</code></td></tr><tr><td><code>1981-12-27 03:00:47 UTC</code></td><td><code>1981-12-27 21:04:05 UTC</code></td></tr><tr><td><code>1981-12-28 02:41:59 UTC</code></td><td><code>1981-12-28 22:44:35 UTC</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style='color: var(--text-muted); font-size: 12px; margin-top: 8px;'>Showing first 100 of 448 continuous intervals</p>
+    </div>
+    <footer class="page-footer">This page was last updated on: 2026-11-17 17:21:05 UTC. For any questions or comments, please contact SPDF support at: <a href="mailto:NASA-SPDF-Support@nasa.gov">NASA-SPDF-Support@nasa.gov</a></footer>
+  </div>
+
+  <script>
+    function navigateToDataset(path) {
+      const query = window.location.search || '';
+      window.location.href = path + query;
+    }
+    const plotIntervals = [["1981-08-08T15:54:00Z", 86400000, "1981-08-08T19:19:56Z"], ["1981-08-14T21:27:03Z", 86400000, "1981-08-14T22:03:07Z"], ["1981-08-16T04:28:39Z", 86400000, "1981-08-16T21:13:09Z"], ["1981-08-17T08:07:43Z", 86400000, "1981-08-17T22:54:29Z"], ["1981-08-18T10:06:55Z", 86400000, "1981-08-18T10:18:33Z"], ["1981-08-19T05:45:11Z", 86400000, "1981-08-19T19:17:01Z"], ["1981-08-20T01:11:51Z", 86400000, "1981-08-20T23:03:33Z"], ["1981-08-21T06:31:03Z", 86400000, "1981-08-21T23:27:41Z"], ["1981-08-22T02:03:51Z", 86400000, "1981-08-22T23:51:41Z"], ["1981-08-23T04:07:27Z", 86400000, "1981-08-23T22:39:17Z"], ["1981-08-24T02:57:20Z", 86400000, "1981-08-24T23:05:41Z"], ["1981-08-25T03:23:04Z", 86400000, "1981-08-25T21:41:50Z"], ["1981-08-26T02:58:00Z", 86400000, "1981-08-26T22:19:50Z"], ["1981-08-27T05:51:52Z", 86400000, "1981-08-27T17:40:54Z"], ["1981-08-28T04:38:08Z", 86400000, "1981-08-28T23:12:30Z"], ["1981-09-04T09:14:32Z", 86400000, "1981-09-04T21:15:34Z"], ["1981-09-05T09:36:40Z", 86400000, "1981-09-05T21:33:34Z"], ["1981-09-06T03:14:32Z", 86400000, "1981-09-06T21:27:42Z"], ["1981-09-07T03:38:40Z", 86400000, "1981-09-07T22:08:46Z"], ["1981-09-08T02:36:40Z", 86400000, "1981-09-08T18:59:58Z"], ["1981-09-09T01:33:12Z", 86400000, "1981-09-09T13:05:26Z"], ["1981-09-10T03:35:44Z", 86400000, "1981-09-10T21:54:30Z"], ["1981-09-11T03:41:52Z", 86400000, "1981-09-11T18:29:34Z"], ["1981-09-12T02:27:36Z", 86400000, "1981-09-12T20:57:50Z"], ["1981-09-13T01:14:01Z", 86400000, "1981-09-13T21:26:55Z"], ["1981-09-14T00:31:45Z", 86400000, "1981-09-14T21:48:31Z"], ["1981-09-15T05:33:37Z", 86400000, "1981-09-15T22:05:11Z"], ["1981-09-16T04:10:57Z", 86400000, "1981-09-16T20:59:51Z"], ["1981-09-17T02:52:01Z", 86400000, "1981-09-17T21:02:23Z"], ["1981-09-18T03:12:01Z", 86400000, "1981-09-18T21:43:19Z"], ["1981-09-19T00:20:57Z", 86400000, "1981-09-19T17:08:07Z"], ["1981-09-20T04:18:57Z", 146990000, "1981-09-21T21:08:47Z"], ["1981-09-22T03:08:25Z", 86400000, "1981-09-22T21:31:27Z"], ["1981-09-23T00:12:10Z", 86400000, "1981-09-23T21:46:08Z"], ["1981-09-24T01:05:14Z", 157910000, "1981-09-25T20:57:04Z"], ["1981-09-26T02:57:06Z", 86400000, "1981-09-26T21:17:36Z"], ["1981-09-27T03:36:58Z", 86400000, "1981-09-27T21:37:52Z"], ["1981-09-28T00:10:42Z", 86400000, "1981-09-28T23:35:36Z"], ["1981-09-29T05:22:34Z", 86400000, "1981-09-29T23:24:00Z"], ["1981-09-30T01:24:50Z", 86400000, "1981-09-30T21:03:36Z"], ["1981-10-01T01:10:10Z", 86400000, "1981-10-01T21:20:25Z"], ["1981-10-02T01:29:54Z", 86400000, "1981-10-02T21:29:29Z"], ["1981-10-03T04:07:31Z", 86400000, "1981-10-03T21:28:01Z"], ["1981-10-04T02:16:43Z", 86400000, "1981-10-04T22:08:33Z"], ["1981-10-05T02:42:03Z", 86400000, "1981-10-05T23:36:57Z"], ["1981-10-06T01:08:43Z", 86400000, "1981-10-07T00:08:57Z"], ["1981-10-08T00:15:31Z", 86400000, "1981-10-08T20:21:53Z"], ["1981-10-09T00:35:47Z", 86400000, "1981-10-09T22:14:25Z"], ["1981-10-10T00:52:52Z", 86400000, "1981-10-10T22:21:22Z"], ["1981-10-11T02:37:40Z", 86400000, "1981-10-11T19:32:26Z"], ["1981-10-12T01:17:56Z", 86400000, "1981-10-12T22:43:22Z"], ["1981-10-13T04:50:04Z", 86400000, "1981-10-13T15:07:54Z"], ["1981-10-14T00:22:44Z", 86400000, "1981-10-14T18:25:22Z"], ["1981-10-15T00:39:48Z", 86400000, "1981-10-15T19:04:28Z"], ["1981-10-16T00:56:52Z", 86400000, "1981-10-16T22:27:30Z"], ["1981-10-17T04:20:12Z", 86400000, "1981-10-17T19:30:02Z"], ["1981-10-18T01:27:01Z", 86400000, "1981-10-18T16:21:23Z"], ["1981-10-19T00:09:41Z", 86400000, "1981-10-19T21:48:27Z"], ["1981-10-20T00:25:09Z", 86400000, "1981-10-20T21:51:23Z"], ["1981-10-21T02:19:09Z", 86400000, "1981-10-21T23:49:15Z"], ["1981-10-22T00:50:13Z", 246735000, "1981-10-24T21:22:28Z"], ["1981-10-25T04:59:18Z", 86400000, "1981-10-25T20:00:44Z"], ["1981-10-26T01:52:22Z", 86400000, "1981-10-26T23:32:04Z"], ["1981-10-27T03:47:42Z", 86400000, "1981-10-27T20:05:16Z"], ["1981-10-28T12:15:10Z", 86400000, "1981-10-28T20:49:16Z"], ["1981-10-29T04:23:10Z", 86400000, "1981-10-29T16:10:20Z"], ["1981-10-30T07:47:02Z", 86400000, "1981-10-30T21:21:00Z"], ["1981-10-31T04:52:54Z", 86400000, "1981-10-31T23:07:41Z"], ["1981-11-01T06:55:03Z", 86400000, "1981-11-01T21:53:25Z"], ["1981-11-02T03:36:39Z", 86400000, "1981-11-02T20:30:53Z"], ["1981-11-03T05:27:59Z", 238598000, "1981-11-05T23:44:37Z"], ["1981-11-06T08:06:07Z", 86400000, "1981-11-06T19:08:37Z"], ["1981-11-07T06:23:43Z", 145511000, "1981-11-08T22:48:54Z"], ["1981-11-09T00:26:40Z", 86400000, "1981-11-09T22:05:10Z"], ["1981-11-10T10:16:00Z", 86400000, "1981-11-10T23:55:02Z"], ["1981-11-11T04:09:28Z", 86400000, "1981-11-11T23:31:50Z"], ["1981-11-12T01:00:40Z", 86400000, "1981-11-12T23:43:26Z"], ["1981-11-13T01:13:12Z", 163335000, "1981-11-14T22:35:27Z"], ["1981-11-15T01:40:57Z", 165390000, "1981-11-16T23:37:27Z"], ["1981-11-17T02:05:53Z", 151566000, "1981-11-18T20:11:59Z"], ["1981-11-19T20:25:13Z", 86400000, "1981-11-19T23:38:55Z"], ["1981-11-20T02:39:21Z", 86400000, "1981-11-20T22:41:43Z"], ["1981-11-21T01:10:42Z", 86400000, "1981-11-21T21:15:54Z"], ["1981-11-22T01:26:34Z", 86400000, "1981-11-22T23:08:24Z"], ["1981-11-23T01:32:18Z", 165542000, "1981-11-24T23:31:20Z"], ["1981-11-25T01:57:14Z", 86400000, "1981-11-25T23:31:36Z"], ["1981-11-26T02:10:10Z", 86400000, "1981-11-26T23:42:24Z"], ["1981-11-27T02:20:50Z", 164343000, "1981-11-28T23:59:53Z"], ["1981-11-29T02:40:51Z", 86400000, "1981-11-29T23:59:37Z"], ["1981-11-30T01:11:23Z", 337183000, "1981-12-03T22:51:06Z"], ["1981-12-04T00:06:43Z", 86400000, "1981-12-04T23:03:54Z"], ["1981-12-05T00:16:36Z", 86400000, "1981-12-05T23:13:38Z"], ["1981-12-06T00:26:12Z", 685343000, "1981-12-13T22:48:35Z"], ["1981-12-14T00:00:05Z", 169295000, "1981-12-15T23:01:40Z"], ["1981-12-16T00:07:17Z", 86400000, "1981-12-16T10:07:23Z"], ["1981-12-23T04:09:18Z", 86400000, "1981-12-23T21:43:09Z"], ["1981-12-24T02:22:06Z", 86400000, "1981-12-24T22:32:29Z"], ["1981-12-25T01:29:51Z", 162334000, "1981-12-26T22:35:25Z"], ["1981-12-27T03:00:47Z", 86400000, "1981-12-27T21:04:05Z"], ["1981-12-28T02:41:59Z", 86400000, "1981-12-28T22:44:35Z"], ["1981-12-29T01:31:51Z", 86400000, "1981-12-29T21:17:09Z"], ["1981-12-30T01:38:15Z", 86400000, "1981-12-30T22:57:17Z"], ["1981-12-31T03:21:44Z", 86400000, "1981-12-31T18:12:30Z"], ["1982-01-01T03:21:44Z", 152198000, "1982-01-02T21:38:22Z"], ["1982-01-03T00:34:40Z", 86400000, "1982-01-03T23:18:06Z"], ["1982-01-04T02:15:20Z", 86400000, "1982-01-04T19:53:42Z"], ["1982-01-05T00:44:00Z", 155742000, "1982-01-06T19:59:42Z"], ["1982-01-07T02:29:52Z", 86400000, "1982-01-07T23:13:27Z"], ["1982-01-08T05:15:29Z", 86400000, "1982-01-08T23:32:47Z"], ["1982-01-09T01:07:05Z", 86400000, "1982-01-09T23:51:43Z"], ["1982-01-10T02:47:21Z", 142662000, "1982-01-11T18:25:03Z"], ["1982-01-12T01:18:49Z", 163126000, "1982-01-13T22:37:35Z"], ["1982-01-14T00:44:50Z", 163102000, "1982-01-15T22:03:12Z"], ["1982-01-16T01:32:26Z", 160606000, "1982-01-17T22:09:12Z"], ["1982-01-18T00:04:10Z", 168062000, "1982-01-19T22:45:12Z"], ["1982-01-20T00:10:34Z", 168031000, "1982-01-21T22:51:05Z"], ["1982-01-22T00:09:39Z", 86400000, "1982-01-22T17:32:57Z"], ["1982-01-23T01:06:19Z", 86400000, "1982-01-23T21:21:21Z"], ["1982-01-24T01:57:55Z", 86400000, "1982-01-24T21:14:09Z"], ["1982-01-25T00:07:39Z", 86400000, "1982-01-25T22:36:01Z"], ["1982-01-26T00:35:07Z", 86400000, "1982-01-26T21:02:49Z"], ["1982-01-27T00:39:23Z", 86400000, "1982-01-27T21:06:34Z"], ["1982-01-28T00:42:44Z", 86400000, "1982-01-28T21:57:46Z"], ["1982-01-29T00:45:56Z", 86400000, "1982-01-29T21:11:54Z"], ["1982-01-30T04:49:48Z", 151462000, "1982-01-31T22:54:10Z"], ["1982-02-01T00:06:28Z", 86400000, "1982-02-01T21:20:02Z"], ["1982-02-02T00:08:28Z", 86400000, "1982-02-02T15:03:14Z"], ["1982-02-03T11:05:41Z", 86400000, "1982-02-03T18:20:59Z"], ["1982-02-04T00:03:48Z", 86400000, "1982-02-04T21:29:22Z"], ["1982-02-05T05:05:57Z", 86400000, "1982-02-05T18:19:39Z"], ["1982-02-06T05:08:37Z", 86400000, "1982-02-06T22:35:31Z"], ["1982-02-07T01:35:41Z", 86400000, "1982-02-07T20:00:43Z"], ["1982-02-08T01:34:29Z", 86400000, "1982-02-08T20:49:15Z"], ["1982-02-09T03:13:33Z", 86400000, "1982-02-09T18:36:03Z"], ["1982-02-10T00:02:21Z", 167902000, "1982-02-11T22:40:43Z"], ["1982-02-12T03:32:29Z", 86400000, "1982-02-12T18:12:33Z"], ["1982-02-13T00:10:05Z", 86400000, "1982-02-13T22:22:52Z"], ["1982-02-14T00:09:18Z", 86400000, "1982-02-14T23:59:48Z"], ["1982-02-15T01:45:34Z", 86400000, "1982-02-15T21:20:44Z"], ["1982-02-16T00:05:02Z", 86400000, "1982-02-16T23:57:56Z"], ["1982-02-17T02:58:38Z", 86400000, "1982-02-17T22:21:24Z"], ["1982-02-18T01:37:42Z", 86400000, "1982-02-18T21:30:52Z"], ["1982-02-19T01:34:30Z", 166726000, "1982-02-20T23:53:16Z"], ["1982-02-21T05:01:18Z", 86400000, "1982-02-21T23:51:32Z"], ["1982-02-22T01:48:54Z", 86400000, "1982-02-22T23:49:32Z"], ["1982-02-23T02:59:02Z", 86400000, "1982-02-23T23:47:17Z"], ["1982-02-27T00:18:55Z", 86400000, "1982-02-27T22:06:53Z"], ["1982-02-28T00:03:03Z", 86400000, "1982-02-28T21:06:13Z"], ["1982-03-01T03:11:59Z", 86400000, "1982-03-01T23:36:05Z"], ["1982-03-02T01:34:23Z", 86400000, "1982-03-02T23:33:09Z"], ["1982-03-03T04:13:43Z", 86400000, "1982-03-03T23:43:58Z"], ["1982-03-04T00:56:15Z", 86400000, "1982-03-04T23:39:10Z"], ["1982-03-05T02:11:28Z", 86400000, "1982-03-05T23:35:58Z"], ["1982-03-06T01:15:44Z", 86400000, "1982-03-06T23:16:22Z"], ["1982-03-07T05:07:44Z", 86400000, "1982-03-07T21:36:46Z"], ["1982-03-08T03:26:32Z", 86400000, "1982-03-08T20:05:26Z"], ["1982-03-09T01:03:04Z", 86400000, "1982-03-09T23:00:14Z"], ["1982-03-10T00:56:48Z", 86400000, "1982-03-10T23:25:18Z"], ["1982-03-11T00:52:24Z", 86400000, "1982-03-11T22:49:18Z"], ["1982-03-12T00:06:48Z", 86400000, "1982-03-12T23:05:48Z"], ["1982-03-13T04:30:56Z", 86400000, "1982-03-13T16:31:27Z"], ["1982-03-14T00:36:17Z", 86400000, "1982-03-14T22:20:06Z"], ["1982-03-15T02:43:29Z", 86400000, "1982-03-15T17:14:07Z"], ["1982-03-16T01:13:13Z", 86400000, "1982-03-16T22:17:19Z"], ["1982-03-17T02:40:41Z", 86400000, "1982-03-17T22:10:47Z"], ["1982-03-18T00:38:25Z", 86400000, "1982-03-18T23:36:47Z"], ["1982-03-19T02:22:33Z", 86400000, "1982-03-19T23:29:19Z"], ["1982-03-20T02:18:41Z", 86400000, "1982-03-20T20:11:51Z"], ["1982-03-21T02:07:37Z", 86400000, "1982-03-21T23:15:59Z"], ["1982-03-22T00:23:54Z", 86400000, "1982-03-22T18:39:36Z"], ["1982-03-23T00:59:38Z", 86400000, "1982-03-23T21:27:20Z"], ["1982-03-24T01:27:14Z", 86400000, "1982-03-24T21:19:44Z"], ["1982-03-25T01:46:42Z", 86400000, "1982-03-25T22:58:06Z"], ["1982-03-26T02:48:26Z", 86400000, "1982-03-26T21:04:16Z"], ["1982-03-27T01:02:02Z", 86400000, "1982-03-27T22:33:12Z"], ["1982-03-28T02:43:22Z", 86400000, "1982-03-28T23:58:56Z"], ["1982-03-29T02:23:22Z", 86400000, "1982-03-29T22:15:13Z"], ["1982-03-30T00:34:42Z", 86400000, "1982-03-30T22:06:49Z"], ["1982-03-31T00:27:15Z", 86400000, "1982-03-31T20:22:57Z"], ["1982-04-01T00:18:43Z", 86400000, "1982-04-01T22:36:41Z"], ["1982-04-02T00:26:03Z", 86400000, "1982-04-02T23:57:05Z"], ["1982-04-03T06:06:03Z", 86400000, "1982-04-03T19:51:13Z"], ["1982-04-04T03:18:19Z", 86400000, "1982-04-04T16:33:37Z"], ["1982-04-05T00:58:11Z", 86400000, "1982-04-05T21:00:01Z"], ["1982-04-06T08:49:48Z", 86400000, "1982-04-06T22:18:01Z"], ["1982-04-07T02:26:44Z", 86400000, "1982-04-07T17:34:42Z"], ["1982-04-08T01:25:32Z", 86400000, "1982-04-08T18:52:58Z"], ["1982-04-09T08:05:24Z", 86400000, "1982-04-09T23:09:44Z"], ["1982-04-10T00:36:52Z", 86400000, "1982-04-10T23:15:22Z"], ["1982-04-11T06:00:36Z", 147038000, "1982-04-12T22:51:14Z"], ["1982-04-13T01:04:12Z", 166319000, "1982-04-14T23:16:11Z"], ["1982-04-15T00:36:21Z", 86400000, "1982-04-15T23:28:03Z"], ["1982-04-16T00:52:37Z", 165774000, "1982-04-17T22:55:31Z"], ["1982-04-18T01:37:33Z", 86400000, "1982-04-18T22:00:11Z"], ["1982-04-19T01:06:05Z", 86400000, "1982-04-19T23:40:35Z"], ["1982-04-20T00:52:29Z", 86400000, "1982-04-20T23:27:47Z"], ["1982-04-21T00:51:17Z", 86400000, "1982-04-21T12:27:31Z"], ["1982-04-22T05:23:42Z", 119860000, "1982-04-23T14:41:22Z"], ["1982-04-24T07:02:38Z", 86400000, "1982-04-24T22:30:44Z"], ["1982-04-25T01:15:10Z", 86400000, "1982-04-25T23:53:48Z"], ["1982-04-26T01:04:14Z", 86400000, "1982-04-26T23:37:48Z"], ["1982-04-27T00:47:42Z", 86400000, "1982-04-27T23:21:56Z"], ["1982-04-28T00:27:26Z", 166910000, "1982-04-29T22:49:16Z"], ["1982-04-30T03:17:18Z", 86400000, "1982-04-30T22:43:41Z"], ["1982-05-01T04:21:43Z", 241990000, "1982-05-03T23:34:53Z"], ["1982-05-04T10:15:19Z", 86400000, "1982-05-04T21:49:49Z"], ["1982-05-05T00:30:15Z", 86400000, "1982-05-05T23:03:41Z"], ["1982-05-07T00:00:01Z", 86400000, "1982-05-07T22:43:41Z"], ["1982-05-08T02:38:23Z", 86400000, "1982-05-08T20:40:53Z"], ["1982-05-09T04:00:15Z", 86400000, "1982-05-09T22:26:13Z"], ["1982-05-10T01:00:31Z", 86400000, "1982-05-10T23:20:29Z"], ["1982-05-11T01:40:47Z", 162423000, "1982-05-12T22:47:50Z"], ["1982-05-13T09:01:28Z", 86400000, "1982-05-13T22:54:38Z"], ["1982-05-14T00:52:08Z", 254862000, "1982-05-16T23:39:50Z"], ["1982-05-17T01:35:28Z", 86400000, "1982-05-17T22:56:38Z"], ["1982-05-18T00:03:28Z", 86400000, "1982-05-18T20:56:14Z"], ["1982-05-19T00:58:24Z", 86400000, "1982-05-19T23:19:18Z"], ["1982-05-20T03:51:20Z", 155983000, "1982-05-21T23:11:03Z"], ["1982-05-22T03:38:33Z", 241094000, "1982-05-24T22:36:47Z"], ["1982-05-25T00:50:33Z", 86400000, "1982-05-25T23:01:43Z"], ["1982-05-26T00:53:13Z", 165606000, "1982-05-27T22:53:19Z"], ["1982-05-28T23:40:57Z", 259343000, "1982-05-31T23:43:20Z"], ["1982-06-01T02:13:38Z", 86400000, "1982-06-01T23:05:58Z"], ["1982-06-02T00:20:18Z", 86400000, "1982-06-02T23:08:26Z"], ["1982-06-03T01:17:38Z", 86400000, "1982-06-03T22:11:36Z"], ["1982-06-04T01:00:42Z", 86400000, "1982-06-04T23:51:04Z"], ["1982-06-05T01:25:46Z", 86400000, "1982-06-05T23:09:12Z"], ["1982-06-06T02:22:19Z", 86400000, "1982-06-06T21:47:37Z"], ["1982-06-07T03:25:14Z", 86400000, "1982-06-07T23:14:09Z"], ["1982-06-08T02:50:51Z", 86400000, "1982-06-08T22:01:45Z"], ["1982-06-09T02:00:43Z", 86400000, "1982-06-09T22:35:21Z"], ["1982-06-10T04:17:23Z", 86400000, "1982-06-10T23:16:25Z"], ["1982-06-11T02:02:19Z", 86400000, "1982-06-11T23:07:05Z"], ["1982-06-12T01:42:35Z", 86400000, "1982-06-12T23:04:09Z"], ["1982-06-13T06:53:47Z", 86400000, "1982-06-13T23:54:17Z"], ["1982-06-14T02:46:35Z", 86400000, "1982-06-14T22:23:29Z"], ["1982-06-15T00:43:08Z", 86400000, "1982-06-15T23:15:06Z"], ["1982-06-16T00:29:08Z", 86400000, "1982-06-16T23:01:30Z"], ["1982-06-17T00:08:44Z", 86400000, "1982-06-17T22:40:58Z"], ["1982-06-18T01:19:48Z", 86400000, "1982-06-18T23:52:26Z"], ["1982-06-19T06:29:16Z", 86400000, "1982-06-19T21:53:30Z"], ["1982-06-20T01:59:48Z", 86400000, "1982-06-20T23:58:34Z"], ["1982-06-21T03:17:56Z", 86400000, "1982-06-21T22:22:42Z"], ["1982-06-22T03:09:24Z", 86400000, "1982-06-22T21:20:02Z"], ["1982-06-23T01:14:37Z", 86400000, "1982-06-23T21:22:02Z"], ["1982-06-24T04:47:49Z", 86400000, "1982-06-24T21:46:11Z"], ["1982-06-25T01:40:37Z", 86400000, "1982-06-25T12:13:55Z"], ["1982-06-26T04:25:57Z", 86400000, "1982-06-26T20:43:15Z"], ["1982-06-27T00:53:25Z", 86400000, "1982-06-27T23:50:27Z"], ["1982-06-28T01:36:53Z", 86400000, "1982-06-28T20:16:59Z"], ["1982-06-29T00:39:57Z", 86400000, "1982-06-29T23:06:51Z"], ["1982-06-30T10:09:49Z", 86400000, "1982-06-30T13:40:27Z"], ["1982-07-01T10:23:00Z", 86400000, "1982-07-01T21:57:46Z"], ["1982-07-02T03:45:17Z", 86400000, "1982-07-02T22:50:50Z"], ["1982-07-03T02:35:09Z", 86400000, "1982-07-03T14:02:51Z"], ["1982-07-04T01:49:01Z", 86400000, "1982-07-04T22:44:51Z"], ["1982-07-05T00:05:33Z", 86400000, "1982-07-05T20:46:59Z"], ["1982-07-06T06:54:45Z", 86400000, "1982-07-06T22:13:15Z"], ["1982-07-07T04:03:17Z", 86400000, "1982-07-07T23:16:11Z"], ["1982-07-08T02:03:57Z", 86400000, "1982-07-08T21:18:43Z"], ["1982-07-09T01:41:25Z", 86400000, "1982-07-09T23:16:51Z"], ["1982-07-10T02:52:54Z", 86400000, "1982-07-10T16:36:51Z"], ["1982-07-11T00:27:42Z", 86400000, "1982-07-11T23:00:35Z"], ["1982-07-12T01:18:13Z", 86400000, "1982-07-12T18:58:04Z"], ["1982-07-13T01:41:26Z", 86400000, "1982-07-13T23:14:12Z"], ["1982-07-14T03:40:30Z", 86400000, "1982-07-14T20:27:24Z"], ["1982-07-15T00:50:54Z", 86400000, "1982-07-15T21:44:28Z"], ["1982-07-16T01:15:58Z", 157278000, "1982-07-17T20:57:16Z"], ["1982-07-18T00:32:38Z", 86400000, "1982-07-18T23:39:08Z"], ["1982-07-19T03:53:35Z", 86400000, "1982-07-19T22:58:53Z"], ["1982-07-20T06:05:19Z", 86400000, "1982-07-20T22:33:25Z"], ["1982-07-21T00:06:55Z", 86400000, "1982-07-21T22:22:21Z"], ["1982-07-22T01:13:35Z", 86400000, "1982-07-22T22:54:05Z"], ["1982-07-23T00:52:47Z", 245422000, "1982-07-25T21:03:09Z"], ["1982-07-26T03:46:24Z", 86400000, "1982-07-26T19:55:42Z"], ["1982-07-29T05:12:48Z", 86400000, "1982-07-29T17:08:14Z"], ["1982-07-30T00:49:20Z", 86400000, "1982-07-30T22:02:46Z"], ["1982-07-31T00:20:32Z", 86400000, "1982-07-31T23:31:26Z"], ["1982-08-01T03:53:20Z", 86400000, "1982-08-01T22:01:18Z"], ["1982-08-02T00:23:04Z", 86400000, "1982-08-02T18:03:10Z"], ["1982-08-03T02:56:56Z", 86400000, "1982-08-03T23:50:23Z"], ["1982-08-04T00:57:05Z", 86400000, "1982-08-04T23:11:35Z"], ["1982-08-05T05:10:17Z", 86400000, "1982-08-05T13:09:43Z"], ["1982-08-06T04:44:33Z", 86400000, "1982-08-06T23:04:23Z"], ["1982-08-07T02:38:49Z", 86400000, "1982-08-07T19:23:43Z"], ["1982-08-08T00:44:49Z", 86400000, "1982-08-08T22:10:31Z"], ["1982-08-09T01:01:05Z", 86400000, "1982-08-09T19:58:31Z"], ["1982-08-10T00:32:17Z", 86400000, "1982-08-10T20:57:20Z"], ["1982-08-11T04:49:37Z", 86400000, "1982-08-11T23:56:47Z"], ["1982-08-12T03:32:42Z", 86400000, "1982-08-12T23:29:12Z"], ["1982-08-13T02:16:02Z", 86400000, "1982-08-13T23:50:40Z"], ["1982-08-14T02:10:34Z", 86400000, "1982-08-14T21:25:28Z"], ["1982-08-15T02:06:34Z", 86400000, "1982-08-15T22:50:00Z"], ["1982-08-16T01:36:50Z", 86400000, "1982-08-16T23:06:56Z"], ["1982-08-17T02:42:42Z", 153254000, "1982-08-18T21:16:56Z"], ["1982-08-19T03:02:42Z", 86400000, "1982-08-19T22:19:04Z"], ["1982-08-20T01:13:55Z", 86400000, "1982-08-20T22:45:13Z"], ["1982-08-21T02:19:39Z", 86400000, "1982-08-21T20:39:29Z"], ["1982-08-22T01:49:15Z", 86400000, "1982-08-22T23:22:49Z"], ["1982-08-23T02:54:27Z", 86400000, "1982-08-23T18:06:17Z"], ["1982-08-24T03:58:03Z", 86400000, "1982-08-24T23:14:25Z"], ["1982-08-25T03:27:55Z", 86400000, "1982-08-25T21:27:13Z"], ["1982-08-26T00:37:47Z", 86400000, "1982-08-26T23:07:21Z"], ["1982-08-27T02:10:51Z", 86400000, "1982-08-27T22:48:01Z"], ["1982-08-28T03:31:56Z", 86400000, "1982-08-28T21:54:25Z"], ["1982-08-29T02:45:08Z", 86400000, "1982-08-29T23:21:54Z"], ["1982-08-30T01:27:32Z", 86400000, "1982-08-30T21:39:14Z"], ["1982-09-02T03:49:00Z", 86400000, "1982-09-02T22:52:50Z"], ["1982-09-03T00:07:48Z", 86400000, "1982-09-03T22:21:56Z"], ["1982-09-04T01:12:52Z", 86400000, "1982-09-04T23:23:54Z"], ["1982-09-05T01:01:40Z", 86400000, "1982-09-05T22:32:10Z"], ["1982-09-06T00:30:28Z", 169462000, "1982-09-07T23:34:50Z"], ["1982-09-08T00:59:40Z", 86400000, "1982-09-08T19:57:22Z"], ["1982-09-09T00:49:33Z", 86400000, "1982-09-09T21:34:03Z"], ["1982-09-10T00:43:41Z", 86400000, "1982-09-10T21:26:19Z"], ["1982-09-11T00:11:49Z", 86400000, "1982-09-11T22:54:11Z"], ["1982-09-12T01:56:45Z", 86400000, "1982-09-12T19:12:43Z"], ["1982-09-13T00:58:13Z", 86400000, "1982-09-13T21:42:15Z"], ["1982-09-14T00:51:25Z", 86400000, "1982-09-14T22:31:31Z"], ["1982-09-15T01:07:33Z", 167206000, "1982-09-16T23:34:19Z"], ["1982-09-17T01:36:29Z", 86400000, "1982-09-17T22:22:27Z"], ["1982-09-18T01:02:21Z", 86400000, "1982-09-18T21:47:32Z"], ["1982-09-19T00:27:18Z", 86400000, "1982-09-19T20:22:28Z"], ["1982-09-20T01:26:22Z", 86400000, "1982-09-20T23:37:16Z"], ["1982-09-21T06:16:46Z", 86400000, "1982-09-21T21:29:32Z"], ["1982-09-22T01:51:42Z", 86400000, "1982-09-22T20:54:28Z"], ["1982-09-23T00:22:38Z", 86400000, "1982-09-23T19:44:20Z"], ["1982-09-24T03:20:54Z", 86400000, "1982-09-24T21:18:02Z"], ["1982-09-25T00:04:14Z", 86400000, "1982-09-25T20:41:56Z"], ["1982-09-26T00:15:58Z", 140287000, "1982-09-27T15:14:05Z"], ["1982-09-28T06:19:03Z", 86400000, "1982-09-28T22:19:49Z"], ["1982-09-29T00:49:19Z", 86400000, "1982-09-29T23:45:17Z"], ["1982-09-30T00:59:11Z", 86400000, "1982-09-30T23:12:29Z"], ["1982-10-01T00:21:59Z", 86400000, "1982-10-01T21:49:01Z"], ["1982-10-02T00:04:47Z", 86400000, "1982-10-02T22:18:17Z"], ["1982-10-03T01:31:19Z", 86400000, "1982-10-03T11:15:41Z"], ["1982-10-04T03:56:47Z", 86400000, "1982-10-04T19:54:54Z"], ["1982-10-05T04:07:28Z", 86400000, "1982-10-05T23:09:10Z"], ["1982-10-06T01:55:36Z", 163934000, "1982-10-07T23:27:50Z"], ["1982-10-08T02:11:28Z", 86400000, "1982-10-08T23:37:42Z"], ["1982-10-09T02:41:44Z", 86400000, "1982-10-09T21:48:22Z"], ["1982-10-10T01:12:48Z", 86400000, "1982-10-10T23:51:58Z"], ["1982-10-11T03:38:56Z", 86400000, "1982-10-11T23:11:43Z"], ["1982-10-12T01:28:48Z", 162807000, "1982-10-13T22:42:15Z"], ["1982-10-14T01:21:45Z", 250302000, "1982-10-16T22:53:27Z"], ["1982-10-17T01:34:41Z", 86400000, "1982-10-17T23:00:56Z"], ["1982-10-18T00:08:10Z", 86400000, "1982-10-18T23:04:40Z"], ["1982-10-19T00:12:02Z", 86400000, "1982-10-19T23:11:12Z"], ["1982-10-20T00:18:18Z", 86400000, "1982-10-20T23:08:56Z"], ["1982-10-21T03:05:14Z", 86400000, "1982-10-21T23:18:08Z"], ["1982-10-22T00:25:46Z", 86400000, "1982-10-22T23:17:44Z"], ["1982-10-23T01:15:54Z", 86400000, "1982-10-23T23:24:56Z"], ["1982-10-24T02:50:50Z", 86400000, "1982-10-24T23:05:53Z"], ["1982-10-25T00:59:23Z", 167414000, "1982-10-26T23:29:37Z"], ["1982-10-27T06:04:27Z", 86400000, "1982-10-27T22:46:09Z"], ["1982-10-28T02:16:51Z", 86400000, "1982-10-28T23:11:43Z"], ["1982-10-29T01:08:51Z", 159071000, "1982-10-30T21:20:02Z"], ["1982-10-31T00:46:52Z", 86400000, "1982-10-31T20:36:58Z"], ["1982-11-01T00:27:00Z", 86400000, "1982-11-01T21:22:10Z"], ["1982-11-02T03:52:44Z", 157246000, "1982-11-03T23:33:30Z"], ["1982-11-04T03:53:32Z", 86400000, "1982-11-04T22:51:22Z"], ["1982-11-05T00:49:33Z", 86400000, "1982-11-05T22:54:10Z"], ["1982-11-06T00:02:28Z", 86400000, "1982-11-06T23:25:39Z"], ["1982-11-07T01:28:53Z", 86400000, "1982-11-07T22:04:35Z"], ["1982-11-08T00:19:41Z", 86400000, "1982-11-08T22:05:15Z"], ["1982-11-09T00:00:13Z", 86400000, "1982-11-09T22:02:59Z"], ["1982-11-10T00:44:13Z", 86400000, "1982-11-10T23:34:52Z"], ["1982-11-11T00:42:38Z", 86400000, "1982-11-11T20:53:56Z"], ["1982-11-12T01:49:02Z", 86400000, "1982-11-12T23:10:20Z"], ["1982-11-13T00:34:54Z", 86400000, "1982-11-13T20:53:16Z"], ["1982-11-14T00:33:34Z", 342391000, "1982-11-17T23:40:05Z"], ["1982-11-18T01:08:39Z", 86400000, "1982-11-18T22:37:33Z"], ["1982-11-19T03:21:19Z", 86400000, "1982-11-19T23:24:13Z"], ["1982-11-20T01:23:03Z", 165310000, "1982-11-21T23:18:13Z"], ["1982-11-22T01:40:15Z", 162431000, "1982-11-23T22:47:26Z"], ["1982-11-24T01:28:48Z", 86400000, "1982-11-24T22:46:46Z"], ["1982-11-25T01:21:44Z", 86400000, "1982-11-25T22:35:18Z"], ["1982-11-26T00:30:08Z", 164470000, "1982-11-27T22:11:18Z"], ["1982-11-28T00:39:04Z", 86400000, "1982-11-28T23:27:43Z"], ["1982-11-29T00:56:01Z", 86400000, "1982-11-29T22:01:19Z"], ["1982-11-30T01:46:41Z", 86400000, "1982-11-30T23:09:03Z"], ["1982-12-01T00:39:21Z", 86400000, "1982-12-01T23:22:15Z"], ["1982-12-02T01:17:05Z", 86400000, "1982-12-02T17:38:07Z"], ["1982-12-03T09:32:33Z", 300719000, "1982-12-06T21:04:32Z"], ["1982-12-07T11:44:58Z", 86400000, "1982-12-07T23:59:04Z"], ["1982-12-08T02:37:46Z", 86400000, "1982-12-08T23:54:00Z"], ["1982-12-09T01:36:50Z", 86400000, "1982-12-09T22:24:41Z"], ["1982-12-10T01:23:31Z", 86400000, "1982-12-10T18:43:37Z"], ["1982-12-11T06:29:15Z", 86400000, "1982-12-11T21:59:05Z"], ["1982-12-12T05:04:27Z", 86400000, "1982-12-12T22:36:09Z"], ["1982-12-13T03:48:19Z", 86400000, "1982-12-13T21:00:01Z"], ["1982-12-14T06:35:47Z", 86400000, "1982-12-14T23:11:53Z"], ["1982-12-15T00:14:19Z", 86400000, "1982-12-15T23:43:37Z"], ["1982-12-16T00:45:16Z", 160230000, "1982-12-17T21:15:46Z"], ["1982-12-18T00:59:48Z", 86400000, "1982-12-18T19:03:46Z"], ["1982-12-19T01:30:04Z", 86400000, "1982-12-19T21:05:38Z"], ["1982-12-20T00:26:12Z", 86400000, "1982-12-20T23:07:36Z"], ["1982-12-21T00:09:00Z", 86400000, "1982-12-21T23:35:23Z"], ["1982-12-22T02:55:00Z", 86400000, "1982-12-22T23:38:59Z"], ["1982-12-23T00:42:13Z", 86400000, "1982-12-23T21:13:39Z"], ["1982-12-24T18:19:09Z", 86400000, "1982-12-24T20:21:39Z"], ["1982-12-25T10:18:21Z", 86400000, "1982-12-25T21:19:39Z"], ["1982-12-26T07:41:57Z", 86400000, "1982-12-26T15:25:39Z"], ["1982-12-27T01:14:53Z", 86400000, "1982-12-27T20:06:11Z"], ["1982-12-28T02:27:57Z", 86400000, "1982-12-28T23:16:43Z"], ["1982-12-29T06:37:34Z", 86400000, "1982-12-29T21:16:12Z"], ["1982-12-30T00:57:26Z", 86400000, "1982-12-30T13:53:50Z"], ["1982-12-31T04:24:38Z", 86400000, "1982-12-31T22:04:20Z"], ["1983-01-01T05:30:06Z", 139366000, "1983-01-02T20:12:52Z"], ["1983-01-03T09:53:50Z", 86400000, "1983-01-03T17:58:21Z"], ["1983-01-04T03:14:07Z", 86400000, "1983-01-04T19:19:49Z"], ["1983-01-05T02:24:23Z", 140374000, "1983-01-06T17:23:57Z"], ["1983-01-07T01:36:23Z", 235390000, "1983-01-09T18:59:33Z"], ["1983-01-10T19:20:56Z", 86400000, "1983-01-10T20:55:34Z"], ["1983-01-11T03:14:56Z", 86400000, "1983-01-11T18:31:18Z"], ["1983-01-12T06:33:44Z", 86400000, "1983-01-12T21:31:26Z"], ["1983-01-13T01:56:32Z", 153214000, "1983-01-14T20:30:06Z"], ["1983-01-15T00:08:56Z", 86400000, "1983-01-15T23:25:02Z"], ["1983-01-16T00:28:08Z", 86400000, "1983-01-16T22:54:31Z"], ["1983-01-17T00:18:25Z", 86400000, "1983-01-17T23:35:27Z"], ["1983-01-18T02:26:01Z", 86400000, "1983-01-18T23:20:39Z"], ["1983-01-19T01:09:21Z", 86400000, "1983-01-19T23:35:19Z"], ["1983-01-20T02:50:41Z", 86400000, "1983-01-20T20:25:11Z"], ["1983-01-21T00:47:21Z", 86400000, "1983-01-21T22:42:31Z"], ["1983-01-22T02:18:09Z", 86400000, "1983-01-22T23:22:47Z"], ["1983-01-23T04:01:53Z", 86400000, "1983-01-23T19:49:04Z"], ["1983-01-24T03:04:26Z", 86400000, "1983-01-24T23:07:46Z"], ["1983-01-25T00:11:54Z", 86400000, "1983-01-25T22:22:56Z"], ["1983-01-26T05:23:22Z", 86400000, "1983-01-26T19:33:52Z"], ["1983-01-27T03:18:42Z", 86400000, "1983-01-27T22:22:56Z"], ["1983-01-28T03:48:34Z", 141702000, "1983-01-29T19:10:16Z"], ["1983-01-30T00:23:07Z", 86400000, "1983-01-30T19:16:33Z"], ["1983-01-31T00:16:43Z", 86400000, "1983-01-31T23:29:29Z"], ["1983-02-01T05:23:47Z", 86400000, "1983-02-01T18:26:41Z"], ["1983-02-02T00:12:51Z", 86400000, "1983-02-02T22:52:09Z"], ["1983-02-03T05:33:15Z", 86400000, "1983-02-03T18:23:53Z"], ["1983-02-04T02:13:31Z", 86400000, "1983-02-04T15:35:53Z"], ["1983-02-05T05:38:43Z", 219575000, "1983-02-07T18:38:18Z"], ["1983-02-08T01:33:48Z", 86400000, "1983-02-08T16:14:50Z"], ["1983-02-09T02:34:04Z", 86400000, "1983-02-09T23:52:58Z"], ["1983-02-10T01:25:56Z", 86400000, "1983-02-10T21:25:54Z"], ["1983-02-11T02:24:20Z", 86400000, "1983-02-11T23:48:50Z"], ["1983-02-12T00:55:40Z", 86400000, "1983-02-12T21:10:34Z"], ["1983-02-13T01:45:57Z", 86400000, "1983-02-13T18:54:58Z"], ["1983-02-14T00:32:53Z", 86400000, "1983-02-14T20:46:57Z"], ["1983-02-15T01:35:49Z", 86400000, "1983-02-15T22:55:47Z"], ["1983-02-16T04:29:57Z", 86400000, "1983-02-16T23:39:23Z"], ["1983-02-17T02:42:37Z", 86400000, "1983-02-17T17:15:23Z"]];
+    const fileIntervals = [["1981-08-08T15:54:00Z", "1981-08-08T19:19:56Z"], ["1981-08-14T21:27:03Z", "1981-08-14T22:03:07Z"], ["1981-08-16T04:28:39Z", "1981-08-16T21:13:09Z"], ["1981-08-17T08:07:43Z", "1981-08-17T22:54:29Z"], ["1981-08-18T10:06:55Z", "1981-08-18T10:18:33Z"], ["1981-08-19T05:45:11Z", "1981-08-19T19:17:01Z"], ["1981-08-20T01:11:51Z", "1981-08-20T23:03:33Z"], ["1981-08-21T06:31:03Z", "1981-08-21T23:27:41Z"], ["1981-08-22T02:03:51Z", "1981-08-22T23:51:41Z"], ["1981-08-23T04:07:27Z", "1981-08-23T22:39:17Z"], ["1981-08-24T02:57:20Z", "1981-08-24T23:05:41Z"], ["1981-08-25T03:23:04Z", "1981-08-25T21:41:50Z"], ["1981-08-26T02:58:00Z", "1981-08-26T22:19:50Z"], ["1981-08-27T05:51:52Z", "1981-08-27T17:40:54Z"], ["1981-08-28T04:38:08Z", "1981-08-28T23:12:30Z"], ["1981-09-04T09:14:32Z", "1981-09-04T21:15:34Z"], ["1981-09-05T09:36:40Z", "1981-09-05T21:33:34Z"], ["1981-09-06T03:14:32Z", "1981-09-06T21:27:42Z"], ["1981-09-07T03:38:40Z", "1981-09-07T22:08:46Z"], ["1981-09-08T02:36:40Z", "1981-09-08T18:59:58Z"], ["1981-09-09T01:33:12Z", "1981-09-09T13:05:26Z"], ["1981-09-10T03:35:44Z", "1981-09-10T21:54:30Z"], ["1981-09-11T03:41:52Z", "1981-09-11T18:29:34Z"], ["1981-09-12T02:27:36Z", "1981-09-12T20:57:50Z"], ["1981-09-13T01:14:01Z", "1981-09-13T21:26:55Z"], ["1981-09-14T00:31:45Z", "1981-09-14T21:48:31Z"], ["1981-09-15T05:33:37Z", "1981-09-15T22:05:11Z"], ["1981-09-16T04:10:57Z", "1981-09-16T20:59:51Z"], ["1981-09-17T02:52:01Z", "1981-09-17T21:02:23Z"], ["1981-09-18T03:12:01Z", "1981-09-18T21:43:19Z"], ["1981-09-19T00:20:57Z", "1981-09-19T17:08:07Z"], ["1981-09-20T04:18:57Z", "1981-09-20T23:59:59Z"], ["1981-09-21T00:00:01Z", "1981-09-21T21:08:47Z"], ["1981-09-22T03:08:25Z", "1981-09-22T21:31:27Z"], ["1981-09-23T00:12:10Z", "1981-09-23T21:46:08Z"], ["1981-09-24T01:05:14Z", "1981-09-24T23:51:12Z"], ["1981-09-25T00:46:50Z", "1981-09-25T20:57:04Z"], ["1981-09-26T02:57:06Z", "1981-09-26T21:17:36Z"], ["1981-09-27T03:36:58Z", "1981-09-27T21:37:52Z"], ["1981-09-28T00:10:42Z", "1981-09-28T23:35:36Z"], ["1981-09-29T05:22:34Z", "1981-09-29T23:24:00Z"], ["1981-09-30T01:24:50Z", "1981-09-30T21:03:36Z"], ["1981-10-01T01:10:10Z", "1981-10-01T21:20:25Z"], ["1981-10-02T01:29:54Z", "1981-10-02T21:29:29Z"], ["1981-10-03T04:07:31Z", "1981-10-03T21:28:01Z"], ["1981-10-04T02:16:43Z", "1981-10-04T22:08:33Z"], ["1981-10-05T02:42:03Z", "1981-10-05T23:36:57Z"], ["1981-10-06T01:08:43Z", "1981-10-06T23:59:59Z"], ["1981-10-07T00:00:01Z", "1981-10-07T00:08:57Z"], ["1981-10-08T00:15:31Z", "1981-10-08T20:21:53Z"], ["1981-10-09T00:35:47Z", "1981-10-09T22:14:25Z"], ["1981-10-10T00:52:52Z", "1981-10-10T22:21:22Z"], ["1981-10-11T02:37:40Z", "1981-10-11T19:32:26Z"], ["1981-10-12T01:17:56Z", "1981-10-12T22:43:22Z"], ["1981-10-13T04:50:04Z", "1981-10-13T15:07:54Z"], ["1981-10-14T00:22:44Z", "1981-10-14T18:25:22Z"], ["1981-10-15T00:39:48Z", "1981-10-15T19:04:28Z"], ["1981-10-16T00:56:52Z", "1981-10-16T22:27:30Z"], ["1981-10-17T04:20:12Z", "1981-10-17T19:30:02Z"], ["1981-10-18T01:27:01Z", "1981-10-18T16:21:23Z"], ["1981-10-19T00:09:41Z", "1981-10-19T21:48:27Z"], ["1981-10-20T00:25:09Z", "1981-10-20T21:51:23Z"], ["1981-10-21T02:19:09Z", "1981-10-21T23:49:15Z"], ["1981-10-22T00:50:13Z", "1981-10-22T23:59:59Z"], ["1981-10-23T00:00:03Z", "1981-10-23T23:59:59Z"], ["1981-10-24T00:00:03Z", "1981-10-24T21:22:28Z"], ["1981-10-25T04:59:18Z", "1981-10-25T20:00:44Z"], ["1981-10-26T01:52:22Z", "1981-10-26T23:32:04Z"], ["1981-10-27T03:47:42Z", "1981-10-27T20:05:16Z"], ["1981-10-28T12:15:10Z", "1981-10-28T20:49:16Z"], ["1981-10-29T04:23:10Z", "1981-10-29T16:10:20Z"], ["1981-10-30T07:47:02Z", "1981-10-30T21:21:00Z"], ["1981-10-31T04:52:54Z", "1981-10-31T23:07:41Z"], ["1981-11-01T06:55:03Z", "1981-11-01T21:53:25Z"], ["1981-11-02T03:36:39Z", "1981-11-02T20:30:53Z"], ["1981-11-03T05:27:59Z", "1981-11-03T23:58:37Z"], ["1981-11-04T00:51:19Z", "1981-11-04T23:59:59Z"], ["1981-11-05T00:00:01Z", "1981-11-05T23:44:37Z"], ["1981-11-06T08:06:07Z", "1981-11-06T19:08:37Z"], ["1981-11-07T06:23:43Z", "1981-11-07T23:16:54Z"], ["1981-11-08T00:10:32Z", "1981-11-08T22:48:54Z"], ["1981-11-09T00:26:40Z", "1981-11-09T22:05:10Z"], ["1981-11-10T10:16:00Z", "1981-11-10T23:55:02Z"], ["1981-11-11T04:09:28Z", "1981-11-11T23:31:50Z"], ["1981-11-12T01:00:40Z", "1981-11-12T23:43:26Z"], ["1981-11-13T01:13:12Z", "1981-11-13T23:59:58Z"], ["1981-11-14T00:00:00Z", "1981-11-14T22:35:27Z"], ["1981-11-15T01:40:57Z", "1981-11-15T23:26:23Z"], ["1981-11-16T00:13:13Z", "1981-11-16T23:37:27Z"], ["1981-11-17T02:05:53Z", "1981-11-17T23:44:15Z"], ["1981-11-18T00:42:49Z", "1981-11-18T20:11:59Z"], ["1981-11-19T20:25:13Z", "1981-11-19T23:38:55Z"], ["1981-11-20T02:39:21Z", "1981-11-20T22:41:43Z"], ["1981-11-21T01:10:42Z", "1981-11-21T21:15:54Z"], ["1981-11-22T01:26:34Z", "1981-11-22T23:08:24Z"], ["1981-11-23T01:32:18Z", "1981-11-23T23:14:24Z"], ["1981-11-24T00:10:10Z", "1981-11-24T23:31:20Z"], ["1981-11-25T01:57:14Z", "1981-11-25T23:31:36Z"], ["1981-11-26T02:10:10Z", "1981-11-26T23:42:24Z"], ["1981-11-27T02:20:50Z", "1981-11-27T23:52:57Z"], ["1981-11-28T00:50:51Z", "1981-11-28T23:59:53Z"], ["1981-11-29T02:40:51Z", "1981-11-29T23:59:37Z"], ["1981-11-30T01:11:23Z", "1981-11-30T23:59:59Z"], ["1981-12-01T00:00:01Z", "1981-12-01T23:59:57Z"], ["1981-12-02T00:00:01Z", "1981-12-02T23:59:59Z"], ["1981-12-03T00:00:01Z", "1981-12-03T22:51:06Z"], ["1981-12-04T00:06:43Z", "1981-12-04T23:03:54Z"], ["1981-12-05T00:16:36Z", "1981-12-05T23:13:38Z"], ["1981-12-06T00:26:12Z", "1981-12-06T23:37:30Z"], ["1981-12-07T00:27:40Z", "1981-12-07T23:46:02Z"], ["1981-12-08T00:45:08Z", "1981-12-08T23:53:54Z"], ["1981-12-09T00:52:12Z", "1981-12-09T23:59:58Z"], ["1981-12-10T00:00:00Z", "1981-12-10T23:59:58Z"], ["1981-12-11T00:00:02Z", "1981-12-11T23:59:59Z"], ["1981-12-12T00:00:03Z", "1981-12-12T23:59:59Z"], ["1981-12-13T00:00:03Z", "1981-12-13T22:48:35Z"], ["1981-12-14T00:00:05Z", "1981-12-14T23:59:59Z"], ["1981-12-15T00:00:01Z", "1981-12-15T23:01:40Z"], ["1981-12-16T00:07:17Z", "1981-12-16T10:07:23Z"], ["1981-12-23T04:09:18Z", "1981-12-23T21:43:09Z"], ["1981-12-24T02:22:06Z", "1981-12-24T22:32:29Z"], ["1981-12-25T01:29:51Z", "1981-12-25T23:59:59Z"], ["1981-12-26T00:00:01Z", "1981-12-26T22:35:25Z"], ["1981-12-27T03:00:47Z", "1981-12-27T21:04:05Z"], ["1981-12-28T02:41:59Z", "1981-12-28T22:44:35Z"], ["1981-12-29T01:31:51Z", "1981-12-29T21:17:09Z"], ["1981-12-30T01:38:15Z", "1981-12-30T22:57:17Z"], ["1981-12-31T03:21:44Z", "1981-12-31T18:12:30Z"], ["1982-01-01T03:21:44Z", "1982-01-01T23:59:58Z"], ["1982-01-02T00:00:00Z", "1982-01-02T21:38:22Z"], ["1982-01-03T00:34:40Z", "1982-01-03T23:18:06Z"], ["1982-01-04T02:15:20Z", "1982-01-04T19:53:42Z"], ["1982-01-05T00:44:00Z", "1982-01-05T23:34:47Z"], ["1982-01-06T00:13:37Z", "1982-01-06T19:59:42Z"], ["1982-01-07T02:29:52Z", "1982-01-07T23:13:27Z"], ["1982-01-08T05:15:29Z", "1982-01-08T23:32:47Z"], ["1982-01-09T01:07:05Z", "1982-01-09T23:51:43Z"], ["1982-01-10T02:47:21Z", "1982-01-10T23:59:59Z"], ["1982-01-11T00:00:01Z", "1982-01-11T18:25:03Z"], ["1982-01-12T01:18:49Z", "1982-01-12T23:59:59Z"], ["1982-01-13T00:00:01Z", "1982-01-13T22:37:35Z"], ["1982-01-14T00:44:50Z", "1982-01-14T23:59:58Z"], ["1982-01-15T00:00:00Z", "1982-01-15T22:03:12Z"], ["1982-01-16T01:32:26Z", "1982-01-16T23:59:58Z"], ["1982-01-17T00:00:00Z", "1982-01-17T22:09:12Z"], ["1982-01-18T00:04:10Z", "1982-01-18T23:59:56Z"], ["1982-01-19T00:00:00Z", "1982-01-19T22:45:12Z"], ["1982-01-20T00:10:34Z", "1982-01-20T23:59:57Z"], ["1982-01-21T00:00:01Z", "1982-01-21T22:51:05Z"], ["1982-01-22T00:09:39Z", "1982-01-22T17:32:57Z"], ["1982-01-23T01:06:19Z", "1982-01-23T21:21:21Z"], ["1982-01-24T01:57:55Z", "1982-01-24T21:14:09Z"], ["1982-01-25T00:07:39Z", "1982-01-25T22:36:01Z"], ["1982-01-26T00:35:07Z", "1982-01-26T21:02:49Z"], ["1982-01-27T00:39:23Z", "1982-01-27T21:06:34Z"], ["1982-01-28T00:42:44Z", "1982-01-28T21:57:46Z"], ["1982-01-29T00:45:56Z", "1982-01-29T21:11:54Z"], ["1982-01-30T04:49:48Z", "1982-01-30T23:04:58Z"], ["1982-01-31T00:04:28Z", "1982-01-31T22:54:10Z"], ["1982-02-01T00:06:28Z", "1982-02-01T21:20:02Z"], ["1982-02-02T00:08:28Z", "1982-02-02T15:03:14Z"], ["1982-02-03T11:05:41Z", "1982-02-03T18:20:59Z"], ["1982-02-04T00:03:48Z", "1982-02-04T21:29:22Z"], ["1982-02-05T05:05:57Z", "1982-02-05T18:19:39Z"], ["1982-02-06T05:08:37Z", "1982-02-06T22:35:31Z"], ["1982-02-07T01:35:41Z", "1982-02-07T20:00:43Z"], ["1982-02-08T01:34:29Z", "1982-02-08T20:49:15Z"], ["1982-02-09T03:13:33Z", "1982-02-09T18:36:03Z"], ["1982-02-10T00:02:21Z", "1982-02-10T23:59:59Z"], ["1982-02-11T00:00:01Z", "1982-02-11T22:40:43Z"], ["1982-02-12T03:32:29Z", "1982-02-12T18:12:33Z"], ["1982-02-13T00:10:05Z", "1982-02-13T22:22:52Z"], ["1982-02-14T00:09:18Z", "1982-02-14T23:59:48Z"], ["1982-02-15T01:45:34Z", "1982-02-15T21:20:44Z"], ["1982-02-16T00:05:02Z", "1982-02-16T23:57:56Z"], ["1982-02-17T02:58:38Z", "1982-02-17T22:21:24Z"], ["1982-02-18T01:37:42Z", "1982-02-18T21:30:52Z"], ["1982-02-19T01:34:30Z", "1982-02-19T23:59:58Z"], ["1982-02-20T00:00:00Z", "1982-02-20T23:53:16Z"], ["1982-02-21T05:01:18Z", "1982-02-21T23:51:32Z"], ["1982-02-22T01:48:54Z", "1982-02-22T23:49:32Z"], ["1982-02-23T02:59:02Z", "1982-02-23T23:47:17Z"], ["1982-02-27T00:18:55Z", "1982-02-27T22:06:53Z"], ["1982-02-28T00:03:03Z", "1982-02-28T21:06:13Z"], ["1982-03-01T03:11:59Z", "1982-03-01T23:36:05Z"], ["1982-03-02T01:34:23Z", "1982-03-02T23:33:09Z"], ["1982-03-03T04:13:43Z", "1982-03-03T23:43:58Z"], ["1982-03-04T00:56:15Z", "1982-03-04T23:39:10Z"], ["1982-03-05T02:11:28Z", "1982-03-05T23:35:58Z"], ["1982-03-06T01:15:44Z", "1982-03-06T23:16:22Z"], ["1982-03-07T05:07:44Z", "1982-03-07T21:36:46Z"], ["1982-03-08T03:26:32Z", "1982-03-08T20:05:26Z"], ["1982-03-09T01:03:04Z", "1982-03-09T23:00:14Z"], ["1982-03-10T00:56:48Z", "1982-03-10T23:25:18Z"], ["1982-03-11T00:52:24Z", "1982-03-11T22:49:18Z"], ["1982-03-12T00:06:48Z", "1982-03-12T23:05:48Z"], ["1982-03-13T04:30:56Z", "1982-03-13T16:31:27Z"], ["1982-03-14T00:36:17Z", "1982-03-14T22:20:06Z"], ["1982-03-15T02:43:29Z", "1982-03-15T17:14:07Z"], ["1982-03-16T01:13:13Z", "1982-03-16T22:17:19Z"], ["1982-03-17T02:40:41Z", "1982-03-17T22:10:47Z"], ["1982-03-18T00:38:25Z", "1982-03-18T23:36:47Z"], ["1982-03-19T02:22:33Z", "1982-03-19T23:29:19Z"], ["1982-03-20T02:18:41Z", "1982-03-20T20:11:51Z"], ["1982-03-21T02:07:37Z", "1982-03-21T23:15:59Z"], ["1982-03-22T00:23:54Z", "1982-03-22T18:39:36Z"], ["1982-03-23T00:59:38Z", "1982-03-23T21:27:20Z"], ["1982-03-24T01:27:14Z", "1982-03-24T21:19:44Z"], ["1982-03-25T01:46:42Z", "1982-03-25T22:58:06Z"], ["1982-03-26T02:48:26Z", "1982-03-26T21:04:16Z"], ["1982-03-27T01:02:02Z", "1982-03-27T22:33:12Z"], ["1982-03-28T02:43:22Z", "1982-03-28T23:58:56Z"], ["1982-03-29T02:23:22Z", "1982-03-29T22:15:13Z"], ["1982-03-30T00:34:42Z", "1982-03-30T22:06:49Z"], ["1982-03-31T00:27:15Z", "1982-03-31T20:22:57Z"], ["1982-04-01T00:18:43Z", "1982-04-01T22:36:41Z"], ["1982-04-02T00:26:03Z", "1982-04-02T23:57:05Z"], ["1982-04-03T06:06:03Z", "1982-04-03T19:51:13Z"], ["1982-04-04T03:18:19Z", "1982-04-04T16:33:37Z"], ["1982-04-05T00:58:11Z", "1982-04-05T21:00:01Z"], ["1982-04-06T08:49:48Z", "1982-04-06T22:18:01Z"], ["1982-04-07T02:26:44Z", "1982-04-07T17:34:42Z"], ["1982-04-08T01:25:32Z", "1982-04-08T18:52:58Z"], ["1982-04-09T08:05:24Z", "1982-04-09T23:09:44Z"], ["1982-04-10T00:36:52Z", "1982-04-10T23:15:22Z"], ["1982-04-11T06:00:36Z", "1982-04-11T23:59:58Z"], ["1982-04-12T00:00:02Z", "1982-04-12T22:51:14Z"], ["1982-04-13T01:04:12Z", "1982-04-13T23:59:58Z"], ["1982-04-14T00:00:00Z", "1982-04-14T23:16:11Z"], ["1982-04-15T00:36:21Z", "1982-04-15T23:28:03Z"], ["1982-04-16T00:52:37Z", "1982-04-16T23:59:59Z"], ["1982-04-17T00:00:01Z", "1982-04-17T22:55:31Z"], ["1982-04-18T01:37:33Z", "1982-04-18T22:00:11Z"], ["1982-04-19T01:06:05Z", "1982-04-19T23:40:35Z"], ["1982-04-20T00:52:29Z", "1982-04-20T23:27:47Z"], ["1982-04-21T00:51:17Z", "1982-04-21T12:27:31Z"], ["1982-04-22T05:23:42Z", "1982-04-22T23:14:19Z"], ["1982-04-23T00:10:30Z", "1982-04-23T14:41:22Z"], ["1982-04-24T07:02:38Z", "1982-04-24T22:30:44Z"], ["1982-04-25T01:15:10Z", "1982-04-25T23:53:48Z"], ["1982-04-26T01:04:14Z", "1982-04-26T23:37:48Z"], ["1982-04-27T00:47:42Z", "1982-04-27T23:21:56Z"], ["1982-04-28T00:27:26Z", "1982-04-28T23:38:44Z"], ["1982-04-29T00:26:06Z", "1982-04-29T22:49:16Z"], ["1982-04-30T03:17:18Z", "1982-04-30T22:43:41Z"], ["1982-05-01T04:21:43Z", "1982-05-01T23:59:58Z"], ["1982-05-02T00:00:00Z", "1982-05-02T23:59:59Z"], ["1982-05-03T00:00:01Z", "1982-05-03T23:34:53Z"], ["1982-05-04T10:15:19Z", "1982-05-04T21:49:49Z"], ["1982-05-05T00:30:15Z", "1982-05-05T23:03:41Z"], ["1982-05-07T00:00:01Z", "1982-05-07T22:43:41Z"], ["1982-05-08T02:38:23Z", "1982-05-08T20:40:53Z"], ["1982-05-09T04:00:15Z", "1982-05-09T22:26:13Z"], ["1982-05-10T01:00:31Z", "1982-05-10T23:20:29Z"], ["1982-05-11T01:40:47Z", "1982-05-11T23:28:13Z"], ["1982-05-12T00:00:15Z", "1982-05-12T22:47:50Z"], ["1982-05-13T09:01:28Z", "1982-05-13T22:54:38Z"], ["1982-05-14T00:52:08Z", "1982-05-14T23:59:58Z"], ["1982-05-15T00:00:00Z", "1982-05-15T23:55:10Z"], ["1982-05-16T00:15:44Z", "1982-05-16T23:39:50Z"], ["1982-05-17T01:35:28Z", "1982-05-17T22:56:38Z"], ["1982-05-18T00:03:28Z", "1982-05-18T20:56:14Z"], ["1982-05-19T00:58:24Z", "1982-05-19T23:19:18Z"], ["1982-05-20T03:51:20Z", "1982-05-20T23:48:30Z"], ["1982-05-21T00:46:32Z", "1982-05-21T23:11:03Z"], ["1982-05-22T03:38:33Z", "1982-05-22T23:59:59Z"], ["1982-05-23T00:00:01Z", "1982-05-23T23:59:59Z"], ["1982-05-24T00:00:01Z", "1982-05-24T22:36:47Z"], ["1982-05-25T00:50:33Z", "1982-05-25T23:01:43Z"], ["1982-05-26T00:53:13Z", "1982-05-26T23:50:47Z"], ["1982-05-27T00:14:17Z", "1982-05-27T22:53:19Z"], ["1982-05-28T23:40:57Z", "1982-05-28T23:59:27Z"], ["1982-05-29T00:00:09Z", "1982-05-29T23:59:59Z"], ["1982-05-30T00:00:01Z", "1982-05-30T23:59:58Z"], ["1982-05-31T00:00:00Z", "1982-05-31T23:43:20Z"], ["1982-06-01T02:13:38Z", "1982-06-01T23:05:58Z"], ["1982-06-02T00:20:18Z", "1982-06-02T23:08:26Z"], ["1982-06-03T01:17:38Z", "1982-06-03T22:11:36Z"], ["1982-06-04T01:00:42Z", "1982-06-04T23:51:04Z"], ["1982-06-05T01:25:46Z", "1982-06-05T23:09:12Z"], ["1982-06-06T02:22:19Z", "1982-06-06T21:47:37Z"], ["1982-06-07T03:25:14Z", "1982-06-07T23:14:09Z"], ["1982-06-08T02:50:51Z", "1982-06-08T22:01:45Z"], ["1982-06-09T02:00:43Z", "1982-06-09T22:35:21Z"], ["1982-06-10T04:17:23Z", "1982-06-10T23:16:25Z"], ["1982-06-11T02:02:19Z", "1982-06-11T23:07:05Z"], ["1982-06-12T01:42:35Z", "1982-06-12T23:04:09Z"], ["1982-06-13T06:53:47Z", "1982-06-13T23:54:17Z"], ["1982-06-14T02:46:35Z", "1982-06-14T22:23:29Z"], ["1982-06-15T00:43:08Z", "1982-06-15T23:15:06Z"], ["1982-06-16T00:29:08Z", "1982-06-16T23:01:30Z"], ["1982-06-17T00:08:44Z", "1982-06-17T22:40:58Z"], ["1982-06-18T01:19:48Z", "1982-06-18T23:52:26Z"], ["1982-06-19T06:29:16Z", "1982-06-19T21:53:30Z"], ["1982-06-20T01:59:48Z", "1982-06-20T23:58:34Z"], ["1982-06-21T03:17:56Z", "1982-06-21T22:22:42Z"], ["1982-06-22T03:09:24Z", "1982-06-22T21:20:02Z"], ["1982-06-23T01:14:37Z", "1982-06-23T21:22:02Z"], ["1982-06-24T04:47:49Z", "1982-06-24T21:46:11Z"], ["1982-06-25T01:40:37Z", "1982-06-25T12:13:55Z"], ["1982-06-26T04:25:57Z", "1982-06-26T20:43:15Z"], ["1982-06-27T00:53:25Z", "1982-06-27T23:50:27Z"], ["1982-06-28T01:36:53Z", "1982-06-28T20:16:59Z"], ["1982-06-29T00:39:57Z", "1982-06-29T23:06:51Z"], ["1982-06-30T10:09:49Z", "1982-06-30T13:40:27Z"], ["1982-07-01T10:23:00Z", "1982-07-01T21:57:46Z"], ["1982-07-02T03:45:17Z", "1982-07-02T22:50:50Z"], ["1982-07-03T02:35:09Z", "1982-07-03T14:02:51Z"], ["1982-07-04T01:49:01Z", "1982-07-04T22:44:51Z"], ["1982-07-05T00:05:33Z", "1982-07-05T20:46:59Z"], ["1982-07-06T06:54:45Z", "1982-07-06T22:13:15Z"], ["1982-07-07T04:03:17Z", "1982-07-07T23:16:11Z"], ["1982-07-08T02:03:57Z", "1982-07-08T21:18:43Z"], ["1982-07-09T01:41:25Z", "1982-07-09T23:16:51Z"], ["1982-07-10T02:52:54Z", "1982-07-10T16:36:51Z"], ["1982-07-11T00:27:42Z", "1982-07-11T23:00:35Z"], ["1982-07-12T01:18:13Z", "1982-07-12T18:58:04Z"], ["1982-07-13T01:41:26Z", "1982-07-13T23:14:12Z"], ["1982-07-14T03:40:30Z", "1982-07-14T20:27:24Z"], ["1982-07-15T00:50:54Z", "1982-07-15T21:44:28Z"], ["1982-07-16T01:15:58Z", "1982-07-16T23:59:56Z"], ["1982-07-17T00:00:14Z", "1982-07-17T20:57:16Z"], ["1982-07-18T00:32:38Z", "1982-07-18T23:39:08Z"], ["1982-07-19T03:53:35Z", "1982-07-19T22:58:53Z"], ["1982-07-20T06:05:19Z", "1982-07-20T22:33:25Z"], ["1982-07-21T00:06:55Z", "1982-07-21T22:22:21Z"], ["1982-07-22T01:13:35Z", "1982-07-22T22:54:05Z"], ["1982-07-23T00:52:47Z", "1982-07-23T23:58:53Z"], ["1982-07-24T00:00:15Z", "1982-07-24T23:59:59Z"], ["1982-07-25T00:00:01Z", "1982-07-25T21:03:09Z"], ["1982-07-26T03:46:24Z", "1982-07-26T19:55:42Z"], ["1982-07-29T05:12:48Z", "1982-07-29T17:08:14Z"], ["1982-07-30T00:49:20Z", "1982-07-30T22:02:46Z"], ["1982-07-31T00:20:32Z", "1982-07-31T23:31:26Z"], ["1982-08-01T03:53:20Z", "1982-08-01T22:01:18Z"], ["1982-08-02T00:23:04Z", "1982-08-02T18:03:10Z"], ["1982-08-03T02:56:56Z", "1982-08-03T23:50:23Z"], ["1982-08-04T00:57:05Z", "1982-08-04T23:11:35Z"], ["1982-08-05T05:10:17Z", "1982-08-05T13:09:43Z"], ["1982-08-06T04:44:33Z", "1982-08-06T23:04:23Z"], ["1982-08-07T02:38:49Z", "1982-08-07T19:23:43Z"], ["1982-08-08T00:44:49Z", "1982-08-08T22:10:31Z"], ["1982-08-09T01:01:05Z", "1982-08-09T19:58:31Z"], ["1982-08-10T00:32:17Z", "1982-08-10T20:57:20Z"], ["1982-08-11T04:49:37Z", "1982-08-11T23:56:47Z"], ["1982-08-12T03:32:42Z", "1982-08-12T23:29:12Z"], ["1982-08-13T02:16:02Z", "1982-08-13T23:50:40Z"], ["1982-08-14T02:10:34Z", "1982-08-14T21:25:28Z"], ["1982-08-15T02:06:34Z", "1982-08-15T22:50:00Z"], ["1982-08-16T01:36:50Z", "1982-08-16T23:06:56Z"], ["1982-08-17T02:42:42Z", "1982-08-17T23:59:58Z"], ["1982-08-18T00:00:02Z", "1982-08-18T21:16:56Z"], ["1982-08-19T03:02:42Z", "1982-08-19T22:19:04Z"], ["1982-08-20T01:13:55Z", "1982-08-20T22:45:13Z"], ["1982-08-21T02:19:39Z", "1982-08-21T20:39:29Z"], ["1982-08-22T01:49:15Z", "1982-08-22T23:22:49Z"], ["1982-08-23T02:54:27Z", "1982-08-23T18:06:17Z"], ["1982-08-24T03:58:03Z", "1982-08-24T23:14:25Z"], ["1982-08-25T03:27:55Z", "1982-08-25T21:27:13Z"], ["1982-08-26T00:37:47Z", "1982-08-26T23:07:21Z"], ["1982-08-27T02:10:51Z", "1982-08-27T22:48:01Z"], ["1982-08-28T03:31:56Z", "1982-08-28T21:54:25Z"], ["1982-08-29T02:45:08Z", "1982-08-29T23:21:54Z"], ["1982-08-30T01:27:32Z", "1982-08-30T21:39:14Z"], ["1982-09-02T03:49:00Z", "1982-09-02T22:52:50Z"], ["1982-09-03T00:07:48Z", "1982-09-03T22:21:56Z"], ["1982-09-04T01:12:52Z", "1982-09-04T23:23:54Z"], ["1982-09-05T01:01:40Z", "1982-09-05T22:32:10Z"], ["1982-09-06T00:30:28Z", "1982-09-06T23:59:58Z"], ["1982-09-07T00:00:02Z", "1982-09-07T23:34:50Z"], ["1982-09-08T00:59:40Z", "1982-09-08T19:57:22Z"], ["1982-09-09T00:49:33Z", "1982-09-09T21:34:03Z"], ["1982-09-10T00:43:41Z", "1982-09-10T21:26:19Z"], ["1982-09-11T00:11:49Z", "1982-09-11T22:54:11Z"], ["1982-09-12T01:56:45Z", "1982-09-12T19:12:43Z"], ["1982-09-13T00:58:13Z", "1982-09-13T21:42:15Z"], ["1982-09-14T00:51:25Z", "1982-09-14T22:31:31Z"], ["1982-09-15T01:07:33Z", "1982-09-15T23:59:59Z"], ["1982-09-16T00:00:01Z", "1982-09-16T23:34:19Z"], ["1982-09-17T01:36:29Z", "1982-09-17T22:22:27Z"], ["1982-09-18T01:02:21Z", "1982-09-18T21:47:32Z"], ["1982-09-19T00:27:18Z", "1982-09-19T20:22:28Z"], ["1982-09-20T01:26:22Z", "1982-09-20T23:37:16Z"], ["1982-09-21T06:16:46Z", "1982-09-21T21:29:32Z"], ["1982-09-22T01:51:42Z", "1982-09-22T20:54:28Z"], ["1982-09-23T00:22:38Z", "1982-09-23T19:44:20Z"], ["1982-09-24T03:20:54Z", "1982-09-24T21:18:02Z"], ["1982-09-25T00:04:14Z", "1982-09-25T20:41:56Z"], ["1982-09-26T00:15:58Z", "1982-09-26T23:59:59Z"], ["1982-09-27T00:00:01Z", "1982-09-27T15:14:05Z"], ["1982-09-28T06:19:03Z", "1982-09-28T22:19:49Z"], ["1982-09-29T00:49:19Z", "1982-09-29T23:45:17Z"], ["1982-09-30T00:59:11Z", "1982-09-30T23:12:29Z"], ["1982-10-01T00:21:59Z", "1982-10-01T21:49:01Z"], ["1982-10-02T00:04:47Z", "1982-10-02T22:18:17Z"], ["1982-10-03T01:31:19Z", "1982-10-03T11:15:41Z"], ["1982-10-04T03:56:47Z", "1982-10-04T19:54:54Z"], ["1982-10-05T04:07:28Z", "1982-10-05T23:09:10Z"], ["1982-10-06T01:55:36Z", "1982-10-06T23:59:58Z"], ["1982-10-07T00:00:00Z", "1982-10-07T23:27:50Z"], ["1982-10-08T02:11:28Z", "1982-10-08T23:37:42Z"], ["1982-10-09T02:41:44Z", "1982-10-09T21:48:22Z"], ["1982-10-10T01:12:48Z", "1982-10-10T23:51:58Z"], ["1982-10-11T03:38:56Z", "1982-10-11T23:11:43Z"], ["1982-10-12T01:28:48Z", "1982-10-12T23:59:59Z"], ["1982-10-13T00:00:01Z", "1982-10-13T22:42:15Z"], ["1982-10-14T01:21:45Z", "1982-10-14T23:31:59Z"], ["1982-10-15T00:12:17Z", "1982-10-15T23:59:59Z"], ["1982-10-16T00:00:01Z", "1982-10-16T22:53:27Z"], ["1982-10-17T01:34:41Z", "1982-10-17T23:00:56Z"], ["1982-10-18T00:08:10Z", "1982-10-18T23:04:40Z"], ["1982-10-19T00:12:02Z", "1982-10-19T23:11:12Z"], ["1982-10-20T00:18:18Z", "1982-10-20T23:08:56Z"], ["1982-10-21T03:05:14Z", "1982-10-21T23:18:08Z"], ["1982-10-22T00:25:46Z", "1982-10-22T23:17:44Z"], ["1982-10-23T01:15:54Z", "1982-10-23T23:24:56Z"], ["1982-10-24T02:50:50Z", "1982-10-24T23:05:53Z"], ["1982-10-25T00:59:23Z", "1982-10-25T23:59:45Z"], ["1982-10-26T00:00:11Z", "1982-10-26T23:29:37Z"], ["1982-10-27T06:04:27Z", "1982-10-27T22:46:09Z"], ["1982-10-28T02:16:51Z", "1982-10-28T23:11:43Z"], ["1982-10-29T01:08:51Z", "1982-10-29T23:59:59Z"], ["1982-10-30T00:00:01Z", "1982-10-30T21:20:02Z"], ["1982-10-31T00:46:52Z", "1982-10-31T20:36:58Z"], ["1982-11-01T00:27:00Z", "1982-11-01T21:22:10Z"], ["1982-11-02T03:52:44Z", "1982-11-02T23:41:46Z"], ["1982-11-03T00:27:32Z", "1982-11-03T23:33:30Z"], ["1982-11-04T03:53:32Z", "1982-11-04T22:51:22Z"], ["1982-11-05T00:49:33Z", "1982-11-05T22:54:10Z"], ["1982-11-06T00:02:28Z", "1982-11-06T23:25:39Z"], ["1982-11-07T01:28:53Z", "1982-11-07T22:04:35Z"], ["1982-11-08T00:19:41Z", "1982-11-08T22:05:15Z"], ["1982-11-09T00:00:13Z", "1982-11-09T22:02:59Z"], ["1982-11-10T00:44:13Z", "1982-11-10T23:34:52Z"], ["1982-11-11T00:42:38Z", "1982-11-11T20:53:56Z"], ["1982-11-12T01:49:02Z", "1982-11-12T23:10:20Z"], ["1982-11-13T00:34:54Z", "1982-11-13T20:53:16Z"], ["1982-11-14T00:33:34Z", "1982-11-14T23:59:58Z"], ["1982-11-15T00:00:00Z", "1982-11-15T23:59:58Z"], ["1982-11-16T00:00:00Z", "1982-11-16T23:59:58Z"], ["1982-11-17T00:00:00Z", "1982-11-17T23:40:05Z"], ["1982-11-18T01:08:39Z", "1982-11-18T22:37:33Z"], ["1982-11-19T03:21:19Z", "1982-11-19T23:24:13Z"], ["1982-11-20T01:23:03Z", "1982-11-20T23:59:59Z"], ["1982-11-21T00:00:01Z", "1982-11-21T23:18:13Z"], ["1982-11-22T01:40:15Z", "1982-11-22T23:59:58Z"], ["1982-11-23T00:00:00Z", "1982-11-23T22:47:26Z"], ["1982-11-24T01:28:48Z", "1982-11-24T22:46:46Z"], ["1982-11-25T01:21:44Z", "1982-11-25T22:35:18Z"], ["1982-11-26T00:30:08Z", "1982-11-26T23:59:58Z"], ["1982-11-27T00:00:00Z", "1982-11-27T22:11:18Z"], ["1982-11-28T00:39:04Z", "1982-11-28T23:27:43Z"], ["1982-11-29T00:56:01Z", "1982-11-29T22:01:19Z"], ["1982-11-30T01:46:41Z", "1982-11-30T23:09:03Z"], ["1982-12-01T00:39:21Z", "1982-12-01T23:22:15Z"], ["1982-12-02T01:17:05Z", "1982-12-02T17:38:07Z"], ["1982-12-03T09:32:33Z", "1982-12-03T23:50:32Z"], ["1982-12-04T00:48:10Z", "1982-12-04T23:45:20Z"], ["1982-12-05T00:27:22Z", "1982-12-05T23:59:56Z"], ["1982-12-06T00:00:00Z", "1982-12-06T21:04:32Z"], ["1982-12-07T11:44:58Z", "1982-12-07T23:59:04Z"], ["1982-12-08T02:37:46Z", "1982-12-08T23:54:00Z"], ["1982-12-09T01:36:50Z", "1982-12-09T22:24:41Z"], ["1982-12-10T01:23:31Z", "1982-12-10T18:43:37Z"], ["1982-12-11T06:29:15Z", "1982-12-11T21:59:05Z"], ["1982-12-12T05:04:27Z", "1982-12-12T22:36:09Z"], ["1982-12-13T03:48:19Z", "1982-12-13T21:00:01Z"], ["1982-12-14T06:35:47Z", "1982-12-14T23:11:53Z"], ["1982-12-15T00:14:19Z", "1982-12-15T23:43:37Z"], ["1982-12-16T00:45:16Z", "1982-12-16T23:59:58Z"], ["1982-12-17T00:00:02Z", "1982-12-17T21:15:46Z"], ["1982-12-18T00:59:48Z", "1982-12-18T19:03:46Z"], ["1982-12-19T01:30:04Z", "1982-12-19T21:05:38Z"], ["1982-12-20T00:26:12Z", "1982-12-20T23:07:36Z"], ["1982-12-21T00:09:00Z", "1982-12-21T23:35:23Z"], ["1982-12-22T02:55:00Z", "1982-12-22T23:38:59Z"], ["1982-12-23T00:42:13Z", "1982-12-23T21:13:39Z"], ["1982-12-24T18:19:09Z", "1982-12-24T20:21:39Z"], ["1982-12-25T10:18:21Z", "1982-12-25T21:19:39Z"], ["1982-12-26T07:41:57Z", "1982-12-26T15:25:39Z"], ["1982-12-27T01:14:53Z", "1982-12-27T20:06:11Z"], ["1982-12-28T02:27:57Z", "1982-12-28T23:16:43Z"], ["1982-12-29T06:37:34Z", "1982-12-29T21:16:12Z"], ["1982-12-30T00:57:26Z", "1982-12-30T13:53:50Z"], ["1982-12-31T04:24:38Z", "1982-12-31T22:04:20Z"], ["1983-01-01T05:30:06Z", "1983-01-01T23:59:58Z"], ["1983-01-02T00:00:00Z", "1983-01-02T20:12:52Z"], ["1983-01-03T09:53:50Z", "1983-01-03T17:58:21Z"], ["1983-01-04T03:14:07Z", "1983-01-04T19:19:49Z"], ["1983-01-05T02:24:23Z", "1983-01-05T23:59:59Z"], ["1983-01-06T00:00:01Z", "1983-01-06T17:23:57Z"], ["1983-01-07T01:36:23Z", "1983-01-07T23:59:59Z"], ["1983-01-08T00:00:01Z", "1983-01-08T23:59:59Z"], ["1983-01-09T00:00:01Z", "1983-01-09T18:59:33Z"], ["1983-01-10T19:20:56Z", "1983-01-10T20:55:34Z"], ["1983-01-11T03:14:56Z", "1983-01-11T18:31:18Z"], ["1983-01-12T06:33:44Z", "1983-01-12T21:31:26Z"], ["1983-01-13T01:56:32Z", "1983-01-13T23:59:58Z"], ["1983-01-14T00:00:00Z", "1983-01-14T20:30:06Z"], ["1983-01-15T00:08:56Z", "1983-01-15T23:25:02Z"], ["1983-01-16T00:28:08Z", "1983-01-16T22:54:31Z"], ["1983-01-17T00:18:25Z", "1983-01-17T23:35:27Z"], ["1983-01-18T02:26:01Z", "1983-01-18T23:20:39Z"], ["1983-01-19T01:09:21Z", "1983-01-19T23:35:19Z"], ["1983-01-20T02:50:41Z", "1983-01-20T20:25:11Z"], ["1983-01-21T00:47:21Z", "1983-01-21T22:42:31Z"], ["1983-01-22T02:18:09Z", "1983-01-22T23:22:47Z"], ["1983-01-23T04:01:53Z", "1983-01-23T19:49:04Z"], ["1983-01-24T03:04:26Z", "1983-01-24T23:07:46Z"], ["1983-01-25T00:11:54Z", "1983-01-25T22:22:56Z"], ["1983-01-26T05:23:22Z", "1983-01-26T19:33:52Z"], ["1983-01-27T03:18:42Z", "1983-01-27T22:22:56Z"], ["1983-01-28T03:48:34Z", "1983-01-28T23:59:56Z"], ["1983-01-29T00:00:00Z", "1983-01-29T19:10:16Z"], ["1983-01-30T00:23:07Z", "1983-01-30T19:16:33Z"], ["1983-01-31T00:16:43Z", "1983-01-31T23:29:29Z"], ["1983-02-01T05:23:47Z", "1983-02-01T18:26:41Z"], ["1983-02-02T00:12:51Z", "1983-02-02T22:52:09Z"], ["1983-02-03T05:33:15Z", "1983-02-03T18:23:53Z"], ["1983-02-04T02:13:31Z", "1983-02-04T15:35:53Z"], ["1983-02-05T05:38:43Z", "1983-02-05T23:59:58Z"], ["1983-02-06T00:00:02Z", "1983-02-06T23:59:57Z"], ["1983-02-07T00:00:01Z", "1983-02-07T18:38:18Z"], ["1983-02-08T01:33:48Z", "1983-02-08T16:14:50Z"], ["1983-02-09T02:34:04Z", "1983-02-09T23:52:58Z"], ["1983-02-10T01:25:56Z", "1983-02-10T21:25:54Z"], ["1983-02-11T02:24:20Z", "1983-02-11T23:48:50Z"], ["1983-02-12T00:55:40Z", "1983-02-12T21:10:34Z"], ["1983-02-13T01:45:57Z", "1983-02-13T18:54:58Z"], ["1983-02-14T00:32:53Z", "1983-02-14T20:46:57Z"], ["1983-02-15T01:35:49Z", "1983-02-15T22:55:47Z"], ["1983-02-16T04:29:57Z", "1983-02-16T23:39:23Z"], ["1983-02-17T02:42:37Z", "1983-02-17T17:15:23Z"]];
+    const overallKpis = {
+      cdfFiles: 533,
+      activeDays: 436.8525462963,
+      coverage: 78.2810582104,
+      earliest: "1981-08-08 15:54 UTC",
+      latest: "1983-02-17 17:15 UTC"
+    };
+
+    window._globalMinTimeMs = 366134040000;
+    window._globalMaxTimeMs = 414350123000;
+
+    function parseAxisTimeMs(val) {
+      if (val == null) return NaN;
+      if (typeof val === 'number') return val;
+      if (val instanceof Date) return val.getTime();
+      const s = String(val).trim();
+      if (!s) return NaN;
+      if (/^-?\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+      const iso = s.replace(/\//g, '-').replace(' ', 'T');
+      const isoUtc = (iso.includes('Z') || iso.includes('+')) ? iso : iso + 'Z';
+      let ms = Date.parse(isoUtc);
+      if (!isNaN(ms)) return ms;
+      ms = Date.parse(s);
+      if (!isNaN(ms)) return ms;
+      return new Date(s).getTime();
+    }
+
+    function formatAxisDate(ms) {
+      const d = new Date(ms);
+      if (isNaN(d.getTime())) return null;
+      return d.toISOString();
+    }
+
+    function formatKpiDate(ms) {
+      if (!Number.isFinite(ms)) return 'No data';
+      return new Date(ms).toISOString().replace('.000Z', ' UTC');
+    }
+
+    function getThemeColors() {
+      const isLight = document.body.classList.contains('light');
+      return {
+        textColor: isLight ? '#0f172a' : '#f8fafc',
+        gridColor: isLight ? '#cbd5e1' : '#334155'
+      };
+    }
+
+    // Single vectorized trace — one bar per interval in parallel arrays.
+    // Avoids creating N trace objects in the DOM when a dataset has many gaps.
+    const traces = [{
+      type: 'bar',
+      orientation: 'h',
+      y: plotIntervals.map(() => 'DE2_WIND2S_WATS'),
+      x: plotIntervals.map(inv => inv[1]),
+      base: plotIntervals.map(inv => inv[0]),
+      marker: { color: '#0284c7', line: { width: 0 } },
+      hoverinfo: 'text',
+      hovertext: plotIntervals.map(inv =>
+        `<b>DE2_WIND2S_WATS</b><br>From: ${inv[0].replace('T', ' ').replace('Z', ' UTC')}<br>To: ${inv[2].replace('T', ' ').replace('Z', ' UTC')}<br>Duration: ${(inv[1] / 86400000).toFixed(2)} days`
+      ),
+      showlegend: false
+    }];
+
+    function renderPlot() {
+      const colors = getThemeColors();
+      let xRange = undefined;
+      let autorange = true;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        const span = Math.max(86400000, window._globalMaxTimeMs - window._globalMinTimeMs);
+        const pad = Math.max(86400000, span * 0.02);
+        xRange = [formatAxisDate(window._globalMinTimeMs - pad), formatAxisDate(window._globalMaxTimeMs + pad)];
+        autorange = false;
+      }
+      const layout = {
+        height: 190,
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent',
+        font: { color: colors.textColor, size: 11 },
+        margin: { l: 140, r: 30, t: 35, b: 40 },
+        xaxis: {
+          type: 'date',
+          side: 'bottom',
+          range: xRange,
+          autorange: autorange,
+          gridcolor: colors.gridColor,
+          tickcolor: colors.gridColor,
+          tickfont: { color: colors.textColor, size: 11 },
+          showline: true,
+          linecolor: colors.gridColor
+        },
+        xaxis2: {
+          type: 'date',
+          overlaying: 'x',
+          side: 'top',
+          matches: 'x',
+          title: { text: 'Time (UTC)', font: { color: colors.textColor, size: 11 } },
+          showgrid: false,
+          tickcolor: colors.gridColor,
+          tickfont: { color: colors.textColor, size: 11 },
+          showline: true,
+          linecolor: colors.gridColor
+        },
+        yaxis: {
+          type: 'category',
+          fixedrange: true,
+          automargin: true,
+          gridcolor: colors.gridColor,
+          tickcolor: colors.gridColor,
+          tickfont: { color: '#0284c7', size: 12 },
+          showline: true,
+          linecolor: colors.gridColor
+        },
+        dragmode: 'zoom',
+        barmode: 'overlay',
+        bargap: 0.75
+      };
+      Plotly.react('dataset-timeline-plot', traces, layout, { responsive: true, displayModeBar: true, displaylogo: false });
+    }
+
+    const savedTheme = localStorage.getItem('cdaweb_theme') || 'dark';
+    document.body.className = savedTheme;
+    const themeBtn = document.getElementById('theme-toggle');
+    if (themeBtn) {
+      themeBtn.textContent = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+    }
+
+    function mergeVisibleIntervals(intervals) {
+      if (!intervals.length) return [];
+      const sorted = intervals.slice().sort((a, b) => a[0] - b[0]);
+      const merged = [sorted[0].slice()];
+      for (let i = 1; i < sorted.length; i++) {
+        const prior = merged[merged.length - 1];
+        if (sorted[i][0] <= prior[1]) prior[1] = Math.max(prior[1], sorted[i][1]);
+        else merged.push(sorted[i].slice());
+      }
+      return merged;
+    }
+
+    function updateVisibleKpis(range) {
+      const fullRange = !range || range.length !== 2;
+      let startMs = fullRange ? null : parseAxisTimeMs(range[0]);
+      let stopMs = fullRange ? null : parseAxisTimeMs(range[1]);
+      if (!fullRange && (!Number.isFinite(startMs) || !Number.isFinite(stopMs))) return;
+      if (!fullRange && startMs > stopMs) { const tmp = startMs; startMs = stopMs; stopMs = tmp; }
+
+      const clippedIntervals = [];
+      const visibleFiles = new Set();
+      fileIntervals.forEach((interval, index) => {
+        const start = parseAxisTimeMs(interval[0]);
+        const stop = parseAxisTimeMs(interval[1]);
+        if (!Number.isFinite(start) || !Number.isFinite(stop)) return;
+        const clippedStart = startMs === null ? start : Math.max(start, startMs);
+        const clippedStop = stopMs === null ? stop : Math.min(stop, stopMs);
+        if (clippedStop > clippedStart) {
+          clippedIntervals.push([clippedStart, clippedStop]);
+          visibleFiles.add(index);
+        }
+      });
+      const merged = mergeVisibleIntervals(clippedIntervals);
+      const activeMs = merged.reduce((total, interval) => total + interval[1] - interval[0], 0);
+      const earliest = merged.length ? merged[0][0] : NaN;
+      const latest = merged.length ? merged[merged.length - 1][1] : NaN;
+      const spanMs = startMs !== null && stopMs !== null
+        ? Math.max(0, stopMs - startMs)
+        : Math.max(0, latest - earliest);
+      const kpis = fullRange ? overallKpis : {
+        cdfFiles: visibleFiles.size,
+        activeDays: activeMs / 86400000,
+        coverage: spanMs ? Math.min(100, (activeMs / spanMs) * 100) : 0,
+        earliest: formatKpiDate(earliest),
+        latest: formatKpiDate(latest)
+      };
+      const values = {
+        'kpi-cdf-files': Number(kpis.cdfFiles).toLocaleString(),
+        'kpi-active-days': Number(kpis.activeDays).toFixed(2),
+        'kpi-coverage': Number(kpis.coverage).toFixed(2) + '%',
+        'kpi-earliest-start': kpis.earliest,
+        'kpi-latest-stop': kpis.latest
+      };
+      Object.entries(values).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value;
+      });
+      const overallValues = {
+        'kpi-cdf-files-overall': overallKpis.cdfFiles.toLocaleString() + ' overall',
+        'kpi-active-days-overall': overallKpis.activeDays.toFixed(2) + ' days overall',
+        'kpi-coverage-overall': overallKpis.coverage.toFixed(2) + '% overall',
+        'kpi-earliest-start-overall': 'Overall: ' + overallKpis.earliest,
+        'kpi-latest-stop-overall': 'Overall: ' + overallKpis.latest
+      };
+      Object.entries(overallValues).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = fullRange ? '' : value;
+      });
+    }
+
+    renderPlot();
+    const datasetPlotDiv = document.getElementById('dataset-timeline-plot');
+    if (datasetPlotDiv) {
+      datasetPlotDiv.on('plotly_relayout', eventData => {
+        if (eventData['xaxis.autorange']) {
+          resetTimelineZoom('dataset-timeline-plot');
+          return;
+        }
+        const range = eventData['xaxis.range'] || (
+          eventData['xaxis.range[0]'] !== undefined
+            ? [eventData['xaxis.range[0]'], eventData['xaxis.range[1]']]
+            : null
+        );
+        updateVisibleKpis(range);
+        updatePanButtons('dataset-timeline-plot');
+      });
+      datasetPlotDiv.on('plotly_doubleclick', () => {
+        resetTimelineZoom('dataset-timeline-plot');
+        return false;
+      });
+    }
+    updateVisibleKpis(null);
+
+    function panTimelineWindow(divId, direction) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv || !plotDiv._fullLayout || !plotDiv._fullLayout.xaxis) return;
+      const rng = plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2) return;
+
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+
+      const span = t1 - t0;
+      if (span <= 0) return;
+
+      const newT0 = t0 + (direction * span);
+      const newT1 = t1 + (direction * span);
+
+      Plotly.relayout(plotDiv, {
+        'xaxis.range': [formatAxisDate(newT0), formatAxisDate(newT1)],
+        'xaxis.autorange': false
+      }).then(() => {
+        updatePanButtons(divId);
+      });
+    }
+
+    function resetTimelineZoom(divId) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      if (window._globalMinTimeMs && window._globalMaxTimeMs) {
+        const span = Math.max(86400000, window._globalMaxTimeMs - window._globalMinTimeMs);
+        const pad = Math.max(86400000, span * 0.02);
+        Plotly.relayout(plotDiv, {
+          'xaxis.range': [
+            formatAxisDate(window._globalMinTimeMs - pad),
+            formatAxisDate(window._globalMaxTimeMs + pad)
+          ],
+          'xaxis.autorange': false
+        }).then(() => {
+          updateVisibleKpis(null);
+          updatePanButtons(divId);
+        });
+      } else {
+        Plotly.relayout(plotDiv, {
+          'xaxis.autorange': true
+        }).then(() => {
+          updateVisibleKpis(null);
+          updatePanButtons(divId);
+        });
+      }
+    }
+
+    function exportPlotAsPng(divId, filename) {
+      const plotDiv = document.getElementById(divId);
+      if (!plotDiv) return;
+      Plotly.downloadImage(plotDiv, {
+        format: 'png',
+        width: 1200,
+        height: 400,
+        filename: filename || 'plot.png'
+      });
+    }
+
+    function updatePanButtons(divId) {
+      const plotDiv = document.getElementById(divId);
+      const prevBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', -1)"]`);
+      const nextBtn = document.querySelector(`button[onclick*="panTimelineWindow('${divId}', 1)"]`);
+      if (!plotDiv || !prevBtn || !nextBtn) return;
+      const rng = plotDiv._fullLayout && plotDiv._fullLayout.xaxis && plotDiv._fullLayout.xaxis.range;
+      if (!rng || rng.length < 2 || !window._globalMinTimeMs || !window._globalMaxTimeMs) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      let t0 = parseAxisTimeMs(rng[0]);
+      let t1 = parseAxisTimeMs(rng[1]);
+      if (isNaN(t0) || isNaN(t1)) return;
+      if (t0 > t1) { const tmp = t0; t0 = t1; t1 = tmp; }
+      const fullSpan = window._globalMaxTimeMs - window._globalMinTimeMs;
+      const currentSpan = t1 - t0;
+      if (currentSpan >= fullSpan - 60000) {
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.classList.add('disabled');
+        nextBtn.classList.add('disabled');
+        return;
+      }
+      const canPrev = t0 > (window._globalMinTimeMs + 60000);
+      const canNext = t1 < (window._globalMaxTimeMs - 60000);
+      prevBtn.disabled = !canPrev;
+      nextBtn.disabled = !canNext;
+      prevBtn.classList.toggle('disabled', !canPrev);
+      nextBtn.classList.toggle('disabled', !canNext);
+    }
+
+    const plotDivEl = document.getElementById('dataset-timeline-plot');
+    if (plotDivEl) {
+      plotDivEl.on('plotly_relayout', () => updatePanButtons('dataset-timeline-plot'));
+    }
+    setTimeout(() => updatePanButtons('dataset-timeline-plot'), 300);
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+      const newTheme = isDark ? 'light' : 'dark';
+      document.body.className = newTheme;
+      localStorage.setItem('cdaweb_theme', newTheme);
+      document.getElementById('theme-toggle').textContent = newTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+      renderPlot();
+    }
+
+    // Propagate URL query params (such as ?view for updog) to relative navigation links
+    (function() {
+      const q = window.location.search || (window.location.port ? '?view' : '');
+      if (q) {
+        document.querySelectorAll('a[href]').forEach(a => {
+          const href = a.getAttribute('href');
+          if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('mailto:') && !href.includes('?')) {
+            a.setAttribute('href', href + q);
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
