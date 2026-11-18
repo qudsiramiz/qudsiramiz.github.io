@@ -831,7 +831,7 @@
           treeData[sc][inst].forEach(d => {
             if (!selectedNames.has(d.name)) return;
 
-            let fileCount = 0;
+            let matchingIntervals = 0;
             let earliestMs = null;
             let latestMs = null;
             const clippedIntervals = [];
@@ -845,7 +845,7 @@
               const sClamped = startFilterMs ? Math.max(sMs, startFilterMs) : sMs;
               const eClamped = stopFilterMs ? Math.min(eMs, stopFilterMs) : eMs;
               if (eClamped > sClamped) {
-                fileCount++;
+                matchingIntervals++;
                 clippedIntervals.push([sClamped, eClamped]);
                 if (earliestMs === null || sClamped < earliestMs) earliestMs = sClamped;
                 if (latestMs === null || eClamped > latestMs) latestMs = eClamped;
@@ -859,11 +859,21 @@
             let displayPct = d.coverage_pct;
 
             if (startFilterMs || stopFilterMs) {
-              if (fileCount > 0 && earliestMs !== null && latestMs !== null) {
-                const spanMs = Math.max(86400000, latestMs - earliestMs);
-                displayPct = Math.min(100, (activeMs / spanMs) * 100);
-                displayCount = fileCount.toLocaleString();
-                displayTimeSpan = `${new Date(earliestMs).toISOString().split('T')[0]} &rarr; ${new Date(latestMs).toISOString().split('T')[0]}`;
+              if (matchingIntervals > 0 && earliestMs !== null && latestMs !== null) {
+                const dEarliestMs = parseDateMs(d.earliest);
+                const dLatestMs = parseDateMs(d.latest + ' 23:59:59');
+                const isFullCoverage = !isNaN(dEarliestMs) && !isNaN(dLatestMs) &&
+                                       (!startFilterMs || startFilterMs <= dEarliestMs) &&
+                                       (!stopFilterMs || stopFilterMs >= dLatestMs);
+                if (isFullCoverage) {
+                  displayPct = d.coverage_pct;
+                  displayTimeSpan = `${d.earliest} &rarr; ${d.latest}`;
+                } else {
+                  const spanMs = Math.max(86400000, latestMs - earliestMs);
+                  displayPct = Math.min(100, (activeMs / spanMs) * 100);
+                  displayTimeSpan = `${new Date(earliestMs).toISOString().split('T')[0]} &rarr; ${new Date(latestMs).toISOString().split('T')[0]}`;
+                }
+                displayCount = d.cdf_count.toLocaleString();
               } else {
                 displayPct = 0.0;
                 displayCount = "0";
