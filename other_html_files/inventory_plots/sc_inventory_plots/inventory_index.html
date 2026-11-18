@@ -1010,11 +1010,14 @@
           item.merged.forEach(interval => {
             const sTime = interval[0];
             const eTime = interval[1];
+            const durMs = Math.max(86400000, eTime - sTime);
+            const sDate = new Date(sTime).toISOString().split('T')[0];
+            const eDate = new Date(eTime).toISOString().split('T')[0];
             timelineData.y.push(item.key);
-            timelineData.x.push(Math.max(86400000, eTime - sTime));
+            timelineData.x.push(durMs);
             timelineData.base.push(new Date(sTime).toISOString());
             timelineData.colors.push(color);
-            timelineData.hovertext.push(`<b>${item.mission} → ${item.inst}</b><br>Active Datasets: ${dsetCount}<br>From: ${new Date(sTime).toISOString().split('T')[0]}<br>To: ${new Date(eTime).toISOString().split('T')[0]}<br><i>Click to display individual datasets</i>`);
+            timelineData.hovertext.push(`<b>${item.mission} → ${item.inst}</b><br>Active Datasets: ${item.dsetCount}<br>From: ${sDate}<br>To: ${eDate}<br><i>Click to display individual datasets</i>`);
           });
         });
       } else {
